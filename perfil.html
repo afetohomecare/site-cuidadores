@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Perfil Profissional - Afeto Homecare</title>
     
+    <meta property="og:type" content="profile">
+    <meta property="og:title" content="Conheça essa profissional - Afeto Homecare">
+    <meta property="og:description" content="Profissional verificada e avaliada por famílias reais. Veja o perfil completo.">
+    <meta property="og:image" content="https://afetocuidadores.pages.dev/og-perfil.jpg">
+    <meta property="og:url" content="https://afetocuidadores.pages.dev/perfil.html">
+    <meta name="twitter:card" content="summary_large_image">
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://api.airtable.com">
@@ -189,7 +196,6 @@
         const params = new URLSearchParams(window.location.search);
         const recordId = params.get('id');
 
-        // OTIMIZAÇÃO: Redimensiona fotos do Airtable
         function resizeAirtablePhoto(url, width, height) {
             if (!url) return '';
             const separator = url.includes('?') ? '&' : '?';
@@ -217,7 +223,6 @@
                     const precoBase = parseFloat(f.Preco) || 0;
                     const horasNum = parseInt(f.Horas) || 0;
                     
-                    // Foto redimensionada para 600x800 (retina quality)
                     let fotoHTML = '<i class="fa-solid fa-user"></i>';
                     if (f.Foto && f.Foto.length > 0) { 
                         const fotoOtimizada = resizeAirtablePhoto(f.Foto[0].url, 600, 800);
@@ -272,7 +277,6 @@
                         `;
                     }
 
-                    // Turno pill
                     let turnoHTML = '';
                     if (f.Turno) {
                         const t = f.Turno.toLowerCase();
@@ -288,7 +292,6 @@
                     let notaTexto = f.Nota || "5.0";
                     const linkAtual = encodeURIComponent(window.location.href);
 
-                    // Linha de Horas/Status
                     let linhaHorasHTML = '';
                     if (horasNum >= 24) {
                         linhaHorasHTML = `
@@ -306,12 +309,11 @@
                         `;
                     }
 
-                    // ========= CÓDIGO INTERNO DA REFERÊNCIA =========
+                    // CÓDIGO INTERNO DA REFERÊNCIA
                     const iniciais = (f.Nome || "XX").split(' ').filter(p => p.length > 0).map(p => p[0]).slice(0, 2).join('').toUpperCase();
                     const precoFamilia = Math.ceil(precoBase * 1.15);
                     const codigoRef = `${iniciais}-${precoFamilia}`;
                     const mensagemWpp = `Olá! Vi o perfil de *${f.Nome}* na Afeto e gostaria de conversar sobre contratação.%0A%0A🔖 Ref: %23${codigoRef}%0A📍 ${f.Bairro || 'Curitiba'}%0A%0A📌 Perfil: ${linkAtual}`;
-                    // ========= FIM CÓDIGO INTERNO =========
 
                     container.innerHTML = `
                         <div class="foto-perfil-container">

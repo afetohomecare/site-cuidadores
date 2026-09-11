@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Para Cuidadores - Afeto Homecare</title>
     
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Para Cuidadores - Afeto Homecare">
+    <meta property="og:description" content="Plataforma que valoriza o seu cuidado. Receba sem descontos.">
+    <meta property="og:image" content="https://afetocuidadores.pages.dev/og-cuidadoras.jpg">
+    <meta property="og:url" content="https://afetocuidadores.pages.dev">
+    <meta name="twitter:card" content="summary_large_image">
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://api.airtable.com">
@@ -220,31 +227,11 @@
         .stars-diamante .nota-numero { font-size: 18px !important; color: #0284c7 !important; }
         .meta-diamante { font-size: 16px !important; font-weight: 800 !important; color: var(--preto-fonte) !important; }
 
-        /* BOTÃO ROXO GRANDE - VER PERFIL COMPLETO */
-        .btn-card-acao {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-            background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro));
-            color: var(--branco);
-            padding: 14px;
-            border-radius: 50px;
-            font-weight: 900;
-            font-size: 14px;
-            text-decoration: none;
-            transition: 0.3s;
-            box-shadow: 0 8px 20px rgba(139, 92, 246, 0.25);
-            margin-top: auto;
-            font-family: 'Nunito', sans-serif;
-            cursor: pointer;
-            border: none;
-        }
-        .btn-card-acao:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 28px rgba(139, 92, 246, 0.4);
-        }
+        .cuidador-preco { width: 100%; border-top: 1px solid rgba(0,0,0,0.04); padding-top: 15px; margin-top: auto; margin-bottom: 15px; font-size: 14px; font-weight: 700; color: var(--cinza-fonte); display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 2px; }
+        .cuidador-preco strong { font-size: 24px; color: var(--lilas-escuro); font-weight: 900; }
+        
+        .btn-ver-perfil { text-align: center; color: var(--lilas); font-weight: 800; font-size: 15px; transition: 0.3s; }
+        .cuidador-card:hover .btn-ver-perfil { color: var(--lilas-escuro); transform: translateX(5px); }
         
         .loader { text-align: center; padding: 50px; font-size: 18px; font-weight: bold; color: var(--lilas); width: 100%; }
         .btn-wpp { position: fixed; bottom: 30px; right: 30px; z-index: 999; background: var(--verde-whatsapp); color: white; width: 70px; height: 70px; border-radius: 24px; display: flex; justify-content: center; align-items: center; font-size: 38px; box-shadow: 0 15px 30px rgba(37, 211, 102, 0.35); animation: pulse-green 2s infinite; transition: 0.3s; }
@@ -556,14 +543,12 @@
         const BASE_ID = 'apphAWeT91l1dMWM5'; 
         const TABLE_NAME = 'Cuidadores';
 
-        // OTIMIZAÇÃO: Redimensiona fotos do Airtable
         function resizeAirtablePhoto(url, width, height) {
             if (!url) return '';
             const separator = url.includes('?') ? '&' : '?';
             return `${url}${separator}width=${width}&height=${height}&fit=cover`;
         }
 
-        // ========= RENDERIZADOR DE CARD (separado para facilitar paginação futura) =========
         function renderizarCard(record) {
             const f = record.fields;
             const nome = f.Nome || "Sem nome";
@@ -571,7 +556,6 @@
             const bairro = f.Bairro || "Curitiba";
             const precoBase = parseFloat(f.Preco) || 0;
             
-            // Foto redimensionada para 300x300
             let fotoHTML = '<i class="fa-solid fa-user"></i>';
             if (f.Foto && f.Foto.length > 0) { 
                 const fotoOtimizada = resizeAirtablePhoto(f.Foto[0].url, 300, 300);
@@ -644,7 +628,7 @@
                             <span>Repasse por plantão 12h:</span>
                             <strong>R$ ${precoBase}</strong>
                         </div>
-                        <button class="btn-card-acao">
+                        <button class="btn-card-acao" style="width:100%; display:flex; justify-content:center; align-items:center; gap:8px; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: var(--branco); padding: 14px; border-radius: 50px; font-weight: 900; font-size: 14px; border: none; cursor: pointer; font-family: 'Nunito', sans-serif; box-shadow: 0 8px 20px rgba(139, 92, 246, 0.25); margin-top: 0;">
                             <i class="fa-solid fa-user"></i> Ver Perfil Completo
                         </button>
                     </div>
@@ -663,12 +647,9 @@
                 
                 if(data.records) {
                     grid.innerHTML = '';
-                    
-                    // ========= PREPARAÇÃO PARA PAGINAÇÃO FUTURA =========
                     data.records.forEach(record => {
                         grid.innerHTML += renderizarCard(record);
                     });
-                    // ========= FIM PREPARAÇÃO PAGINAÇÃO =========
                 }
             } catch (error) { grid.innerHTML = '<div class="loader" style="color:red;">Erro ao carregar profissionais.</div>'; }
         }
