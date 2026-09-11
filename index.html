@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Para Cuidadores - Afeto Homecare</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://api.airtable.com">
+    <link rel="preconnect" href="https://v5.airtableusercontent.com">
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -140,11 +147,10 @@
         .badge-coren { background: #eef2ff; color: #4338ca; border: 1px solid #c7d2fe; }
         
         .badge-bronze { background: #fff7ed; color: #b45309; border: 1px solid #fed7aa; }
-        .badge-prata { background: #f8fafc; color: #475569; border: 1px solid #cbd5e1; }
+        .badge-prata { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
         .badge-ouro { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
         .badge-diamante { background: #f0f9ff; color: #0284c7; border: 1px solid #bae6fd; }
         
-        /* Selo especial de Novidade */
         .badge-novidade { 
             background: linear-gradient(135deg, #f5f3ff, #ede9fe); 
             color: var(--lilas-escuro); 
@@ -159,10 +165,8 @@
             top: 50%; 
             right: 7px;
             transform: translateY(-50%);
-            width: 7px; 
-            height: 7px; 
-            background: var(--ouro); 
-            border-radius: 50%; 
+            width: 7px; height: 7px; 
+            background: var(--ouro); border-radius: 50%; 
             box-shadow: 0 0 8px rgba(251, 191, 36, 0.9);
             animation: pulsar-novidade 1.8s infinite;
         }
@@ -171,10 +175,8 @@
             50% { opacity: 0.4; transform: translateY(-50%) scale(1.4); } 
         }
 
-        /* Indicador de online verde */
         .luz-online {
-            width: 7px;
-            height: 7px;
+            width: 7px; height: 7px;
             background: var(--verde-online);
             border-radius: 50%;
             display: inline-block;
@@ -191,21 +193,58 @@
 
         .cuidador-nome { font-size: 22px; font-weight: 900; margin-bottom: 8px; color: var(--preto-fonte); letter-spacing: -0.5px; }
         
-        .cuidador-stars { color: var(--ouro); font-size: 16px; letter-spacing: 2px; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 900;}
+        .cuidador-stars { color: var(--ouro); font-size: 16px; letter-spacing: 2px; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 900; min-height: 20px;}
         .nota-numero { font-size: 15px; font-weight: 900; color: var(--preto-fonte); letter-spacing: 0; }
         
-        .cuidador-tag { color: var(--lilas); font-size: 15px; font-weight: 800; margin-bottom: 5px; }
+        .cuidador-tag { color: var(--lilas); font-size: 15px; font-weight: 800; margin-bottom: 8px; }
+        
+        .turno-pill {
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            margin-bottom: 12px;
+        }
+        .turno-diurno { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
+        .turno-noturno { background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; }
+        .turno-integral { background: #f5f3ff; color: #7c3aed; border: 1px solid #ddd6fe; }
+        
         .cuidador-meta { font-size: 14px; color: var(--cinza-fonte); margin-bottom: 20px; font-weight: 600; }
         
         .stars-diamante { font-size: 20px !important; }
         .stars-diamante .nota-numero { font-size: 18px !important; color: #0284c7 !important; }
         .meta-diamante { font-size: 16px !important; font-weight: 800 !important; color: var(--preto-fonte) !important; }
 
-        .cuidador-preco { width: 100%; border-top: 1px solid rgba(0,0,0,0.04); padding-top: 15px; margin-top: auto; margin-bottom: 15px; font-size: 14px; font-weight: 700; color: var(--cinza-fonte); display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 2px; }
-        .cuidador-preco strong { font-size: 24px; color: var(--lilas-escuro); font-weight: 900; }
-        
-        .btn-ver-perfil { text-align: center; color: var(--lilas); font-weight: 800; font-size: 15px; transition: 0.3s; }
-        .cuidador-card:hover .btn-ver-perfil { color: var(--lilas-escuro); transform: translateX(5px); }
+        /* BOTÃO ROXO GRANDE - VER PERFIL COMPLETO */
+        .btn-card-acao {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro));
+            color: var(--branco);
+            padding: 14px;
+            border-radius: 50px;
+            font-weight: 900;
+            font-size: 14px;
+            text-decoration: none;
+            transition: 0.3s;
+            box-shadow: 0 8px 20px rgba(139, 92, 246, 0.25);
+            margin-top: auto;
+            font-family: 'Nunito', sans-serif;
+            cursor: pointer;
+            border: none;
+        }
+        .btn-card-acao:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(139, 92, 246, 0.4);
+        }
         
         .loader { text-align: center; padding: 50px; font-size: 18px; font-weight: bold; color: var(--lilas); width: 100%; }
         .btn-wpp { position: fixed; bottom: 30px; right: 30px; z-index: 999; background: var(--verde-whatsapp); color: white; width: 70px; height: 70px; border-radius: 24px; display: flex; justify-content: center; align-items: center; font-size: 38px; box-shadow: 0 15px 30px rgba(37, 211, 102, 0.35); animation: pulse-green 2s infinite; transition: 0.3s; }
@@ -215,10 +254,13 @@
         .site-footer { background-color: var(--fundo-site); color: var(--cinza-fonte); padding: 50px 20px 30px; text-align: center; border-top: 1px solid #e2e8f0; margin-top: 60px; }
         .footer-content { max-width: 900px; margin: 0 auto; font-size: 13px; line-height: 1.6; }
         .footer-content p { margin-bottom: 25px; }
+        .footer-aviso { font-size: 11px; color: var(--cinza-azulado); font-weight: 600; line-height: 1.5; font-style: italic; padding: 0 20px; }
+        .footer-social { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; }
+        .footer-social a { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; display: flex; justify-content: center; align-items: center; font-size: 22px; transition: 0.3s; text-decoration: none; box-shadow: 0 8px 20px rgba(139, 92, 246, 0.25); }
+        .footer-social a:hover { transform: translateY(-4px) scale(1.08); box-shadow: 0 12px 28px rgba(139, 92, 246, 0.45); }
         .footer-links { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-bottom: 20px; }
         .footer-links a { color: var(--lilas-escuro); font-weight: 800; font-size: 14px; transition: 0.3s; }
         .footer-links a:hover { color: var(--lilas); text-decoration: underline; }
-        .footer-legal { font-size: 11px; color: var(--cinza-azulado); border-top: 1px solid #e2e8f0; padding-top: 20px; }
 
         @media (max-width: 900px) {
             .hero { margin: 80px 15px 30px 15px; width: calc(100% - 30px); padding: 50px 20px; border-radius: 35px; }
@@ -446,13 +488,16 @@
 
     <footer class="site-footer">
         <div class="footer-content">
+            <p class="footer-aviso">A Afeto é uma plataforma de divulgação e conexão. Não prestamos serviços de saúde ou cuidado. As informações, valores e disponibilidades apresentados nos perfis são de responsabilidade das profissionais autônomas cadastradas.</p>
             <p>A Afeto é uma plataforma digital que aproxima famílias de cuidadores de excelência. Nosso papel é fornecer a melhor tecnologia em marketing e segurança de pagamentos para profissionais autônomos. Cada cuidador parceiro atua de forma independente, utilizando nossa vitrine para expandir sua base de clientes, definindo seus próprios horários e repasses com 100% de autonomia.</p>
+            <div class="footer-social">
+                <a href="https://www.instagram.com/afetohomecareoficial" target="_blank" aria-label="Instagram Afeto Homecare">
+                    <i class="fa-brands fa-instagram"></i>
+                </a>
+            </div>
             <div class="footer-links">
                 <a href="termos.html">Termos de Uso</a>
                 <a href="privacidade.html">Política de Privacidade</a>
-            </div>
-            <div class="footer-legal">
-                Afeto Homecare — CNPJ: 64.215.069/0001-15 &copy; Todos os direitos reservados.
             </div>
         </div>
     </footer>
@@ -511,6 +556,102 @@
         const BASE_ID = 'apphAWeT91l1dMWM5'; 
         const TABLE_NAME = 'Cuidadores';
 
+        // OTIMIZAÇÃO: Redimensiona fotos do Airtable
+        function resizeAirtablePhoto(url, width, height) {
+            if (!url) return '';
+            const separator = url.includes('?') ? '&' : '?';
+            return `${url}${separator}width=${width}&height=${height}&fit=cover`;
+        }
+
+        // ========= RENDERIZADOR DE CARD (separado para facilitar paginação futura) =========
+        function renderizarCard(record) {
+            const f = record.fields;
+            const nome = f.Nome || "Sem nome";
+            const especialidade = f.Especialidade || "Cuidador(a)";
+            const bairro = f.Bairro || "Curitiba";
+            const precoBase = parseFloat(f.Preco) || 0;
+            
+            // Foto redimensionada para 300x300
+            let fotoHTML = '<i class="fa-solid fa-user"></i>';
+            if (f.Foto && f.Foto.length > 0) { 
+                const fotoOtimizada = resizeAirtablePhoto(f.Foto[0].url, 300, 300);
+                fotoHTML = `<img src="${fotoOtimizada}" alt="${nome}" loading="lazy" decoding="async" width="130" height="130">`; 
+            }
+
+            let seloCategoria = '';
+            let cardClassAdd = '';
+            let anelClassAdd = '';
+            let isDiamante = false;
+            
+            if (f.Categoria) {
+                const catText = f.Categoria.toLowerCase();
+                if (catText.includes('diamante')) { cardClassAdd = 'card-diamante'; anelClassAdd = 'anel-diamante'; seloCategoria = `<span class="cuidador-badge badge-diamante"><i class="fa-solid fa-award"></i> Diamante</span>`; isDiamante = true; } 
+                else if (catText.includes('ouro')) { cardClassAdd = 'card-ouro'; anelClassAdd = 'anel-ouro'; seloCategoria = `<span class="cuidador-badge badge-ouro"><i class="fa-solid fa-award"></i> Ouro</span>`; } 
+                else if (catText.includes('prata')) { cardClassAdd = 'card-prata'; anelClassAdd = 'anel-prata'; seloCategoria = `<span class="cuidador-badge badge-prata"><i class="fa-solid fa-award"></i> Prata</span>`; } 
+                else if (catText.includes('bronze')) { cardClassAdd = 'card-bronze'; anelClassAdd = 'anel-bronze'; seloCategoria = `<span class="cuidador-badge badge-bronze"><i class="fa-solid fa-award"></i> Bronze</span>`; }
+                else { cardClassAdd = ''; anelClassAdd = ''; seloCategoria = `<span class="cuidador-badge badge-novidade"><i class="fa-solid fa-sparkles"></i> Novidade na Afeto</span>`; }
+            } else { 
+                cardClassAdd = ''; anelClassAdd = ''; seloCategoria = `<span class="cuidador-badge badge-novidade"><i class="fa-solid fa-sparkles"></i> Novidade na Afeto</span>`;
+            }
+
+            const seloVerificada = f.Verificada ? `<span class="cuidador-badge badge-verificada"><i class="fa-solid fa-check"></i> Verificada</span>` : '';
+            const seloCoren = f.COREN ? `<span class="cuidador-badge badge-coren"><i class="fa-solid fa-id-card"></i> COREN</span>` : '';
+
+            let estrelasHTML = '';
+            let notaValor = parseFloat(f.Nota);
+            if (!isNaN(notaValor) && notaValor > 0) {
+                let qtdCheias = Math.round(notaValor);
+                if (qtdCheias > 5) qtdCheias = 5;
+                let estrelasStr = '★'.repeat(qtdCheias) + '☆'.repeat(5 - qtdCheias);
+                estrelasHTML = `<span style="display: flex; gap: 2px;">${estrelasStr}</span> <span class="nota-numero" style="margin-left: 5px;">${notaValor.toFixed(1)}</span>`;
+            }
+
+            let turnoHTML = '';
+            if (f.Turno) {
+                const t = f.Turno.toLowerCase();
+                if (t.includes('diurno e noturno') || t.includes('integral') || t.includes('24')) {
+                    turnoHTML = `<span class="turno-pill turno-integral"><i class="fa-solid fa-sun"></i> <i class="fa-solid fa-moon"></i> Diurno e Noturno</span>`;
+                } else if (t.includes('noturno')) {
+                    turnoHTML = `<span class="turno-pill turno-noturno"><i class="fa-solid fa-moon"></i> Noturno</span>`;
+                } else if (t.includes('diurno')) {
+                    turnoHTML = `<span class="turno-pill turno-diurno"><i class="fa-solid fa-sun"></i> Diurno</span>`;
+                }
+            }
+
+            let horasAfeto = parseInt(f.Horas) || 0;
+            let displayHoras = "";
+            if (horasAfeto >= 24) {
+                displayHoras = `<span class="cuidador-meta ${isDiamante ? 'meta-diamante' : ''}">${bairro} • ${horasAfeto}h de afeto</span>`;
+            } else {
+                displayHoras = `<span class="cuidador-meta ${isDiamante ? 'meta-diamante' : ''}">${bairro} • <span class="texto-disponivel"><span class="luz-online"></span>Disponível</span></span>`;
+            }
+
+            return `
+                <div class="cuidador-card ${cardClassAdd}" onclick="window.location.href='perfil.html?id=${record.id}'" style="cursor:pointer;">
+                    <div class="card-top">
+                        <div class="foto-anel ${anelClassAdd}">
+                            ${fotoHTML}
+                        </div>
+                    </div>
+                    <div class="cuidador-info">
+                        <div class="badges-container">${seloCategoria}${seloVerificada}${seloCoren}</div>
+                        <h3 class="cuidador-nome">${nome}</h3>
+                        <div class="cuidador-stars ${isDiamante ? 'stars-diamante' : ''}">${estrelasHTML}</div>
+                        <span class="cuidador-tag">${especialidade}</span>
+                        ${turnoHTML}
+                        ${displayHoras}
+                        <div class="cuidador-preco">
+                            <span>Repasse por plantão 12h:</span>
+                            <strong>R$ ${precoBase}</strong>
+                        </div>
+                        <button class="btn-card-acao">
+                            <i class="fa-solid fa-user"></i> Ver Perfil Completo
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
         async function carregarCuidadores() {
             const grid = document.getElementById('cuidadores-grid');
             if(!grid) return;
@@ -522,78 +663,12 @@
                 
                 if(data.records) {
                     grid.innerHTML = '';
+                    
+                    // ========= PREPARAÇÃO PARA PAGINAÇÃO FUTURA =========
                     data.records.forEach(record => {
-                        const f = record.fields;
-                        const nome = f.Nome || "Sem nome";
-                        const especialidade = f.Especialidade || "Cuidador(a)";
-                        const bairro = f.Bairro || "Curitiba";
-                        const precoBase = parseFloat(f.Preco) || 0;
-                        const precoFinal = Math.ceil(precoBase * 1.15);
-                        
-                        let fotoHTML = '<i class="fa-solid fa-user"></i>';
-                        if (f.Foto && f.Foto.length > 0) { fotoHTML = `<img src="${f.Foto[0].url}" alt="${nome}">`; }
-
-                        // LÓGICA DE CATEGORIA
-                        let seloCategoria = '';
-                        let cardClassAdd = '';
-                        let anelClassAdd = '';
-                        let isDiamante = false;
-                        
-                        if (f.Categoria) {
-                            const catText = f.Categoria.toLowerCase();
-                            if (catText.includes('diamante')) { cardClassAdd = 'card-diamante'; anelClassAdd = 'anel-diamante'; seloCategoria = `<span class="cuidador-badge badge-diamante"><i class="fa-solid fa-certificate"></i> Diamante</span>`; isDiamante = true; } 
-                            else if (catText.includes('ouro')) { cardClassAdd = 'card-ouro'; anelClassAdd = 'anel-ouro'; seloCategoria = `<span class="cuidador-badge badge-ouro"><i class="fa-solid fa-shield-heart"></i> Ouro</span>`; } 
-                            else if (catText.includes('prata')) { cardClassAdd = 'card-prata'; anelClassAdd = 'anel-prata'; seloCategoria = `<span class="cuidador-badge badge-prata">⭐ Prata</span>`; } 
-                            else if (catText.includes('bronze')) { cardClassAdd = 'card-bronze'; anelClassAdd = 'anel-bronze'; seloCategoria = `<span class="cuidador-badge badge-bronze">🥉 Bronze</span>`; }
-                            else { cardClassAdd = ''; anelClassAdd = ''; seloCategoria = `<span class="cuidador-badge badge-novidade"><i class="fa-solid fa-sparkles"></i> Novidade na Afeto</span>`; }
-                        } else { 
-                            cardClassAdd = ''; anelClassAdd = ''; seloCategoria = `<span class="cuidador-badge badge-novidade"><i class="fa-solid fa-sparkles"></i> Novidade na Afeto</span>`;
-                        }
-
-                        const seloVerificada = f.Verificada ? `<span class="cuidador-badge badge-verificada"><i class="fa-solid fa-check"></i> Verificada</span>` : '';
-                        const seloCoren = f.COREN ? `<span class="cuidador-badge badge-coren"><i class="fa-solid fa-id-card"></i> COREN</span>` : '';
-
-                        let estrelasHTML = '';
-                        let notaValor = parseFloat(f.Nota);
-                        if (!isNaN(notaValor) && notaValor > 0) {
-                            let qtdCheias = Math.round(notaValor);
-                            if (qtdCheias > 5) qtdCheias = 5;
-                            let estrelasStr = '★'.repeat(qtdCheias) + '☆'.repeat(5 - qtdCheias);
-                            estrelasHTML = `<span style="display: flex; gap: 2px;">${estrelasStr}</span> <span class="nota-numero" style="margin-left: 5px;">${notaValor.toFixed(1)}</span>`;
-                        } else { estrelasHTML = `<span style="font-size: 13px; color: var(--cinza-fonte); font-weight: 700;">Ainda não avaliada</span>`; }
-
-                        // Linha de meta: Xh de afeto se >= 24h, senão Disponível com luz verde
-                        let horasAfeto = parseInt(f.Horas) || 0;
-                        let displayHoras = "";
-                        if (horasAfeto >= 24) {
-                            displayHoras = `<span class="cuidador-meta ${isDiamante ? 'meta-diamante' : ''}">${bairro} • ${horasAfeto}h de afeto</span>`;
-                        } else {
-                            displayHoras = `<span class="cuidador-meta ${isDiamante ? 'meta-diamante' : ''}">${bairro} • <span class="texto-disponivel"><span class="luz-online"></span>Disponível</span></span>`;
-                        }
-
-                        const cardHTML = `
-                            <a href="perfil.html?id=${record.id}" class="cuidador-card ${cardClassAdd}">
-                                <div class="card-top">
-                                    <div class="foto-anel ${anelClassAdd}">
-                                        ${fotoHTML}
-                                    </div>
-                                </div>
-                                <div class="cuidador-info">
-                                    <div class="badges-container">${seloCategoria}${seloVerificada}${seloCoren}</div>
-                                    <h3 class="cuidador-nome">${nome}</h3>
-                                    <div class="cuidador-stars ${isDiamante ? 'stars-diamante' : ''}">${estrelasHTML}</div>
-                                    <span class="cuidador-tag">${especialidade}</span>
-                                    ${displayHoras}
-                                    <div class="cuidador-preco">
-                                        <span>Preço por plantão 12h:</span>
-                                        <strong>R$ ${precoFinal}</strong>
-                                    </div>
-                                    <div class="btn-ver-perfil">Ver perfil completo <i class="fa-solid fa-arrow-right"></i></div>
-                                </div>
-                            </a>
-                        `;
-                        grid.innerHTML += cardHTML;
+                        grid.innerHTML += renderizarCard(record);
                     });
+                    // ========= FIM PREPARAÇÃO PAGINAÇÃO =========
                 }
             } catch (error) { grid.innerHTML = '<div class="loader" style="color:red;">Erro ao carregar profissionais.</div>'; }
         }

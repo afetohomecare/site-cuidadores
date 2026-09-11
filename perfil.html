@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Perfil Profissional - Afeto Homecare</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://api.airtable.com">
+    <link rel="preconnect" href="https://v5.airtableusercontent.com">
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -51,7 +58,7 @@
         .badge-coren { background: #eef2ff; color: #4338ca; border: 1px solid #c7d2fe; }
         
         .badge-bronze { background: #fff7ed; color: #b45309; border: 1px solid #fed7aa; }
-        .badge-prata { background: #f8fafc; color: #475569; border: 1px solid #cbd5e1; }
+        .badge-prata { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
         .badge-ouro { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
         .badge-diamante { background: #f0f9ff; color: #0284c7; border: 1px solid #bae6fd; }
         
@@ -69,10 +76,8 @@
             top: 50%; 
             right: 7px;
             transform: translateY(-50%);
-            width: 7px; 
-            height: 7px; 
-            background: var(--ouro); 
-            border-radius: 50%; 
+            width: 7px; height: 7px; 
+            background: var(--ouro); border-radius: 50%; 
             box-shadow: 0 0 8px rgba(251, 191, 36, 0.9);
             animation: pulsar-novidade 1.8s infinite;
         }
@@ -84,10 +89,37 @@
         .perfil-corpo { padding: 0 35px 35px 35px; }
         .nome-profissional { font-size: 28px; font-weight: 900; margin-bottom: 5px; text-align: center; color: var(--preto-fonte); letter-spacing: -0.5px; }
         
-        .tag-profissional { font-weight: 800; color: var(--lilas); font-size: 16px; margin-bottom: 25px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; }
+        .tag-profissional { font-weight: 800; color: var(--lilas); font-size: 16px; margin-bottom: 20px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; }
         .tag-bairro { color: var(--cinza-fonte); font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 5px; }
 
-        /* Indicador de "Disponível" com luzinha verde */
+        .turno-pill {
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            margin-bottom: 25px;
+        }
+        .turno-diurno { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
+        .turno-noturno { background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; }
+        .turno-integral { background: #f5f3ff; color: #7c3aed; border: 1px solid #ddd6fe; }
+
+        .bio-box { background: #ffffff; border-left: 4px solid var(--lilas); padding: 20px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.02); }
+        .bio-box h4 { font-size: 15px; color: var(--lilas-escuro); margin-bottom: 8px; font-weight: 800; display:flex; gap: 8px; align-items: center;}
+        .bio-box p { font-size: 15px; color: var(--cinza-fonte); line-height: 1.6; font-weight: 600; margin: 0; }
+
+        .experiencia-container { margin-bottom: 25px; }
+        .experiencia-titulo { font-size: 15px; font-weight: 800; color: var(--preto-fonte); margin-bottom: 10px; }
+        .tags-exp { display: flex; gap: 8px; flex-wrap: wrap; }
+        .tag-exp { background: #f5f3ff; color: var(--lilas-escuro); border: 1px solid #ddd6fe; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 800; }
+
+        .info-linha { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size: 16px; border-bottom: 1px solid rgba(0,0,0,0.04); padding-bottom: 12px; }
+        .info-linha span { color: var(--cinza-fonte); font-weight: 700; font-size: 15px;}
+        
         .tag-disponivel { 
             color: var(--verde-online); 
             font-weight: 800; 
@@ -109,18 +141,6 @@
             0%, 100% { opacity: 1; transform: scale(1); } 
             50% { opacity: 0.5; transform: scale(1.4); } 
         }
-
-        .bio-box { background: #ffffff; border-left: 4px solid var(--lilas); padding: 20px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.02); }
-        .bio-box h4 { font-size: 15px; color: var(--lilas-escuro); margin-bottom: 8px; font-weight: 800; display:flex; gap: 8px; align-items: center;}
-        .bio-box p { font-size: 15px; color: var(--cinza-fonte); line-height: 1.6; font-weight: 600; margin: 0; }
-
-        .experiencia-container { margin-bottom: 25px; }
-        .experiencia-titulo { font-size: 15px; font-weight: 800; color: var(--preto-fonte); margin-bottom: 10px; }
-        .tags-exp { display: flex; gap: 8px; flex-wrap: wrap; }
-        .tag-exp { background: #f5f3ff; color: var(--lilas-escuro); border: 1px solid #ddd6fe; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 800; }
-
-        .info-linha { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size: 16px; border-bottom: 1px solid rgba(0,0,0,0.04); padding-bottom: 12px; }
-        .info-linha span { color: var(--cinza-fonte); font-weight: 700; font-size: 15px;}
         
         .comentarios-secao { margin-top: 30px; border-top: 1px solid rgba(0,0,0,0.04); padding-top: 25px; }
         .comentarios-titulo { font-size: 16px; font-weight: 900; color: var(--preto-fonte); margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
@@ -139,10 +159,13 @@
         .site-footer { background-color: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); color: var(--cinza-fonte); padding: 40px 20px; text-align: center; border-top: 1px solid #e2e8f0; width: 100%; margin-top: auto; }
         .footer-content { max-width: 900px; margin: 0 auto; font-size: 13px; line-height: 1.6; }
         .footer-content p { margin-bottom: 25px; }
+        .footer-aviso { font-size: 11px; color: var(--cinza-azulado); font-weight: 600; line-height: 1.5; font-style: italic; padding: 0 20px; }
+        .footer-social { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; }
+        .footer-social a { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; display: flex; justify-content: center; align-items: center; font-size: 22px; transition: 0.3s; text-decoration: none; box-shadow: 0 8px 20px rgba(139, 92, 246, 0.25); }
+        .footer-social a:hover { transform: translateY(-4px) scale(1.08); box-shadow: 0 12px 28px rgba(139, 92, 246, 0.45); }
         .footer-links { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-bottom: 20px; }
         .footer-links a { color: var(--lilas-escuro); font-weight: 800; font-size: 14px; transition: 0.3s; text-decoration: none;}
         .footer-links a:hover { color: var(--lilas); text-decoration: underline; }
-        .footer-legal { font-size: 11px; color: var(--cinza-azulado); border-top: 1px solid #e2e8f0; padding-top: 20px; }
     </style>
 </head>
 <body>
@@ -166,6 +189,13 @@
         const params = new URLSearchParams(window.location.search);
         const recordId = params.get('id');
 
+        // OTIMIZAÇÃO: Redimensiona fotos do Airtable
+        function resizeAirtablePhoto(url, width, height) {
+            if (!url) return '';
+            const separator = url.includes('?') ? '&' : '?';
+            return `${url}${separator}width=${width}&height=${height}&fit=cover`;
+        }
+
         async function carregarPerfil() {
             const container = document.getElementById('cardPerfil');
 
@@ -185,21 +215,24 @@
                     
                     const wppAgencia = f.WhatsAppAgencia || "5541997674866";
                     const precoBase = parseFloat(f.Preco) || 0;
-                    const precoFinal = Math.ceil(precoBase * 1.15);
                     const horasNum = parseInt(f.Horas) || 0;
                     
+                    // Foto redimensionada para 600x800 (retina quality)
                     let fotoHTML = '<i class="fa-solid fa-user"></i>';
-                    if (f.Foto && f.Foto.length > 0) { fotoHTML = `<img src="${f.Foto[0].url}" alt="${f.Nome}">`; }
+                    if (f.Foto && f.Foto.length > 0) { 
+                        const fotoOtimizada = resizeAirtablePhoto(f.Foto[0].url, 600, 800);
+                        fotoHTML = `<img src="${fotoOtimizada}" alt="${f.Nome}" loading="lazy" decoding="async">`; 
+                    }
 
                     let seloCategoria = '';
                     let cardClassAdd = 'card-padrao';
                     
                     if (f.Categoria) {
                         const catText = f.Categoria.toLowerCase();
-                        if (catText.includes('diamante')) { cardClassAdd = 'card-diamante'; seloCategoria = `<span class="cuidador-badge badge-diamante"><i class="fa-solid fa-certificate"></i> Diamante</span>`; } 
-                        else if (catText.includes('ouro')) { cardClassAdd = 'card-ouro'; seloCategoria = `<span class="cuidador-badge badge-ouro"><i class="fa-solid fa-shield-heart"></i> Ouro</span>`; } 
-                        else if (catText.includes('prata')) { cardClassAdd = 'card-prata'; seloCategoria = `<span class="cuidador-badge badge-prata">⭐ Prata</span>`; } 
-                        else if (catText.includes('bronze')) { cardClassAdd = 'card-bronze'; seloCategoria = `<span class="cuidador-badge badge-bronze">🥉 Bronze</span>`; }
+                        if (catText.includes('diamante')) { cardClassAdd = 'card-diamante'; seloCategoria = `<span class="cuidador-badge badge-diamante"><i class="fa-solid fa-award"></i> Diamante</span>`; } 
+                        else if (catText.includes('ouro')) { cardClassAdd = 'card-ouro'; seloCategoria = `<span class="cuidador-badge badge-ouro"><i class="fa-solid fa-award"></i> Ouro</span>`; } 
+                        else if (catText.includes('prata')) { cardClassAdd = 'card-prata'; seloCategoria = `<span class="cuidador-badge badge-prata"><i class="fa-solid fa-award"></i> Prata</span>`; } 
+                        else if (catText.includes('bronze')) { cardClassAdd = 'card-bronze'; seloCategoria = `<span class="cuidador-badge badge-bronze"><i class="fa-solid fa-award"></i> Bronze</span>`; }
                         else { seloCategoria = `<span class="cuidador-badge badge-novidade"><i class="fa-solid fa-sparkles"></i> Novidade na Afeto</span>`; }
                     } else {
                         seloCategoria = `<span class="cuidador-badge badge-novidade"><i class="fa-solid fa-sparkles"></i> Novidade na Afeto</span>`;
@@ -239,11 +272,23 @@
                         `;
                     }
 
+                    // Turno pill
+                    let turnoHTML = '';
+                    if (f.Turno) {
+                        const t = f.Turno.toLowerCase();
+                        if (t.includes('diurno e noturno') || t.includes('integral') || t.includes('24')) {
+                            turnoHTML = `<span class="turno-pill turno-integral"><i class="fa-solid fa-sun"></i> <i class="fa-solid fa-moon"></i> Diurno e Noturno</span>`;
+                        } else if (t.includes('noturno')) {
+                            turnoHTML = `<span class="turno-pill turno-noturno"><i class="fa-solid fa-moon"></i> Noturno</span>`;
+                        } else if (t.includes('diurno')) {
+                            turnoHTML = `<span class="turno-pill turno-diurno"><i class="fa-solid fa-sun"></i> Diurno</span>`;
+                        }
+                    }
+
                     let notaTexto = f.Nota || "5.0";
                     const linkAtual = encodeURIComponent(window.location.href);
 
-                    // Lógica das horas: se < 24h → mostra "Disponível" com luzinha verde
-                    // se >= 24h → mostra "Xh de afeto"
+                    // Linha de Horas/Status
                     let linhaHorasHTML = '';
                     if (horasNum >= 24) {
                         linhaHorasHTML = `
@@ -260,6 +305,13 @@
                             </div>
                         `;
                     }
+
+                    // ========= CÓDIGO INTERNO DA REFERÊNCIA =========
+                    const iniciais = (f.Nome || "XX").split(' ').filter(p => p.length > 0).map(p => p[0]).slice(0, 2).join('').toUpperCase();
+                    const precoFamilia = Math.ceil(precoBase * 1.15);
+                    const codigoRef = `${iniciais}-${precoFamilia}`;
+                    const mensagemWpp = `Olá! Vi o perfil de *${f.Nome}* na Afeto e gostaria de conversar sobre contratação.%0A%0A🔖 Ref: %23${codigoRef}%0A📍 ${f.Bairro || 'Curitiba'}%0A%0A📌 Perfil: ${linkAtual}`;
+                    // ========= FIM CÓDIGO INTERNO =========
 
                     container.innerHTML = `
                         <div class="foto-perfil-container">
@@ -279,6 +331,7 @@
                                 <span class="tag-bairro"><i class="fa-solid fa-location-dot"></i> ${f.Bairro || "Curitiba"}</span>
                             </div>
                             
+                            ${turnoHTML}
                             ${apresentacaoHTML}
                             ${tagsHTML}
 
@@ -287,15 +340,11 @@
                                 <strong style="color: var(--ouro); font-size: 18px;">★ ${notaTexto}</strong>
                             </div>
                             ${linhaHorasHTML}
-                            <div class="info-linha">
-                                <span>Preço por plantão 12h:</span> 
-                                <strong style="color: var(--lilas-escuro); font-size: 22px; font-weight: 900;">R$ ${precoFinal}</strong>
-                            </div>
                             
                             ${comentariosHTML}
 
-                            <a href="https://wa.me/${wppAgencia}?text=Olá! Vi o perfil da(o) profissional *${f.Nome}* no site da Afeto e gostaria de conversar sobre contratação.%0A%0A📌 Perfil: ${linkAtual}" target="_blank" class="btn-acao">
-                                <i class="fa-brands fa-whatsapp"></i> Contratar via WhatsApp da Afeto
+                            <a href="https://wa.me/${wppAgencia}?text=${mensagemWpp}" target="_blank" class="btn-acao">
+                                <i class="fa-brands fa-whatsapp"></i> Solicitar Orçamento
                             </a>
                             <button onclick="compartilharPerfil()" class="btn-compartilhar"><i class="fa-solid fa-share-nodes"></i> Compartilhar Perfil</button>
                         </div>
@@ -339,13 +388,16 @@
 
     <footer class="site-footer">
         <div class="footer-content">
+            <p class="footer-aviso">A Afeto é uma plataforma de divulgação e conexão. Não prestamos serviços de saúde ou cuidado. As informações, valores e disponibilidades apresentados nos perfis são de responsabilidade das profissionais autônomas cadastradas.</p>
             <p>A Afeto é uma plataforma digital que aproxima famílias de cuidadores de excelência. Nosso papel é fornecer a melhor tecnologia em marketing e segurança de pagamentos para profissionais autônomos. Cada cuidador parceiro atua de forma independente, utilizando nossa vitrine para expandir sua base de clientes, definindo seus próprios horários e repasses com 100% de autonomia.</p>
+            <div class="footer-social">
+                <a href="https://www.instagram.com/afetohomecareoficial" target="_blank" aria-label="Instagram Afeto Homecare">
+                    <i class="fa-brands fa-instagram"></i>
+                </a>
+            </div>
             <div class="footer-links">
                 <a href="termos.html">Termos de Uso</a>
                 <a href="privacidade.html">Política de Privacidade</a>
-            </div>
-            <div class="footer-legal">
-                Afeto Homecare — CNPJ: 64.215.069/0001-15 &copy; Todos os direitos reservados.
             </div>
         </div>
     </footer>
