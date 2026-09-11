@@ -1,419 +1,398 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <title>Teste Pré-Cadastro Afeto</title>
-    <style>
-        body { font-family: Arial; max-width: 550px; margin: 40px auto; padding: 20px; }
-        h1 { color: #8b5cf6; }
-        label { display: block; margin-top: 18px; font-weight: bold; font-size: 14px; }
-        input[type="text"], input[type="tel"], select, textarea { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 14px; font-family: Arial; }
-        input::placeholder, textarea::placeholder { color: #bbb; font-weight: normal; }
-        textarea { resize: vertical; min-height: 70px; }
-        button[type="submit"] { margin-top: 25px; padding: 15px; width: 100%; background: #8b5cf6; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; }
-        #res { margin-top: 20px; padding: 15px; border-radius: 5px; display: none; }
-        #res.ok { background: #d1fae5; color: #065f46; display: block; }
-        #res.erro { background: #fee2e2; color: #991b1b; display: block; }
-        .campo-coren { display: none; }
-        .campo-coren.ativo { display: block; }
-        .campo-indicacao { display: none; }
-        .campo-indicacao.ativo { display: block; }
-        .ajuda { font-size: 12px; color: #666; font-weight: normal; margin-top: 4px; display: block; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teste Pré-Cadastro Afeto</title>
+<style>
+  body { font-family: Arial; max-width: 580px; margin: 40px auto; padding: 20px; background: #f8f9fc; color: #1f1f1f; }
+  h1 { color: #8b5cf6; font-size: 22px; margin-bottom: 8px; }
+  .sub { color: #666; font-size: 13px; margin-bottom: 20px; }
+  label { display: block; margin-top: 16px; font-weight: bold; font-size: 14px; color: #1f1f1f; }
+  input[type="text"], input[type="tel"], select, textarea {
+    width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc;
+    border-radius: 6px; box-sizing: border-box; font-size: 14px; font-family: Arial;
+  }
+  input::placeholder, textarea::placeholder { color: #bbb; }
+  textarea { resize: vertical; min-height: 70px; }
+  button[type="submit"] {
+    margin-top: 25px; padding: 16px; width: 100%; background: #8b5cf6;
+    color: white; border: none; border-radius: 50px; font-size: 16px;
+    font-weight: bold; cursor: pointer;
+  }
+  button[type="submit"]:hover { background: #7c3aed; }
+  button[type="submit"]:disabled { background: #ccc; cursor: not-allowed; }
+  #res { margin-top: 20px; padding: 14px; border-radius: 8px; display: none; font-size: 14px; }
+  #res.ok { background: #d1fae5; color: #065f46; display: block; }
+  #res.erro { background: #fee2e2; color: #991b1b; display: block; }
 
-        .aviso-coren {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            font-size: 13px;
-            color: #6d28d9;
-            background: #f5f3ff;
-            padding: 12px 14px;
-            border-radius: 8px;
-            margin-top: 10px;
-            border-left: 4px solid #8b5cf6;
-            line-height: 1.5;
-        }
-        .aviso-coren .emoji { font-size: 18px; line-height: 1; }
+  .ajuda { font-size: 12px; color: #666; font-weight: normal; margin-top: 4px; display: block; }
 
-        /* ====== AUTOCOMPLETE ====== */
-        .bairros-wrap { position: relative; margin-top: 5px; }
-        .bairros-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            min-height: 44px;
-            background: white;
-            align-items: center;
-        }
-        .bairros-tags:focus-within { border-color: #8b5cf6; box-shadow: 0 0 0 3px rgba(139,92,246,0.15); }
-        .bairros-tags input {
-            border: none;
-            outline: none;
-            flex: 1;
-            min-width: 100px;
-            padding: 4px;
-            font-size: 14px;
-            background: transparent;
-        }
-        .tag-bairro {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: #ede9fe;
-            color: #6d28d9;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-        }
-        .tag-bairro button {
-            background: none;
-            border: none;
-            color: #6d28d9;
-            cursor: pointer;
-            font-size: 14px;
-            padding: 0;
-            line-height: 1;
-            opacity: 0.6;
-        }
-        .tag-bairro button:hover { opacity: 1; }
+  .campo-oculto { display: none; }
+  .campo-oculto.ativo { display: block; }
 
-        .tag-bairro.principal {
-            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-            color: white;
-            box-shadow: 0 3px 10px rgba(139, 92, 246, 0.35);
-        }
-        .tag-bairro.principal button { color: white; }
-        .tag-bairro .estrela { font-size: 11px; }
+  .aviso-coren {
+    display: flex; gap: 10px; font-size: 13px; color: #6d28d9;
+    background: #f5f3ff; padding: 12px; border-radius: 8px;
+    margin-top: 10px; border-left: 4px solid #8b5cf6; line-height: 1.5;
+  }
 
-        .bairros-lista {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-            border: 1px solid #ccc;
-            border-top: none;
-            border-radius: 0 0 5px 5px;
-            max-height: 200px;
-            overflow-y: auto;
-            z-index: 10;
-            display: none;
-        }
-        .bairros-lista.ativo { display: block; }
-        .bairro-option {
-            padding: 10px 12px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        .bairro-option:hover, .bairro-option.highlight {
-            background: #f5f3ff;
-            color: #7c3aed;
-        }
-        .bairro-option.sem-resultado {
-            color: #999;
-            cursor: default;
-            font-style: italic;
-        }
-    </style>
+  .wrap-bairros { position: relative; margin-top: 5px; }
+  .caixa-bairros {
+    display: flex; flex-wrap: wrap; gap: 6px; padding: 8px;
+    border: 1px solid #ccc; border-radius: 6px; min-height: 44px;
+    background: white; align-items: center;
+  }
+  .caixa-bairros:focus-within { border-color: #8b5cf6; box-shadow: 0 0 0 3px rgba(139,92,246,0.15); }
+  .caixa-bairros input { border: none; outline: none; flex: 1; min-width: 100px; padding: 4px; font-size: 14px; background: transparent; }
+  .tag-bairro {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: #ede9fe; color: #6d28d9; padding: 4px 10px;
+    border-radius: 20px; font-size: 13px; font-weight: bold;
+  }
+  .tag-bairro.principal {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    color: white; box-shadow: 0 3px 10px rgba(139,92,246,0.35);
+  }
+  .tag-bairro button {
+    background: none; border: none; color: inherit; cursor: pointer;
+    font-size: 14px; padding: 0; line-height: 1; opacity: 0.7;
+  }
+  .tag-bairro button:hover { opacity: 1; }
+  .lista-bairros {
+    position: absolute; top: 100%; left: 0; right: 0; background: white;
+    border: 1px solid #ccc; border-top: none; border-radius: 0 0 6px 6px;
+    max-height: 200px; overflow-y: auto; z-index: 10; display: none;
+  }
+  .lista-bairros.ativo { display: block; }
+  .opcao-bairro { padding: 10px 12px; cursor: pointer; font-size: 14px; }
+  .opcao-bairro:hover { background: #f5f3ff; color: #7c3aed; }
+  .opcao-bairro.sem-resultado { color: #999; cursor: default; font-style: italic; }
+
+  .termos {
+    margin-top: 20px; padding: 14px; background: #f5f3ff;
+    border-radius: 8px; border-left: 4px solid #8b5cf6;
+  }
+  .termos-titulo { font-size: 14px; font-weight: bold; color: #6d28d9; margin-bottom: 10px; }
+  .termo-item { display: flex; align-items: flex-start; gap: 10px; margin-top: 10px; font-size: 13px; color: #444; line-height: 1.5; }
+  .termo-item input[type="checkbox"] { width: 18px; height: 18px; margin-top: 2px; flex-shrink: 0; cursor: pointer; accent-color: #8b5cf6; }
+  .termo-item a { color: #7c3aed; text-decoration: underline; }
+</style>
 </head>
 <body>
-    <h1>Teste Pré-Cadastro Afeto</h1>
-    <form id="f">
-        <label>Nome completo:</label>
-        <input type="text" name="nome" placeholder="Digite seu nome completo" required>
-        
-        <label>WhatsApp (com DDD):</label>
-        <input type="tel" name="whatsapp" id="whatsappInput" placeholder="(41) 99999-9999" required>
-        
-        <label>Áreas de atuação (digite e selecione os bairros):</label>
-        <div class="bairros-wrap">
-            <div class="bairros-tags" id="bairrosTags">
-                <input type="text" id="bairrosInput" placeholder="Ex: Batel, Água Verde, Pinhais..." autocomplete="off">
-            </div>
-            <div class="bairros-lista" id="bairrosLista"></div>
-        </div>
-        <input type="hidden" name="bairros" id="bairrosHidden">
-        
-        <label>Você atua como:</label>
-        <select name="profissao" id="profissao" required>
-            <option value="">Selecione...</option>
-            <option value="Cuidadora de Idosos">Cuidadora de Idosos</option>
-            <option value="Técnica de Enfermagem">Técnica de Enfermagem</option>
-            <option value="Enfermeira">Enfermeira</option>
-            <option value="Acompanhante Hospitalar">Acompanhante Hospitalar</option>
-            <option value="Estudante da área da saúde">Estudante da área da saúde</option>
-            <option value="Outro">Outro</option>
-        </select>
-        
-        <div class="campo-coren" id="campoCoren">
-            <label>Número do COREN (obrigatório):</label>
-            <input type="text" name="coren" id="corenInput" placeholder="Ex: 123456-PR" maxlength="10" autocomplete="off">
-            <div class="aviso-coren">
-                <span class="emoji">💜</span>
-                <span>
-                    Enfermeiras e Técnicas de Enfermagem precisam ter <strong>COREN ativo</strong> para atuar.
-                    <br><br>
-                    <strong>Ainda não tem o COREN?</strong> Sem problema! Volte e escolha outra opção, como <em>"Cuidadora de Idosos"</em>, <em>"Acompanhante Hospitalar"</em> ou <em>"Estudante da área da saúde"</em>. Todas são muito bem-vindas na Afeto.
-                </span>
-            </div>
-        </div>
-        
-        <label>Quais cursos (com certificado) você possui?</label>
-        <span class="ajuda">Conte pra gente o que você já estudou: cursos técnicos, de cuidador, especializações...</span>
-        <textarea name="cursos" rows="3" placeholder="Ex: Curso de Cuidador de Idosos (120h) pelo SENAC, Técnica em Enfermagem pelo IFPR..."></textarea>
-        
-        <label>Por que você quer ser cuidadora da Afeto?</label>
-        <span class="ajuda">Um pouquinho sobre o que te motiva a cuidar de pessoas.</span>
-        <textarea name="motivacao" rows="3" placeholder="Ex: Tenho paixão por cuidar de idosos e quero fazer parte de uma plataforma que valoriza meu trabalho..."></textarea>
-        
-        <label>Tempo de experiência:</label>
-        <select name="experiencia">
-            <option value="Menos de 1 ano">Menos de 1 ano</option>
-            <option value="1 a 3 anos" selected>1 a 3 anos</option>
-            <option value="3 a 5 anos">3 a 5 anos</option>
-            <option value="5 a 10 anos">5 a 10 anos</option>
-            <option value="Mais de 10 anos">Mais de 10 anos</option>
-        </select>
-        
-        <label>Como você conheceu a Afeto?</label>
-        <select name="como_conheceu" id="comoConheceu" required>
-            <option value="">Selecione...</option>
-            <option value="Instagram">📸 Instagram</option>
-            <option value="Google">🔍 Google</option>
-            <option value="Facebook">📘 Facebook</option>
-            <option value="WhatsApp">💬 WhatsApp</option>
-            <option value="Indicação">💜 Indicação</option>
-            <option value="Outro">✨ Outro</option>
-        </select>
-        
-        <div class="campo-indicacao" id="campoIndicacao">
-            <label>Quem te indicou? (opcional)</label>
-            <input type="text" name="quem_indicou" placeholder="Nome de quem te indicou">
-        </div>
-        
-        <button type="submit">Enviar</button>
-    </form>
-    <div id="res"></div>
-    
-    <script>
-        // ================ BAIRROS DE CURITIBA + REGIÃO METROPOLITANA ================
-        const BAIRROS = [
-            "Abranches", "Água Verde", "Ahú", "Alto Boqueirão", "Alto da Glória",
-            "Alto da Rua XV", "Atuba", "Augusta", "Bacacheri", "Bairro Alto",
-            "Barreirinha", "Batatzinho", "Batel", "Bigorrilho", "Boa Vista",
-            "Bom Retiro", "Boqueirão", "Butiatuvinha", "Cabral", "Cachoeira",
-            "Cajuru", "Campina do Siqueira", "Campo Comprido", "Campo de Santana",
-            "Capão Raso", "Capão da Imbuia", "Cascatinha", "Caximba", "Centro",
-            "Centro Cívico", "Cidade Industrial", "Cristo Rei", "Fanny",
-            "Fazendinha", "Ganchinho", "Guabirotuba", "Guaíra", "Hauer",
-            "Hugo Lange", "Jardim Botânico", "Jardim Social", "Jardim das Américas",
-            "Jardim dos Estados", "Juvevê", "Lamenha Pequena", "Lindóia",
-            "Mercês", "Mossunguê", "Novo Mundo", "Orleans", "Padre Andrade",
-            "Parolin", "Pilarzinho", "Pinheirinho", "Portão", "Prado Velho",
-            "Rebouças", "Riviera", "Santa Cândida", "Santa Felicidade",
-            "Santa Quitéria", "Santo Inácio", "São Braz", "São Francisco",
-            "São João", "São Lourenço", "São Marcos", "Sítio Cercado",
-            "Taboão", "Tarumã", "Tatuquara", "Tingui", "Uberaba",
-            "Umbará", "Vila Isabel", "Vista Alegre", "Xaxim",
-            "Adrianópolis (RMC)", "Agudos do Sul (RMC)", "Almirante Tamandaré (RMC)",
-            "Araucária (RMC)", "Balsa Nova (RMC)", "Bocaiúva do Sul (RMC)",
-            "Campina Grande do Sul (RMC)", "Campo do Tenente (RMC)", "Campo Largo (RMC)",
-            "Campo Magro (RMC)", "Cerro Azul (RMC)", "Colombo (RMC)", "Contenda (RMC)",
-            "Doutor Ulysses (RMC)", "Fazenda Rio Grande (RMC)", "Itaperuçu (RMC)",
-            "Lapa (RMC)", "Mandirituba (RMC)", "Piên (RMC)", "Pinhais (RMC)",
-            "Piraquara (RMC)", "Quatro Barras (RMC)", "Quitandinha (RMC)",
-            "Rio Branco do Sul (RMC)", "São José dos Pinhais (RMC)",
-            "Tijucas do Sul (RMC)", "Tunas do Paraná (RMC)"
-        ];
-        
-        const LIMITE_BAIRROS = 10;
 
-        const whatsappInput = document.getElementById('whatsappInput');
-        whatsappInput.addEventListener('input', function (e) {
-            let x = e.target.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
-            e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
+<h1>Teste Pré-Cadastro Afeto</h1>
+<p class="sub">Formulário de pré-cadastro — preencha os dados abaixo.</p>
+
+<form id="form-cuidadora">
+
+  <label for="nome">Nome completo:</label>
+  <input type="text" id="nome" name="nome" placeholder="Digite seu nome completo" required>
+
+  <label for="whatsapp">WhatsApp (com DDD):</label>
+  <input type="tel" id="whatsapp" name="whatsapp" placeholder="(41) 99999-9999" required>
+
+  <label>Áreas de atuação:</label>
+  <span class="ajuda">Digite e selecione até 10 bairros. O primeiro fica em destaque como preferência.</span>
+  <div class="wrap-bairros">
+    <div class="caixa-bairros" id="caixa-bairros">
+      <input type="text" id="input-bairros" placeholder="Ex: Batel, Água Verde..." autocomplete="off">
+    </div>
+    <div class="lista-bairros" id="lista-bairros"></div>
+  </div>
+  <input type="hidden" name="bairros" id="bairros-valor">
+
+  <label for="profissao">Você atua como:</label>
+  <select id="profissao" name="profissao" required>
+    <option value="">Selecione...</option>
+    <option value="Cuidadora de Idosos">Cuidadora de Idosos</option>
+    <option value="Técnica de Enfermagem">Técnica de Enfermagem</option>
+    <option value="Enfermeira">Enfermeira</option>
+    <option value="Acompanhante Hospitalar">Acompanhante Hospitalar</option>
+    <option value="Estudante da área da saúde">Estudante da área da saúde</option>
+    <option value="Outro">Outro</option>
+  </select>
+
+  <div class="campo-oculto" id="bloco-coren">
+    <label for="coren">Número do COREN (obrigatório):</label>
+    <input type="text" id="coren" name="coren" placeholder="Ex: 123456-PR" maxlength="10" autocomplete="off">
+    <div class="aviso-coren">
+      <span>💜</span>
+      <span>
+        Enfermeiras e Técnicas de Enfermagem precisam ter <strong>COREN ativo</strong> para atuar.<br><br>
+        <strong>Ainda não tem o COREN?</strong> Sem problema! Volte e escolha outra opção, como <em>"Cuidadora de Idosos"</em>, <em>"Acompanhante Hospitalar"</em> ou <em>"Estudante da área da saúde"</em>. Todas são muito bem-vindas na Afeto.
+      </span>
+    </div>
+  </div>
+
+  <label for="cursos">Quais cursos (com certificado) você possui?</label>
+  <span class="ajuda">Conte pra gente o que você já estudou.</span>
+  <textarea id="cursos" name="cursos" rows="3" placeholder="Ex: Curso de Cuidador de Idosos (120h) pelo SENAC..."></textarea>
+
+  <label for="motivacao">Por que você quer ser cuidadora da Afeto?</label>
+  <span class="ajuda">Um pouquinho sobre o que te motiva a cuidar de pessoas.</span>
+  <textarea id="motivacao" name="motivacao" rows="3" placeholder="Ex: Tenho paixão por cuidar de idosos..."></textarea>
+
+  <label for="experiencia">Tempo de experiência:</label>
+  <select id="experiencia" name="experiencia">
+    <option value="Menos de 1 ano">Menos de 1 ano</option>
+    <option value="1 a 3 anos" selected>1 a 3 anos</option>
+    <option value="3 a 5 anos">3 a 5 anos</option>
+    <option value="5 a 10 anos">5 a 10 anos</option>
+    <option value="Mais de 10 anos">Mais de 10 anos</option>
+  </select>
+
+  <label for="como-conheceu">Como você conheceu a Afeto?</label>
+  <select id="como-conheceu" name="como_conheceu" required>
+    <option value="">Selecione...</option>
+    <option value="Instagram">📸 Instagram</option>
+    <option value="Google">🔍 Google</option>
+    <option value="Facebook">📘 Facebook</option>
+    <option value="WhatsApp">💬 WhatsApp</option>
+    <option value="Indicação">💜 Indicação</option>
+    <option value="Outro">✨ Outro</option>
+  </select>
+
+  <div class="campo-oculto" id="bloco-indicacao">
+    <label for="quem-indicou">Quem te indicou? (opcional)</label>
+    <input type="text" id="quem-indicou" name="quem_indicou" placeholder="Nome de quem te indicou">
+  </div>
+
+  <div class="termos">
+    <div class="termos-titulo">⚖️ Antes de enviar, precisamos do seu consentimento</div>
+
+    <div class="termo-item">
+      <input type="checkbox" id="termo1" name="aceite_termos" value="Sim" required>
+      <label for="termo1" style="font-weight: normal; margin: 0;">Li e concordo com os <a href="termos.html" target="_blank">Termos de Uso</a> e a <a href="privacidade.html" target="_blank">Política de Privacidade</a> da Afeto Homecare.</label>
+    </div>
+
+    <div class="termo-item">
+      <input type="checkbox" id="termo2" name="aceite_lgpd" value="Sim" required>
+      <label for="termo2" style="font-weight: normal; margin: 0;">Autorizo a Afeto Homecare a tratar meus dados pessoais e profissionais para fins de cadastro, exibição do meu perfil na plataforma e contato sobre oportunidades de plantão.</label>
+    </div>
+
+    <div class="termo-item">
+      <input type="checkbox" id="termo3" name="veracidade" value="Sim" required>
+      <label for="termo3" style="font-weight: normal; margin: 0;">Declaro que todas as informações preenchidas neste formulário são verdadeiras e de minha inteira responsabilidade.</label>
+    </div>
+
+    <div class="termo-item">
+      <input type="checkbox" id="termo4" name="antecedentes" value="Sim" required>
+      <label for="termo4" style="font-weight: normal; margin: 0;">Declaro que não possuo antecedentes criminais e autorizo a Afeto Homecare a verificar essa informação junto aos órgãos competentes.</label>
+    </div>
+  </div>
+
+  <button type="submit" id="btn-enviar">Enviar Cadastro</button>
+</form>
+
+<div id="res"></div>
+
+<script>
+(function() {
+  "use strict";
+
+  var BAIRROS = [
+    "Abranches","Água Verde","Ahú","Alto Boqueirão","Alto da Glória","Alto da Rua XV",
+    "Atuba","Augusta","Bacacheri","Bairro Alto","Barreirinha","Batatzinho","Batel",
+    "Bigorrilho","Boa Vista","Bom Retiro","Boqueirão","Butiatuvinha","Cabral","Cachoeira",
+    "Cajuru","Campina do Siqueira","Campo Comprido","Campo de Santana","Capão Raso",
+    "Capão da Imbuia","Cascatinha","Caximba","Centro","Centro Cívico","Cidade Industrial",
+    "Cristo Rei","Fanny","Fazendinha","Ganchinho","Guabirotuba","Guaíra","Hauer",
+    "Hugo Lange","Jardim Botânico","Jardim Social","Jardim das Américas","Jardim dos Estados",
+    "Juvevê","Lamenha Pequena","Lindóia","Mercês","Mossunguê","Novo Mundo","Orleans",
+    "Padre Andrade","Parolin","Pilarzinho","Pinheirinho","Portão","Prado Velho","Rebouças",
+    "Riviera","Santa Cândida","Santa Felicidade","Santa Quitéria","Santo Inácio","São Braz",
+    "São Francisco","São João","São Lourenço","São Marcos","Sítio Cercado","Taboão",
+    "Tarumã","Tatuquara","Tingui","Uberaba","Umbará","Vila Isabel","Vista Alegre","Xaxim",
+    "Adrianópolis (RMC)","Agudos do Sul (RMC)","Almirante Tamandaré (RMC)","Araucária (RMC)",
+    "Balsa Nova (RMC)","Bocaiúva do Sul (RMC)","Campina Grande do Sul (RMC)",
+    "Campo do Tenente (RMC)","Campo Largo (RMC)","Campo Magro (RMC)","Cerro Azul (RMC)",
+    "Colombo (RMC)","Contenda (RMC)","Doutor Ulysses (RMC)","Fazenda Rio Grande (RMC)",
+    "Itaperuçu (RMC)","Lapa (RMC)","Mandirituba (RMC)","Piên (RMC)","Pinhais (RMC)",
+    "Piraquara (RMC)","Quatro Barras (RMC)","Quitandinha (RMC)","Rio Branco do Sul (RMC)",
+    "São José dos Pinhais (RMC)","Tijucas do Sul (RMC)","Tunas do Paraná (RMC)"
+  ];
+
+  var LIMITE_BAIRROS = 10;
+  var bairrosSelecionados = [];
+
+  var caixaBairros = document.getElementById('caixa-bairros');
+  var inputBairros = document.getElementById('input-bairros');
+  var listaBairros = document.getElementById('lista-bairros');
+  var bairrosValor = document.getElementById('bairros-valor');
+  var campoWhatsapp = document.getElementById('whatsapp');
+  var campoCoren = document.getElementById('coren');
+  var blocoCoren = document.getElementById('bloco-coren');
+  var campoProfissao = document.getElementById('profissao');
+  var campoComoConheceu = document.getElementById('como-conheceu');
+  var blocoIndicacao = document.getElementById('bloco-indicacao');
+  var form = document.getElementById('form-cuidadora');
+  var btnEnviar = document.getElementById('btn-enviar');
+  var res = document.getElementById('res');
+
+  campoWhatsapp.addEventListener('input', function() {
+    var x = this.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
+    this.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
+  });
+
+  campoCoren.addEventListener('input', function() {
+    var valor = this.value.toUpperCase();
+    var numeros = '';
+    var letras = '';
+    var achouLetra = false;
+    for (var i = 0; i < valor.length; i++) {
+      var c = valor[i];
+      if (/\d/.test(c)) {
+        if (!achouLetra && numeros.length < 7) numeros += c;
+      } else if (/[A-Z]/.test(c) && numeros.length > 0) {
+        achouLetra = true;
+        if (letras.length < 2) letras += c;
+      }
+    }
+    this.value = letras ? (numeros + '-' + letras) : numeros;
+  });
+
+  function atualizarValorBairros() {
+    bairrosValor.value = bairrosSelecionados.join(' | ');
+  }
+
+  function desenharTags() {
+    var tags = caixaBairros.querySelectorAll('.tag-bairro');
+    for (var i = 0; i < tags.length; i++) tags[i].remove();
+
+    bairrosSelecionados.forEach(function(bairro, idx) {
+      var tag = document.createElement('span');
+      tag.className = idx === 0 ? 'tag-bairro principal' : 'tag-bairro';
+      tag.innerHTML = (idx === 0 ? '⭐ ' : '') + bairro + ' <button type="button" data-b="' + bairro + '">×</button>';
+      caixaBairros.insertBefore(tag, inputBairros);
+    });
+
+    var btns = caixaBairros.querySelectorAll('.tag-bairro button');
+    btns.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var b = this.getAttribute('data-b');
+        bairrosSelecionados = bairrosSelecionados.filter(function(x) { return x !== b; });
+        desenharTags();
+      });
+    });
+
+    atualizarValorBairros();
+  }
+
+  function mostrarLista(filtro) {
+    if (bairrosSelecionados.length >= LIMITE_BAIRROS) {
+      listaBairros.innerHTML = '<div class="opcao-bairro sem-resultado">Limite de ' + LIMITE_BAIRROS + ' bairros atingido</div>';
+      listaBairros.classList.add('ativo');
+      return;
+    }
+    var termo = filtro.trim().toLowerCase();
+    var disponiveis = BAIRROS.filter(function(b) {
+      return bairrosSelecionados.indexOf(b) === -1 && b.toLowerCase().indexOf(termo) !== -1;
+    }).slice(0, 10);
+
+    if (disponiveis.length === 0) {
+      listaBairros.innerHTML = '<div class="opcao-bairro sem-resultado">Nenhum bairro encontrado</div>';
+    } else {
+      listaBairros.innerHTML = disponiveis.map(function(b) {
+        return '<div class="opcao-bairro" data-b="' + b + '">' + b + '</div>';
+      }).join('');
+      listaBairros.querySelectorAll('.opcao-bairro').forEach(function(opt) {
+        opt.addEventListener('click', function() {
+          if (bairrosSelecionados.length >= LIMITE_BAIRROS) return;
+          var b = this.getAttribute('data-b');
+          if (bairrosSelecionados.indexOf(b) === -1) {
+            bairrosSelecionados.push(b);
+            inputBairros.value = '';
+            desenharTags();
+            listaBairros.classList.remove('ativo');
+            inputBairros.focus();
+          }
         });
+      });
+    }
+    listaBairros.classList.add('ativo');
+  }
 
-        const corenInput = document.getElementById('corenInput');
-        corenInput.addEventListener('input', function (e) {
-            let valor = this.value.toUpperCase();
-            let numeros = '';
-            let letras = '';
-            let encontrouLetra = false;
-            
-            for (let c of valor) {
-                if (/\d/.test(c)) {
-                    if (!encontrouLetra && numeros.length < 7) numeros += c;
-                } else if (/[A-Z]/.test(c) && numeros.length > 0) {
-                    encontrouLetra = true;
-                    if (letras.length < 2) letras += c;
-                }
-            }
-            
-            if (letras) {
-                this.value = numeros + '-' + letras;
-            } else {
-                this.value = numeros;
-            }
-        });
+  inputBairros.addEventListener('input', function() {
+    if (this.value.length >= 1) mostrarLista(this.value);
+    else listaBairros.classList.remove('ativo');
+  });
 
-        const container = document.getElementById('bairrosTags');
-        const input = document.getElementById('bairrosInput');
-        const lista = document.getElementById('bairrosLista');
-        const hidden = document.getElementById('bairrosHidden');
-        let selecionados = [];
+  inputBairros.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      var primeira = listaBairros.querySelector('.opcao-bairro:not(.sem-resultado)');
+      if (primeira) primeira.click();
+    }
+  });
 
-        function atualizarHidden() {
-            hidden.value = selecionados.join(' | ');
-        }
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.wrap-bairros')) listaBairros.classList.remove('ativo');
+  });
 
-        function renderizar() {
-            container.querySelectorAll('.tag-bairro').forEach(el => el.remove());
-            selecionados.forEach((bairro, idx) => {
-                const tag = document.createElement('span');
-                if (idx === 0) {
-                    tag.className = 'tag-bairro principal';
-                    tag.innerHTML = `<span class="estrela">⭐</span> ${bairro} <button type="button" data-bairro="${bairro}">×</button>`;
-                } else {
-                    tag.className = 'tag-bairro';
-                    tag.innerHTML = `${bairro} <button type="button" data-bairro="${bairro}">×</button>`;
-                }
-                container.insertBefore(tag, input);
-            });
+  campoProfissao.addEventListener('change', function() {
+    var v = this.value;
+    if (v === 'Técnica de Enfermagem' || v === 'Enfermeira') {
+      blocoCoren.classList.add('ativo');
+      campoCoren.required = true;
+    } else {
+      blocoCoren.classList.remove('ativo');
+      campoCoren.required = false;
+      campoCoren.value = '';
+    }
+  });
 
-            container.querySelectorAll('.tag-bairro button').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const b = btn.getAttribute('data-bairro');
-                    selecionados = selecionados.filter(x => x !== b);
-                    renderizar();
-                    atualizarHidden();
-                });
-            });
-        }
+  campoComoConheceu.addEventListener('change', function() {
+    if (this.value === 'Indicação') blocoIndicacao.classList.add('ativo');
+    else {
+      blocoIndicacao.classList.remove('ativo');
+      document.getElementById('quem-indicou').value = '';
+    }
+  });
 
-        function mostrarLista(filtro) {
-            if (selecionados.length >= LIMITE_BAIRROS) {
-                lista.innerHTML = '<div class="bairro-option sem-resultado">Você atingiu o limite de 10 bairros</div>';
-                lista.classList.add('ativo');
-                return;
-            }
-            
-            const termo = filtro.trim().toLowerCase();
-            const disponiveis = BAIRROS.filter(b => 
-                !selecionados.includes(b) && 
-                b.toLowerCase().includes(termo)
-            ).slice(0, 10);
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
 
-            if (disponiveis.length === 0) {
-                lista.innerHTML = '<div class="bairro-option sem-resultado">Nenhum bairro encontrado</div>';
-            } else {
-                lista.innerHTML = disponiveis.map(b => 
-                    `<div class="bairro-option" data-bairro="${b}">${b}</div>`
-                ).join('');
+    if (bairrosSelecionados.length === 0) {
+      res.className = 'erro';
+      res.textContent = '❌ Selecione pelo menos um bairro de atuação.';
+      res.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
 
-                lista.querySelectorAll('.bairro-option').forEach(opt => {
-                    opt.addEventListener('click', () => {
-                        if (selecionados.length >= LIMITE_BAIRROS) return;
-                        const b = opt.getAttribute('data-bairro');
-                        if (!selecionados.includes(b)) {
-                            selecionados.push(b);
-                            input.value = '';
-                            renderizar();
-                            atualizarHidden();
-                            lista.classList.remove('ativo');
-                            input.focus();
-                        }
-                    });
-                });
-            }
-            lista.classList.add('ativo');
-        }
+    res.className = '';
+    res.style.display = 'none';
+    btnEnviar.disabled = true;
+    btnEnviar.textContent = 'Enviando...';
 
-        input.addEventListener('input', () => {
-            if (input.value.length >= 1) mostrarLista(input.value);
-            else lista.classList.remove('ativo');
-        });
+    try {
+      var dados = new FormData(form);
+      var resposta = await fetch('/pre-cadastro', { method: 'POST', body: dados });
+      var json = await resposta.json();
 
-        input.addEventListener('focus', () => {
-            if (input.value.length >= 1) mostrarLista(input.value);
-        });
+      if (resposta.ok && json.success) {
+        res.className = 'ok';
+        res.textContent = '✅ Cadastro enviado! Em breve entraremos em contato pelo WhatsApp.';
+        form.reset();
+        bairrosSelecionados = [];
+        desenharTags();
+        blocoCoren.classList.remove('ativo');
+        blocoIndicacao.classList.remove('ativo');
+      } else {
+        res.className = 'erro';
+        res.textContent = '❌ Erro ao enviar: ' + (json.error || 'Tente novamente.');
+      }
+    } catch (err) {
+      res.className = 'erro';
+      res.textContent = '❌ Erro de conexão: ' + err.message;
+    } finally {
+      btnEnviar.disabled = false;
+      btnEnviar.textContent = 'Enviar Cadastro';
+      res.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  });
 
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                const primeira = lista.querySelector('.bairro-option:not(.sem-resultado)');
-                if (primeira) primeira.click();
-            }
-        });
-
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.bairros-wrap')) lista.classList.remove('ativo');
-        });
-
-        const selectProfissao = document.getElementById('profissao');
-        const campoCoren = document.getElementById('campoCoren');
-        
-        selectProfissao.addEventListener('change', function() {
-            const valor = this.value;
-            if (valor === 'Técnica de Enfermagem' || valor === 'Enfermeira') {
-                campoCoren.classList.add('ativo');
-                corenInput.required = true;
-            } else {
-                campoCoren.classList.remove('ativo');
-                corenInput.required = false;
-                corenInput.value = '';
-            }
-        });
-
-        const comoConheceu = document.getElementById('comoConheceu');
-        const campoIndicacao = document.getElementById('campoIndicacao');
-        
-        comoConheceu.addEventListener('change', function() {
-            if (this.value === 'Indicação') {
-                campoIndicacao.classList.add('ativo');
-            } else {
-                campoIndicacao.classList.remove('ativo');
-                campoIndicacao.querySelector('input').value = '';
-            }
-        });
-
-        document.getElementById('f').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const res = document.getElementById('res');
-            
-            if (selecionados.length === 0) {
-                res.className = 'erro';
-                res.innerText = '❌ Selecione pelo menos um bairro de atuação.';
-                return;
-            }
-            
-            res.className = '';
-            res.style.display = 'none';
-            
-            const dados = new FormData(e.target);
-            
-            try {
-                const r = await fetch('https://afetocuidadores.pages.dev/pre-cadastro', {
-                    method: 'POST',
-                    body: dados
-                });
-                const j = await r.json();
-                if (r.ok && j.success) {
-                    res.className = 'ok';
-                    res.innerText = '✅ Sucesso! Confira a planilha.';
-                } else {
-                    res.className = 'erro';
-                    res.innerText = '❌ ' + JSON.stringify(j);
-                }
-            } catch (err) {
-                res.className = 'erro';
-                res.innerText = '❌ ' + err.message;
-            }
-        });
-    </script>
+})();
+</script>
 </body>
 </html>
