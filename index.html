@@ -499,12 +499,12 @@
                             if (catText.includes('diamante')) { cardClassAdd = 'card-diamante'; anelClassAdd = 'anel-diamante'; seloCategoria = `<span class="cuidador-badge badge-diamante"><i class="fa-solid fa-certificate"></i> Diamante</span>`; isDiamante = true; } 
                             else if (catText.includes('ouro')) { cardClassAdd = 'card-ouro'; anelClassAdd = 'anel-ouro'; seloCategoria = `<span class="cuidador-badge badge-ouro"><i class="fa-solid fa-shield-heart"></i> Ouro</span>`; } 
                             else if (catText.includes('prata')) { cardClassAdd = 'card-prata'; anelClassAdd = 'anel-prata'; seloCategoria = `<span class="cuidador-badge badge-prata">⭐ Prata</span>`; } 
-                            else if (catText.includes('bronze')) { cardClassAdd = 'card-bronze'; anelClassAdd = 'anel-bronze'; seloCategoria = `<span class="cuidador-badge badge-bronze">🥉 Bronze</span>`; }
-                            else { seloCategoria = `<span class="cuidador-badge badge-iniciante">Iniciante</span>`; }
-                        } else { seloCategoria = `<span class="cuidador-badge badge-iniciante">Iniciante</span>`; }
+                            else { cardClassAdd = 'card-bronze'; anelClassAdd = 'anel-bronze'; seloCategoria = `<span class="cuidador-badge badge-bronze">🥉 Bronze</span>`; }
+                        } else { 
+                            cardClassAdd = 'card-bronze'; anelClassAdd = 'anel-bronze'; seloCategoria = `<span class="cuidador-badge badge-bronze">🥉 Bronze</span>`; 
+                        }
 
                         const seloVerificada = f.Verificada ? `<span class="cuidador-badge badge-verificada"><i class="fa-solid fa-check"></i> Verificada</span>` : '';
-                        
                         const seloCoren = f.COREN ? `<span class="cuidador-badge badge-coren"><i class="fa-solid fa-id-card"></i> COREN</span>` : '';
 
                         let estrelasHTML = '';
@@ -515,6 +515,14 @@
                             let estrelasStr = '★'.repeat(qtdCheias) + '☆'.repeat(5 - qtdCheias);
                             estrelasHTML = `<span style="display: flex; gap: 2px;">${estrelasStr}</span> <span class="nota-numero" style="margin-left: 5px;">${notaValor.toFixed(1)}</span>`;
                         } else { estrelasHTML = `<span style="font-size: 13px; color: var(--cinza-fonte); font-weight: 700;">Ainda não avaliada</span>`; }
+
+                        let horasAfeto = parseInt(f.Horas) || 0;
+                        let displayHoras = "";
+                        if (horasAfeto > 0) {
+                            displayHoras = `<span class="cuidador-meta ${isDiamante ? 'meta-diamante' : ''}">${bairro} • ${horasAfeto}h de afeto</span>`;
+                        } else {
+                            displayHoras = `<span class="cuidador-meta ${isDiamante ? 'meta-diamante' : ''}">${bairro} • Novidade na Afeto</span>`;
+                        }
 
                         const cardHTML = `
                             <a href="perfil.html?id=${record.id}" class="cuidador-card ${cardClassAdd}">
@@ -528,7 +536,7 @@
                                     <h3 class="cuidador-nome">${nome}</h3>
                                     <div class="cuidador-stars ${isDiamante ? 'stars-diamante' : ''}">${estrelasHTML}</div>
                                     <span class="cuidador-tag">${especialidade}</span>
-                                    <span class="cuidador-meta ${isDiamante ? 'meta-diamante' : ''}">${bairro} • ${horas}h de afeto</span>
+                                    ${displayHoras}
                                     <div class="cuidador-preco">
                                         <span>Preço por plantão 12h:</span>
                                         <strong>R$ ${precoFinal}</strong>

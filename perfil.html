@@ -80,7 +80,7 @@
 
         .btn-acao { display: flex; justify-content: center; align-items: center; gap: 10px; width: 100%; background: var(--verde-whatsapp); color: var(--branco); text-align: center; padding: 18px; border-radius: 50px; font-weight: 900; text-decoration: none; margin-top: 30px; transition: 0.3s; font-size: 16px; box-shadow: 0 10px 25px rgba(37, 211, 102, 0.3); }
         .btn-acao:hover { background: #1da851; transform: translateY(-3px); box-shadow: 0 15px 35px rgba(37, 211, 102, 0.4); }
-        .btn-compartilhar { display: block; width: 100%; background: transparent; color: var(--lilas); border: 2px solid var(--lilas); text-align: center; padding: 15px; border-radius: 50px; font-weight: 900; margin-top: 15px; cursor: pointer; transition: 0.3s; font-size: 15px;}
+        .btn-compartilhar { display: block; width: 100%; background: transparent; color: var(--lilas); border: 2px solid var(--lilas); text-align: center; padding: 15px; border-radius: 50px; font-weight: 900; margin-top: 15px; cursor: pointer; transition: 0.3s; font-size: 15px; font-family: 'Nunito', sans-serif;}
         .btn-compartilhar:hover { background: var(--lilas); color: var(--branco); box-shadow: 0 8px 20px rgba(139, 92, 246, 0.2); }
         .voltar-link { color: var(--lilas-escuro); font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; margin-top: 20px; margin-bottom: 40px; font-size: 15px; transition: 0.2s;}
         .voltar-link:hover { transform: translateX(-3px); color: var(--lilas); }
@@ -137,12 +137,13 @@
                     const wppAgencia = f.WhatsAppAgencia || "5541997674866";
                     const precoBase = parseFloat(f.Preco) || 0;
                     const precoFinal = Math.ceil(precoBase * 1.15);
+                    const horasNum = parseInt(f.Horas) || 0;
                     
                     let fotoHTML = '<i class="fa-solid fa-user"></i>';
                     if (f.Foto && f.Foto.length > 0) { fotoHTML = `<img src="${f.Foto[0].url}" alt="${f.Nome}">`; }
 
                     let seloCategoria = '';
-                    let cardClassAdd = 'card-iniciante';
+                    let cardClassAdd = 'card-bronze';
                     
                     if (f.Categoria) {
                         const catText = f.Categoria.toLowerCase();
@@ -150,8 +151,8 @@
                         else if (catText.includes('ouro')) { cardClassAdd = 'card-ouro'; seloCategoria = `<span class="cuidador-badge badge-ouro"><i class="fa-solid fa-shield-heart"></i> Ouro</span>`; } 
                         else if (catText.includes('prata')) { cardClassAdd = 'card-prata'; seloCategoria = `<span class="cuidador-badge badge-prata">⭐ Prata</span>`; } 
                         else if (catText.includes('bronze')) { cardClassAdd = 'card-bronze'; seloCategoria = `<span class="cuidador-badge badge-bronze">🥉 Bronze</span>`; }
-                        else { seloCategoria = `<span class="cuidador-badge badge-iniciante">Iniciante</span>`; }
-                    } else { cardClassAdd = 'card-iniciante'; seloCategoria = `<span class="cuidador-badge badge-iniciante">Iniciante</span>`; }
+                        else { cardClassAdd = 'card-bronze'; seloCategoria = `<span class="cuidador-badge badge-bronze">🥉 Bronze</span>`; }
+                    } else { cardClassAdd = 'card-bronze'; seloCategoria = `<span class="cuidador-badge badge-bronze">🥉 Bronze</span>`; }
 
                     container.className = `perfil-card ${cardClassAdd}`;
                     const seloVerificada = f.Verificada ? `<span class="cuidador-badge badge-verificada"><i class="fa-solid fa-check"></i> Verificada</span>` : '';
@@ -190,6 +191,14 @@
                     let notaTexto = f.Nota || "5.0";
                     const linkAtual = encodeURIComponent(window.location.href);
 
+                    // Monta a linha de "Horas de Afeto" apenas se tiver 24h ou mais
+                    const linhaHorasHTML = horasNum >= 24 ? `
+                        <div class="info-linha">
+                            <span>Horas de Afeto</span> 
+                            <strong style="color: var(--preto-fonte);">${horasNum}h</strong>
+                        </div>
+                    ` : '';
+
                     container.innerHTML = `
                         <div class="foto-perfil-container">
                             ${fotoHTML}
@@ -215,10 +224,7 @@
                                 <span>Avaliação Geral</span> 
                                 <strong style="color: var(--ouro); font-size: 18px;">★ ${notaTexto}</strong>
                             </div>
-                            <div class="info-linha">
-                                <span>Horas de Afeto</span> 
-                                <strong style="color: var(--preto-fonte);">${f.Horas || 0}</strong>
-                            </div>
+                            ${linhaHorasHTML}
                             <div class="info-linha">
                                 <span>Preço por plantão 12h:</span> 
                                 <strong style="color: var(--lilas-escuro); font-size: 22px; font-weight: 900;">R$ ${precoFinal}</strong>
@@ -229,19 +235,43 @@
                             <a href="https://wa.me/${wppAgencia}?text=Olá! Vi o perfil da(o) profissional *${f.Nome}* no site da Afeto e gostaria de conversar sobre contratação.%0A%0A📌 Perfil: ${linkAtual}" target="_blank" class="btn-acao">
                                 <i class="fa-brands fa-whatsapp"></i> Contratar via WhatsApp da Afeto
                             </a>
-                            <button onclick="copiarLink()" class="btn-compartilhar"><i class="fa-solid fa-share-nodes"></i> Copiar Link de Perfil</button>
+                            <button onclick="compartilharPerfil()" class="btn-compartilhar"><i class="fa-solid fa-share-nodes"></i> Compartilhar Perfil</button>
                         </div>
                     `;
                 }
             } catch (error) {
                 container.innerHTML = '<div style="padding: 60px; text-align: center; color:red;">Erro ao carregar o perfil.</div>';
-                container.className = 'perfil-card card-iniciante';
+                container.className = 'perfil-card card-bronze';
             }
         }
 
-        function copiarLink() {
-            navigator.clipboard.writeText(window.location.href);
-            alert("Link copiado! Agora você pode compartilhar com as famílias.");
+        async function compartilharPerfil() {
+            const nomeEl = document.querySelector('.nome-profissional');
+            const nomeProf = nomeEl ? nomeEl.innerText : 'esta profissional';
+            
+            const shareData = {
+                title: `Afeto Homecare - ${nomeProf}`,
+                text: `Conheça o perfil de ${nomeProf} na Afeto Homecare 💜`,
+                url: window.location.href
+            };
+
+            // 1ª tentativa: Web Share API (abre o compartilhamento nativo do celular)
+            if (navigator.share) {
+                try {
+                    await navigator.share(shareData);
+                    return;
+                } catch (err) {
+                    if (err.name === 'AbortError') return;
+                }
+            }
+
+            // Fallback: copia o link
+            try {
+                await navigator.clipboard.writeText(window.location.href);
+                alert("Link copiado! Agora é só colar onde quiser compartilhar. 💜");
+            } catch (err) {
+                alert("Não foi possível compartilhar automaticamente. Copie o link da barra de endereços.");
+            }
         }
 
         carregarPerfil();
