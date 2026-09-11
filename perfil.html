@@ -11,6 +11,7 @@
             --lilas: #8b5cf6; --lilas-escuro: #7c3aed; 
             --preto-fonte: #1f1f1f; --cinza-fonte: #666666; --cinza-azulado: #94a3b8; 
             --branco: #ffffff; --verde-whatsapp: #25D366; --ouro: #fbbf24;
+            --verde-online: #10b981;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -33,7 +34,7 @@
 
         .perfil-card { max-width: 550px; width: 100%; border-radius: 35px; overflow: hidden; margin-bottom: 20px; transition: all 0.4s ease; display: flex; flex-direction: column; }
         
-        .card-iniciante { background: var(--branco); border: 1px solid #e2e8f0; box-shadow: 0 15px 40px rgba(139, 92, 246, 0.08); }
+        .card-padrao { background: var(--branco); border: 1px solid #e2e8f0; box-shadow: 0 15px 40px rgba(139, 92, 246, 0.08); }
         .card-bronze { background: var(--branco); border: 2px solid #fed7aa; box-shadow: 0 15px 40px rgba(180, 83, 9, 0.1); }
         .card-prata { background: linear-gradient(145deg, #ffffff 60%, #f8fafc 100%); border: 2px solid #cbd5e1; box-shadow: 0 15px 40px rgba(148, 163, 184, 0.15); }
         .card-ouro { background: linear-gradient(145deg, #ffffff 60%, #fffbeb 100%); border: 2px solid #fcd34d; box-shadow: 0 20px 50px rgba(217, 119, 6, 0.2); }
@@ -49,17 +50,65 @@
         .badge-verificada { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
         .badge-coren { background: #eef2ff; color: #4338ca; border: 1px solid #c7d2fe; }
         
-        .badge-iniciante { background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0; }
         .badge-bronze { background: #fff7ed; color: #b45309; border: 1px solid #fed7aa; }
         .badge-prata { background: #f8fafc; color: #475569; border: 1px solid #cbd5e1; }
         .badge-ouro { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
         .badge-diamante { background: #f0f9ff; color: #0284c7; border: 1px solid #bae6fd; }
+        
+        .badge-novidade { 
+            background: linear-gradient(135deg, #f5f3ff, #ede9fe); 
+            color: var(--lilas-escuro); 
+            border: 1px solid #c4b5fd; 
+            box-shadow: 0 2px 10px rgba(139, 92, 246, 0.18);
+            position: relative;
+            padding-right: 18px;
+        }
+        .badge-novidade::after { 
+            content: ""; 
+            position: absolute; 
+            top: 50%; 
+            right: 7px;
+            transform: translateY(-50%);
+            width: 7px; 
+            height: 7px; 
+            background: var(--ouro); 
+            border-radius: 50%; 
+            box-shadow: 0 0 8px rgba(251, 191, 36, 0.9);
+            animation: pulsar-novidade 1.8s infinite;
+        }
+        @keyframes pulsar-novidade { 
+            0%, 100% { opacity: 1; transform: translateY(-50%) scale(1); } 
+            50% { opacity: 0.4; transform: translateY(-50%) scale(1.4); } 
+        }
 
         .perfil-corpo { padding: 0 35px 35px 35px; }
         .nome-profissional { font-size: 28px; font-weight: 900; margin-bottom: 5px; text-align: center; color: var(--preto-fonte); letter-spacing: -0.5px; }
         
         .tag-profissional { font-weight: 800; color: var(--lilas); font-size: 16px; margin-bottom: 25px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; }
         .tag-bairro { color: var(--cinza-fonte); font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 5px; }
+
+        /* Indicador de "Disponível" com luzinha verde */
+        .tag-disponivel { 
+            color: var(--verde-online); 
+            font-weight: 800; 
+            font-size: 14px; 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 6px;
+        }
+        .luz-online {
+            width: 8px;
+            height: 8px;
+            background: var(--verde-online);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.7);
+            animation: pulsar-online 1.8s infinite;
+        }
+        @keyframes pulsar-online { 
+            0%, 100% { opacity: 1; transform: scale(1); } 
+            50% { opacity: 0.5; transform: scale(1.4); } 
+        }
 
         .bio-box { background: #ffffff; border-left: 4px solid var(--lilas); padding: 20px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.02); }
         .bio-box h4 { font-size: 15px; color: var(--lilas-escuro); margin-bottom: 8px; font-weight: 800; display:flex; gap: 8px; align-items: center;}
@@ -103,7 +152,7 @@
         <a href="https://afetohomecare.pages.dev" target="_blank" class="btn-outline">Encontrar Afeto</a>
     </header>
 
-    <div id="cardPerfil" class="perfil-card card-iniciante">
+    <div id="cardPerfil" class="perfil-card card-padrao">
         <div class="loader">Carregando informações verificadas... <i class="fa-solid fa-spinner fa-spin"></i></div>
     </div>
     
@@ -143,7 +192,7 @@
                     if (f.Foto && f.Foto.length > 0) { fotoHTML = `<img src="${f.Foto[0].url}" alt="${f.Nome}">`; }
 
                     let seloCategoria = '';
-                    let cardClassAdd = 'card-bronze';
+                    let cardClassAdd = 'card-padrao';
                     
                     if (f.Categoria) {
                         const catText = f.Categoria.toLowerCase();
@@ -151,8 +200,10 @@
                         else if (catText.includes('ouro')) { cardClassAdd = 'card-ouro'; seloCategoria = `<span class="cuidador-badge badge-ouro"><i class="fa-solid fa-shield-heart"></i> Ouro</span>`; } 
                         else if (catText.includes('prata')) { cardClassAdd = 'card-prata'; seloCategoria = `<span class="cuidador-badge badge-prata">⭐ Prata</span>`; } 
                         else if (catText.includes('bronze')) { cardClassAdd = 'card-bronze'; seloCategoria = `<span class="cuidador-badge badge-bronze">🥉 Bronze</span>`; }
-                        else { cardClassAdd = 'card-bronze'; seloCategoria = `<span class="cuidador-badge badge-bronze">🥉 Bronze</span>`; }
-                    } else { cardClassAdd = 'card-bronze'; seloCategoria = `<span class="cuidador-badge badge-bronze">🥉 Bronze</span>`; }
+                        else { seloCategoria = `<span class="cuidador-badge badge-novidade"><i class="fa-solid fa-sparkles"></i> Novidade na Afeto</span>`; }
+                    } else {
+                        seloCategoria = `<span class="cuidador-badge badge-novidade"><i class="fa-solid fa-sparkles"></i> Novidade na Afeto</span>`;
+                    }
 
                     container.className = `perfil-card ${cardClassAdd}`;
                     const seloVerificada = f.Verificada ? `<span class="cuidador-badge badge-verificada"><i class="fa-solid fa-check"></i> Verificada</span>` : '';
@@ -191,13 +242,24 @@
                     let notaTexto = f.Nota || "5.0";
                     const linkAtual = encodeURIComponent(window.location.href);
 
-                    // Monta a linha de "Horas de Afeto" apenas se tiver 24h ou mais
-                    const linhaHorasHTML = horasNum >= 24 ? `
-                        <div class="info-linha">
-                            <span>Horas de Afeto</span> 
-                            <strong style="color: var(--preto-fonte);">${horasNum}h</strong>
-                        </div>
-                    ` : '';
+                    // Lógica das horas: se < 24h → mostra "Disponível" com luzinha verde
+                    // se >= 24h → mostra "Xh de afeto"
+                    let linhaHorasHTML = '';
+                    if (horasNum >= 24) {
+                        linhaHorasHTML = `
+                            <div class="info-linha">
+                                <span>Horas de Afeto</span> 
+                                <strong style="color: var(--preto-fonte);">${horasNum}h</strong>
+                            </div>
+                        `;
+                    } else {
+                        linhaHorasHTML = `
+                            <div class="info-linha">
+                                <span>Status</span> 
+                                <strong class="tag-disponivel"><span class="luz-online"></span> Disponível</strong>
+                            </div>
+                        `;
+                    }
 
                     container.innerHTML = `
                         <div class="foto-perfil-container">
@@ -241,7 +303,7 @@
                 }
             } catch (error) {
                 container.innerHTML = '<div style="padding: 60px; text-align: center; color:red;">Erro ao carregar o perfil.</div>';
-                container.className = 'perfil-card card-bronze';
+                container.className = 'perfil-card card-padrao';
             }
         }
 
@@ -255,7 +317,6 @@
                 url: window.location.href
             };
 
-            // 1ª tentativa: Web Share API (abre o compartilhamento nativo do celular)
             if (navigator.share) {
                 try {
                     await navigator.share(shareData);
@@ -265,7 +326,6 @@
                 }
             }
 
-            // Fallback: copia o link
             try {
                 await navigator.clipboard.writeText(window.location.href);
                 alert("Link copiado! Agora é só colar onde quiser compartilhar. 💜");
