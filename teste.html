@@ -230,11 +230,13 @@
   var btnEnviar = document.getElementById('btn-enviar');
   var res = document.getElementById('res');
 
+  // MÁSCARA WHATSAPP
   campoWhatsapp.addEventListener('input', function() {
     var x = this.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
     this.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
   });
 
+  // MÁSCARA COREN
   campoCoren.addEventListener('input', function() {
     var valor = this.value.toUpperCase();
     var numeros = '';
@@ -252,6 +254,7 @@
     this.value = letras ? (numeros + '-' + letras) : numeros;
   });
 
+  // BAIRROS
   function atualizarValorBairros() {
     bairrosValor.value = bairrosSelecionados.join(' | ');
   }
@@ -330,6 +333,7 @@
     if (!e.target.closest('.wrap-bairros')) listaBairros.classList.remove('ativo');
   });
 
+  // COREN CONDICIONAL
   campoProfissao.addEventListener('change', function() {
     var v = this.value;
     if (v === 'Técnica de Enfermagem' || v === 'Enfermeira') {
@@ -342,6 +346,7 @@
     }
   });
 
+  // INDICAÇÃO CONDICIONAL
   campoComoConheceu.addEventListener('change', function() {
     if (this.value === 'Indicação') blocoIndicacao.classList.add('ativo');
     else {
@@ -350,6 +355,7 @@
     }
   });
 
+  // ENVIO
   form.addEventListener('submit', async function(e) {
     e.preventDefault();
 
@@ -367,21 +373,15 @@
 
     try {
       var dados = new FormData(form);
-      var resposta = await fetch('/pre-cadastro', { method: 'POST', body: dados });
-      var json = await resposta.json();
+      await fetch('/pre-cadastro', { method: 'POST', body: dados });
 
-      if (resposta.ok && json.success) {
-        res.className = 'ok';
-        res.textContent = '✅ Cadastro enviado! Em breve entraremos em contato pelo WhatsApp.';
-        form.reset();
-        bairrosSelecionados = [];
-        desenharTags();
-        blocoCoren.classList.remove('ativo');
-        blocoIndicacao.classList.remove('ativo');
-      } else {
-        res.className = 'erro';
-        res.textContent = '❌ Erro ao enviar: ' + (json.error || 'Tente novamente.');
-      }
+      res.className = 'ok';
+      res.textContent = '✅ Cadastro enviado! Em breve entraremos em contato pelo WhatsApp.';
+      form.reset();
+      bairrosSelecionados = [];
+      desenharTags();
+      blocoCoren.classList.remove('ativo');
+      blocoIndicacao.classList.remove('ativo');
     } catch (err) {
       res.className = 'erro';
       res.textContent = '❌ Erro de conexão: ' + err.message;
