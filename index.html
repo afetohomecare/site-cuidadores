@@ -106,16 +106,17 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
 
 /* ==================== FORMULÁRIO ==================== */
 .form-wrapper { background: var(--branco); border-radius: 35px; padding: 30px; box-shadow: 0 25px 60px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; max-width: 700px; margin: 40px auto 0 auto; max-height: 0; opacity: 0; overflow: hidden; padding: 0 30px; transition: all 0.6s ease-in-out; }
-.form-wrapper.revelado { max-height: 3500px; opacity: 1; padding: 40px; }
+.form-wrapper.revelado { max-height: 4500px; opacity: 1; padding: 40px; }
 .form-wrapper h3 { text-align: center; font-size: 28px; margin-bottom: 10px; font-weight: 900; letter-spacing: -1px; }
 .form-wrapper .sub-form { text-align: center; color: var(--cinza-fonte); font-size: 15px; font-weight: 600; margin-bottom: 30px; }
 
 .form-campo { margin-bottom: 8px; }
-.form-campo label { display: block; font-weight: 800; margin-bottom: 8px; margin-top: 22px; font-size: 15px; color: var(--preto-fonte); }
+.form-campo label { display: block; font-weight: 800; margin-bottom: 8px; margin-top: 22px; font-size: 15px; }
 .form-campo .ajuda { font-size: 12px; color: var(--cinza-fonte); font-weight: 600; display: block; margin-bottom: 6px; margin-top: -4px; }
 
 .form-campo input[type="text"],
 .form-campo input[type="tel"],
+.form-campo input[type="number"],
 .form-campo select,
 .form-campo textarea {
   width: 100%; padding: 16px 18px; border-radius: 16px; border: 2px solid #e2e8f0;
@@ -134,24 +135,17 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
 .form-campo select { cursor: pointer; appearance: none; -webkit-appearance: none; -moz-appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238b5cf6' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 18px center; background-size: 16px; padding-right: 45px; }
 .form-campo textarea { resize: vertical; min-height: 80px; }
 
-/* Bairros - autocomplete */
+/* Input com prefixo R$ */
+.input-prefix { position: relative; display: flex; align-items: center; }
+.input-prefix span { position: absolute; left: 18px; font-weight: 800; color: var(--lilas-escuro); font-size: 15px; pointer-events: none; z-index: 2; }
+.input-prefix input { padding-left: 48px !important; }
+
+/* Bairros */
 .wrap-bairros { position: relative; margin-top: 6px; }
-.caixa-bairros {
-  display: flex; flex-wrap: wrap; gap: 6px; padding: 10px;
-  border: 2px solid #e2e8f0; border-radius: 16px; min-height: 52px;
-  background: var(--fundo-site); align-items: center; transition: 0.3s; box-sizing: border-box;
-}
+.caixa-bairros { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px; border: 2px solid #e2e8f0; border-radius: 16px; min-height: 52px; background: var(--fundo-site); align-items: center; transition: 0.3s; box-sizing: border-box; }
 .caixa-bairros:focus-within { border-color: var(--lilas); background: var(--branco); box-shadow: 0 0 0 4px rgba(139,92,246,0.12); }
-.caixa-bairros input {
-  border: none !important; outline: none !important; flex: 1; min-width: 120px;
-  padding: 4px !important; font-size: 15px !important; font-weight: 700 !important;
-  background: transparent !important; box-shadow: none !important; box-sizing: border-box;
-}
-.tag-bairro {
-  display: inline-flex; align-items: center; gap: 6px;
-  background: #ede9fe; color: #6d28d9; padding: 6px 12px;
-  border-radius: 20px; font-size: 13px; font-weight: 800;
-}
+.caixa-bairros input { border: none !important; outline: none !important; flex: 1; min-width: 120px; padding: 4px !important; font-size: 15px !important; font-weight: 700 !important; background: transparent !important; box-shadow: none !important; box-sizing: border-box; }
+.tag-bairro { display: inline-flex; align-items: center; gap: 6px; background: #ede9fe; color: #6d28d9; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 800; }
 .tag-bairro.principal { background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; box-shadow: 0 3px 10px rgba(139,92,246,0.35); }
 .tag-bairro button { background: none; border: none; color: inherit; cursor: pointer; font-size: 16px; padding: 0; line-height: 1; opacity: 0.7; font-weight: 900; }
 .tag-bairro button:hover { opacity: 1; }
@@ -161,63 +155,49 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
 .opcao-bairro:hover { background: #f5f3ff; color: var(--lilas-escuro); }
 .opcao-bairro.sem-resultado { color: #999; cursor: default; font-style: italic; font-weight: 600; }
 
-/* COREN */
 .campo-oculto { display: none; }
 .campo-oculto.ativo { display: block; }
+
+/* Aviso COREN */
 .aviso-coren { display: flex; gap: 10px; font-size: 13px; color: var(--lilas-escuro); background: #f5f3ff; padding: 14px 16px; border-radius: 12px; margin-top: 12px; border-left: 4px solid var(--lilas); line-height: 1.55; font-weight: 600; }
 .aviso-coren strong { font-weight: 900; }
+
+/* Aviso NOTURNO */
+.aviso-noturno { display: flex; gap: 12px; font-size: 13.5px; color: #6d28d9; background: linear-gradient(135deg, #f5f3ff, #ede9fe); padding: 16px 18px; border-radius: 12px; margin-top: 12px; border-left: 4px solid var(--lilas); line-height: 1.55; font-weight: 600; }
+.aviso-noturno strong { font-weight: 900; }
+.aviso-noturno .emoji { font-size: 22px; line-height: 1; }
 
 /* Termos */
 .termos { margin-top: 28px; padding: 20px; background: #f5f3ff; border-radius: 16px; border-left: 4px solid var(--lilas); }
 .termos-titulo { font-size: 15px; font-weight: 900; color: var(--lilas-escuro); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
-.termo-item { display: flex; align-items: flex-start; gap: 12px; margin-top: 12px; font-size: 13.5px; color: var(--preto-fonte); line-height: 1.55; font-weight: 600; }
+.termo-item { display: flex; align-items: flex-start; gap: 12px; margin-top: 12px; font-size: 13.5px; color: var(--preto-fonte); line-height: 1.55; font-weight: 600; transition: 0.3s; }
 .termo-item input[type="checkbox"] { width: 20px; height: 20px; margin-top: 1px; flex-shrink: 0; cursor: pointer; accent-color: var(--lilas); }
 .termo-item label { font-weight: 600 !important; margin: 0 !important; font-size: 13.5px !important; cursor: pointer; }
 .termo-item a { color: var(--lilas-escuro); text-decoration: underline; font-weight: 800; }
 .termo-item.destacar { background: #fef2f2; border-radius: 10px; padding: 10px; margin-left: -10px; margin-right: -10px; animation: piscar 1.5s ease-in-out; }
 @keyframes piscar { 0%, 100% { background: #fef2f2; } 50% { background: #fee2e2; } }
 
-/* Botão enviar */
-.btn-enviar-form {
-  width: 100%; margin-top: 30px; padding: 20px; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro));
-  color: white; border: none; border-radius: 50px; font-size: 17px; font-weight: 900;
-  cursor: pointer; transition: 0.3s; box-shadow: 0 10px 25px rgba(139,92,246,0.3);
-  font-family: 'Nunito', sans-serif; display: flex; justify-content: center; align-items: center; gap: 10px;
-}
+.btn-enviar-form { width: 100%; margin-top: 30px; padding: 20px; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; border: none; border-radius: 50px; font-size: 17px; font-weight: 900; cursor: pointer; transition: 0.3s; box-shadow: 0 10px 25px rgba(139,92,246,0.3); font-family: 'Nunito', sans-serif; display: flex; justify-content: center; align-items: center; gap: 10px; }
 .btn-enviar-form:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 15px 35px rgba(139,92,246,0.4); }
 .btn-enviar-form:disabled { background: #cbd5e1; cursor: not-allowed; box-shadow: none; }
 
-/* Tela de Sucesso/Erro (substitui o form) */
-.tela-resultado {
-  display: none; text-align: center; padding: 40px 20px;
-  animation: fadeInUp 0.5s ease-out;
-}
+.tela-resultado { display: none; text-align: center; padding: 40px 20px; animation: fadeInUp 0.5s ease-out; }
 .tela-resultado.ativo { display: block; }
 @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-.tela-icone {
-  width: 100px; height: 100px; border-radius: 50%; display: flex; justify-content: center; align-items: center;
-  font-size: 50px; color: white; margin: 0 auto 25px;
-}
+.tela-icone { width: 100px; height: 100px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 50px; color: white; margin: 0 auto 25px; }
 .tela-icone.sucesso { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 15px 35px rgba(16,185,129,0.4); }
 .tela-icone.erro { background: linear-gradient(135deg, #ef4444, #dc2626); box-shadow: 0 15px 35px rgba(239,68,68,0.4); }
-.tela-titulo { font-size: 28px; font-weight: 900; margin-bottom: 12px; letter-spacing: -0.5px; color: var(--preto-fonte); }
+.tela-titulo { font-size: 28px; font-weight: 900; margin-bottom: 12px; letter-spacing: -0.5px; }
 .tela-texto { font-size: 16px; color: var(--cinza-fonte); font-weight: 600; margin-bottom: 30px; line-height: 1.6; max-width: 420px; margin-left: auto; margin-right: auto; }
-.tela-botao {
-  display: inline-flex; align-items: center; gap: 10px;
-  padding: 16px 36px; border-radius: 50px; font-weight: 900; font-size: 15px;
-  cursor: pointer; transition: 0.3s; border: none; font-family: 'Nunito', sans-serif;
-}
+.tela-botao { display: inline-flex; align-items: center; gap: 10px; padding: 16px 36px; border-radius: 50px; font-weight: 900; font-size: 15px; cursor: pointer; transition: 0.3s; border: none; font-family: 'Nunito', sans-serif; }
 .tela-botao.sucesso { background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; box-shadow: 0 10px 25px rgba(139,92,246,0.3); }
 .tela-botao.sucesso:hover { transform: translateY(-3px); box-shadow: 0 15px 35px rgba(139,92,246,0.4); }
 .tela-botao.erro { background: white; color: var(--lilas); border: 2px solid var(--lilas); }
 .tela-botao.erro:hover { background: var(--lilas); color: white; }
 
-/* Loader */
 .spinner { display: inline-block; width: 18px; height: 18px; border: 3px solid rgba(255,255,255,0.4); border-top-color: white; border-radius: 50%; animation: girar 0.7s linear infinite; }
 @keyframes girar { to { transform: rotate(360deg); } }
 
-/* Rodapé */
 .btn-wpp { position: fixed; bottom: 30px; right: 30px; z-index: 999; background: var(--verde-whatsapp); color: white; width: 70px; height: 70px; border-radius: 24px; display: flex; justify-content: center; align-items: center; font-size: 38px; box-shadow: 0 15px 30px rgba(37,211,102,0.35); animation: pulse-green 2s infinite; }
 .btn-wpp:hover { transform: scale(1.15); }
 @keyframes pulse-green { 0% { box-shadow: 0 0 0 0 rgba(37,211,102,0.5); } 70% { box-shadow: 0 0 0 20px rgba(37,211,102,0); } 100% { box-shadow: 0 0 0 0 rgba(37,211,102,0); } }
@@ -291,21 +271,9 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
     <p>O caminho mais seguro para ser dono da sua agenda.</p>
   </div>
   <div class="passos-grid">
-    <div class="passo-card">
-      <div class="passo-num">1</div>
-      <h3>Seu Cadastro</h3>
-      <p>Você preenche seus dados, define o seu valor de repasse limpo e nos envia suas referências profissionais.</p>
-    </div>
-    <div class="passo-card">
-      <div class="passo-num">2</div>
-      <h3>Certificação Afeto</h3>
-      <p>Nossa equipe valida suas experiências e cria um Perfil de Excelência para você na nossa plataforma.</p>
-    </div>
-    <div class="passo-card">
-      <div class="passo-num">3</div>
-      <h3>Conexão & Plantões</h3>
-      <p>Sua vitrine atrai famílias. Nós gerenciamos a tecnologia de conexão e do pagamento, e você foca apenas em cuidar.</p>
-    </div>
+    <div class="passo-card"><div class="passo-num">1</div><h3>Seu Cadastro</h3><p>Você preenche seus dados, define o seu valor de repasse limpo e nos envia suas referências profissionais.</p></div>
+    <div class="passo-card"><div class="passo-num">2</div><h3>Certificação Afeto</h3><p>Nossa equipe valida suas experiências e cria um Perfil de Excelência para você na nossa plataforma.</p></div>
+    <div class="passo-card"><div class="passo-num">3</div><h3>Conexão & Plantões</h3><p>Sua vitrine atrai famílias. Nós gerenciamos a tecnologia de conexão e do pagamento, e você foca apenas em cuidar.</p></div>
   </div>
 
   <div class="btn-wrapper">
@@ -363,26 +331,10 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td><strong>Quem define o seu ganho?</strong></td>
-          <td class="col-velho">Eles impõem o valor e ditam as regras do seu trabalho.</td>
-          <td class="col-afeto"><span class="check-violeta">✓</span> Você escolhe 100% livre o valor do seu repasse.</td>
-        </tr>
-        <tr>
-          <td><strong>Descontos no seu bolso</strong></td>
-          <td class="col-velho">Retêm até 40% de tudo o que você ganha.</td>
-          <td class="col-afeto"><span class="check-violeta">✓</span> Zero desconto no seu repasse. A taxa de 15% da plataforma é somada ao valor final.</td>
-        </tr>
-        <tr>
-          <td><strong>Valorização Profissional</strong></td>
-          <td class="col-velho">Tratada como "só mais um número" na escala.</td>
-          <td class="col-afeto"><span class="check-violeta">✓</span> Você é valorizada! Seu perfil evolui com estrelas e avaliações.</td>
-        </tr>
-        <tr>
-          <td><strong>Segurança no Pagamento</strong></td>
-          <td class="col-velho">Cobrança manual e atrasos por parte da agência.</td>
-          <td class="col-afeto"><span class="check-violeta">✓</span> Automático, via plataforma, direto para a sua conta.</td>
-        </tr>
+        <tr><td><strong>Quem define o seu ganho?</strong></td><td class="col-velho">Eles impõem o valor e ditam as regras do seu trabalho.</td><td class="col-afeto"><span class="check-violeta">✓</span> Você escolhe 100% livre o valor do seu repasse.</td></tr>
+        <tr><td><strong>Descontos no seu bolso</strong></td><td class="col-velho">Retêm até 40% de tudo o que você ganha.</td><td class="col-afeto"><span class="check-violeta">✓</span> Zero desconto no seu repasse. A taxa de 15% da plataforma é somada ao valor final.</td></tr>
+        <tr><td><strong>Valorização Profissional</strong></td><td class="col-velho">Tratada como "só mais um número" na escala.</td><td class="col-afeto"><span class="check-violeta">✓</span> Você é valorizada! Seu perfil evolui com estrelas e avaliações.</td></tr>
+        <tr><td><strong>Segurança no Pagamento</strong></td><td class="col-velho">Cobrança manual e atrasos por parte da agência.</td><td class="col-afeto"><span class="check-violeta">✓</span> Automático, via plataforma, direto para a sua conta.</td></tr>
       </tbody>
     </table>
   </div>
@@ -450,6 +402,35 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
         </div>
 
         <div class="form-campo">
+          <label for="valor-plantao">Quanto você gostaria de receber por plantão de 12h?</label>
+          <span class="ajuda">Esse é o valor líquido que você recebe, sem desconto. É você quem decide!</span>
+          <div class="input-prefix">
+            <span>R$</span>
+            <input type="number" id="valor-plantao" name="valor_plantao" placeholder="150" min="50" max="2000" step="10" required>
+          </div>
+        </div>
+
+        <div class="form-campo">
+          <label for="turno">Que tipo de plantão você faz?</label>
+          <select id="turno" name="turno" required>
+            <option value="">Selecione...</option>
+            <option value="Diurno">☀️ Apenas diurno</option>
+            <option value="Noturno">🌙 Apenas noturno</option>
+            <option value="Diurno e Noturno">☀️🌙 Diurno e Noturno</option>
+          </select>
+        </div>
+
+        <div class="campo-oculto" id="aviso-noturno">
+          <div class="aviso-noturno">
+            <span class="emoji">💜</span>
+            <div>
+              <strong>Aqui na Afeto pensamos em você!</strong><br>
+              Sabemos que plantões noturnos exigem ainda mais dedicação. Por isso, adicionamos um <strong>adicional de 20%</strong> sobre o valor que você definir quando o plantão for noturno. Seu cuidado valorizado como deve.
+            </div>
+          </div>
+        </div>
+
+        <div class="form-campo">
           <label for="cursos">Quais cursos (com certificado) você possui?</label>
           <span class="ajuda">Conte pra gente o que você já estudou.</span>
           <textarea id="cursos" name="cursos" rows="3" placeholder="Ex: Curso de Cuidador de Idosos (120h) pelo SENAC..."></textarea>
@@ -499,17 +480,14 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
             <input type="checkbox" id="termo1" name="aceite_termos" value="Sim">
             <label for="termo1">Li e concordo com os <a href="termos.html" target="_blank">Termos de Uso</a> e a <a href="privacidade.html" target="_blank">Política de Privacidade</a> da Afeto Homecare.</label>
           </div>
-
           <div class="termo-item" data-termo="termo2">
             <input type="checkbox" id="termo2" name="aceite_lgpd" value="Sim">
             <label for="termo2">Autorizo a Afeto Homecare a tratar meus dados pessoais e profissionais para fins de cadastro, exibição do meu perfil na plataforma e contato sobre oportunidades de plantão.</label>
           </div>
-
           <div class="termo-item" data-termo="termo3">
             <input type="checkbox" id="termo3" name="veracidade" value="Sim">
             <label for="termo3">Declaro que todas as informações preenchidas neste formulário são verdadeiras e de minha inteira responsabilidade.</label>
           </div>
-
           <div class="termo-item" data-termo="termo4">
             <input type="checkbox" id="termo4" name="antecedentes" value="Sim">
             <label for="termo4">Declaro que não possuo antecedentes criminais e autorizo a Afeto Homecare a verificar essa informação junto aos órgãos competentes.</label>
@@ -522,7 +500,6 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
       </form>
     </div>
 
-    <!-- TELA DE SUCESSO -->
     <div id="tela-sucesso" class="tela-resultado">
       <div class="tela-icone sucesso"><i class="fa-solid fa-check"></i></div>
       <div class="tela-titulo">Pré-cadastro enviado com sucesso!</div>
@@ -532,7 +509,6 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
       </button>
     </div>
 
-    <!-- TELA DE ERRO -->
     <div id="tela-erro" class="tela-resultado">
       <div class="tela-icone erro"><i class="fa-solid fa-triangle-exclamation"></i></div>
       <div class="tela-titulo">Não foi possível enviar.</div>
@@ -629,19 +605,16 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
     });
   });
 
-  // ============ MOSTRAR FORMULÁRIO ============
   window.mostrarFormulario = function() {
     var caixa = document.getElementById('formulario-box');
     caixa.classList.add('revelado');
     setTimeout(function() { caixa.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 200);
   };
 
-  // ============ VOLTAR AO INÍCIO (sucesso) ============
   window.voltarAoInicio = function() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // ============ VOLTAR AO FORMULÁRIO (erro) ============
   window.voltarFormulario = function() {
     document.getElementById('tela-erro').classList.remove('ativo');
     document.getElementById('form-area').style.display = 'block';
@@ -683,6 +656,8 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
   var campoProfissao = document.getElementById('profissao');
   var campoComoConheceu = document.getElementById('como-conheceu');
   var blocoIndicacao = document.getElementById('bloco-indicacao');
+  var campoTurno = document.getElementById('turno');
+  var avisoNoturno = document.getElementById('aviso-noturno');
   var form = document.getElementById('form-cuidadora');
   var btnEnviar = document.getElementById('btn-enviar');
   var formArea = document.getElementById('form-area');
@@ -690,13 +665,11 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
   var telaErro = document.getElementById('tela-erro');
   var textoErro = document.getElementById('texto-erro');
 
-  // Máscara WhatsApp
   campoWhatsapp.addEventListener('input', function() {
     var x = this.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
     this.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
   });
 
-  // Máscara COREN
   campoCoren.addEventListener('input', function() {
     var valor = this.value.toUpperCase();
     var numeros = '', letras = '', achouLetra = false;
@@ -712,7 +685,6 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
     this.value = letras ? (numeros + '-' + letras) : numeros;
   });
 
-  // Bairros
   function atualizarValorBairros() { bairrosValor.value = bairrosSelecionados.join(' | '); }
 
   function desenharTags() {
@@ -781,7 +753,6 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
     if (!e.target.closest('.wrap-bairros')) listaBairros.classList.remove('ativo');
   });
 
-  // COREN condicional
   campoProfissao.addEventListener('change', function() {
     var v = this.value;
     if (v === 'Técnica de Enfermagem' || v === 'Enfermeira') {
@@ -794,7 +765,6 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
     }
   });
 
-  // Indicação condicional
   campoComoConheceu.addEventListener('change', function() {
     if (this.value === 'Indicação') blocoIndicacao.classList.add('ativo');
     else {
@@ -803,6 +773,69 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
     }
   });
 
+  campoTurno.addEventListener('change', function() {
+    if (this.value === 'Noturno' || this.value === 'Diurno e Noturno') {
+      avisoNoturno.classList.add('ativo');
+    } else {
+      avisoNoturno.classList.remove('ativo');
+    }
+  });
+
+  // ============ TOAST AFETO ============
+  function mostrarToast(msg) {
+    var antigo = document.getElementById('toast-afeto');
+    if (antigo) antigo.remove();
+
+    var toast = document.createElement('div');
+    toast.id = 'toast-afeto';
+    toast.style.cssText = 'position:fixed; top:100px; left:50%; transform:translateX(-50%); background:linear-gradient(135deg,#8b5cf6,#7c3aed); color:white; padding:16px 28px; border-radius:50px; font-weight:800; font-size:14px; box-shadow:0 15px 35px rgba(139,92,246,0.4); z-index:9999; max-width:90%; text-align:center; opacity:0; transition:opacity 0.3s, transform 0.3s;';
+    toast.innerHTML = '💜 ' + msg;
+    document.body.appendChild(toast);
+
+    requestAnimationFrame(function() {
+      toast.style.opacity = '1';
+      toast.style.transform = 'translateX(-50%) translateY(0)';
+    });
+
+    setTimeout(function() {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateX(-50%) translateY(-20px)';
+      setTimeout(function() { toast.remove(); }, 300);
+    }, 3500);
+  }
+
+  function destacarErro(tipo, id, msg) {
+    mostrarToast(msg);
+
+    if (tipo === 'termo') {
+      var termoBox = document.querySelector('[data-termo="' + id + '"]');
+      if (termoBox) {
+        termoBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        termoBox.classList.add('destacar');
+        setTimeout(function() { termoBox.classList.remove('destacar'); }, 2500);
+      }
+    } else if (tipo === 'bairro') {
+      var caixa = document.getElementById('caixa-bairros');
+      caixa.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      caixa.style.borderColor = '#ef4444';
+      caixa.style.boxShadow = '0 0 0 4px rgba(239,68,68,0.15)';
+      setTimeout(function() { caixa.style.borderColor = ''; caixa.style.boxShadow = ''; }, 2500);
+      inputBairros.focus();
+    } else {
+      var el = document.getElementById(id);
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el.style.borderColor = '#ef4444';
+      el.style.background = '#fef2f2';
+      el.style.boxShadow = '0 0 0 4px rgba(239,68,68,0.15)';
+      if (el.focus) el.focus();
+      setTimeout(function() {
+        el.style.borderColor = '';
+        el.style.background = '';
+        el.style.boxShadow = '';
+      }, 2500);
+    }
+  }
+
   // ============ ENVIO ============
   var enviando = false;
 
@@ -810,41 +843,37 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
     e.preventDefault();
     if (enviando) return;
 
-    // 1) Verifica bairros
-    if (bairrosSelecionados.length === 0) {
-      return mostrarErroNoForm('Selecione pelo menos um bairro de atuação.');
-    }
+    // Validações em ordem
+    if (bairrosSelecionados.length === 0) return destacarErro('bairro', 'input-bairros', 'Selecione pelo menos um bairro de atuação.');
 
-    // 2) Verifica campos obrigatórios nativos
     var nome = document.getElementById('nome').value.trim();
+    if (!nome) return destacarErro('campo', 'nome', 'Por favor, preencha seu nome completo.');
+
     var whats = document.getElementById('whatsapp').value.trim();
+    if (!whats || whats.replace(/\D/g, '').length < 10) return destacarErro('campo', 'whatsapp', 'Por favor, preencha seu WhatsApp com DDD.');
+
     var prof = document.getElementById('profissao').value;
-    var como = document.getElementById('como-conheceu').value;
+    if (!prof) return destacarErro('campo', 'profissao', 'Por favor, selecione como você atua.');
 
-    if (!nome) return destacarCampo('nome', 'Por favor, preencha seu nome completo.');
-    if (!whats || whats.replace(/\D/g,'').length < 10) return destacarCampo('whatsapp', 'Por favor, preencha um WhatsApp válido com DDD.');
-    if (!prof) return destacarCampo('profissao', 'Por favor, selecione como você atua.');
     if ((prof === 'Técnica de Enfermagem' || prof === 'Enfermeira') && !campoCoren.value.trim()) {
-      return destacarCampo('coren', 'Por favor, informe seu número de COREN.');
-    }
-    if (!como) return destacarCampo('como-conheceu', 'Por favor, selecione como você conheceu a Afeto.');
-
-    // 3) Verifica os checkboxes
-    var termos = [
-      { id: 'termo1', msg: 'Você precisa aceitar os Termos de Uso e a Política de Privacidade.' },
-      { id: 'termo2', msg: 'Você precisa autorizar o tratamento dos seus dados (LGPD).' },
-      { id: 'termo3', msg: 'Você precisa declarar que as informações são verdadeiras.' },
-      { id: 'termo4', msg: 'Você precisa declarar que não possui antecedentes criminais.' }
-    ];
-
-    for (var i = 0; i < termos.length; i++) {
-      var cb = document.getElementById(termos[i].id);
-      if (!cb.checked) {
-        return destacarTermo(termos[i].id, termos[i].msg);
-      }
+      return destacarErro('campo', 'coren', 'Por favor, informe seu número de COREN.');
     }
 
-    // 4) Tudo OK, envia
+    var valor = document.getElementById('valor-plantao').value;
+    if (!valor || parseFloat(valor) < 50) return destacarErro('campo', 'valor-plantao', 'Por favor, informe quanto você gostaria de receber por plantão.');
+
+    var turno = document.getElementById('turno').value;
+    if (!turno) return destacarErro('campo', 'turno', 'Por favor, selecione o tipo de plantão que você faz.');
+
+    var como = document.getElementById('como-conheceu').value;
+    if (!como) return destacarErro('campo', 'como-conheceu', 'Por favor, selecione como você conheceu a Afeto.');
+
+    if (!document.getElementById('termo1').checked) return destacarErro('termo', 'termo1', 'Você precisa aceitar os Termos de Uso e a Política de Privacidade.');
+    if (!document.getElementById('termo2').checked) return destacarErro('termo', 'termo2', 'Você precisa autorizar o tratamento dos seus dados (LGPD).');
+    if (!document.getElementById('termo3').checked) return destacarErro('termo', 'termo3', 'Você precisa declarar que as informações são verdadeiras.');
+    if (!document.getElementById('termo4').checked) return destacarErro('termo', 'termo4', 'Você precisa declarar que não possui antecedentes criminais.');
+
+    // Tudo OK, envia
     enviando = true;
     btnEnviar.disabled = true;
     btnEnviar.innerHTML = 'Enviando... <span class="spinner"></span>';
@@ -852,20 +881,15 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
     try {
       var dados = new FormData(form);
 
-      // Race: envio vs timeout de 8s
-      var envioPromise = fetch('/pre-cadastro', { method: 'POST', body: dados });
+      var envioPromise = fetch('/pre-cadastro', { method: 'POST', body: dados })
+        .then(function() { return 'ok'; })
+        .catch(function() { return 'erro'; });
+
       var timeoutPromise = new Promise(function(resolve) { setTimeout(resolve, 8000, 'timeout'); });
+      var resultado = await Promise.race([envioPromise, timeoutPromise]);
 
-      var resultado = await Promise.race([
-        envioPromise.then(function() { return 'ok'; }).catch(function() { return 'erro'; }),
-        timeoutPromise
-      ]);
+      if (resultado === 'erro') throw new Error('Falha');
 
-      if (resultado === 'erro') {
-        throw new Error('Falha na conexão');
-      }
-
-      // Sucesso!
       formArea.style.display = 'none';
       telaErro.classList.remove('ativo');
       telaSucesso.classList.add('ativo');
@@ -883,53 +907,6 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
       btnEnviar.innerHTML = 'Enviar Cadastro <i class="fa-solid fa-heart"></i>';
     }
   });
-
-  // Destacar campo com erro
-  function destacarCampo(id, msg) {
-    var el = document.getElementById(id);
-    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    el.style.borderColor = '#ef4444';
-    el.style.background = '#fef2f2';
-    el.focus();
-    setTimeout(function() {
-      el.style.borderColor = '';
-      el.style.background = '';
-    }, 3000);
-    // Mostra mensagem temporária em toast abaixo do campo
-    mostrarToast(msg);
-  }
-
-  // Destacar checkbox não marcado
-  function destacarTermo(id, msg) {
-    var termo = document.querySelector('[data-termo="' + id + '"]');
-    termo.classList.add('destacar');
-    termo.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    setTimeout(function() { termo.classList.remove('destacar'); }, 3000);
-    mostrarToast(msg);
-  }
-
-  // Toast de aviso amarelo suave
-  function mostrarToast(msg) {
-    var toastExistente = document.getElementById('toast-aviso');
-    if (toastExistente) toastExistente.remove();
-
-    var toast = document.createElement('div');
-    toast.id = 'toast-aviso';
-    toast.style.cssText = 'position:fixed; top:100px; left:50%; transform:translateX(-50%); background:linear-gradient(135deg,#8b5cf6,#7c3aed); color:white; padding:16px 28px; border-radius:50px; font-weight:800; font-size:14px; box-shadow:0 15px 35px rgba(139,92,246,0.4); z-index:9999; max-width:90%; text-align:center; animation:slideDown 0.4s ease-out;';
-    toast.innerHTML = '💜 ' + msg;
-    document.body.appendChild(toast);
-
-    var style = document.createElement('style');
-    style.textContent = '@keyframes slideDown { from { opacity:0; transform:translateX(-50%) translateY(-20px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }';
-    document.head.appendChild(style);
-
-    setTimeout(function() {
-      toast.style.transition = 'opacity 0.4s, transform 0.4s';
-      toast.style.opacity = '0';
-      toast.style.transform = 'translateX(-50%) translateY(-20px)';
-      setTimeout(function() { toast.remove(); }, 400);
-    }, 3500);
-  }
 
 })();
 </script>
