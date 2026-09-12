@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planos - Afeto Homecare</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root { --lilas: #8b5cf6; --lilas-escuro: #7c3aed; --fundo-site: #f8f9fc; --preto-fonte: #1f1f1f; --cinza-fonte: #666666; --cinza-azulado: #94a3b8; --branco: #ffffff; --ouro: #fbbf24; --verde: #10b981; --verde-claro: #ecfdf5; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-height: 100vh; color: var(--preto-fonte); }
+
+.wrap { max-width: 900px; margin: 0 auto; padding: 40px 15px; }
+
+.header { text-align: center; margin-bottom: 30px; }
+.header .logo { font-size: 26px; font-weight: 900; color: var(--lilas); letter-spacing: -1px; margin-bottom: 16px; }
+.header .logo span { font-weight: 300; color: var(--cinza-azulado); }
+.header h1 { font-size: 28px; font-weight: 900; letter-spacing: -1px; margin-bottom: 12px; line-height: 1.2; }
+.header p { font-size: 15px; color: var(--cinza-fonte); font-weight: 700; max-width: 520px; margin: 0 auto; line-height: 1.55; }
+
+.banner-ativo { background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 1px solid #6ee7b7; border-radius: 16px; padding: 18px 22px; margin-bottom: 28px; display: flex; align-items: center; gap: 14px; }
+.banner-ativo .check-icone { width: 44px; height: 44px; background: linear-gradient(135deg, #10b981, #059669); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; box-shadow: 0 8px 20px rgba(16,185,129,0.3); }
+.banner-ativo .texto { flex: 1; }
+.banner-ativo h3 { font-size: 15px; font-weight: 900; color: #065f46; margin-bottom: 3px; }
+.banner-ativo p { font-size: 13px; color: #047857; font-weight: 700; line-height: 1.5; margin: 0; }
+
+.cards { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; align-items: stretch; margin-bottom: 24px; }
+
+.card { background: white; border-radius: 20px; padding: 30px 24px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; transition: 0.3s; position: relative; }
+.card.profissional { border: 2px solid var(--lilas); box-shadow: 0 20px 40px rgba(139,92,246,0.1); }
+.card.profissional::before { content: "MAIS ESCOLHIDO"; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; padding: 5px 14px; border-radius: 50px; font-size: 10px; font-weight: 900; letter-spacing: 1px; white-space: nowrap; }
+
+.card-nome { font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 20px; color: var(--cinza-fonte); display: flex; align-items: center; gap: 8px; }
+.card.profissional .card-nome { color: var(--lilas); }
+.card.destaque .card-nome { color: var(--ouro); }
+
+.card-preco { margin-bottom: 24px; }
+.card-preco .linha-preco { display: flex; align-items: baseline; gap: 2px; }
+.card-preco .cifra { font-size: 15px; font-weight: 800; color: var(--cinza-fonte); }
+.card-preco .valor { font-size: 38px; font-weight: 900; letter-spacing: -2px; line-height: 1; color: var(--preto-fonte); }
+.card-preco .centavos { font-size: 18px; font-weight: 900; color: var(--preto-fonte); }
+.card-preco .periodo { font-size: 13px; font-weight: 700; color: var(--cinza-fonte); margin-left: 3px; }
+.card-preco .por-dia { font-size: 12px; font-weight: 800; color: var(--lilas-escuro); margin-top: 8px; background: #f5f3ff; display: inline-block; padding: 3px 10px; border-radius: 50px; }
+.card-preco .nota { font-size: 12px; font-weight: 700; color: var(--cinza-azulado); margin-top: 8px; }
+
+.card-divisor { height: 1px; background: #f1f5f9; margin-bottom: 20px; }
+
+.card-lista { list-style: none; flex: 1; margin-bottom: 24px; }
+.card-lista li { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; font-weight: 700; line-height: 1.5; padding: 6px 0; color: var(--cinza-fonte); }
+.card-lista li i { color: var(--lilas); font-size: 11px; margin-top: 4px; flex-shrink: 0; width: 12px; }
+.card-lista li.item-neutro i { color: var(--cinza-azulado); }
+.card-lista li.item-extra i { color: var(--ouro); }
+.card-lista li strong { color: var(--preto-fonte); }
+
+.card-btn { display: flex; align-items: center; justify-content: center; width: 100%; padding: 13px; border-radius: 12px; font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 900; cursor: pointer; text-decoration: none; transition: 0.3s; border: none; }
+.card-btn.gratis-btn { background: var(--verde-claro); color: #059669; border: 1px solid #6ee7b7; cursor: default; }
+.card-btn.profissional-btn { background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; box-shadow: 0 8px 20px rgba(139,92,246,0.3); }
+.card-btn.profissional-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(139,92,246,0.4); }
+.card-btn.destaque-btn { background: transparent; color: var(--preto-fonte); border: 2px solid var(--ouro); }
+.card-btn.destaque-btn:hover { background: #fffbeb; }
+
+.card-nota { text-align: center; font-size: 11px; color: var(--cinza-azulado); font-weight: 700; margin-top: 12px; }
+
+.tag-fundadora { background: linear-gradient(135deg, #fffbeb, #fef3c7); border: 1px solid #fde68a; border-radius: 12px; padding: 12px 18px; margin-bottom: 16px; text-align: center; font-size: 13px; font-weight: 800; color: #78350f; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.tag-fundadora i { color: #d97706; font-size: 15px; }
+
+.sem-fidelidade { background: linear-gradient(135deg, #f5f3ff, #ede9fe); border-radius: 16px; padding: 20px 24px; margin-bottom: 24px; display: flex; gap: 14px; align-items: center; border: 1px solid #c4b5fd; }
+.sem-fidelidade .icone { width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; box-shadow: 0 8px 20px rgba(139,92,246,0.25); }
+.sem-fidelidade p { font-size: 13px; color: var(--lilas-escuro); font-weight: 800; line-height: 1.55; margin: 0; }
+.sem-fidelidade strong { color: var(--preto-fonte); }
+
+.comparativo { background: white; border-radius: 20px; padding: 30px 26px; border: 1px solid #e2e8f0; margin-bottom: 24px; }
+.comparativo h3 { font-size: 16px; font-weight: 900; text-align: center; margin-bottom: 22px; letter-spacing: -0.5px; }
+.comparativo-tabela { width: 100%; border-collapse: collapse; font-size: 13px; }
+.comparativo-tabela th { text-align: center; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; color: var(--cinza-fonte); padding: 8px 6px; border-bottom: 2px solid #e2e8f0; }
+.comparativo-tabela th:first-child { text-align: left; }
+.comparativo-tabela th.destaque-col { color: var(--lilas); }
+.comparativo-tabela td { padding: 11px 6px; border-bottom: 1px solid #f1f5f9; text-align: center; font-weight: 700; color: var(--cinza-fonte); }
+.comparativo-tabela td:first-child { text-align: left; color: var(--preto-fonte); font-weight: 800; }
+.comparativo-tabela .check { color: var(--verde); font-size: 15px; }
+.comparativo-tabela .x { color: #cbd5e1; font-size: 15px; }
+
+.info-bloco { background: white; border-radius: 16px; padding: 20px 24px; margin-bottom: 24px; display: flex; gap: 14px; align-items: flex-start; border: 1px solid #e2e8f0; }
+.info-bloco .icone { width: 40px; height: 40px; border-radius: 10px; background: #f1f5f9; color: var(--cinza-fonte); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.info-bloco p { font-size: 13px; color: var(--cinza-fonte); font-weight: 700; line-height: 1.6; margin: 0; }
+.info-bloco strong { color: var(--preto-fonte); }
+
+/* ========== ÍCONES DE SEGURANÇA (AUMENTADOS) ========== */
+.rodape-seguranca { display: flex; justify-content: center; gap: 28px; flex-wrap: wrap; margin-bottom: 8px; padding: 18px 0 8px; }
+.rodape-seguranca .item-seg { display: inline-flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 800; color: var(--preto-fonte); }
+.rodape-seguranca .item-seg i { color: var(--verde); font-size: 22px; }
+.rodape-seguranca .item-seg .texto-seg { display: flex; flex-direction: column; line-height: 1.2; }
+.rodape-seguranca .item-seg .texto-seg .titulo-seg { font-size: 14px; font-weight: 900; color: var(--preto-fonte); }
+.rodape-seguranca .item-seg .texto-seg .sub-seg { font-size: 12px; font-weight: 700; color: var(--cinza-fonte); }
+
+/* ==================== FOOTER PADRONIZADO ==================== */
+.site-footer { background-color: var(--fundo-site); color: var(--cinza-fonte); padding: 50px 20px 30px; text-align: center; border-top: 1px solid #e2e8f0; margin-top: 40px; width: 100%; }
+.footer-content { max-width: 900px; margin: 0 auto; font-size: 13px; line-height: 1.6; }
+.footer-content p { margin-bottom: 25px; }
+.footer-aviso { font-size: 11px; color: var(--cinza-azulado); font-weight: 600; line-height: 1.5; font-style: italic; padding: 0 20px; }
+.footer-social { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; }
+.footer-social a { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; display: flex; justify-content: center; align-items: center; font-size: 22px; box-shadow: 0 8px 20px rgba(139,92,246,0.25); transition: 0.3s; text-decoration: none; }
+.footer-social a:hover { transform: translateY(-4px) scale(1.08); }
+.footer-info { display: flex; justify-content: center; gap: 25px; flex-wrap: wrap; margin-bottom: 25px; font-size: 14px; color: var(--cinza-fonte); font-weight: 700; }
+.footer-info i { color: var(--lilas); margin-right: 6px; }
+.footer-links { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-bottom: 20px; }
+.footer-links a { color: var(--lilas-escuro); font-weight: 800; font-size: 14px; text-decoration: none; }
+.footer-links a:hover { color: var(--lilas); text-decoration: underline; }
+.footer-legal { font-size: 11px; color: var(--cinza-azulado); border-top: 1px solid #e2e8f0; padding-top: 20px; }
+
+@media (max-width: 750px) {
+    .wrap { padding: 28px 14px; }
+    .cards { grid-template-columns: 1fr; gap: 22px; }
+    .card { padding: 26px 22px; }
+    .card.profissional::before { font-size: 9px; padding: 4px 12px; }
+    .header h1 { font-size: 23px; }
+    .header p { font-size: 14px; }
+    .banner-ativo { flex-direction: column; text-align: center; padding: 16px 18px; }
+    .banner-ativo .check-icone { margin: 0 auto; }
+    .comparativo { padding: 22px 14px; }
+    .comparativo-tabela th, .comparativo-tabela td { font-size: 11.5px; padding: 9px 4px; }
+    .comparativo-tabela th:first-child, .comparativo-tabela td:first-child { font-size: 12px; }
+    .sem-fidelidade { padding: 16px 18px; }
+    .tag-fundadora { font-size: 12px; padding: 10px 14px; text-align: center; }
+    .site-footer { padding: 40px 18px 25px; }
+    .rodape-seguranca { gap: 20px; padding: 15px 0 8px; }
+    .rodape-seguranca .item-seg i { font-size: 20px; }
+    .rodape-seguranca .item-seg .texto-seg .titulo-seg { font-size: 13px; }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+    <div class="header">
+        <div class="logo">Afeto<span>Homecare</span></div>
+        <h1>Escolha como quer aparecer</h1>
+        <p>Seu perfil profissional na Afeto. Comece grátis e ative recursos quando fizer sentido para você.</p>
+    </div>
+
+    <div class="banner-ativo">
+        <div class="check-icone"><i class="fa-solid fa-check"></i></div>
+        <div class="texto">
+            <h3>Seu cadastro já está ativo no plano Grátis 💜</h3>
+            <p>Você já pode compartilhar seu link e usar seu cartão de visita digital. Quando quiser aparecer nas buscas, é só ativar um plano.</p>
+        </div>
+    </div>
+
+    <div class="cards">
+
+        <div class="card gratis">
+            <div class="card-nome"><i class="fa-solid fa-link"></i> Grátis</div>
+
+            <div class="card-preco">
+                <div class="linha-preco">
+                    <span class="cifra">R$</span>
+                    <span class="valor">0</span>
+                </div>
+                <div class="nota">Para sempre · ativo ✅</div>
+            </div>
+
+            <div class="card-divisor"></div>
+
+            <ul class="card-lista">
+                <li><i class="fa-solid fa-check"></i> <strong>Seu link exclusivo</strong></li>
+                <li><i class="fa-solid fa-check"></i> Compartilhe onde quiser</li>
+                <li><i class="fa-solid fa-check"></i> Use na bio do Instagram</li>
+                <li><i class="fa-solid fa-check"></i> Use no status do WhatsApp</li>
+                <li><i class="fa-solid fa-check"></i> Você divulga, você recebe</li>
+            </ul>
+
+            <a href="#" class="card-btn gratis-btn">
+                <i class="fa-solid fa-check" style="margin-right: 8px;"></i> Plano ativo
+            </a>
+            <div class="card-nota">Seu cartão de visita digital</div>
+        </div>
+
+        <div class="card profissional">
+            <div class="card-nome"><i class="fa-solid fa-user-check"></i> Profissional</div>
+
+            <div class="card-preco">
+                <div class="linha-preco">
+                    <span class="cifra">R$</span>
+                    <span class="valor">24</span>
+                    <span class="centavos">,90</span>
+                    <span class="periodo">/mês</span>
+                </div>
+                <div class="por-dia">R$ 0,83 por dia</div>
+                <div class="nota">Cancele quando quiser</div>
+            </div>
+
+            <div class="card-divisor"></div>
+
+            <ul class="card-lista">
+                <li><i class="fa-solid fa-check"></i> <strong>Tudo do plano Grátis</strong></li>
+                <li><i class="fa-solid fa-check"></i> Foto e bio profissional</li>
+                <li><i class="fa-solid fa-check"></i> <strong>Suas especialidades</strong> no perfil</li>
+                <li><i class="fa-solid fa-check"></i> Selo <strong>Verificada Afeto</strong></li>
+                <li><i class="fa-solid fa-check"></i> <strong>Aparece nas buscas</strong> do site</li>
+                <li><i class="fa-solid fa-check"></i> <strong>Mais clientes</strong> te encontram</li>
+                <li><i class="fa-solid fa-check"></i> Painel exclusivo</li>
+                <li><i class="fa-solid fa-check"></i> <strong>Nós te divulgamos</strong></li>
+            </ul>
+
+            <a href="#" class="card-btn profissional-btn">Quero ser Profissional</a>
+            <div class="card-nota">Mais famílias te encontram</div>
+        </div>
+
+        <div class="card destaque">
+            <div class="card-nome"><i class="fa-solid fa-gem"></i> Destaque</div>
+
+            <div class="card-preco">
+                <div class="linha-preco">
+                    <span class="cifra">R$</span>
+                    <span class="valor">69</span>
+                    <span class="centavos">,90</span>
+                    <span class="periodo">/mês</span>
+                </div>
+                <div class="por-dia">R$ 2,33 por dia</div>
+                <div class="nota">Cancele quando quiser</div>
+            </div>
+
+            <div class="card-divisor"></div>
+
+            <ul class="card-lista">
+                <li class="item-extra"><i class="fa-solid fa-plus"></i> <strong>Tudo do Profissional</strong></li>
+                <li class="item-extra"><i class="fa-solid fa-plus"></i> Aparece no <strong>topo das buscas</strong></li>
+                <li class="item-extra"><i class="fa-solid fa-plus"></i> Selo dourado de destaque</li>
+                <li class="item-extra"><i class="fa-solid fa-plus"></i> <strong>Prioridade em indicações</strong></li>
+                <li class="item-extra"><i class="fa-solid fa-plus"></i> <strong>Atendimento VIP Afeto</strong></li>
+                <li class="item-extra"><i class="fa-solid fa-plus"></i> <strong>Oportunidades exclusivas</strong></li>
+            </ul>
+
+            <a href="#" class="card-btn destaque-btn">Quero Destaque</a>
+            <div class="card-nota">Máxima visibilidade</div>
+        </div>
+
+    </div>
+
+    <div class="tag-fundadora">
+        <i class="fa-solid fa-star"></i>
+        Preços especiais para as primeiras parceiras da Afeto
+    </div>
+
+    <div class="sem-fidelidade">
+        <div class="icone"><i class="fa-solid fa-heart"></i></div>
+        <p><strong>Sem fidelidade:</strong> cancele quando quiser, em 1 clique, sem burocracia.</p>
+    </div>
+
+    <div class="comparativo">
+        <h3>Comparação rápida</h3>
+        <table class="comparativo-tabela">
+            <thead>
+                <tr>
+                    <th>Recurso</th>
+                    <th>Grátis</th>
+                    <th class="destaque-col">Profissional</th>
+                    <th class="destaque-col">Destaque</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Cadastro + Link exclusivo</td>
+                    <td><i class="fa-solid fa-check check"></i></td>
+                    <td><i class="fa-solid fa-check check"></i></td>
+                    <td><i class="fa-solid fa-check check"></i></td>
+                </tr>
+                <tr>
+                    <td>Foto e bio profissional</td>
+                    <td><i class="fa-solid fa-xmark x"></i></td>
+                    <td><i class="fa-solid fa-check check"></i></td>
+                    <td><i class="fa-solid fa-check check"></i></td>
+                </tr>
+                <tr>
+                    <td>Aparece nas buscas do site</td>
+                    <td><i class="fa-solid fa-xmark x"></i></td>
+                    <td><i class="fa-solid fa-check check"></i></td>
+                    <td><i class="fa-solid fa-check check"></i></td>
+                </tr>
+                <tr>
+                    <td>Selo Verificada Afeto</td>
+                    <td><i class="fa-solid fa-xmark x"></i></td>
+                    <td><i class="fa-solid fa-check check"></i></td>
+                    <td><i class="fa-solid fa-check check"></i></td>
+                </tr>
+                <tr>
+                    <td>Mais clientes te encontram</td>
+                    <td><i class="fa-solid fa-xmark x"></i></td>
+                    <td><i class="fa-solid fa-check check"></i></td>
+                    <td><i class="fa-solid fa-check check"></i></td>
+                </tr>
+                <tr>
+                    <td>Painel exclusivo</td>
+                    <td><i class="fa-solid fa-xmark x"></i></td>
+                    <td><i class="fa-solid fa-check check"></i></td>
+                    <td><i class="fa-solid fa-check check"></i></td>
+                </tr>
+                <tr>
+                    <td>Topo das buscas + Prioridade em indicações</td>
+                    <td><i class="fa-solid fa-xmark x"></i></td>
+                    <td><i class="fa-solid fa-xmark x"></i></td>
+                    <td><i class="fa-solid fa-check check"></i></td>
+                </tr>
+                <tr>
+                    <td>Atendimento VIP + Oportunidades exclusivas</td>
+                    <td><i class="fa-solid fa-xmark x"></i></td>
+                    <td><i class="fa-solid fa-xmark x"></i></td>
+                    <td><i class="fa-solid fa-check check"></i></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="info-bloco">
+        <div class="icone"><i class="fa-solid fa-circle-info"></i></div>
+        <p><strong>Todos os planos incluem:</strong> cadastro permanente, suporte por WhatsApp e liberdade para mudar de plano a qualquer momento. O plano Grátis é gratuito para sempre.</p>
+    </div>
+
+    <div class="rodape-seguranca">
+        <div class="item-seg">
+            <i class="fa-solid fa-lock"></i>
+            <div class="texto-seg">
+                <span class="titulo-seg">Pagamento seguro</span>
+                <span class="sub-seg">Ambiente protegido</span>
+            </div>
+        </div>
+        <div class="item-seg">
+            <i class="fa-solid fa-credit-card"></i>
+            <div class="texto-seg">
+                <span class="titulo-seg">Pix ou cartão</span>
+                <span class="sub-seg">Como preferir</span>
+            </div>
+        </div>
+        <div class="item-seg">
+            <i class="fa-solid fa-circle-check"></i>
+            <div class="texto-seg">
+                <span class="titulo-seg">Criptografia</span>
+                <span class="sub-seg">Ponta a ponta</span>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ==================== FOOTER PADRONIZADO ==================== -->
+<footer class="site-footer">
+    <div class="footer-content">
+
+        <p class="footer-aviso">
+            A Afeto atua como plataforma de conexão entre famílias e cuidadoras autônomas. Não executamos serviços de saúde ou cuidado — as informações dos perfis são de responsabilidade das profissionais cadastradas.
+        </p>
+
+        <p>
+            A Afeto é uma plataforma digital que aproxima famílias de cuidadores com boa reputação, em um ambiente seguro e transparente. Nosso papel é fornecer a melhor tecnologia em apresentação de perfis e marketing para profissionais autônomos. Cada cuidador parceiro atua de forma independente, utilizando nossa vitrine para expandir sua base de clientes, definindo seus próprios horários e ganhos com 100% de autonomia.
+        </p>
+
+        <div class="footer-social">
+            <a href="https://www.instagram.com/afetohomecareoficial" target="_blank" aria-label="Instagram Afeto Homecare">
+                <i class="fa-brands fa-instagram"></i>
+            </a>
+            <a href="https://wa.me/5541997674866?text=Ol%C3%A1!%20Gostaria%20de%20saber%20mais%20sobre%20a%20Afeto." target="_blank" aria-label="WhatsApp Afeto Homecare">
+                <i class="fa-brands fa-whatsapp"></i>
+            </a>
+            <a href="mailto:afetohomecareoficial@gmail.com" aria-label="E-mail Afeto Homecare">
+                <i class="fa-solid fa-envelope"></i>
+            </a>
+        </div>
+
+        <div class="footer-info">
+            <span><i class="fa-solid fa-location-dot"></i> Curitiba-PR</span>
+        </div>
+
+        <div class="footer-links">
+            <a href="termos.html">Termos de Uso</a>
+            <a href="privacidade.html">Política de Privacidade</a>
+        </div>
+
+        <div class="footer-legal">
+            Afeto Homecare &copy; 2026. Todos os direitos reservados. CNPJ: 64.215.069/0001-15.
+        </div>
+
+    </div>
+</footer>
+
+</body>
+</html>
