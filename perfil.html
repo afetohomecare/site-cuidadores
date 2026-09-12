@@ -26,6 +26,7 @@
     --preto-fonte: #1f1f1f; --cinza-fonte: #666666; --cinza-azulado: #94a3b8; 
     --branco: #ffffff; --verde-whatsapp: #25D366; --ouro: #fbbf24;
     --verde-online: #10b981; --cinza-offline: #94a3b8;
+    --logo-gap: 0.16em;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -51,7 +52,7 @@ header {
 .logo {
     display: inline-flex;
     align-items: center;
-    gap: 0.16em;
+    gap: var(--logo-gap);
     font-family: 'Nunito', sans-serif;
     font-weight: 900;
     font-size: 28px;
@@ -465,6 +466,7 @@ header {
     .nome-profissional { font-size: 24px; }
     .foto-anel { width: 170px; height: 170px; }
     .preco-linha strong { font-size: 20px; }
+    .logo { font-size: 24px; }
 }
 </style>
 </head>
@@ -473,14 +475,14 @@ header {
 <div class="scroll-progress" id="scrollProgress"></div>
 
 <header>
-    <a href="index.html" class="logo" aria-label="Afeto - Página inicial">
+    <a href="https://afetohomecare.pages.dev" class="logo" aria-label="Afeto - Página inicial">
         <svg class="logo__mark" viewBox="9.5 15.5 111 69" aria-hidden="true" focusable="false">
             <path d="M71.87 52.72 A28 28 0 1 0 50.20 77.30"/>
             <path d="M79.80 22.70 A28 28 0 1 1 58.13 47.28"/>
         </svg>
         <span class="logo__text">Afeto</span>
     </a>
-    <a href="https://afetohomecare.pages.dev" target="_blank" class="btn-outline">Encontrar Afeto</a>
+    <a href="https://afetohomecare.pages.dev" class="btn-outline">Encontrar Cuidador</a>
 </header>
 
 <div id="cardPerfil" class="perfil-card card-padrao">
@@ -493,7 +495,7 @@ header {
     <div class="veja-tambem-grid" id="vejaTambemGrid"></div>
 </div>
 
-<a href="index.html" class="voltar-link"><i class="fa-solid fa-arrow-left"></i> Voltar</a>
+<a href="https://afetohomecare.pages.dev" class="voltar-link"><i class="fa-solid fa-arrow-left"></i> Voltar</a>
 
 <script>
 const API_KEY = 'patl042fqFhzdECNS.31172479b55fffd9c3b5c7d7e7b5dee4a19b0b5600eb2273aa02d0ec427b35ae';
@@ -504,9 +506,6 @@ var params = new URLSearchParams(window.location.search);
 var recordId = params.get('id');
 var todosRegistros = [];
 
-// =========================================================
-// NOTIFICAÇÃO SILENCIOSA (não bloqueia, não aparece pro cliente)
-// =========================================================
 function notificarContato(dados) {
     try {
         var payload = JSON.stringify(dados);
@@ -524,9 +523,6 @@ function notificarContato(dados) {
     } catch (e) {}
 }
 
-// =========================================================
-// GERADOR DE NOME ÚNICO
-// =========================================================
 function gerarNomeUnico(nome, todosNomes) {
     if (!nome) return '';
     var nomeLimpo = nome.trim();
@@ -570,9 +566,6 @@ function gerarNomeUnico(nome, todosNomes) {
     return nomeLimpo;
 }
 
-// =========================================================
-// EXTRAI MÚLTIPLOS COMENTÁRIOS
-// =========================================================
 function extrairComentarios(campo) {
     if (!campo) return [];
     if (Array.isArray(campo)) {
@@ -595,7 +588,6 @@ function resizeAirtablePhoto(url, width, height) {
     return url + sep + 'width=' + width + '&height=' + height + '&fit=cover';
 }
 
-// ========== CARREGAR TUDO ==========
 async function carregarTudo() {
     var container = document.getElementById('cardPerfil');
 
@@ -628,27 +620,21 @@ async function carregarTudo() {
     }
 }
 
-// ========== RENDERIZAR PERFIL ==========
 function renderizarPerfil(record) {
     var container = document.getElementById('cardPerfil');
     var f = record.fields;
 
-    // WhatsApp da própria cuidadora
     var wppCuidadora = f.WhatsAppAgencia || '5541997674866';
     var horasNum = parseInt(f.Horas) || 0;
     var precoBase = parseFloat(f.Preco) || 0;
 
-    // ⚡ Verifica se ela tem plano pago ativo
     var temPlanoProfissional = f.PlanoProfissional === true || f.PlanoDestaque === true;
-
-    // ⚡ Disponível só conta se tiver plano ativo
     var estaDisponivel = (f.Disponivel === true) && temPlanoProfissional;
 
     var todosNomes = todosRegistros.map(function(r) { return (r.fields && r.fields.Nome) || ''; });
     var nomeExibicao = gerarNomeUnico(f.Nome || 'Sem nome', todosNomes);
     var primeiroNome = (f.Nome || '').trim().split(/\s+/)[0] || 'profissional';
 
-    // ⚡ Foto só aparece se tiver plano pago
     var fotoHTML = '<i class="fa-solid fa-user"></i>';
     if (temPlanoProfissional && f.Foto && f.Foto.length > 0) {
         var fotoOtimizada = resizeAirtablePhoto(f.Foto[0].url, 600, 800);
@@ -672,22 +658,18 @@ function renderizarPerfil(record) {
 
     container.className = 'perfil-card ' + cardClassAdd;
 
-    // ⚡ Verificada só se tiver plano pago
     var seloVerificada = (temPlanoProfissional && f.Verificada) ? '<span class="cuidador-badge badge-verificada"><i class="fa-solid fa-check"></i> Verificada</span>' : '';
     var seloCoren = f.COREN ? '<span class="cuidador-badge badge-coren"><i class="fa-solid fa-id-card"></i> COREN</span>' : '';
 
-    // ⚡ Bio só se tiver plano pago
     var apresentacaoHTML = (temPlanoProfissional && f.Apresentacao) ? 
         '<div class="bio-box reveal-item"><h4><i class="fa-solid fa-user-doctor"></i> Sobre a profissional</h4><p>' + f.Apresentacao + '</p></div>' : '';
 
-    // ⚡ Subespecialidades só se tiver plano pago
     var tagsHTML = '';
     if (temPlanoProfissional && f.Subespecialidades && Array.isArray(f.Subespecialidades)) {
         var badgesExp = f.Subespecialidades.map(function(sub) { return '<span class="tag-exp">✓ ' + sub + '</span>'; }).join('');
         tagsHTML = '<div class="experiencia-container reveal-item"><div class="experiencia-titulo">Especialidades:</div><div class="tags-exp">' + badgesExp + '</div></div>';
     }
 
-    // ⚡ Cursos só se tiver plano pago
     var cursosHTML = '';
     if (temPlanoProfissional && f.Cursos) {
         var listaCursos = String(f.Cursos).split(/\n|;|•/).map(function(c) { return c.trim(); }).filter(function(c) { return c; });
@@ -719,7 +701,6 @@ function renderizarPerfil(record) {
             '</div>';
     }
 
-    // ============ BANNER DE TOPO ============
     var bannerHTML = '';
     if (estaDisponivel) {
         bannerHTML = '<div class="banner-disponivel"><span class="dot"></span>Disponível para cuidar</div>';
@@ -727,7 +708,6 @@ function renderizarPerfil(record) {
         bannerHTML = '<div class="banner-disponivel offline"><span class="dot"></span>Consultar disponibilidade</div>';
     }
 
-    // ============ LINHA DE STATUS ============
     var linhaStatusHTML = '';
     if (horasNum >= 24) {
         linhaStatusHTML = '<div class="info-linha"><span>Horas de Afeto</span><strong style="color: var(--preto-fonte);">' + horasNum + 'h</strong></div>';
@@ -737,7 +717,6 @@ function renderizarPerfil(record) {
         linhaStatusHTML = '<div class="info-linha"><span>Status</span><strong class="tag-consultar"><span class="luz-offline"></span>Consultar disponibilidade</strong></div>';
     }
 
-    // ⚡ Comentários só se tiver plano pago
     var comentarios = temPlanoProfissional ? extrairComentarios(f.Comentarios) : [];
     var comentariosHTML = '';
     if (comentarios.length > 0) {
@@ -805,16 +784,14 @@ function renderizarPerfil(record) {
     document.querySelectorAll('.reveal-item').forEach(function(el) { observer.observe(el); });
 }
 
-// ========== VEJA TAMBÉM ==========
 function renderizarVejaTambem(atual, todos) {
     var f = atual.fields;
     var bairroAtual = f.Bairro || '';
     var especAtual = f.Especialidade || '';
 
-    // ⚡ Só sugere perfis de cuidadoras com plano pago ativo
     var outros = todos.filter(function(r) {
-      var temPlano = r.fields.PlanoProfissional === true || r.fields.PlanoDestaque === true;
-      return r.id !== atual.id && temPlano;
+        var temPlano = r.fields.PlanoProfissional === true || r.fields.PlanoDestaque === true;
+        return r.id !== atual.id && temPlano;
     });
 
     var match1 = outros.filter(function(r) {
@@ -845,6 +822,7 @@ function renderizarVejaTambem(atual, todos) {
     if (selecionados.length === 0) return;
 
     var todosNomes = todos.map(function(r) { return (r.fields && r.fields.Nome) || ''; });
+
     var grid = document.getElementById('vejaTambemGrid');
     var html = '';
 
@@ -875,7 +853,6 @@ function renderizarVejaTambem(atual, todos) {
     document.getElementById('vejaTambem').classList.add('ativo');
 }
 
-// ========== COMPARTILHAR ==========
 async function compartilharPerfil() {
     var nomeEl = document.querySelector('.nome-profissional');
     var nomeProf = nomeEl ? nomeEl.innerText : 'esta profissional';
@@ -903,7 +880,6 @@ async function compartilharPerfil() {
     }
 }
 
-// ========== SCROLL PROGRESS ==========
 window.addEventListener('scroll', function() {
     var winScroll = document.body.scrollTop || document.documentElement.scrollTop;
     var height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
@@ -948,7 +924,7 @@ carregarTudo();
         </div>
         
         <div class="footer-legal">
-            Afeto &copy; 2026. Todos os direitos reservados.
+            Afeto &copy; 2026. Todos os direitos reservados. CNPJ: 64.215.069/0001-15.
         </div>
         
     </div>
