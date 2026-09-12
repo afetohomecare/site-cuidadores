@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Para Cuidadores - Afeto</title>
+<title>Perfil Profissional - Afeto Homecare</title>
 
-<meta property="og:type" content="website">
-<meta property="og:title" content="Para Cuidadores - Afeto">
-<meta property="og:description" content="Seu talento valorizado. Você recebe 100% do que define.">
-<meta property="og:image" content="https://afetocuidadores.pages.dev/og-cuidadoras.jpg">
-<meta property="og:url" content="https://afetocuidadores.pages.dev">
+<meta property="og:type" content="profile">
+<meta property="og:title" content="Conheça essa profissional - Afeto Homecare">
+<meta property="og:description" content="Profissional verificada e avaliada por famílias reais. Veja o perfil completo.">
+<meta property="og:image" content="https://afetocuidadores.pages.dev/og-perfil.jpg">
+<meta property="og:url" content="https://afetocuidadores.pages.dev/perfil.html">
 <meta name="twitter:card" content="summary_large_image">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -21,1131 +21,860 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
-:root {
-  --lilas: #8b5cf6; --lilas-escuro: #7c3aed; --fundo-site: #f8f9fc;
-  --preto-fonte: #1f1f1f; --cinza-fonte: #666666; --cinza-azulado: #94a3b8;
-  --branco: #ffffff; --ouro: #fbbf24; --verde-whatsapp: #25D366;
-  --verde-online: #10b981; --vermelho-suave: #ef4444;
-  --logo-gap: 0.16em;
+:root { 
+    --lilas: #8b5cf6; --lilas-escuro: #7c3aed; 
+    --preto-fonte: #1f1f1f; --cinza-fonte: #666666; --cinza-azulado: #94a3b8; 
+    --branco: #ffffff; --verde-whatsapp: #25D366; --ouro: #fbbf24;
+    --verde-online: #10b981;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-body { font-family: 'Nunito', sans-serif; background-color: var(--fundo-site); color: var(--preto-fonte); line-height: 1.6; overflow-x: hidden; }
-h1, h2, h3 { font-weight: 800; margin-top: 0; }
-a { text-decoration: none; }
 
-/* ============ LOGO ============ */
-.logo {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--logo-gap);
-  font-family: 'Nunito', sans-serif;
-  font-weight: 900;
-  font-size: 28px;
-  line-height: 1;
-  letter-spacing: -0.03em;
-  color: var(--lilas);
-  text-decoration: none;
-}
-.logo__mark {
-  flex: none;
-  width: 1.11em;
-  height: 0.69em;
-  transform: translateY(-0.02em);
-  overflow: visible;
-}
-.logo__mark path {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 13;
-  stroke-linecap: round;
+body { 
+    font-family: 'Nunito', sans-serif; 
+    background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+    color: var(--preto-fonte); 
+    padding: 100px 20px 0 20px; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    min-height: 100vh; 
 }
 
-header { position: fixed; width: 100%; top: 0; z-index: 1000; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; background-color: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(0,0,0,0.03); }
-.header-botoes { display: flex; gap: 10px; align-items: center; }
-.btn-outline { padding: 10px 24px; border-radius: 50px; font-weight: 800; color: var(--lilas); border: 2px solid var(--lilas); background: transparent; font-size: 15px; transition: 0.3s; }
-.btn-outline:hover { background: var(--lilas); color: var(--branco); }
-.btn-outline.hidden-mobile { display: inline-block; }
+header { 
+    position: fixed; width: 100%; top: 0; left: 0; z-index: 1000; 
+    padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; 
+    background-color: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); 
+    border-bottom: 1px solid rgba(0,0,0,0.03); 
+}
+.logo { font-size: 28px; font-weight: 900; color: var(--lilas); letter-spacing: -1px; text-decoration: none; }
+.logo span { font-weight: 300; color: var(--cinza-azulado); }
+.btn-outline { 
+    padding: 10px 24px; border-radius: 50px; font-weight: 800; color: var(--lilas); 
+    border: 2px solid var(--lilas); transition: 0.3s; background: transparent; 
+    font-size: 15px; text-decoration: none; 
+}
+.btn-outline:hover { background: var(--lilas); color: var(--branco); box-shadow: 0 8px 20px rgba(139, 92, 246, 0.3); transform: translateY(-2px); }
 
-.hero { min-height: 60vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 80px 20px; background-color: var(--lilas); color: var(--branco); width: calc(100% - 40px); max-width: 1600px; margin: 95px auto 40px auto; border-radius: 50px; box-shadow: 0 20px 40px rgba(139,92,246,0.15); position: relative; overflow: hidden; }
-.hero h1 { font-size: 52px; font-weight: 900; line-height: 1.1; margin-bottom: 20px; max-width: 900px; letter-spacing: -1.5px; position: relative; z-index: 2; }
-.hero h1 span { color: var(--ouro); }
-.hero p { font-size: 20px; font-weight: 700; max-width: 680px; opacity: 0.95; position: relative; z-index: 2; margin-bottom: 35px; }
-.hero-cta { display: inline-flex; align-items: center; justify-content: center; gap: 10px; background: white; color: var(--lilas); padding: 18px 42px; border-radius: 50px; font-size: 18px; font-weight: 900; box-shadow: 0 15px 35px rgba(0,0,0,0.15); transition: 0.3s; border: none; cursor: pointer; font-family: 'Nunito', sans-serif; position: relative; z-index: 2; }
-.hero-cta:hover { transform: translateY(-4px) scale(1.03); box-shadow: 0 20px 45px rgba(0,0,0,0.25); color: var(--lilas-escuro); }
-.hero-cta i { font-size: 18px; }
+.scroll-progress {
+    position: fixed; top: 0; left: 0; height: 3px;
+    background: linear-gradient(90deg, var(--lilas), var(--lilas-escuro));
+    z-index: 9999; width: 0%; transition: width 0.1s ease-out;
+    box-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+}
 
-.estrela-flutuante { position: absolute; color: var(--ouro); animation: animarEstrelas linear infinite; z-index: 0; opacity: 0; }
-@keyframes animarEstrelas { 0% { transform: translateY(0) rotate(0deg) scale(0.3); opacity: 0; } 15% { opacity: 0.15; } 80% { transform: translateY(-200px) rotate(180deg) scale(0.7); opacity: 0.15; } 95% { transform: translateY(-230px) rotate(200deg) scale(1.5); opacity: 0; } 100% { transform: translateY(-250px) rotate(210deg) scale(2); opacity: 0; } }
-.e1 { left: 15%; bottom: -20px; animation-duration: 6s; animation-delay: 0s; font-size: 24px; } .e2 { left: 35%; bottom: -10px; animation-duration: 8s; animation-delay: 2s; font-size: 18px; } .e3 { left: 55%; bottom: -30px; animation-duration: 7s; animation-delay: 1s; font-size: 28px; } .e4 { left: 75%; bottom: -15px; animation-duration: 9s; animation-delay: 3s; font-size: 20px; } .e5 { left: 90%; bottom: -25px; animation-duration: 6.5s; animation-delay: 0.5s; font-size: 26px; }
+.perfil-card { 
+    max-width: 550px; width: 100%; border-radius: 35px; overflow: hidden; 
+    margin-bottom: 20px; transition: all 0.4s ease; display: flex; flex-direction: column; 
+    position: relative; background: var(--branco);
+}
 
-.section { padding: 80px 5%; max-width: 1200px; margin: 0 auto; }
-.section-header { text-align: center; margin-bottom: 60px; }
-.section-header h2 { font-size: 36px; margin-bottom: 15px; font-weight: 900; letter-spacing: -1px; }
-.section-header p { color: var(--cinza-fonte); font-size: 18px; font-weight: 700; }
+.card-iniciante { border: 2px solid #e2e8f0; box-shadow: 0 15px 40px rgba(139, 92, 246, 0.06); }
+.card-bronze { border: 2px solid #fed7aa; box-shadow: 0 15px 40px rgba(180, 83, 9, 0.08); }
+.card-prata { border: 2px solid #cbd5e1; box-shadow: 0 15px 40px rgba(148, 163, 184, 0.1); background: linear-gradient(145deg, #ffffff 60%, #f8fafc 100%); }
+.card-ouro { border: 2px solid #fcd34d; box-shadow: 0 20px 50px rgba(217, 119, 6, 0.15); background: linear-gradient(145deg, #ffffff 60%, #fffbeb 100%); }
+.card-diamante { border: 2px solid #7dd3fc; box-shadow: 0 20px 50px rgba(2, 132, 199, 0.15); background: linear-gradient(145deg, #ffffff 40%, #f0f9ff 100%); }
 
-.passos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; margin-bottom: 40px; }
-.passo-card { background: var(--branco); border-radius: 24px; padding: 40px 30px; text-align: center; border: 1px solid #e2e8f0; box-shadow: 0 10px 30px rgba(0,0,0,0.02); }
-.passo-num { width: 50px; height: 50px; background: var(--lilas-escuro); color: var(--branco); font-size: 22px; font-weight: 900; display: flex; justify-content: center; align-items: center; border-radius: 50%; margin: 0 auto 20px; box-shadow: 0 8px 20px rgba(139,92,246,0.3); }
-.passo-card h3 { font-size: 20px; margin-bottom: 10px; font-weight: 800; }
-.passo-card p { font-size: 15px; color: var(--cinza-fonte); font-weight: 600; line-height: 1.5; margin: 0; }
+.banner-disponivel {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro));
+    color: white; padding: 12px 20px;
+    font-size: 14px; font-weight: 900; letter-spacing: 0.3px;
+    animation: pulseDisponivel 2.5s ease-in-out infinite;
+}
+.banner-disponivel .dot {
+    width: 10px; height: 10px; background: white; border-radius: 50%;
+    box-shadow: 0 0 12px rgba(255,255,255,0.9);
+    animation: pulseDot 1.5s ease-in-out infinite;
+}
+@keyframes pulseDisponivel {
+    0%, 100% { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+    50% { background: linear-gradient(135deg, #7c3aed, #6d28d9); }
+}
+@keyframes pulseDot {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.4); opacity: 0.7; }
+}
 
-.benefits-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-bottom: 60px; }
-.benefit-card { background: var(--branco); border-radius: 30px; padding: 45px 30px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.03); transition: 0.4s; }
-.benefit-card:hover { transform: translateY(-10px); box-shadow: 0 20px 45px rgba(139,92,246,0.15); }
-.icon-box { width: 70px; height: 70px; background: var(--fundo-site); border-radius: 22px; display: flex; justify-content: center; align-items: center; font-size: 32px; margin: 0 auto 25px; }
-.benefit-card h3 { font-size: 22px; margin-bottom: 15px; font-weight: 800; }
-.benefit-card p { color: var(--cinza-fonte); font-size: 16px; font-weight: 600; line-height: 1.5; }
-
-.simulador-container { background: var(--branco); border-radius: 35px; padding: 50px; box-shadow: 0 25px 60px rgba(0,0,0,0.06); display: flex; gap: 50px; flex-wrap: wrap; border: 1px solid #e2e8f0; margin-bottom: 40px; }
-.simulador-controles { flex: 1; min-width: 300px; }
-.simulador-resultado { flex: 1; min-width: 300px; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: var(--branco); border-radius: 30px; padding: 40px; text-align: center; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 15px 35px rgba(139,92,246,0.2); }
-label { display: block; font-weight: 800; margin-bottom: 10px; margin-top: 25px; font-size: 16px; }
-select { width: 100%; padding: 18px 20px; border-radius: 18px; border: 2px solid #e2e8f0; font-family: 'Nunito', sans-serif; font-size: 16px; font-weight: 700; background: var(--fundo-site); outline: none; cursor: pointer; transition: 0.3s; }
-select:focus { border-color: var(--lilas); background: var(--branco); box-shadow: 0 0 0 5px rgba(139,92,246,0.12); }
-.slider-container { background: var(--fundo-site); padding: 25px 20px; border-radius: 18px; margin-top: 10px; }
-.valor-destaque { font-size: 38px; font-weight: 900; color: var(--lilas); text-align: center; margin-bottom: 15px; display: block; letter-spacing: -1px; }
-input[type=range] { -webkit-appearance: none; width: 100%; height: 12px; background: #cbd5e1; border-radius: 10px; outline: none; }
-input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radius: 50%; background: var(--lilas); cursor: pointer; -webkit-appearance: none; margin-top: -10px; box-shadow: 0 5px 15px rgba(139,92,246,0.5); border: 5px solid var(--branco); }
-.resultado-valor { font-size: 52px; font-weight: 900; margin: 15px 0; letter-spacing: -2px; }
-.resultado-detalhe { background: rgba(255,255,255,0.15); padding: 20px; border-radius: 20px; font-size: 15px; font-weight: 700; display: inline-block; text-align: left; line-height: 1.7; margin-top: 15px; }
-.resultado-detalhe .check-icon { color: var(--ouro); margin-right: 6px; }
-
-.comparison-table-container { background: var(--branco); border-radius: 35px; padding: 50px; box-shadow: 0 25px 60px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; margin-bottom: 60px; overflow-x: auto; }
-.comparison-table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 650px; }
-.comparison-table th { padding: 20px; font-size: 18px; font-weight: 900; text-align: center; }
-.comparison-table td { padding: 25px 20px; font-size: 16px; border-bottom: 1px solid #f8f9fc; }
-.comparison-table td:first-child { font-weight: 800; width: 32%; text-align: left; font-size: 18px; }
-.col-velho { background: #fef2f2; color: #991b1b; text-align: left; font-weight: 700; line-height: 1.5; }
-.th-velho { background: #fca5a5; color: #991b1b; border-radius: 16px 16px 0 0; }
-.col-afeto { background: #f5f3ff; color: var(--lilas-escuro); font-weight: 800; text-align: left; line-height: 1.5; }
-.th-afeto { background: var(--lilas); color: var(--branco); border-radius: 16px 16px 0 0; }
-.check-violeta { color: var(--lilas); font-weight: 900; font-size: 20px; margin-right: 8px; }
-
-.faq-container { max-width: 800px; margin: 0 auto 50px auto; display: flex; flex-direction: column; gap: 15px; }
-.faq-item { background: var(--branco); border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.03); overflow: hidden; border: 1px solid transparent; transition: 0.3s; }
-.faq-item.active { border-color: rgba(139,92,246,0.3); box-shadow: 0 10px 25px rgba(139,92,246,0.1); }
-.faq-question { width: 100%; text-align: left; padding: 25px 30px; background: none; border: none; font-size: 18px; font-weight: 800; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-family: 'Nunito', sans-serif; }
-.faq-icon { color: var(--lilas); font-size: 20px; transition: 0.4s; }
-.faq-item.active .faq-icon { transform: rotate(45deg); }
-.faq-answer { max-height: 0; overflow: hidden; transition: 0.4s; padding: 0 30px; }
-.faq-item.active .faq-answer { max-height: 500px; padding: 0 30px 25px 30px; }
-.faq-answer p { color: var(--cinza-fonte); font-size: 16px; font-weight: 600; line-height: 1.6; }
-
-.escassez-alerta { display: inline-block; background-color: #fee2e2; color: #b91c1c; padding: 10px 24px; border-radius: 50px; font-weight: 800; font-size: 14px; margin-bottom: 20px; }
-.btn-action-lilas { background-color: var(--lilas); color: var(--branco); border: none; padding: 22px 50px; font-size: 18px; font-weight: 900; border-radius: 50px; cursor: pointer; transition: 0.3s; box-shadow: 0 10px 25px rgba(139,92,246,0.3); display: inline-flex; justify-content: center; align-items: center; gap: 10px; font-family: 'Nunito', sans-serif; }
-.btn-action-lilas:hover { background-color: var(--lilas-escuro); transform: translateY(-5px) scale(1.02); box-shadow: 0 15px 35px rgba(139,92,246,0.4); }
-.btn-wrapper { text-align: center; margin: 40px 0 60px 0; }
-
-.cards-grid { display: flex; gap: 30px; margin-top: 30px; overflow-x: auto; padding-bottom: 25px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
-.cards-grid::-webkit-scrollbar { height: 10px; }
-.cards-grid::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
-.cards-grid::-webkit-scrollbar-thumb { background: var(--cinza-azulado); border-radius: 10px; }
-
-.cuidador-card { flex: 0 0 320px; scroll-snap-align: start; background: var(--branco); border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); border: 1px solid #f1f5f9; transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1); display: flex; flex-direction: column; color: inherit; text-decoration: none; position: relative; cursor: pointer; }
-.cuidador-card:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(0,0,0,0.08); }
-.card-ouro { border-color: #fde68a; }
-.card-diamante { border-color: #bae6fd; background: linear-gradient(145deg, #ffffff 60%, #f0f9ff 100%); }
-
-.card-top { display: flex; justify-content: center; padding-top: 35px; margin-bottom: 15px; }
-.foto-anel { width: 130px; height: 130px; border-radius: 50%; padding: 5px; display: flex; justify-content: center; align-items: center; background: transparent; }
-.foto-anel img, .foto-anel i { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
-.foto-anel i { display: flex; justify-content: center; align-items: center; background: #f8f9fc; font-size: 50px; color: #cbd5e1; }
-.anel-bronze { border: 2px solid #b45309; }
+.foto-perfil-container { 
+    width: 100%; background-color: transparent; 
+    display: flex; justify-content: center; padding: 35px 20px 15px;
+}
+.foto-anel {
+    width: 200px; height: 200px;
+    border-radius: 50%; padding: 5px;
+    display: flex; justify-content: center; align-items: center;
+    background: var(--branco); transition: 0.3s;
+}
+.foto-anel img {
+    width: 100%; height: 100%;
+    border-radius: 50%; object-fit: cover; object-position: center top;
+}
+.anel-iniciante { border: 3px solid #e2e8f0; }
+.anel-bronze { border: 3px solid #b45309; }
 .anel-prata { border: 3px solid #94a3b8; }
-.anel-ouro { border: 4px solid #d97706; box-shadow: 0 5px 15px rgba(217, 119, 6, 0.2); }
-.anel-diamante { border: 4px solid #0ea5e9; box-shadow: 0 0 20px rgba(14, 165, 233, 0.3); }
+.anel-ouro { border: 3px solid #d97706; box-shadow: 0 4px 15px rgba(217, 119, 6, 0.15); }
+.anel-diamante { border: 3px solid #0ea5e9; box-shadow: 0 4px 20px rgba(14, 165, 233, 0.2); }
 
-.cuidador-info { padding: 0 25px 25px 25px; flex-grow: 1; display: flex; flex-direction: column; align-items: center; text-align: center; }
-.badges-container { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-bottom: 12px; }
-.cuidador-badge { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 5px; }
+.badges-container { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-bottom: 15px; }
+.cuidador-badge { 
+    padding: 5px 14px; border-radius: 20px; font-size: 11px; font-weight: 800; 
+    text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 5px; 
+}
 .badge-verificada { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
 .badge-coren { background: #eef2ff; color: #4338ca; border: 1px solid #c7d2fe; }
 .badge-bronze { background: #fff7ed; color: #b45309; border: 1px solid #fed7aa; }
 .badge-prata { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
 .badge-ouro { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
 .badge-diamante { background: #f0f9ff; color: #0284c7; border: 1px solid #bae6fd; }
-.badge-novidade { background: linear-gradient(135deg, #f5f3ff, #ede9fe); color: var(--lilas-escuro); border: 1px solid #c4b5fd; position: relative; padding-right: 18px; }
-.badge-novidade::after { content: ""; position: absolute; top: 50%; right: 7px; transform: translateY(-50%); width: 7px; height: 7px; background: var(--ouro); border-radius: 50%; box-shadow: 0 0 8px rgba(251, 191, 36, 0.9); animation: pulsar-novidade 1.8s infinite; }
-@keyframes pulsar-novidade { 0%, 100% { opacity: 1; transform: translateY(-50%) scale(1); } 50% { opacity: 0.4; transform: translateY(-50%) scale(1.4); } }
+.badge-novidade { 
+    background: linear-gradient(135deg, #f5f3ff, #ede9fe); 
+    color: var(--lilas-escuro); border: 1px solid #c4b5fd; 
+    position: relative; padding-right: 18px;
+}
+.badge-novidade::after { 
+    content: ""; position: absolute; top: 50%; right: 7px;
+    transform: translateY(-50%);
+    width: 7px; height: 7px; background: var(--ouro); border-radius: 50%;
+    box-shadow: 0 0 8px rgba(251, 191, 36, 0.9);
+    animation: pulsar-novidade 1.8s infinite;
+}
+@keyframes pulsar-novidade { 
+    0%, 100% { opacity: 1; transform: translateY(-50%) scale(1); } 
+    50% { opacity: 0.4; transform: translateY(-50%) scale(1.4); } 
+}
 
-.luz-online { width: 7px; height: 7px; background: var(--verde-online); border-radius: 50%; display: inline-block; box-shadow: 0 0 6px rgba(16, 185, 129, 0.7); animation: pulsar-online 1.8s infinite; vertical-align: middle; margin-right: 4px; }
-@keyframes pulsar-online { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.4); } }
-.texto-disponivel { color: var(--verde-online); font-weight: 800; }
+.perfil-corpo { padding: 0 35px 35px 35px; }
+.nome-profissional { 
+    font-size: 28px; font-weight: 900; margin-bottom: 5px; text-align: center; 
+    color: var(--preto-fonte); letter-spacing: -0.5px; 
+}
 
-.cuidador-nome { font-size: 22px; font-weight: 900; margin-bottom: 8px; color: var(--preto-fonte); letter-spacing: -0.5px; }
-.cuidador-stars { color: var(--ouro); font-size: 16px; letter-spacing: 2px; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 900; min-height: 20px; }
-.nota-numero { font-size: 15px; font-weight: 900; color: var(--preto-fonte); letter-spacing: 0; }
-.cuidador-tag { color: var(--lilas); font-size: 15px; font-weight: 800; margin-bottom: 8px; }
-.turno-pill { padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 800; display: inline-flex; align-items: center; gap: 5px; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 12px; }
+.tag-profissional { 
+    font-weight: 800; color: var(--lilas); font-size: 16px; margin-bottom: 20px; 
+    text-align: center; display: flex; align-items: center; justify-content: center; 
+    gap: 8px; flex-wrap: wrap; 
+}
+.tag-bairro { color: var(--cinza-fonte); font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 5px; }
+
+.turno-pill {
+    padding: 3px 12px; border-radius: 20px; font-size: 11px; font-weight: 800;
+    display: inline-flex; align-items: center; gap: 5px;
+    text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 25px;
+}
 .turno-diurno { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
 .turno-noturno { background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; }
 .turno-integral { background: #f5f3ff; color: #7c3aed; border: 1px solid #ddd6fe; }
-.cuidador-meta { font-size: 14px; color: var(--cinza-fonte); margin-bottom: 20px; font-weight: 600; }
-.stars-diamante { font-size: 20px !important; }
-.stars-diamante .nota-numero { font-size: 18px !important; color: #0284c7 !important; }
-.meta-diamante { font-size: 16px !important; font-weight: 800 !important; color: var(--preto-fonte) !important; }
 
-.btn-card-acao { width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: var(--branco); padding: 14px; border-radius: 50px; font-weight: 900; font-size: 14px; text-decoration: none; transition: 0.3s; box-shadow: 0 8px 20px rgba(139, 92, 246, 0.25); margin-top: auto; font-family: 'Nunito', sans-serif; cursor: pointer; border: none; }
-.btn-card-acao:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(139, 92, 246, 0.4); }
-
-.loader { text-align: center; padding: 50px; font-size: 18px; font-weight: bold; color: var(--lilas); width: 100%; }
-
-.form-wrapper { background: var(--branco); border-radius: 35px; padding: 30px; box-shadow: 0 25px 60px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; max-width: 700px; margin: 40px auto 0 auto; max-height: 0; opacity: 0; overflow: hidden; padding: 0 30px; transition: all 0.6s ease-in-out; }
-.form-wrapper.revelado { max-height: 4500px; opacity: 1; padding: 40px; }
-.form-wrapper h3 { text-align: center; font-size: 28px; margin-bottom: 10px; font-weight: 900; letter-spacing: -1px; }
-.form-wrapper .sub-form { text-align: center; color: var(--cinza-fonte); font-size: 15px; font-weight: 600; margin-bottom: 30px; }
-
-.form-campo { margin-bottom: 8px; }
-.form-campo label { display: block; font-weight: 800; margin-bottom: 8px; margin-top: 22px; font-size: 15px; }
-.form-campo .ajuda { font-size: 12px; color: var(--cinza-fonte); font-weight: 600; display: block; margin-bottom: 6px; margin-top: -4px; }
-
-.form-campo input[type="text"],
-.form-campo input[type="tel"],
-.form-campo input[type="number"],
-.form-campo select,
-.form-campo textarea {
-  width: 100%; padding: 16px 18px; border-radius: 16px; border: 2px solid #e2e8f0;
-  font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 700;
-  background: var(--fundo-site); color: var(--preto-fonte); outline: none;
-  transition: 0.3s; box-sizing: border-box;
+.bio-box { 
+    background: #ffffff; border-left: 4px solid var(--lilas); padding: 20px; 
+    border-radius: 12px; margin-bottom: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.02); 
 }
-.form-campo input:focus, .form-campo select:focus, .form-campo textarea:focus { border-color: var(--lilas); background: var(--branco); box-shadow: 0 0 0 4px rgba(139,92,246,0.12); }
-.form-campo input::placeholder, .form-campo textarea::placeholder { color: var(--cinza-azulado); font-weight: 600; }
-.form-campo select { cursor: pointer; appearance: none; -webkit-appearance: none; -moz-appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238b5cf6' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 18px center; background-size: 16px; padding-right: 45px; }
-.form-campo textarea { resize: vertical; min-height: 80px; }
+.bio-box h4 { 
+    font-size: 15px; color: var(--lilas-escuro); margin-bottom: 8px; 
+    font-weight: 800; display:flex; gap: 8px; align-items: center;
+}
+.bio-box p { font-size: 15px; color: var(--cinza-fonte); line-height: 1.6; font-weight: 600; margin: 0; }
 
-.input-prefix { position: relative; display: flex; align-items: center; }
-.input-prefix span { position: absolute; left: 18px; font-weight: 800; color: var(--lilas-escuro); font-size: 15px; pointer-events: none; z-index: 2; }
-.input-prefix input { padding-left: 48px !important; }
+.experiencia-container { margin-bottom: 25px; }
+.experiencia-titulo { font-size: 15px; font-weight: 800; color: var(--preto-fonte); margin-bottom: 10px; }
+.tags-exp { display: flex; gap: 8px; flex-wrap: wrap; }
+.tag-exp { 
+    background: #f5f3ff; color: var(--lilas-escuro); border: 1px solid #ddd6fe; 
+    padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 800; 
+}
 
-.wrap-bairros { position: relative; margin-top: 6px; }
-.caixa-bairros { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px; border: 2px solid #e2e8f0; border-radius: 16px; min-height: 52px; background: var(--fundo-site); align-items: center; transition: 0.3s; box-sizing: border-box; }
-.caixa-bairros:focus-within { border-color: var(--lilas); background: var(--branco); box-shadow: 0 0 0 4px rgba(139,92,246,0.12); }
-.caixa-bairros input { border: none !important; outline: none !important; flex: 1; min-width: 120px; padding: 4px !important; font-size: 15px !important; font-weight: 700 !important; background: transparent !important; box-shadow: none !important; box-sizing: border-box; }
-.tag-bairro { display: inline-flex; align-items: center; gap: 6px; background: #ede9fe; color: #6d28d9; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 800; }
-.tag-bairro.principal { background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; box-shadow: 0 3px 10px rgba(139,92,246,0.35); }
-.tag-bairro button { background: none; border: none; color: inherit; cursor: pointer; font-size: 16px; padding: 0; line-height: 1; opacity: 0.7; font-weight: 900; }
-.tag-bairro button:hover { opacity: 1; }
-.lista-bairros { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 2px solid #e2e8f0; border-top: none; border-radius: 0 0 16px 16px; max-height: 220px; overflow-y: auto; z-index: 10; display: none; box-shadow: 0 15px 30px rgba(0,0,0,0.08); }
-.lista-bairros.ativo { display: block; }
-.opcao-bairro { padding: 12px 18px; cursor: pointer; font-size: 15px; font-weight: 700; transition: 0.15s; }
-.opcao-bairro:hover { background: #f5f3ff; color: var(--lilas-escuro); }
-.opcao-bairro.sem-resultado { color: #999; cursor: default; font-style: italic; font-weight: 600; }
+.preco-box {
+    background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+    border: 2px solid #c4b5fd;
+    border-radius: 20px;
+    padding: 20px 22px;
+    margin-bottom: 22px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+.preco-box::before {
+    content: "";
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 120px; height: 120px;
+    background: radial-gradient(circle, rgba(139,92,246,0.12), transparent 70%);
+    border-radius: 50%;
+}
+.preco-label {
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--lilas-escuro);
+    margin-bottom: 6px;
+    position: relative;
+}
+.preco-valor {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--preto-fonte);
+    position: relative;
+}
+.preco-valor strong {
+    font-size: 30px;
+    font-weight: 900;
+    color: var(--lilas-escuro);
+    letter-spacing: -1px;
+    margin-left: 4px;
+}
+.preco-nota {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--cinza-fonte);
+    margin-top: 8px;
+    line-height: 1.5;
+    position: relative;
+}
 
-.campo-oculto { display: none; }
-.campo-oculto.ativo { display: block; }
+.info-linha { 
+    display: flex; justify-content: space-between; align-items: center; 
+    margin-bottom: 15px; font-size: 16px; 
+    border-bottom: 1px solid rgba(0,0,0,0.04); padding-bottom: 12px; 
+}
+.info-linha span { color: var(--cinza-fonte); font-weight: 700; font-size: 15px;}
 
-.aviso-coren { display: flex; gap: 10px; font-size: 13px; color: var(--lilas-escuro); background: #f5f3ff; padding: 14px 16px; border-radius: 12px; margin-top: 12px; border-left: 4px solid var(--lilas); line-height: 1.55; font-weight: 600; }
-.aviso-coren strong { font-weight: 900; }
-.aviso-noturno { display: flex; gap: 12px; font-size: 13.5px; color: #6d28d9; background: linear-gradient(135deg, #f5f3ff, #ede9fe); padding: 16px 18px; border-radius: 12px; margin-top: 12px; border-left: 4px solid var(--lilas); line-height: 1.55; font-weight: 600; }
-.aviso-noturno strong { font-weight: 900; }
-.aviso-noturno .emoji { font-size: 22px; line-height: 1; }
+.tag-disponivel { 
+    color: var(--verde-online); font-weight: 800; font-size: 14px; 
+    display: inline-flex; align-items: center; gap: 6px;
+}
+.luz-online {
+    width: 8px; height: 8px; background: var(--verde-online); border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.7);
+    animation: pulsar-online 1.8s infinite;
+}
+@keyframes pulsar-online { 
+    0%, 100% { opacity: 1; transform: scale(1); } 
+    50% { opacity: 0.5; transform: scale(1.4); } 
+}
 
-.termos { margin-top: 28px; padding: 20px; background: #f5f3ff; border-radius: 16px; border-left: 4px solid var(--lilas); }
-.termos-titulo { font-size: 15px; font-weight: 900; color: var(--lilas-escuro); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
-.termo-item { display: flex; align-items: flex-start; gap: 12px; margin-top: 12px; font-size: 13.5px; color: var(--preto-fonte); line-height: 1.55; font-weight: 600; transition: 0.3s; }
-.termo-item input[type="checkbox"] { width: 20px; height: 20px; margin-top: 1px; flex-shrink: 0; cursor: pointer; accent-color: var(--lilas); }
-.termo-item label { font-weight: 600 !important; margin: 0 !important; font-size: 13.5px !important; cursor: pointer; }
-.termo-item a { color: var(--lilas-escuro); text-decoration: underline; font-weight: 800; }
-.termo-item.destacar { background: #fef2f2; border-radius: 10px; padding: 10px; margin-left: -10px; margin-right: -10px; animation: piscar 1.5s ease-in-out; }
-@keyframes piscar { 0%, 100% { background: #fef2f2; } 50% { background: #fee2e2; } }
+.estrelas-container {
+    display: flex; justify-content: flex-end; align-items: center; gap: 2px;
+}
+.estrela-anim {
+    color: var(--lilas); font-size: 18px;
+    opacity: 0; transform: scale(0) rotate(-180deg);
+    display: inline-block;
+}
+.estrela-anim.animar {
+    animation: estrelaAparece 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+@keyframes estrelaAparece {
+    0% { opacity: 0; transform: scale(0) rotate(-180deg); }
+    70% { opacity: 1; transform: scale(1.3) rotate(10deg); }
+    100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+.nota-numero-anim {
+    font-size: 15px; font-weight: 900; color: var(--lilas);
+    margin-left: 6px; opacity: 0;
+    transition: opacity 0.4s ease 2.5s;
+}
+.nota-numero-anim.animar { opacity: 1; }
 
-.btn-enviar-form { width: 100%; margin-top: 30px; padding: 20px; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; border: none; border-radius: 50px; font-size: 17px; font-weight: 900; cursor: pointer; transition: 0.3s; box-shadow: 0 10px 25px rgba(139,92,246,0.3); font-family: 'Nunito', sans-serif; display: flex; justify-content: center; align-items: center; gap: 10px; }
-.btn-enviar-form:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 15px 35px rgba(139,92,246,0.4); }
-.btn-enviar-form:disabled { background: #cbd5e1; cursor: not-allowed; box-shadow: none; }
+.comentarios-secao { margin-top: 30px; border-top: 1px solid rgba(0,0,0,0.04); padding-top: 25px; }
+.comentarios-titulo { 
+    font-size: 16px; font-weight: 900; color: var(--preto-fonte); 
+    margin-bottom: 15px; display: flex; align-items: center; gap: 8px; 
+}
+.comentario-card { 
+    background: #ffffff; border-radius: 16px; padding: 18px; margin-bottom: 12px; 
+    border: 1px solid #e2e8f0; box-shadow: 0 5px 15px rgba(0,0,0,0.02); 
+    border-left: 4px solid var(--lilas); 
+    animation: comentarioEntra 0.5s ease forwards;
+    opacity: 0; transform: translateY(10px);
+}
+.comentario-card:nth-child(2) { animation-delay: 0.15s; }
+.comentario-card:nth-child(3) { animation-delay: 0.3s; }
+.comentario-card:nth-child(4) { animation-delay: 0.45s; }
+.comentario-card:nth-child(5) { animation-delay: 0.6s; }
+.comentario-card:nth-child(6) { animation-delay: 0.75s; }
+.comentario-card:nth-child(7) { animation-delay: 0.9s; }
+@keyframes comentarioEntra {
+    to { opacity: 1; transform: translateY(0); }
+}
+.comentario-texto { 
+    font-size: 15px; color: var(--cinza-fonte); font-weight: 600; 
+    font-style: italic; line-height: 1.5; 
+}
 
-.tela-resultado { display: none; text-align: center; padding: 40px 20px; animation: fadeInUp 0.5s ease-out; }
-.tela-resultado.ativo { display: block; }
-@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-.tela-icone { width: 100px; height: 100px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 50px; color: white; margin: 0 auto 25px; }
-.tela-icone.sucesso { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 15px 35px rgba(16,185,129,0.4); }
-.tela-icone.erro { background: linear-gradient(135deg, #ef4444, #dc2626); box-shadow: 0 15px 35px rgba(239,68,68,0.4); }
-.tela-titulo { font-size: 28px; font-weight: 900; margin-bottom: 12px; letter-spacing: -0.5px; }
-.tela-texto { font-size: 16px; color: var(--cinza-fonte); font-weight: 600; margin-bottom: 30px; line-height: 1.6; max-width: 420px; margin-left: auto; margin-right: auto; }
-.tela-botao { display: inline-flex; align-items: center; gap: 10px; padding: 16px 36px; border-radius: 50px; font-weight: 900; font-size: 15px; cursor: pointer; transition: 0.3s; border: none; font-family: 'Nunito', sans-serif; }
-.tela-botao.sucesso { background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; box-shadow: 0 10px 25px rgba(139,92,246,0.3); }
-.tela-botao.sucesso:hover { transform: translateY(-3px); box-shadow: 0 15px 35px rgba(139,92,246,0.4); }
-.tela-botao.erro { background: white; color: var(--lilas); border: 2px solid var(--lilas); }
-.tela-botao.erro:hover { background: var(--lilas); color: white; }
+.btn-acao { 
+    display: flex; justify-content: center; align-items: center; gap: 10px; 
+    width: 100%; background: var(--verde-whatsapp); color: var(--branco); 
+    text-align: center; padding: 18px; border-radius: 50px; font-weight: 900; 
+    text-decoration: none; margin-top: 30px; transition: 0.3s; font-size: 16px; 
+    box-shadow: 0 10px 25px rgba(37, 211, 102, 0.3); 
+    border: none; cursor: pointer; font-family: 'Nunito', sans-serif;
+}
+.btn-acao:hover { background: #1da851; transform: translateY(-3px); box-shadow: 0 15px 35px rgba(37, 211, 102, 0.4); }
 
-.spinner { display: inline-block; width: 18px; height: 18px; border: 3px solid rgba(255,255,255,0.4); border-top-color: white; border-radius: 50%; animation: girar 0.7s linear infinite; }
-@keyframes girar { to { transform: rotate(360deg); } }
+.btn-compartilhar { 
+    display: block; width: 100%; background: transparent; color: var(--lilas); 
+    border: 2px solid var(--lilas); text-align: center; padding: 15px; 
+    border-radius: 50px; font-weight: 900; margin-top: 15px; cursor: pointer; 
+    transition: 0.3s; font-size: 15px; font-family: 'Nunito', sans-serif;
+}
+.btn-compartilhar:hover { background: var(--lilas); color: var(--branco); box-shadow: 0 8px 20px rgba(139, 92, 246, 0.2); }
 
-.btn-wpp { position: fixed; bottom: 30px; right: 30px; z-index: 999; background: var(--verde-whatsapp); color: white; width: 70px; height: 70px; border-radius: 24px; display: flex; justify-content: center; align-items: center; font-size: 38px; box-shadow: 0 15px 30px rgba(37,211,102,0.35); animation: pulse-green 2s infinite; }
-.btn-wpp:hover { transform: scale(1.15); }
-@keyframes pulse-green { 0% { box-shadow: 0 0 0 0 rgba(37,211,102,0.5); } 70% { box-shadow: 0 0 0 20px rgba(37,211,102,0); } 100% { box-shadow: 0 0 0 0 rgba(37,211,102,0); } }
+.veja-tambem { max-width: 550px; width: 100%; margin-top: 20px; margin-bottom: 40px; display: none; }
+.veja-tambem.ativo { display: block; }
+.veja-tambem-titulo {
+    text-align: center; font-size: 18px; font-weight: 900; 
+    color: var(--preto-fonte); margin-bottom: 8px; letter-spacing: -0.5px;
+}
+.veja-tambem-sub {
+    text-align: center; font-size: 14px; color: var(--cinza-fonte); 
+    font-weight: 700; margin-bottom: 20px;
+}
+.veja-tambem-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+}
+.mini-card {
+    background: white; border-radius: 20px; padding: 15px 10px; text-align: center;
+    text-decoration: none; color: inherit; border: 1px solid #e2e8f0;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.03); transition: 0.3s; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center;
+}
+.mini-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(139, 92, 246, 0.15);
+    border-color: var(--lilas);
+}
+.mini-card-foto {
+    width: 70px; height: 70px; border-radius: 50%;
+    margin: 0 auto 10px; overflow: hidden;
+    background: #f8f9fc; display: flex; justify-content: center; align-items: center;
+    border: 2px solid #e2e8f0;
+}
+.mini-card-foto img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+.mini-card-foto i { font-size: 28px; color: #cbd5e1; }
+.mini-card-nome {
+    font-size: 13px; font-weight: 900; color: var(--preto-fonte);
+    margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    width: 100%;
+}
+.mini-card-nota {
+    font-size: 12px; font-weight: 900; color: var(--lilas);
+    margin-bottom: 3px; letter-spacing: 0.3px;
+}
+.mini-card-bairro {
+    font-size: 11px; font-weight: 800; color: var(--cinza-fonte);
+    margin-bottom: 5px; display: flex; justify-content: center; align-items: center; gap: 3px;
+}
+.mini-card-bairro i { color: var(--lilas); font-size: 10px; }
+.mini-card-tag { 
+    font-size: 10px; color: var(--cinza-fonte); font-weight: 800; 
+    text-transform: uppercase; letter-spacing: 0.3px;
+}
 
-.site-footer { background-color: var(--fundo-site); color: var(--cinza-fonte); padding: 50px 20px 30px; text-align: center; border-top: 1px solid #e2e8f0; margin-top: 60px; width: 100%; }
+.reveal-item {
+    opacity: 0; transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal-item.visivel { opacity: 1; transform: translateY(0); }
+
+.site-footer { 
+    background-color: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); 
+    color: var(--cinza-fonte); padding: 40px 20px; text-align: center; 
+    border-top: 1px solid #e2e8f0; width: 100%; margin-top: auto; 
+}
 .footer-content { max-width: 900px; margin: 0 auto; font-size: 13px; line-height: 1.6; }
 .footer-content p { margin-bottom: 25px; }
-.footer-aviso { font-size: 11px; color: var(--cinza-azulado); font-weight: 600; line-height: 1.5; font-style: italic; padding: 0 20px; }
+.footer-aviso { 
+    font-size: 11px; color: var(--cinza-azulado); font-weight: 600; 
+    line-height: 1.5; font-style: italic; padding: 0 20px; 
+}
 .footer-social { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; }
-.footer-social a { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; display: flex; justify-content: center; align-items: center; font-size: 22px; box-shadow: 0 8px 20px rgba(139,92,246,0.25); transition: 0.3s; }
+.footer-social a { 
+    width: 44px; height: 44px; border-radius: 50%; 
+    background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); 
+    color: white; display: flex; justify-content: center; align-items: center; 
+    font-size: 22px; transition: 0.3s; text-decoration: none; 
+    box-shadow: 0 8px 20px rgba(139, 92, 246, 0.25); 
+}
 .footer-social a:hover { transform: translateY(-4px) scale(1.08); }
-.footer-info { display: flex; justify-content: center; gap: 25px; flex-wrap: wrap; margin-bottom: 25px; font-size: 14px; color: var(--cinza-fonte); font-weight: 700; }
+.footer-info { 
+    display: flex; justify-content: center; gap: 25px; flex-wrap: wrap; 
+    margin-bottom: 25px; font-size: 14px; color: var(--cinza-fonte); font-weight: 700; 
+}
 .footer-info i { color: var(--lilas); margin-right: 6px; }
 .footer-links { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-bottom: 20px; }
-.footer-links a { color: var(--lilas-escuro); font-weight: 800; font-size: 14px; }
+.footer-links a { color: var(--lilas-escuro); font-weight: 800; font-size: 14px; text-decoration: none; }
 .footer-links a:hover { color: var(--lilas); text-decoration: underline; }
 .footer-legal { font-size: 11px; color: var(--cinza-azulado); border-top: 1px solid #e2e8f0; padding-top: 20px; }
 
-@media (max-width: 900px) {
-  .hero { margin: 80px 15px 30px 15px; width: calc(100% - 30px); padding: 50px 20px; border-radius: 35px; }
-  .hero h1 { font-size: 38px; }
-  .hero p { font-size: 17px; }
-  .hero-cta { padding: 16px 32px; font-size: 16px; }
-  .simulador-container, .comparison-table-container { padding: 30px; gap: 30px; border-radius: 25px; }
-  .simulador-resultado { padding: 30px 20px; border-radius: 20px; }
-  .resultado-valor { font-size: 42px; }
-  .btn-wpp { width: 60px; height: 60px; font-size: 32px; bottom: 20px; right: 20px; }
-  .passos-grid { grid-template-columns: 1fr; gap: 20px; }
-  .form-wrapper.revelado { padding: 25px; }
-  .tela-titulo { font-size: 22px; }
-  .cuidador-card { flex: 0 0 280px; }
-  .header-botoes .btn-outline { padding: 8px 16px; font-size: 13px; }
-  .header-botoes .btn-outline.hidden-mobile { display: none; }
-  .logo { font-size: 24px; }
+.loader { text-align: center; padding: 60px 30px; color: var(--lilas); font-weight: bold; font-size: 18px; }
+.voltar-link { 
+    color: var(--lilas-escuro); font-weight: 800; text-decoration: none; 
+    display: inline-flex; align-items: center; gap: 5px; 
+    margin-top: 20px; margin-bottom: 40px; font-size: 15px; transition: 0.2s;
+}
+.voltar-link:hover { transform: translateX(-3px); color: var(--lilas); }
+
+@media (max-width: 600px) {
+    .veja-tambem-grid { gap: 8px; }
+    .mini-card { padding: 12px 6px; }
+    .mini-card-foto { width: 55px; height: 55px; }
+    .mini-card-nome { font-size: 11px; }
+    .mini-card-nota { font-size: 11px; }
+    .mini-card-bairro { font-size: 10px; }
+    .mini-card-tag { font-size: 9px; }
+    .perfil-corpo { padding: 0 22px 22px; }
+    .nome-profissional { font-size: 24px; }
+    .foto-anel { width: 170px; height: 170px; }
+    .preco-valor strong { font-size: 26px; }
 }
 </style>
 </head>
 <body>
 
+<div class="scroll-progress" id="scrollProgress"></div>
+
 <header>
-  <a href="index.html" class="logo" aria-label="Afeto - Página inicial">
-    <svg class="logo__mark" viewBox="9.5 15.5 111 69" aria-hidden="true" focusable="false">
-      <path d="M71.87 52.72 A28 28 0 1 0 50.20 77.30"/>
-      <path d="M79.80 22.70 A28 28 0 1 1 58.13 47.28"/>
-    </svg>
-    <span class="logo__text">Afeto</span>
-  </a>
-  <div class="header-botoes">
-    <a href="planos.html" class="btn-outline">Planos</a>
-    <a href="https://afetohomecare.pages.dev" class="btn-outline hidden-mobile">Preciso de uma Cuidadora</a>
-  </div>
+    <a href="index.html" class="logo">Afeto<span>Homecare</span></a>
+    <a href="https://afetohomecare.pages.dev" target="_blank" class="btn-outline">Encontrar Afeto</a>
 </header>
 
-<section class="hero">
-  <div class="estrela-flutuante e1">⭐</div>
-  <div class="estrela-flutuante e2">✨</div>
-  <div class="estrela-flutuante e3">⭐</div>
-  <div class="estrela-flutuante e4">✨</div>
-  <div class="estrela-flutuante e5">⭐</div>
-  <h1>Seu talento valorizado.<br><span>Você recebe 100%.</span></h1>
-  <p>A Afeto conecta você às famílias que procuram um cuidado de excelência. Negociação direta, valor definido por você e 100% do pagamento no seu bolso.</p>
-  <button onclick="mostrarFormulario()" class="hero-cta">
-    <i class="fa-solid fa-heart"></i> Criar meu perfil Afeto
-  </button>
-</section>
+<div id="cardPerfil" class="perfil-card card-padrao">
+    <div class="loader">Carregando informações verificadas... <i class="fa-solid fa-spinner fa-spin"></i></div>
+</div>
 
-<section class="section">
-  <div class="section-header">
-    <h2>Por que trabalhar com a Afeto?</h2>
-    <p>Uma plataforma feita para valorizar o seu cuidado.</p>
-  </div>
-  <div class="benefits-grid">
-    <div class="benefit-card">
-      <div class="icon-box"><i class="fa-solid fa-hand-holding-dollar" style="color: var(--lilas);"></i></div>
-      <h3>Você fica com tudo</h3>
-      <p>A Afeto não desconta nada do valor que você define. O que você combina com a família é 100% seu. Sem taxas, sem comissão, sem surpresas.</p>
-    </div>
-    <div class="benefit-card">
-      <div class="icon-box"><i class="fa-solid fa-magnifying-glass" style="color: var(--lilas-escuro);"></i></div>
-      <h3>A gente encontra as famílias</h3>
-      <p>Nosso trabalho é atrair famílias que buscam um cuidado de qualidade e mostrar o seu perfil para elas. Você cuida, a gente conecta.</p>
-    </div>
-    <div class="benefit-card">
-      <div class="icon-box"><i class="fa-solid fa-shield-halved" style="color: var(--ouro);"></i></div>
-      <h3>Credibilidade que cresce</h3>
-      <p>Cada família atendida bem constrói a sua reputação. As avaliações reais, o histórico de horas e os selos de qualidade se acumulam no perfil — e elevam seu valor no mercado.</p>
-    </div>
-  </div>
+<div class="veja-tambem" id="vejaTambem">
+    <div class="veja-tambem-titulo">💜 Veja também</div>
+    <div class="veja-tambem-sub">Outras profissionais que podem combinar com você</div>
+    <div class="veja-tambem-grid" id="vejaTambemGrid"></div>
+</div>
 
-  <div class="section-header">
-    <h2>Como a Afeto valoriza você em 3 passos</h2>
-    <p>Simplicidade para você focar no que realmente importa: o cuidado.</p>
-  </div>
-  <div class="passos-grid">
-    <div class="passo-card"><div class="passo-num">1</div><h3>Seu perfil, do seu jeito</h3><p>Você cria seu cadastro sem nenhum custo, conta um pouco da sua experiência e tem total liberdade para definir o valor do seu plantão.</p></div>
-    <div class="passo-card"><div class="passo-num">2</div><h3>O Selo Afeto de Confiança</h3><p>Nossa equipe avalia seu perfil com todo o rigor técnico. Estando tudo certinho, criamos sua vitrine profissional para transmitir a máxima segurança que as famílias procuram.</p></div>
-    <div class="passo-card"><div class="passo-num">3</div><h3>Conexão direta e justa</h3><p>As famílias encontram você pelo site ou pelo seu link exclusivo e chamam direto no seu WhatsApp. A negociação é toda sua e 100% do valor do plantão fica com você.</p></div>
-  </div>
-
-  <div class="btn-wrapper">
-    <button onclick="mostrarFormulario()" class="btn-action-lilas">Quero ser uma Parceira Afeto</button>
-  </div>
-
-  <div class="simulador-container">
-    <div class="simulador-controles">
-      <h3 style="font-size: 28px; margin-bottom: 10px; letter-spacing: -1px;">Calculadora de Ganhos</h3>
-      <p style="color: var(--cinza-fonte); margin-bottom: 25px; font-weight: 700;">Arraste a régua e veja quanto você pode receber por mês.</p>
-      <label>Selecione o tipo de Plantão:</label>
-      <select id="cargaHoraria" onchange="atualizarRegua()">
-        <option value="12" selected>Plantão de 12 Horas</option>
-        <option value="24">Plantão de 24 Horas</option>
-      </select>
-      <label>Quanto você quer receber por plantão?</label>
-      <div class="slider-container">
-        <span class="valor-destaque" id="displayPreco">R$ 150</span>
-        <input type="range" id="sliderPreco" min="100" max="500" step="10" value="150" oninput="calcularGanhos()">
-      </div>
-      <label>Quantos plantões fará por semana?</label>
-      <select id="diasSemana" onchange="calcularGanhos()">
-        <option value="1">1 plantão/semana</option>
-        <option value="2">2 plantões/semana</option>
-        <option value="3" selected>3 plantões/semana</option>
-        <option value="4">4 plantões/semana</option>
-        <option value="5">5 plantões/semana</option>
-      </select>
-    </div>
-    <div class="simulador-resultado">
-      <h4 style="margin: 0; font-size: 20px; font-weight: 700; opacity: 0.9;">Você recebe até (100% pra você):</h4>
-      <div class="resultado-valor" id="ganhoMensal">R$ 1.800,00</div>
-      <div class="resultado-detalhe">
-        <strong>Resumo do Plantão:</strong><br><br>
-        <span class="check-icon">✔️</span> Você define: <span id="detalheLivre">R$ 150,00</span><br>
-        <span class="check-icon">✔️</span> O cliente aceita<br>
-        <span class="check-icon">✔️</span> Você recebe: <strong><span id="detalheRecebe">R$ 150,00</span></strong><br>
-        <span class="check-icon">✔️</span> A Afeto não desconta nada<br>
-        <span style="font-size: 13px; font-weight: 400; opacity: 0.85; display: block; margin-top: 8px; line-height: 1.5;">💜 A negociação é direta entre você e a família — sem intermediários e sem taxas.</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="btn-wrapper">
-    <button onclick="mostrarFormulario()" class="btn-action-lilas">Quero ser uma Parceira Afeto</button>
-  </div>
-
-  <div class="comparison-table-container">
-    <h3 style="font-size: 28px; margin-bottom: 30px; text-align: center; letter-spacing: -1px; font-weight: 900;">Afeto <span style="color: var(--cinza-azulado);">vs</span> Agências Tradicionais</h3>
-    <table class="comparison-table">
-      <thead>
-        <tr>
-          <th style="background: transparent; text-align: left; color: var(--cinza-fonte);">O que realmente importa</th>
-          <th class="th-velho">❌ Agências Tradicionais</th>
-          <th class="th-afeto">⭐ Plataforma Afeto</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td><strong>Quem define o seu valor?</strong></td><td class="col-velho">A agência impõe o preço e dita as regras.</td><td class="col-afeto"><span class="check-violeta">✓</span> Você define 100% livre o valor do seu plantão.</td></tr>
-        <tr><td><strong>Quem fica com o valor do plantão?</strong></td><td class="col-velho">A agência retém até 40% do que você ganha.</td><td class="col-afeto"><span class="check-violeta">✓</span> Você fica com 100% do valor negociado.</td></tr>
-        <tr><td><strong>Como as famílias chegam até você?</strong></td><td class="col-velho">A agência esconde sua identidade — você é só mais um número na escala.</td><td class="col-afeto"><span class="check-violeta">✓</span> A Afeto traz clientes até o seu perfil e você negocia direto.</td></tr>
-        <tr><td><strong>Você constrói reputação?</strong></td><td class="col-velho">Nenhum histórico documentado. Você começa do zero em cada casa.</td><td class="col-afeto"><span class="check-violeta">✓</span> Selo Verificada, avaliações reais e histórico de horas no seu perfil.</td></tr>
-        <tr><td><strong>Você pode recusar plantões?</strong></td><td class="col-velho">Não. Você é escalada e não tem voz na decisão.</td><td class="col-afeto"><span class="check-violeta">✓</span> Sim, sempre. Você escolhe quando e para quem trabalhar.</td></tr>
-        <tr><td><strong>Você pode atender clientes próprios?</strong></td><td class="col-velho">Normalmente é proibido por contrato.</td><td class="col-afeto"><span class="check-violeta">✓</span> Sim, sem problema. Você é autônoma e livre.</td></tr>
-        <tr><td><strong>Você recebe suporte quando dá errado?</strong></td><td class="col-velho">Você fica sozinha para resolver.</td><td class="col-afeto"><span class="check-violeta">✓</span> A Afeto atua como facilitadora — em conflitos, substituições e suporte.</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div style="text-align: center; margin-bottom: 40px;">
-    <span class="escassez-alerta">⚠️ Vagas limitadas em Curitiba.</span><br>
-    <button onclick="mostrarFormulario()" class="btn-action-lilas">Quero ser uma Parceira Afeto</button>
-  </div>
-
-  <div id="formulario-box" class="form-wrapper">
-    <div id="form-area">
-      <h3>Pré-Cadastro de Cuidadora Parceira</h3>
-      <p class="sub-form">Preencha os dados abaixo. Em breve entraremos em contato pelo WhatsApp com os próximos passos. 💜</p>
-
-      <form id="form-cuidadora" novalidate>
-
-        <div class="form-campo">
-          <label for="nome">Nome completo:</label>
-          <input type="text" id="nome" name="nome" placeholder="Digite seu nome completo" required>
-        </div>
-
-        <div class="form-campo">
-          <label for="whatsapp">WhatsApp (com DDD):</label>
-          <input type="tel" id="whatsapp" name="whatsapp" placeholder="(41) 99999-9999" required>
-        </div>
-
-        <div class="form-campo">
-          <label>Áreas de atuação:</label>
-          <span class="ajuda">Digite e selecione até 10 bairros. O primeiro fica em destaque como preferência.</span>
-          <div class="wrap-bairros">
-            <div class="caixa-bairros" id="caixa-bairros">
-              <input type="text" id="input-bairros" placeholder="Ex: Batel, Água Verde..." autocomplete="off">
-            </div>
-            <div class="lista-bairros" id="lista-bairros"></div>
-          </div>
-          <input type="hidden" name="bairros" id="bairros-valor">
-        </div>
-
-        <div class="form-campo">
-          <label for="profissao">Você atua como:</label>
-          <select id="profissao" name="profissao" required>
-            <option value="">Selecione...</option>
-            <option value="Cuidadora de Idosos">Cuidadora de Idosos</option>
-            <option value="Técnica de Enfermagem">Técnica de Enfermagem</option>
-            <option value="Enfermeira">Enfermeira</option>
-            <option value="Acompanhante Hospitalar">Acompanhante Hospitalar</option>
-            <option value="Estudante da área da saúde">Estudante da área da saúde</option>
-            <option value="Outro">Outro</option>
-          </select>
-        </div>
-
-        <div class="campo-oculto" id="bloco-coren">
-          <div class="form-campo">
-            <label for="coren">Número do COREN (obrigatório):</label>
-            <input type="text" id="coren" name="coren" placeholder="Ex: 123456-PR" maxlength="10" autocomplete="off">
-            <div class="aviso-coren">
-              <span style="font-size: 18px;">💜</span>
-              <span>
-                Enfermeiras e Técnicas de Enfermagem precisam ter <strong>COREN ativo</strong> para atuar.<br><br>
-                <strong>Ainda não tem o COREN?</strong> Sem problema! Volte e escolha outra opção, como <em>"Cuidadora de Idosos"</em>, <em>"Acompanhante Hospitalar"</em> ou <em>"Estudante da área da saúde"</em>. Todas são muito bem-vindas na Afeto.
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div class="form-campo">
-          <label for="valor-plantao">Quanto você gostaria de receber por plantão de 12h?</label>
-          <span class="ajuda">Esse é o valor que você define. A negociação com a família é direta — a Afeto não desconta nada.</span>
-          <div class="input-prefix">
-            <span>R$</span>
-            <input type="number" id="valor-plantao" name="valor_plantao" placeholder="150" min="50" max="2000" step="10" required>
-          </div>
-        </div>
-
-        <div class="form-campo">
-          <label for="turno">Que tipo de plantão você faz?</label>
-          <select id="turno" name="turno" required>
-            <option value="">Selecione...</option>
-            <option value="Diurno">☀️ Apenas diurno</option>
-            <option value="Noturno">🌙 Apenas noturno</option>
-            <option value="Diurno e Noturno">☀️🌙 Diurno e Noturno</option>
-          </select>
-        </div>
-
-        <div class="campo-oculto" id="aviso-noturno">
-          <div class="aviso-noturno">
-            <span class="emoji">💜</span>
-            <div>
-              <strong>Plantões noturnos exigem mais.</strong><br>
-              Você define se quer cobrar um valor adicional pelos plantões noturnos — a decisão é sempre sua. A Afeto não interfere na sua negociação com a família.
-            </div>
-          </div>
-        </div>
-
-        <div class="form-campo">
-          <label for="cursos">Quais cursos (com certificado) você possui?</label>
-          <span class="ajuda">Conte pra gente o que você já estudou.</span>
-          <textarea id="cursos" name="cursos" rows="3" placeholder="Ex: Curso de Cuidador de Idosos (120h) pelo SENAC..."></textarea>
-        </div>
-
-        <div class="form-campo">
-          <label for="motivacao">Por que você quer ser cuidadora da Afeto?</label>
-          <span class="ajuda">Um pouquinho sobre o que te motiva a cuidar de pessoas.</span>
-          <textarea id="motivacao" name="motivacao" rows="3" placeholder="Ex: Tenho paixão por cuidar de idosos..."></textarea>
-        </div>
-
-        <div class="form-campo">
-          <label for="experiencia">Tempo de experiência:</label>
-          <select id="experiencia" name="experiencia">
-            <option value="Menos de 1 ano">Menos de 1 ano</option>
-            <option value="1 a 3 anos" selected>1 a 3 anos</option>
-            <option value="3 a 5 anos">3 a 5 anos</option>
-            <option value="5 a 10 anos">5 a 10 anos</option>
-            <option value="Mais de 10 anos">Mais de 10 anos</option>
-          </select>
-        </div>
-
-        <div class="form-campo">
-          <label for="como-conheceu">Como você conheceu a Afeto?</label>
-          <select id="como-conheceu" name="como_conheceu" required>
-            <option value="">Selecione...</option>
-            <option value="Instagram">📸 Instagram</option>
-            <option value="Google">🔍 Google</option>
-            <option value="Facebook">📘 Facebook</option>
-            <option value="WhatsApp">💬 WhatsApp</option>
-            <option value="Indicação">💜 Indicação</option>
-            <option value="Outro">✨ Outro</option>
-          </select>
-        </div>
-
-        <div class="campo-oculto" id="bloco-indicacao">
-          <div class="form-campo">
-            <label for="quem-indicou">Quem te indicou? (opcional)</label>
-            <input type="text" id="quem-indicou" name="quem_indicou" placeholder="Nome de quem te indicou">
-          </div>
-        </div>
-
-        <div class="termos">
-          <div class="termos-titulo">⚖️ Antes de enviar, precisamos do seu consentimento</div>
-
-          <div class="termo-item" data-termo="termo1">
-            <input type="checkbox" id="termo1" name="aceite_termos" value="Sim">
-            <label for="termo1">Li e concordo com os <a href="termos.html" target="_blank">Termos de Uso</a> e a <a href="privacidade.html" target="_blank">Política de Privacidade</a> da Afeto.</label>
-          </div>
-          <div class="termo-item" data-termo="termo2">
-            <input type="checkbox" id="termo2" name="aceite_lgpd" value="Sim">
-            <label for="termo2">Autorizo a Afeto a tratar meus dados pessoais e profissionais para fins de cadastro, exibição do meu perfil na plataforma e contato sobre oportunidades de plantão.</label>
-          </div>
-          <div class="termo-item" data-termo="termo3">
-            <input type="checkbox" id="termo3" name="veracidade" value="Sim">
-            <label for="termo3">Declaro que todas as informações preenchidas neste formulário são verdadeiras e de minha inteira responsabilidade.</label>
-          </div>
-          <div class="termo-item" data-termo="termo4">
-            <input type="checkbox" id="termo4" name="antecedentes" value="Sim">
-            <label for="termo4">Declaro que não possuo antecedentes criminais e autorizo a Afeto a verificar essa informação junto aos órgãos competentes.</label>
-          </div>
-        </div>
-
-        <button type="submit" id="btn-enviar" class="btn-enviar-form">
-          Enviar Cadastro <i class="fa-solid fa-heart"></i>
-        </button>
-      </form>
-    </div>
-
-    <div id="tela-sucesso" class="tela-resultado">
-      <div class="tela-icone sucesso"><i class="fa-solid fa-check"></i></div>
-      <div class="tela-titulo">Pré-cadastro enviado com sucesso!</div>
-      <p class="tela-texto">Em breve entraremos em contato pelo WhatsApp com os próximos passos. 💜</p>
-      <button type="button" onclick="voltarAoInicio()" class="tela-botao sucesso">
-        <i class="fa-solid fa-arrow-up"></i> Voltar ao início
-      </button>
-    </div>
-
-    <div id="tela-erro" class="tela-resultado">
-      <div class="tela-icone erro"><i class="fa-solid fa-triangle-exclamation"></i></div>
-      <div class="tela-titulo">Não foi possível enviar.</div>
-      <p class="tela-texto" id="texto-erro">Por favor, verifique sua conexão e tente novamente.</p>
-      <button type="button" onclick="voltarFormulario()" class="tela-botao erro">
-        <i class="fa-solid fa-rotate-right"></i> Tentar novamente
-      </button>
-    </div>
-  </div>
-</section>
-
-<section class="section" style="padding-top: 0;">
-  <div class="section-header" style="margin-top: 20px;">
-    <h2>Dúvidas Frequentes</h2>
-    <p>Tudo o que você precisa saber antes de se cadastrar.</p>
-  </div>
-  <div class="faq-container">
-    <div class="faq-item">
-      <button class="faq-question">A Afeto cobra alguma taxa ou comissão? <i class="fa-solid fa-plus faq-icon"></i></button>
-      <div class="faq-answer"><p>Não. A Afeto não desconta nada do valor que você combina com a família. O que você define é 100% seu. Nosso papel é te conectar com famílias que procuram um cuidado de qualidade, dar credibilidade ao seu perfil e te dar suporte quando você precisar.</p></div>
-    </div>
-    <div class="faq-item">
-      <button class="faq-question">Como as famílias chegam até mim? <i class="fa-solid fa-plus faq-icon"></i></button>
-      <div class="faq-answer"><p>De duas formas: pelo nosso site (onde as famílias buscam cuidadoras por bairro, especialidade e avaliação) e pelo seu link exclusivo, que você pode compartilhar na bio do Instagram, no status do WhatsApp ou com quem você quiser. Quando a família te encontra, ela entra em contato direto com você.</p></div>
-    </div>
-    <div class="faq-item">
-      <button class="faq-question">E se eu não me adaptar à família ou ao paciente? <i class="fa-solid fa-plus faq-icon"></i></button>
-      <div class="faq-answer"><p>Se a família ou você perceberem que não houve "sintonia" no plantão, basta informar à Afeto. A gente atua na busca de outra profissional ou de outra família, sem prejudicar o seu perfil. Você tem total liberdade para recusar plantões e seguir sua rotina.</p></div>
-    </div>
-    <div class="faq-item">
-      <button class="faq-question">Como funciona o pagamento? <i class="fa-solid fa-plus faq-icon"></i></button>
-      <div class="faq-answer"><p>Você combina o valor e a forma de pagamento direto com a família — Pix, dinheiro, transferência, o que for melhor para vocês. A Afeto não interfere na negociação e não toca no dinheiro. Você recebe 100% do que for combinado.</p></div>
-    </div>
-    <div class="faq-item">
-      <button class="faq-question">Preciso pagar algo para estar na Afeto? <i class="fa-solid fa-plus faq-icon"></i></button>
-      <div class="faq-answer"><p>Não. O cadastro é 100% gratuito e você pode usar a plataforma sem pagar nada. Existem planos opcionais de visibilidade para quem quer aparecer no topo das buscas ou ter destaque no perfil — mas isso é escolha sua e nunca uma obrigação para trabalhar. <a href="planos.html" style="color: var(--lilas-escuro); font-weight: 800; text-decoration: underline;">Ver planos opcionais</a>.</p></div>
-    </div>
-  </div>
-</section>
-
-<section class="section" id="profissionais-ativos" style="padding-top: 20px; padding-bottom: 40px;">
-  <div class="section-header">
-    <h2>Profissionais Ativas na Afeto</h2>
-    <p>Role para o lado e veja o nível de excelência que as famílias encontram aqui.</p>
-  </div>
-  <div class="cards-grid" id="cuidadores-grid">
-    <div class="loader">Buscando profissionais na base de dados... <i class="fa-solid fa-spinner fa-spin"></i></div>
-  </div>
-</section>
-
-<a href="https://wa.me/5541997674866" target="_blank" class="btn-wpp"><i class="fa-brands fa-whatsapp"></i></a>
-
-<footer class="site-footer">
-  <div class="footer-content">
-
-    <p class="footer-aviso">
-      A Afeto atua como plataforma de conexão entre famílias e cuidadoras autônomas. Não executamos serviços de saúde ou cuidado — as informações dos perfis são de responsabilidade das profissionais cadastradas.
-    </p>
-
-    <p>
-      A Afeto é uma plataforma digital que aproxima famílias de cuidadores com boa reputação, em um ambiente seguro e transparente. Nosso papel é fornecer a melhor tecnologia em apresentação de perfis e marketing para profissionais autônomos. Cada cuidador parceiro atua de forma independente, utilizando nossa vitrine para expandir sua base de clientes, definindo seus próprios horários e ganhos com 100% de autonomia.
-    </p>
-
-    <div class="footer-social">
-      <a href="https://www.instagram.com/afetohomecareoficial" target="_blank" aria-label="Instagram Afeto">
-        <i class="fa-brands fa-instagram"></i>
-      </a>
-      <a href="https://wa.me/5541997674866?text=Ol%C3%A1!%20Gostaria%20de%20saber%20mais%20sobre%20a%20Afeto." target="_blank" aria-label="WhatsApp Afeto">
-        <i class="fa-brands fa-whatsapp"></i>
-      </a>
-      <a href="mailto:afetohomecareoficial@gmail.com" aria-label="E-mail Afeto">
-        <i class="fa-solid fa-envelope"></i>
-      </a>
-    </div>
-
-    <div class="footer-info">
-      <span><i class="fa-solid fa-location-dot"></i> Curitiba-PR</span>
-    </div>
-
-    <div class="footer-links">
-      <a href="planos.html">Planos</a>
-      <a href="termos.html">Termos de Uso</a>
-      <a href="privacidade.html">Política de Privacidade</a>
-    </div>
-
-    <div class="footer-legal">
-      Afeto &copy; 2026. Todos os direitos reservados.
-    </div>
-
-  </div>
-</footer>
+<a href="index.html" class="voltar-link"><i class="fa-solid fa-arrow-left"></i> Voltar</a>
 
 <script>
-(function() {
-  "use strict";
+const API_KEY = 'patl042fqFhzdECNS.31172479b55fffd9c3b5c7d7e7b5dee4a19b0b5600eb2273aa02d0ec427b35ae';
+const BASE_ID = 'apphAWeT91l1dMWM5';
+const TABLE_NAME = 'Cuidadores';
 
-  window.atualizarPreenchimentoRegua = function(slider) {
-    var min = slider.min, max = slider.max, val = slider.value;
-    var p = ((val - min) / (max - min)) * 100;
-    slider.style.background = 'linear-gradient(to right, #8b5cf6 0%, #8b5cf6 ' + p + '%, #cbd5e1 ' + p + '%, #cbd5e1 100%)';
-  };
-  window.atualizarRegua = function() {
-    var carga = parseInt(document.getElementById('cargaHoraria').value);
-    var slider = document.getElementById('sliderPreco');
-    if (carga === 12) { slider.min = 100; slider.max = 500; if (slider.value > 500 || slider.value < 100) slider.value = 150; }
-    else if (carga === 24) { slider.min = 200; slider.max = 800; if (slider.value < 200) slider.value = 300; }
-    window.calcularGanhos();
-  };
-  window.calcularGanhos = function() {
-    var slider = document.getElementById('sliderPreco');
-    var valor = parseFloat(slider.value);
-    var dias = parseInt(document.getElementById('diasSemana').value);
-    window.atualizarPreenchimentoRegua(slider);
-    document.getElementById('displayPreco').innerText = 'R$ ' + valor.toFixed(0);
-    var mensal = valor * (dias * 4);
-    document.getElementById('ganhoMensal').innerText = 'R$ ' + mensal.toFixed(2).replace('.', ',');
-    document.getElementById('detalheLivre').innerText = 'R$ ' + valor.toFixed(2).replace('.', ',');
-    document.getElementById('detalheRecebe').innerText = 'R$ ' + valor.toFixed(2).replace('.', ',');
-  };
-  window.calcularGanhos();
+var params = new URLSearchParams(window.location.search);
+var recordId = params.get('id');
+var todosRegistros = [];
 
-  var faqs = document.querySelectorAll('.faq-item');
-  faqs.forEach(function(item) {
-    var btn = item.querySelector('.faq-question');
-    btn.addEventListener('click', function() {
-      var ativo = item.classList.contains('active');
-      faqs.forEach(function(o) { o.classList.remove('active'); });
-      if (!ativo) item.classList.add('active');
-    });
-  });
+// =========================================================
+// NOTIFICAÇÃO SILENCIOSA (não bloqueia, não aparece pro cliente)
+// =========================================================
+function notificarContato(dados) {
+    try {
+        var payload = JSON.stringify(dados);
+        if (navigator.sendBeacon) {
+            var blob = new Blob([payload], { type: 'application/json' });
+            navigator.sendBeacon('/notificar-contato', blob);
+        } else {
+            fetch('/notificar-contato', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: payload,
+                keepalive: true
+            }).catch(function() {});
+        }
+    } catch (e) {}
+}
 
-  window.mostrarFormulario = function() {
-    var caixa = document.getElementById('formulario-box');
-    caixa.classList.add('revelado');
-    setTimeout(function() { caixa.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 200);
-  };
+// =========================================================
+// GERADOR DE NOME ÚNICO
+// =========================================================
+function gerarNomeUnico(nome, todosNomes) {
+    if (!nome) return '';
+    var nomeLimpo = nome.trim();
+    var partes = nomeLimpo.split(/\s+/);
 
-  window.voltarAoInicio = function() {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+    var nomeCurto = partes[0] + (partes[1] ? ' ' + partes[1].charAt(0).toUpperCase() + '.' : '');
 
-  window.voltarFormulario = function() {
-    document.getElementById('tela-erro').classList.remove('ativo');
-    document.getElementById('form-area').style.display = 'block';
-    document.getElementById('formulario-box').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
-
-  var BAIRROS = [
-    "Abranches","Água Verde","Ahú","Alto Boqueirão","Alto da Glória","Alto da Rua XV",
-    "Atuba","Augusta","Bacacheri","Bairro Alto","Barreirinha","Batatzinho","Batel",
-    "Bigorrilho","Boa Vista","Bom Retiro","Boqueirão","Butiatuvinha","Cabral","Cachoeira",
-    "Cajuru","Campina do Siqueira","Campo Comprido","Campo de Santana","Capão Raso",
-    "Capão da Imbuia","Cascatinha","Caximba","Centro","Centro Cívico","Cidade Industrial",
-    "Cristo Rei","Fanny","Fazendinha","Ganchinho","Guabirotuba","Guaíra","Hauer",
-    "Hugo Lange","Jardim Botânico","Jardim Social","Jardim das Américas","Jardim dos Estados",
-    "Juvevê","Lamenha Pequena","Lindóia","Mercês","Mossunguê","Novo Mundo","Orleans",
-    "Padre Andrade","Parolin","Pilarzinho","Pinheirinho","Portão","Prado Velho","Rebouças",
-    "Riviera","Santa Cândida","Santa Felicidade","Santa Quitéria","Santo Inácio","São Braz",
-    "São Francisco","São João","São Lourenço","São Marcos","Sítio Cercado","Taboão",
-    "Tarumã","Tatuquara","Tingui","Uberaba","Umbará","Vila Isabel","Vista Alegre","Xaxim",
-    "Adrianópolis (RMC)","Agudos do Sul (RMC)","Almirante Tamandaré (RMC)","Araucária (RMC)",
-    "Balsa Nova (RMC)","Bocaiúva do Sul (RMC)","Campina Grande do Sul (RMC)",
-    "Campo do Tenente (RMC)","Campo Largo (RMC)","Campo Magro (RMC)","Cerro Azul (RMC)",
-    "Colombo (RMC)","Contenda (RMC)","Doutor Ulysses (RMC)","Fazenda Rio Grande (RMC)",
-    "Itaperuçu (RMC)","Lapa (RMC)","Mandirituba (RMC)","Piên (RMC)","Pinhais (RMC)",
-    "Piraquara (RMC)","Quatro Barras (RMC)","Quitandinha (RMC)","Rio Branco do Sul (RMC)",
-    "São José dos Pinhais (RMC)","Tijucas do Sul (RMC)","Tunas do Paraná (RMC)"
-  ];
-  var LIMITE_BAIRROS = 10;
-  var bairrosSelecionados = [];
-
-  var caixaBairros = document.getElementById('caixa-bairros');
-  var inputBairros = document.getElementById('input-bairros');
-  var listaBairros = document.getElementById('lista-bairros');
-  var bairrosValor = document.getElementById('bairros-valor');
-  var campoWhatsapp = document.getElementById('whatsapp');
-  var campoCoren = document.getElementById('coren');
-  var blocoCoren = document.getElementById('bloco-coren');
-  var campoProfissao = document.getElementById('profissao');
-  var campoComoConheceu = document.getElementById('como-conheceu');
-  var blocoIndicacao = document.getElementById('bloco-indicacao');
-  var campoTurno = document.getElementById('turno');
-  var avisoNoturno = document.getElementById('aviso-noturno');
-  var form = document.getElementById('form-cuidadora');
-  var btnEnviar = document.getElementById('btn-enviar');
-  var formArea = document.getElementById('form-area');
-  var telaSucesso = document.getElementById('tela-sucesso');
-  var telaErro = document.getElementById('tela-erro');
-  var textoErro = document.getElementById('texto-erro');
-
-  campoWhatsapp.addEventListener('input', function() {
-    var x = this.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
-    this.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
-  });
-
-  campoCoren.addEventListener('input', function() {
-    var valor = this.value.toUpperCase();
-    var numeros = '', letras = '', achouLetra = false;
-    for (var i = 0; i < valor.length; i++) {
-      var c = valor[i];
-      if (/\d/.test(c)) {
-        if (!achouLetra && numeros.length < 7) numeros += c;
-      } else if (/[A-Z]/.test(c) && numeros.length > 0) {
-        achouLetra = true;
-        if (letras.length < 2) letras += c;
-      }
-    }
-    this.value = letras ? (numeros + '-' + letras) : numeros;
-  });
-
-  function atualizarValorBairros() { bairrosValor.value = bairrosSelecionados.join(' | '); }
-
-  function desenharTags() {
-    var tags = caixaBairros.querySelectorAll('.tag-bairro');
-    for (var i = 0; i < tags.length; i++) tags[i].remove();
-    bairrosSelecionados.forEach(function(b, idx) {
-      var tag = document.createElement('span');
-      tag.className = idx === 0 ? 'tag-bairro principal' : 'tag-bairro';
-      tag.innerHTML = (idx === 0 ? '⭐ ' : '') + b + ' <button type="button" data-b="' + b + '">×</button>';
-      caixaBairros.insertBefore(tag, inputBairros);
-    });
-    caixaBairros.querySelectorAll('.tag-bairro button').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        var b = this.getAttribute('data-b');
-        bairrosSelecionados = bairrosSelecionados.filter(function(x) { return x !== b; });
-        desenharTags();
-      });
-    });
-    atualizarValorBairros();
-  }
-
-  function mostrarLista(filtro) {
-    if (bairrosSelecionados.length >= LIMITE_BAIRROS) {
-      listaBairros.innerHTML = '<div class="opcao-bairro sem-resultado">Limite de ' + LIMITE_BAIRROS + ' bairros atingido</div>';
-      listaBairros.classList.add('ativo'); return;
-    }
-    var termo = filtro.trim().toLowerCase();
-    var disponiveis = BAIRROS.filter(function(b) {
-      return bairrosSelecionados.indexOf(b) === -1 && b.toLowerCase().indexOf(termo) !== -1;
-    }).slice(0, 10);
-    if (disponiveis.length === 0) {
-      listaBairros.innerHTML = '<div class="opcao-bairro sem-resultado">Nenhum bairro encontrado</div>';
-    } else {
-      listaBairros.innerHTML = disponiveis.map(function(b) {
-        return '<div class="opcao-bairro" data-b="' + b + '">' + b + '</div>';
-      }).join('');
-      listaBairros.querySelectorAll('.opcao-bairro').forEach(function(opt) {
-        opt.addEventListener('click', function() {
-          if (bairrosSelecionados.length >= LIMITE_BAIRROS) return;
-          var b = this.getAttribute('data-b');
-          if (bairrosSelecionados.indexOf(b) === -1) {
-            bairrosSelecionados.push(b);
-            inputBairros.value = '';
-            desenharTags();
-            listaBairros.classList.remove('ativo');
-            inputBairros.focus();
-          }
-        });
-      });
-    }
-    listaBairros.classList.add('ativo');
-  }
-
-  inputBairros.addEventListener('input', function() {
-    if (this.value.length >= 1) mostrarLista(this.value);
-    else listaBairros.classList.remove('ativo');
-  });
-  inputBairros.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      var p = listaBairros.querySelector('.opcao-bairro:not(.sem-resultado)');
-      if (p) p.click();
-    }
-  });
-  document.addEventListener('click', function(e) {
-    if (!e.target.closest('.wrap-bairros')) listaBairros.classList.remove('ativo');
-  });
-
-  campoProfissao.addEventListener('change', function() {
-    var v = this.value;
-    if (v === 'Técnica de Enfermagem' || v === 'Enfermeira') {
-      blocoCoren.classList.add('ativo');
-      campoCoren.required = true;
-    } else {
-      blocoCoren.classList.remove('ativo');
-      campoCoren.required = false;
-      campoCoren.value = '';
-    }
-  });
-
-  campoComoConheceu.addEventListener('change', function() {
-    if (this.value === 'Indicação') blocoIndicacao.classList.add('ativo');
-    else {
-      blocoIndicacao.classList.remove('ativo');
-      document.getElementById('quem-indicou').value = '';
-    }
-  });
-
-  campoTurno.addEventListener('change', function() {
-    if (this.value === 'Noturno' || this.value === 'Diurno e Noturno') {
-      avisoNoturno.classList.add('ativo');
-    } else {
-      avisoNoturno.classList.remove('ativo');
-    }
-  });
-
-  function mostrarToast(msg) {
-    var antigo = document.getElementById('toast-afeto');
-    if (antigo) antigo.remove();
-
-    var toast = document.createElement('div');
-    toast.id = 'toast-afeto';
-    toast.style.cssText = 'position:fixed; top:100px; left:50%; transform:translateX(-50%); background:linear-gradient(135deg,#8b5cf6,#7c3aed); color:white; padding:16px 28px; border-radius:50px; font-weight:800; font-size:14px; box-shadow:0 15px 35px rgba(139,92,246,0.4); z-index:9999; max-width:90%; text-align:center; opacity:0; transition:opacity 0.3s, transform 0.3s;';
-    toast.innerHTML = '💜 ' + msg;
-    document.body.appendChild(toast);
-
-    requestAnimationFrame(function() {
-      toast.style.opacity = '1';
-      toast.style.transform = 'translateX(-50%) translateY(0)';
-    });
-
-    setTimeout(function() {
-      toast.style.opacity = '0';
-      toast.style.transform = 'translateX(-50%) translateY(-20px)';
-      setTimeout(function() { toast.remove(); }, 300);
-    }, 3500);
-  }
-
-  function destacarErro(tipo, id, msg) {
-    mostrarToast(msg);
-
-    if (tipo === 'termo') {
-      var termoBox = document.querySelector('[data-termo="' + id + '"]');
-      if (termoBox) {
-        termoBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        termoBox.classList.add('destacar');
-        setTimeout(function() { termoBox.classList.remove('destacar'); }, 2500);
-      }
-    } else if (tipo === 'bairro') {
-      var caixa = document.getElementById('caixa-bairros');
-      caixa.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      caixa.style.borderColor = '#ef4444';
-      caixa.style.boxShadow = '0 0 0 4px rgba(239,68,68,0.15)';
-      setTimeout(function() { caixa.style.borderColor = ''; caixa.style.boxShadow = ''; }, 2500);
-      inputBairros.focus();
-    } else {
-      var el = document.getElementById(id);
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      el.style.borderColor = '#ef4444';
-      el.style.background = '#fef2f2';
-      el.style.boxShadow = '0 0 0 4px rgba(239,68,68,0.15)';
-      if (el.focus) el.focus();
-      setTimeout(function() {
-        el.style.borderColor = '';
-        el.style.background = '';
-        el.style.boxShadow = '';
-      }, 2500);
-    }
-  }
-
-  var enviando = false;
-
-  form.addEventListener('submit', async function(e) {
-    e.preventDefault();
-    if (enviando) return;
-
-    if (bairrosSelecionados.length === 0) return destacarErro('bairro', 'input-bairros', 'Selecione pelo menos um bairro de atuação.');
-
-    var nome = document.getElementById('nome').value.trim();
-    if (!nome) return destacarErro('campo', 'nome', 'Por favor, preencha seu nome completo.');
-
-    var whats = document.getElementById('whatsapp').value.trim();
-    if (!whats || whats.replace(/\D/g, '').length < 10) return destacarErro('campo', 'whatsapp', 'Por favor, preencha seu WhatsApp com DDD.');
-
-    var prof = document.getElementById('profissao').value;
-    if (!prof) return destacarErro('campo', 'profissao', 'Por favor, selecione como você atua.');
-
-    if ((prof === 'Técnica de Enfermagem' || prof === 'Enfermeira') && !campoCoren.value.trim()) {
-      return destacarErro('campo', 'coren', 'Por favor, informe seu número de COREN.');
+    var grupo = [];
+    for (var i = 0; i < todosNomes.length; i++) {
+        var n = (todosNomes[i] || '').trim();
+        if (!n) continue;
+        var p = n.split(/\s+/);
+        var curto = p[0] + (p[1] ? ' ' + p[1].charAt(0).toUpperCase() + '.' : '');
+        if (curto === nomeCurto) grupo.push(n);
     }
 
-    var valor = document.getElementById('valor-plantao').value;
-    if (!valor || parseFloat(valor) < 50) return destacarErro('campo', 'valor-plantao', 'Por favor, informe quanto você gostaria de receber por plantão.');
+    if (grupo.length <= 1) return nomeCurto;
 
-    var turno = document.getElementById('turno').value;
-    if (!turno) return destacarErro('campo', 'turno', 'Por favor, selecione o tipo de plantão que você faz.');
+    var posicao = grupo.indexOf(nomeLimpo);
 
-    var como = document.getElementById('como-conheceu').value;
-    if (!como) return destacarErro('campo', 'como-conheceu', 'Por favor, selecione como você conheceu a Afeto.');
+    if (posicao === 0) return nomeCurto;
 
-    if (!document.getElementById('termo1').checked) return destacarErro('termo', 'termo1', 'Você precisa aceitar os Termos de Uso e a Política de Privacidade.');
-    if (!document.getElementById('termo2').checked) return destacarErro('termo', 'termo2', 'Você precisa autorizar o tratamento dos seus dados (LGPD).');
-    if (!document.getElementById('termo3').checked) return destacarErro('termo', 'termo3', 'Você precisa declarar que as informações são verdadeiras.');
-    if (!document.getElementById('termo4').checked) return destacarErro('termo', 'termo4', 'Você precisa declarar que não possui antecedentes criminais.');
+    if (posicao === 1) {
+        if (partes.length >= 3) {
+            return partes[0] + ' ' + partes[1] + ' ' + partes[2].charAt(0).toUpperCase() + '.';
+        } else if (partes.length === 2) {
+            return partes[0] + ' ' + partes[1];
+        }
+        return nomeCurto;
+    }
 
-    enviando = true;
-    btnEnviar.disabled = true;
-    btnEnviar.innerHTML = 'Enviando... <span class="spinner"></span>';
+    if (posicao === 2) {
+        if (partes.length >= 4) {
+            return partes[0] + ' ' + partes[1] + ' ' + partes[2] + ' ' + partes[3].charAt(0).toUpperCase() + '.';
+        } else if (partes.length === 3) {
+            return partes[0] + ' ' + partes[1] + ' ' + partes[2];
+        }
+        return partes.slice(0, 3).join(' ');
+    }
+
+    return nomeLimpo;
+}
+
+// =========================================================
+// EXTRAI MÚLTIPLOS COMENTÁRIOS
+// =========================================================
+function extrairComentarios(campo) {
+    if (!campo) return [];
+    if (Array.isArray(campo)) {
+        return campo.map(function(c) { return String(c).trim(); }).filter(function(c) { return c; });
+    }
+    var texto = String(campo).trim();
+    if (!texto) return [];
+    if (texto.indexOf('|||') !== -1) {
+        return texto.split('|||').map(function(c) { return c.trim(); }).filter(function(c) { return c; });
+    }
+    if (texto.indexOf('\n\n') !== -1) {
+        return texto.split(/\n\s*\n/).map(function(c) { return c.trim(); }).filter(function(c) { return c; });
+    }
+    return [texto];
+}
+
+function resizeAirtablePhoto(url, width, height) {
+    if (!url) return '';
+    var sep = url.indexOf('?') !== -1 ? '&' : '?';
+    return url + sep + 'width=' + width + '&height=' + height + '&fit=cover';
+}
+
+// ========== CARREGAR TUDO ==========
+async function carregarTudo() {
+    var container = document.getElementById('cardPerfil');
+
+    if (!recordId) {
+        container.innerHTML = '<div style="padding: 60px; text-align: center;"><h2>Profissional não encontrada</h2></div>';
+        return;
+    }
+
+    var url = 'https://api.airtable.com/v0/' + BASE_ID + '/' + TABLE_NAME;
 
     try {
-      var dados = new FormData(form);
+        var response = await fetch(url, { headers: { Authorization: 'Bearer ' + API_KEY } });
+        var data = await response.json();
 
-      var envioPromise = fetch('/pre-cadastro', { method: 'POST', body: dados })
-        .then(function() { return 'ok'; })
-        .catch(function() { return 'erro'; });
+        if (!data.records) throw new Error('Sem dados');
 
-      var timeoutPromise = new Promise(function(resolve) { setTimeout(resolve, 8000, 'timeout'); });
-      var resultado = await Promise.race([envioPromise, timeoutPromise]);
+        todosRegistros = data.records;
+        var perfilAtual = todosRegistros.find(function(r) { return r.id === recordId; });
 
-      if (resultado === 'erro') throw new Error('Falha');
+        if (!perfilAtual) {
+            container.innerHTML = '<div style="padding: 60px; text-align: center;"><h2>Profissional não encontrada</h2></div>';
+            return;
+        }
 
-      formArea.style.display = 'none';
-      telaErro.classList.remove('ativo');
-      telaSucesso.classList.add('ativo');
-      telaSucesso.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        renderizarPerfil(perfilAtual);
+        renderizarVejaTambem(perfilAtual, todosRegistros);
 
-    } catch (err) {
-      textoErro.textContent = 'Por favor, verifique sua conexão e tente novamente em alguns instantes.';
-      formArea.style.display = 'none';
-      telaSucesso.classList.remove('ativo');
-      telaErro.classList.add('ativo');
-      telaErro.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    } finally {
-      enviando = false;
-      btnEnviar.disabled = false;
-      btnEnviar.innerHTML = 'Enviar Cadastro <i class="fa-solid fa-heart"></i>';
+    } catch (error) {
+        container.innerHTML = '<div style="padding: 60px; text-align: center; color:red;">Erro ao carregar o perfil.</div>';
     }
-  });
+}
 
-  var API_KEY = 'patl042fqFhzdECNS.31172479b55fffd9c3b5c7d7e7b5dee4a19b0b5600eb2273aa02d0ec427b35ae';
-  var BASE_ID = 'apphAWeT91l1dMWM5';
-  var TABLE_NAME = 'Cuidadores';
-
-  function resizeAirtablePhoto(url, width, height) {
-    if (!url) return '';
-    var separator = url.indexOf('?') !== -1 ? '&' : '?';
-    return url + separator + 'width=' + width + '&height=' + height + '&fit=cover';
-  }
-
-  function renderizarCard(record) {
+// ========== RENDERIZAR PERFIL ==========
+function renderizarPerfil(record) {
+    var container = document.getElementById('cardPerfil');
     var f = record.fields;
-    var nome = f.Nome || 'Sem nome';
-    var especialidade = f.Especialidade || 'Cuidador(a)';
-    var bairro = f.Bairro || 'Curitiba';
+
+    var wppCuidadora = f.WhatsAppAgencia || '5541997674866';
+    var horasNum = parseInt(f.Horas) || 0;
+    var precoBase = parseFloat(f.Preco) || 0;
+
+    var todosNomes = todosRegistros.map(function(r) { return (r.fields && r.fields.Nome) || ''; });
+    var nomeExibicao = gerarNomeUnico(f.Nome || 'Sem nome', todosNomes);
+    var primeiroNome = (f.Nome || '').trim().split(/\s+/)[0] || 'profissional';
 
     var fotoHTML = '<i class="fa-solid fa-user"></i>';
     if (f.Foto && f.Foto.length > 0) {
-      var fotoOtimizada = resizeAirtablePhoto(f.Foto[0].url, 300, 300);
-      fotoHTML = '<img src="' + fotoOtimizada + '" alt="' + nome + '" loading="lazy" decoding="async" width="130" height="130">';
+        var fotoOtimizada = resizeAirtablePhoto(f.Foto[0].url, 600, 800);
+        fotoHTML = '<img src="' + fotoOtimizada + '" alt="' + nomeExibicao + '" loading="lazy" decoding="async">';
     }
 
     var seloCategoria = '';
-    var cardClassAdd = '';
-    var anelClassAdd = '';
-    var isDiamante = false;
+    var cardClassAdd = 'card-padrao';
+    var anelClassAdd = 'anel-iniciante';
 
     if (f.Categoria) {
-      var catText = f.Categoria.toLowerCase();
-      if (catText.indexOf('diamante') !== -1) { cardClassAdd = 'card-diamante'; anelClassAdd = 'anel-diamante'; seloCategoria = '<span class="cuidador-badge badge-diamante"><i class="fa-solid fa-award"></i> Diamante</span>'; isDiamante = true; }
-      else if (catText.indexOf('ouro') !== -1) { cardClassAdd = 'card-ouro'; anelClassAdd = 'anel-ouro'; seloCategoria = '<span class="cuidador-badge badge-ouro"><i class="fa-solid fa-award"></i> Ouro</span>'; }
-      else if (catText.indexOf('prata') !== -1) { cardClassAdd = 'card-prata'; anelClassAdd = 'anel-prata'; seloCategoria = '<span class="cuidador-badge badge-prata"><i class="fa-solid fa-award"></i> Prata</span>'; }
-      else if (catText.indexOf('bronze') !== -1) { cardClassAdd = 'card-bronze'; anelClassAdd = 'anel-bronze'; seloCategoria = '<span class="cuidador-badge badge-bronze"><i class="fa-solid fa-award"></i> Bronze</span>'; }
-      else { seloCategoria = '<span class="cuidador-badge badge-novidade"><i class="fa-solid fa-sparkles"></i> Novidade na Afeto</span>'; }
+        var catText = f.Categoria.toLowerCase();
+        if (catText.indexOf('diamante') !== -1) { cardClassAdd = 'card-diamante'; anelClassAdd = 'anel-diamante'; seloCategoria = '<span class="cuidador-badge badge-diamante"><i class="fa-solid fa-award"></i> Diamante</span>'; }
+        else if (catText.indexOf('ouro') !== -1) { cardClassAdd = 'card-ouro'; anelClassAdd = 'anel-ouro'; seloCategoria = '<span class="cuidador-badge badge-ouro"><i class="fa-solid fa-award"></i> Ouro</span>'; }
+        else if (catText.indexOf('prata') !== -1) { cardClassAdd = 'card-prata'; anelClassAdd = 'anel-prata'; seloCategoria = '<span class="cuidador-badge badge-prata"><i class="fa-solid fa-award"></i> Prata</span>'; }
+        else if (catText.indexOf('bronze') !== -1) { cardClassAdd = 'card-bronze'; anelClassAdd = 'anel-bronze'; seloCategoria = '<span class="cuidador-badge badge-bronze"><i class="fa-solid fa-award"></i> Bronze</span>'; }
+        else { seloCategoria = '<span class="cuidador-badge badge-novidade"><i class="fa-solid fa-sparkles"></i> Novidade na Afeto</span>'; }
     } else {
-      seloCategoria = '<span class="cuidador-badge badge-novidade"><i class="fa-solid fa-sparkles"></i> Novidade na Afeto</span>';
+        seloCategoria = '<span class="cuidador-badge badge-novidade"><i class="fa-solid fa-sparkles"></i> Novidade na Afeto</span>';
     }
+
+    container.className = 'perfil-card ' + cardClassAdd;
 
     var seloVerificada = f.Verificada ? '<span class="cuidador-badge badge-verificada"><i class="fa-solid fa-check"></i> Verificada</span>' : '';
     var seloCoren = f.COREN ? '<span class="cuidador-badge badge-coren"><i class="fa-solid fa-id-card"></i> COREN</span>' : '';
 
-    var estrelasHTML = '';
-    var notaValor = parseFloat(f.Nota);
-    if (!isNaN(notaValor) && notaValor > 0) {
-      var qtdCheias = Math.round(notaValor);
-      if (qtdCheias > 5) qtdCheias = 5;
-      var estrelasStr = '★'.repeat(qtdCheias) + '☆'.repeat(5 - qtdCheias);
-      estrelasHTML = '<span style="display: flex; gap: 2px;">' + estrelasStr + '</span> <span class="nota-numero" style="margin-left: 5px;">' + notaValor.toFixed(1) + '</span>';
+    var apresentacaoHTML = f.Apresentacao ? 
+        '<div class="bio-box reveal-item"><h4><i class="fa-solid fa-user-doctor"></i> Sobre a profissional</h4><p>' + f.Apresentacao + '</p></div>' : '';
+
+    var tagsHTML = '';
+    if (f.Subespecialidades && Array.isArray(f.Subespecialidades)) {
+        var badgesExp = f.Subespecialidades.map(function(sub) { return '<span class="tag-exp">✓ ' + sub + '</span>'; }).join('');
+        tagsHTML = '<div class="experiencia-container reveal-item"><div class="experiencia-titulo">Especialidades:</div><div class="tags-exp">' + badgesExp + '</div></div>';
     }
 
     var turnoHTML = '';
     if (f.Turno) {
-      var t = f.Turno.toLowerCase();
-      if (t.indexOf('diurno e noturno') !== -1 || t.indexOf('integral') !== -1 || t.indexOf('24') !== -1) {
-        turnoHTML = '<span class="turno-pill turno-integral"><i class="fa-solid fa-sun"></i> <i class="fa-solid fa-moon"></i> Diurno e Noturno</span>';
-      } else if (t.indexOf('noturno') !== -1) {
-        turnoHTML = '<span class="turno-pill turno-noturno"><i class="fa-solid fa-moon"></i> Noturno</span>';
-      } else if (t.indexOf('diurno') !== -1) {
-        turnoHTML = '<span class="turno-pill turno-diurno"><i class="fa-solid fa-sun"></i> Diurno</span>';
-      }
+        var t = f.Turno.toLowerCase();
+        if (t.indexOf('diurno e noturno') !== -1 || t.indexOf('integral') !== -1 || t.indexOf('24') !== -1) {
+            turnoHTML = '<span class="turno-pill turno-integral"><i class="fa-solid fa-sun"></i> <i class="fa-solid fa-moon"></i> Diurno e Noturno</span>';
+        } else if (t.indexOf('noturno') !== -1) {
+            turnoHTML = '<span class="turno-pill turno-noturno"><i class="fa-solid fa-moon"></i> Noturno</span>';
+        } else if (t.indexOf('diurno') !== -1) {
+            turnoHTML = '<span class="turno-pill turno-diurno"><i class="fa-solid fa-sun"></i> Diurno</span>';
+        }
     }
 
-    var horasAfeto = parseInt(f.Horas) || 0;
-    var displayHoras = '';
-    if (horasAfeto >= 24) {
-      displayHoras = '<span class="cuidador-meta ' + (isDiamante ? 'meta-diamante' : '') + '">' + bairro + ' • ' + horasAfeto + 'h de afeto</span>';
+    var notaTexto = f.Nota || '5.0';
+
+    var precoHTML = '';
+    if (precoBase > 0) {
+        precoHTML = 
+            '<div class="preco-box reveal-item">' +
+                '<div class="preco-label">Plantão de 12h</div>' +
+                '<div class="preco-valor">A partir de<strong>R$ ' + precoBase.toFixed(0) + '</strong></div>' +
+                '<div class="preco-nota">Valor final negociado direto com a profissional, conforme complexidade e horário do cuidado.</div>' +
+            '</div>';
+    }
+
+    var linhaHorasHTML = '';
+    if (horasNum >= 24) {
+        linhaHorasHTML = '<div class="info-linha"><span>Horas de Afeto</span><strong style="color: var(--preto-fonte);">' + horasNum + 'h</strong></div>';
     } else {
-      displayHoras = '<span class="cuidador-meta ' + (isDiamante ? 'meta-diamante' : '') + '">' + bairro + ' • <span class="texto-disponivel"><span class="luz-online"></span>Disponível</span></span>';
+        linhaHorasHTML = '<div class="info-linha"><span>Status</span><strong class="tag-disponivel"><span class="luz-online"></span> Disponível</strong></div>';
     }
 
-    return '<div class="cuidador-card ' + cardClassAdd + '" onclick="window.location.href=\'perfil.html?id=' + record.id + '\'">' +
-      '<div class="card-top">' +
-        '<div class="foto-anel ' + anelClassAdd + '">' + fotoHTML + '</div>' +
-      '</div>' +
-      '<div class="cuidador-info">' +
-        '<div class="badges-container">' + seloCategoria + seloVerificada + seloCoren + '</div>' +
-        '<h3 class="cuidador-nome">' + nome + '</h3>' +
-        '<div class="cuidador-stars ' + (isDiamante ? 'stars-diamante' : '') + '">' + estrelasHTML + '</div>' +
-        '<span class="cuidador-tag">' + especialidade + '</span>' +
-        turnoHTML +
-        displayHoras +
-        '<button class="btn-card-acao"><i class="fa-solid fa-user"></i> Ver Perfil Completo</button>' +
-      '</div>' +
-    '</div>';
-  }
+    var comentarios = extrairComentarios(f.Comentarios);
+    var comentariosHTML = '';
+    if (comentarios.length > 0) {
+        var cardsHTML = comentarios.map(function(c) {
+            return '<div class="comentario-card"><div class="comentario-texto">"' + c + '"</div></div>';
+        }).join('');
+        comentariosHTML = '<div class="comentarios-secao reveal-item"><div class="comentarios-titulo"><i class="fa-solid fa-star" style="color: var(--lilas);"></i> O que as famílias dizem:</div>' + cardsHTML + '</div>';
+    }
 
-  async function carregarCuidadores() {
-    var grid = document.getElementById('cuidadores-grid');
-    if (!grid) return;
-    var url = 'https://api.airtable.com/v0/' + BASE_ID + '/' + TABLE_NAME;
+    var iniciais = (f.Nome || 'XX').split(' ').filter(function(p) { return p.length > 0; }).map(function(p) { return p[0]; }).slice(0, 2).join('').toUpperCase();
+    var codigoRef = iniciais;
+    var linkAtual = encodeURIComponent(window.location.href);
+
+    var mensagemWpp = 'Olá, ' + primeiroNome + '! Vi seu perfil na Afeto e gostaria de conversar sobre uma contratação.%0A%0A🔖 Ref: %23' + codigoRef + '%0A📍 ' + (f.Bairro || 'Curitiba') + '%0A%0A📌 Perfil: ' + linkAtual;
+
+    var estrelasHTML = '<span class="estrela-anim" data-delay="0">★</span><span class="estrela-anim" data-delay="200">★</span><span class="estrela-anim" data-delay="400">★</span><span class="estrela-anim" data-delay="600">★</span><span class="estrela-anim" data-delay="800">★</span><span class="nota-numero-anim" id="notaNumero">' + notaTexto + '</span>';
+
+    window.__afetoContato = {
+        nome: nomeExibicao,
+        bairro: f.Bairro || 'Curitiba',
+        especialidade: f.Especialidade || '—',
+        ref: codigoRef,
+        origem: 'Perfil'
+    };
+
+    container.innerHTML = 
+        '<div class="banner-disponivel"><span class="dot"></span>Disponível para cuidar</div>' +
+        '<div class="foto-perfil-container"><div class="foto-anel ' + anelClassAdd + '">' + fotoHTML + '</div></div>' +
+        '<div class="perfil-corpo">' +
+            '<div class="badges-container">' + seloCategoria + seloVerificada + seloCoren + '</div>' +
+            '<h1 class="nome-profissional">' + nomeExibicao + '</h1>' +
+            '<div class="tag-profissional">' +
+                '<span>' + (f.Especialidade || 'Cuidador(a)') + '</span>' +
+                '<span style="color: var(--cinza-azulado);">•</span>' +
+                '<span class="tag-bairro"><i class="fa-solid fa-location-dot"></i> ' + (f.Bairro || 'Curitiba') + '</span>' +
+            '</div>' +
+            '<div style="text-align: center;">' + turnoHTML + '</div>' +
+            apresentacaoHTML +
+            tagsHTML +
+            precoHTML +
+            '<div class="info-linha"><span>Avaliação Geral</span><div class="estrelas-container">' + estrelasHTML + '</div></div>' +
+            linhaHorasHTML +
+            comentariosHTML +
+            '<a href="https://wa.me/' + wppCuidadora + '?text=' + mensagemWpp + '" target="_blank" rel="noopener" class="btn-acao" onclick="notificarContato(window.__afetoContato)"><i class="fa-brands fa-whatsapp"></i> Falar com ' + primeiroNome + '</a>' +
+            '<button onclick="compartilharPerfil()" class="btn-compartilhar"><i class="fa-solid fa-share-nodes"></i> Compartilhar Perfil</button>' +
+        '</div>';
+
+    setTimeout(function() {
+        document.querySelectorAll('.estrela-anim').forEach(function(estrela) {
+            var delay = parseInt(estrela.getAttribute('data-delay'));
+            setTimeout(function() { estrela.classList.add('animar'); }, delay);
+        });
+        setTimeout(function() {
+            var n = document.getElementById('notaNumero');
+            if (n) n.classList.add('animar');
+        }, 1000);
+    }, 300);
+
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) entry.target.classList.add('visivel');
+        });
+    }, { threshold: 0.15 });
+    document.querySelectorAll('.reveal-item').forEach(function(el) { observer.observe(el); });
+}
+
+// ========== VEJA TAMBÉM ==========
+function renderizarVejaTambem(atual, todos) {
+    var f = atual.fields;
+    var bairroAtual = f.Bairro || '';
+    var especAtual = f.Especialidade || '';
+
+    var outros = todos.filter(function(r) { return r.id !== atual.id; });
+
+    var match1 = outros.filter(function(r) {
+        return r.fields.Bairro === bairroAtual && r.fields.Especialidade === especAtual;
+    });
+    var selecionados = match1.slice(0, 3);
+
+    if (selecionados.length < 3) {
+        var mesmoBairro = outros.filter(function(r) {
+            return r.fields.Bairro === bairroAtual && selecionados.indexOf(r) === -1;
+        });
+        for (var i = 0; i < mesmoBairro.length && selecionados.length < 3; i++) selecionados.push(mesmoBairro[i]);
+    }
+
+    if (selecionados.length < 3) {
+        var mesmaEspec = outros.filter(function(r) {
+            return r.fields.Especialidade === especAtual && selecionados.indexOf(r) === -1;
+        });
+        for (var j = 0; j < mesmaEspec.length && selecionados.length < 3; j++) selecionados.push(mesmaEspec[j]);
+    }
+
+    if (selecionados.length < 3) {
+        for (var k = 0; k < outros.length && selecionados.length < 3; k++) {
+            if (selecionados.indexOf(outros[k]) === -1) selecionados.push(outros[k]);
+        }
+    }
+
+    if (selecionados.length === 0) return;
+
+    var todosNomes = todos.map(function(r) { return (r.fields && r.fields.Nome) || ''; });
+
+    var grid = document.getElementById('vejaTambemGrid');
+    var html = '';
+
+    selecionados.forEach(function(rec) {
+        var rf = rec.fields;
+        var nomeExibicao = gerarNomeUnico(rf.Nome || '', todosNomes);
+        var nota = rf.Nota || '5.0';
+        var bairro = rf.Bairro || 'Curitiba';
+        var espec = rf.Especialidade || 'Cuidador(a)';
+
+        var fotoHTML = '<i class="fa-solid fa-user"></i>';
+        if (rf.Foto && rf.Foto.length > 0) {
+            var fotoOt = resizeAirtablePhoto(rf.Foto[0].url, 200, 200);
+            fotoHTML = '<img src="' + fotoOt + '" alt="' + nomeExibicao + '" loading="lazy" decoding="async">';
+        }
+
+        html += 
+            '<a href="perfil.html?id=' + rec.id + '" class="mini-card">' +
+                '<div class="mini-card-foto">' + fotoHTML + '</div>' +
+                '<div class="mini-card-nome">' + nomeExibicao + '</div>' +
+                '<div class="mini-card-nota">★ ' + nota + '</div>' +
+                '<div class="mini-card-bairro"><i class="fa-solid fa-location-dot"></i> ' + bairro + '</div>' +
+                '<div class="mini-card-tag">' + espec + '</div>' +
+            '</a>';
+    });
+
+    grid.innerHTML = html;
+    document.getElementById('vejaTambem').classList.add('ativo');
+}
+
+// ========== COMPARTILHAR ==========
+async function compartilharPerfil() {
+    var nomeEl = document.querySelector('.nome-profissional');
+    var nomeProf = nomeEl ? nomeEl.innerText : 'esta profissional';
+
+    var shareData = {
+        title: 'Afeto Homecare - ' + nomeProf,
+        text: 'Conheça o perfil de ' + nomeProf + ' na Afeto Homecare 💜',
+        url: window.location.href
+    };
+
+    if (navigator.share) {
+        try {
+            await navigator.share(shareData);
+            return;
+        } catch (err) {
+            if (err.name === 'AbortError') return;
+        }
+    }
 
     try {
-      var response = await fetch(url, { headers: { Authorization: 'Bearer ' + API_KEY } });
-      var data = await response.json();
-
-      if (data.records) {
-        grid.innerHTML = '';
-        data.records.forEach(function(record) {
-          grid.innerHTML += renderizarCard(record);
-        });
-      } else {
-        grid.innerHTML = '<div class="loader" style="color:red;">Erro ao carregar profissionais.</div>';
-      }
-    } catch (error) {
-      grid.innerHTML = '<div class="loader" style="color:red;">Erro ao carregar profissionais.</div>';
+        await navigator.clipboard.writeText(window.location.href);
+        alert('Link copiado! Agora é só colar onde quiser compartilhar. 💜');
+    } catch (err) {
+        alert('Não foi possível compartilhar automaticamente.');
     }
-  }
-  carregarCuidadores();
+}
 
-})();
+// ========== SCROLL PROGRESS ==========
+window.addEventListener('scroll', function() {
+    var winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+    var height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    if (height > 0) {
+        document.getElementById('scrollProgress').style.width = ((winScroll / height) * 100) + '%';
+    }
+});
+
+carregarTudo();
 </script>
+
+<footer class="site-footer">
+    <div class="footer-content">
+        
+        <p class="footer-aviso">
+            A Afeto atua como plataforma de conexão entre famílias e cuidadoras autônomas. Não executamos serviços de saúde ou cuidado — as informações dos perfis são de responsabilidade das profissionais cadastradas.
+        </p>
+        
+        <p>
+            A Afeto é uma plataforma digital que aproxima famílias de cuidadores com boa reputação, em um ambiente seguro e transparente. Nosso papel é fornecer a melhor tecnologia em apresentação de perfis e marketing para profissionais autônomos. Cada cuidador parceiro atua de forma independente, utilizando nossa vitrine para expandir sua base de clientes, definindo seus próprios horários e ganhos com 100% de autonomia.
+        </p>
+        
+        <div class="footer-social">
+            <a href="https://www.instagram.com/afetohomecareoficial" target="_blank" aria-label="Instagram Afeto Homecare">
+                <i class="fa-brands fa-instagram"></i>
+            </a>
+            <a href="https://wa.me/5541997674866?text=Ol%C3%A1!%20Gostaria%20de%20saber%20mais%20sobre%20a%20Afeto." target="_blank" aria-label="WhatsApp Afeto Homecare">
+                <i class="fa-brands fa-whatsapp"></i>
+            </a>
+            <a href="mailto:afetohomecareoficial@gmail.com" aria-label="E-mail Afeto Homecare">
+                <i class="fa-solid fa-envelope"></i>
+            </a>
+        </div>
+        
+        <div class="footer-info">
+            <span><i class="fa-solid fa-location-dot"></i> Curitiba-PR</span>
+        </div>
+        
+        <div class="footer-links">
+            <a href="termos.html">Termos de Uso</a>
+            <a href="privacidade.html">Política de Privacidade</a>
+        </div>
+        
+        <div class="footer-legal">
+            Afeto Homecare &copy; 2026. Todos os direitos reservados.
+        </div>
+        
+    </div>
+</footer>
+
 </body>
 </html>
