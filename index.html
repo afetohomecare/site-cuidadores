@@ -104,6 +104,61 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
 .btn-action-lilas:hover { background-color: var(--lilas-escuro); transform: translateY(-5px) scale(1.02); box-shadow: 0 15px 35px rgba(139,92,246,0.4); }
 .btn-wrapper { text-align: center; margin: 40px 0 60px 0; }
 
+/* ==================== CARDS DE PROFISSIONAIS ==================== */
+.cards-grid { display: flex; gap: 30px; margin-top: 30px; overflow-x: auto; padding-bottom: 25px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+.cards-grid::-webkit-scrollbar { height: 10px; }
+.cards-grid::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+.cards-grid::-webkit-scrollbar-thumb { background: var(--cinza-azulado); border-radius: 10px; }
+
+.cuidador-card { flex: 0 0 320px; scroll-snap-align: start; background: var(--branco); border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); border: 1px solid #f1f5f9; transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1); display: flex; flex-direction: column; color: inherit; text-decoration: none; position: relative; cursor: pointer; }
+.cuidador-card:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(0,0,0,0.08); }
+.card-ouro { border-color: #fde68a; }
+.card-diamante { border-color: #bae6fd; background: linear-gradient(145deg, #ffffff 60%, #f0f9ff 100%); }
+
+.card-top { display: flex; justify-content: center; padding-top: 35px; margin-bottom: 15px; }
+.foto-anel { width: 130px; height: 130px; border-radius: 50%; padding: 5px; display: flex; justify-content: center; align-items: center; background: transparent; }
+.foto-anel img, .foto-anel i { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+.foto-anel i { display: flex; justify-content: center; align-items: center; background: #f8f9fc; font-size: 50px; color: #cbd5e1; }
+.anel-bronze { border: 2px solid #b45309; }
+.anel-prata { border: 3px solid #94a3b8; }
+.anel-ouro { border: 4px solid #d97706; box-shadow: 0 5px 15px rgba(217, 119, 6, 0.2); }
+.anel-diamante { border: 4px solid #0ea5e9; box-shadow: 0 0 20px rgba(14, 165, 233, 0.3); }
+
+.cuidador-info { padding: 0 25px 25px 25px; flex-grow: 1; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.badges-container { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-bottom: 12px; }
+.cuidador-badge { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 5px; }
+.badge-verificada { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+.badge-coren { background: #eef2ff; color: #4338ca; border: 1px solid #c7d2fe; }
+.badge-bronze { background: #fff7ed; color: #b45309; border: 1px solid #fed7aa; }
+.badge-prata { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+.badge-ouro { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+.badge-diamante { background: #f0f9ff; color: #0284c7; border: 1px solid #bae6fd; }
+.badge-novidade { background: linear-gradient(135deg, #f5f3ff, #ede9fe); color: var(--lilas-escuro); border: 1px solid #c4b5fd; position: relative; padding-right: 18px; }
+.badge-novidade::after { content: ""; position: absolute; top: 50%; right: 7px; transform: translateY(-50%); width: 7px; height: 7px; background: var(--ouro); border-radius: 50%; box-shadow: 0 0 8px rgba(251, 191, 36, 0.9); animation: pulsar-novidade 1.8s infinite; }
+@keyframes pulsar-novidade { 0%, 100% { opacity: 1; transform: translateY(-50%) scale(1); } 50% { opacity: 0.4; transform: translateY(-50%) scale(1.4); } }
+
+.luz-online { width: 7px; height: 7px; background: var(--verde-online); border-radius: 50%; display: inline-block; box-shadow: 0 0 6px rgba(16, 185, 129, 0.7); animation: pulsar-online 1.8s infinite; vertical-align: middle; margin-right: 4px; }
+@keyframes pulsar-online { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.4); } }
+.texto-disponivel { color: var(--verde-online); font-weight: 800; }
+
+.cuidador-nome { font-size: 22px; font-weight: 900; margin-bottom: 8px; color: var(--preto-fonte); letter-spacing: -0.5px; }
+.cuidador-stars { color: var(--ouro); font-size: 16px; letter-spacing: 2px; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 900; min-height: 20px; }
+.nota-numero { font-size: 15px; font-weight: 900; color: var(--preto-fonte); letter-spacing: 0; }
+.cuidador-tag { color: var(--lilas); font-size: 15px; font-weight: 800; margin-bottom: 8px; }
+.turno-pill { padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 800; display: inline-flex; align-items: center; gap: 5px; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 12px; }
+.turno-diurno { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
+.turno-noturno { background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; }
+.turno-integral { background: #f5f3ff; color: #7c3aed; border: 1px solid #ddd6fe; }
+.cuidador-meta { font-size: 14px; color: var(--cinza-fonte); margin-bottom: 20px; font-weight: 600; }
+.stars-diamante { font-size: 20px !important; }
+.stars-diamante .nota-numero { font-size: 18px !important; color: #0284c7 !important; }
+.meta-diamante { font-size: 16px !important; font-weight: 800 !important; color: var(--preto-fonte) !important; }
+
+.btn-card-acao { width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: var(--branco); padding: 14px; border-radius: 50px; font-weight: 900; font-size: 14px; text-decoration: none; transition: 0.3s; box-shadow: 0 8px 20px rgba(139, 92, 246, 0.25); margin-top: auto; font-family: 'Nunito', sans-serif; cursor: pointer; border: none; }
+.btn-card-acao:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(139, 92, 246, 0.4); }
+
+.loader { text-align: center; padding: 50px; font-size: 18px; font-weight: bold; color: var(--lilas); width: 100%; }
+
 /* ==================== FORMULÁRIO ==================== */
 .form-wrapper { background: var(--branco); border-radius: 35px; padding: 30px; box-shadow: 0 25px 60px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; max-width: 700px; margin: 40px auto 0 auto; max-height: 0; opacity: 0; overflow: hidden; padding: 0 30px; transition: all 0.6s ease-in-out; }
 .form-wrapper.revelado { max-height: 4500px; opacity: 1; padding: 40px; }
@@ -124,23 +179,15 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
   background: var(--fundo-site); color: var(--preto-fonte); outline: none;
   transition: 0.3s; box-sizing: border-box;
 }
-.form-campo input:focus,
-.form-campo select:focus,
-.form-campo textarea:focus {
-  border-color: var(--lilas); background: var(--branco);
-  box-shadow: 0 0 0 4px rgba(139,92,246,0.12);
-}
-.form-campo input::placeholder,
-.form-campo textarea::placeholder { color: var(--cinza-azulado); font-weight: 600; }
+.form-campo input:focus, .form-campo select:focus, .form-campo textarea:focus { border-color: var(--lilas); background: var(--branco); box-shadow: 0 0 0 4px rgba(139,92,246,0.12); }
+.form-campo input::placeholder, .form-campo textarea::placeholder { color: var(--cinza-azulado); font-weight: 600; }
 .form-campo select { cursor: pointer; appearance: none; -webkit-appearance: none; -moz-appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238b5cf6' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 18px center; background-size: 16px; padding-right: 45px; }
 .form-campo textarea { resize: vertical; min-height: 80px; }
 
-/* Input com prefixo R$ */
 .input-prefix { position: relative; display: flex; align-items: center; }
 .input-prefix span { position: absolute; left: 18px; font-weight: 800; color: var(--lilas-escuro); font-size: 15px; pointer-events: none; z-index: 2; }
 .input-prefix input { padding-left: 48px !important; }
 
-/* Bairros */
 .wrap-bairros { position: relative; margin-top: 6px; }
 .caixa-bairros { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px; border: 2px solid #e2e8f0; border-radius: 16px; min-height: 52px; background: var(--fundo-site); align-items: center; transition: 0.3s; box-sizing: border-box; }
 .caixa-bairros:focus-within { border-color: var(--lilas); background: var(--branco); box-shadow: 0 0 0 4px rgba(139,92,246,0.12); }
@@ -158,16 +205,12 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
 .campo-oculto { display: none; }
 .campo-oculto.ativo { display: block; }
 
-/* Aviso COREN */
 .aviso-coren { display: flex; gap: 10px; font-size: 13px; color: var(--lilas-escuro); background: #f5f3ff; padding: 14px 16px; border-radius: 12px; margin-top: 12px; border-left: 4px solid var(--lilas); line-height: 1.55; font-weight: 600; }
 .aviso-coren strong { font-weight: 900; }
-
-/* Aviso NOTURNO */
 .aviso-noturno { display: flex; gap: 12px; font-size: 13.5px; color: #6d28d9; background: linear-gradient(135deg, #f5f3ff, #ede9fe); padding: 16px 18px; border-radius: 12px; margin-top: 12px; border-left: 4px solid var(--lilas); line-height: 1.55; font-weight: 600; }
 .aviso-noturno strong { font-weight: 900; }
 .aviso-noturno .emoji { font-size: 22px; line-height: 1; }
 
-/* Termos */
 .termos { margin-top: 28px; padding: 20px; background: #f5f3ff; border-radius: 16px; border-left: 4px solid var(--lilas); }
 .termos-titulo { font-size: 15px; font-weight: 900; color: var(--lilas-escuro); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
 .termo-item { display: flex; align-items: flex-start; gap: 12px; margin-top: 12px; font-size: 13.5px; color: var(--preto-fonte); line-height: 1.55; font-weight: 600; transition: 0.3s; }
@@ -202,16 +245,20 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
 .btn-wpp:hover { transform: scale(1.15); }
 @keyframes pulse-green { 0% { box-shadow: 0 0 0 0 rgba(37,211,102,0.5); } 70% { box-shadow: 0 0 0 20px rgba(37,211,102,0); } 100% { box-shadow: 0 0 0 0 rgba(37,211,102,0); } }
 
-.site-footer { background-color: var(--fundo-site); color: var(--cinza-fonte); padding: 50px 20px 30px; text-align: center; border-top: 1px solid #e2e8f0; margin-top: 60px; }
+/* ==================== FOOTER PADRONIZADO ==================== */
+.site-footer { background-color: var(--fundo-site); color: var(--cinza-fonte); padding: 50px 20px 30px; text-align: center; border-top: 1px solid #e2e8f0; margin-top: 60px; width: 100%; }
 .footer-content { max-width: 900px; margin: 0 auto; font-size: 13px; line-height: 1.6; }
 .footer-content p { margin-bottom: 25px; }
 .footer-aviso { font-size: 11px; color: var(--cinza-azulado); font-weight: 600; line-height: 1.5; font-style: italic; padding: 0 20px; }
 .footer-social { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; }
 .footer-social a { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; display: flex; justify-content: center; align-items: center; font-size: 22px; box-shadow: 0 8px 20px rgba(139,92,246,0.25); transition: 0.3s; }
-.footer-social a:hover { transform: translateY(-4px) scale(1.08); }
+.footer-social a:hover { transform: translateY(-4px) scale(1.08); box-shadow: 0 12px 28px rgba(139,92,246,0.45); }
+.footer-info { display: flex; justify-content: center; gap: 25px; flex-wrap: wrap; margin-bottom: 25px; font-size: 14px; color: var(--cinza-fonte); font-weight: 700; }
+.footer-info i { color: var(--lilas); margin-right: 6px; }
 .footer-links { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-bottom: 20px; }
-.footer-links a { color: var(--lilas-escuro); font-weight: 800; font-size: 14px; }
+.footer-links a { color: var(--lilas-escuro); font-weight: 800; font-size: 14px; transition: 0.3s; }
 .footer-links a:hover { color: var(--lilas); text-decoration: underline; }
+.footer-legal { font-size: 11px; color: var(--cinza-azulado); border-top: 1px solid #e2e8f0; padding-top: 20px; }
 
 @media (max-width: 900px) {
   .hero { margin: 80px 15px 30px 15px; width: calc(100% - 30px); padding: 50px 20px; border-radius: 35px; }
@@ -223,13 +270,14 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
   .passos-grid { grid-template-columns: 1fr; gap: 20px; }
   .form-wrapper.revelado { padding: 25px; }
   .tela-titulo { font-size: 22px; }
+  .cuidador-card { flex: 0 0 280px; }
 }
 </style>
 </head>
 <body>
 
 <header>
-  <a href="https://afetohomecare.pages.dev" class="logo">Afeto<span>Homecare</span></a>
+  <a href="https://afetocuidadores.pages.dev" class="logo">Afeto<span>Homecare</span></a>
   <a href="https://afetohomecare.pages.dev" class="btn-outline">Encontrar Afeto</a>
 </header>
 
@@ -545,21 +593,56 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
   </div>
 </section>
 
+<!-- ==================== PROFISSIONAIS ATIVOS ==================== -->
+<section class="section" id="profissionais-ativos" style="padding-top: 20px; padding-bottom: 40px;">
+  <div class="section-header">
+    <h2>Profissionais Ativos na Afeto</h2>
+    <p>Role para o lado e veja o nível de excelência que as famílias encontram aqui.</p>
+  </div>
+  <div class="cards-grid" id="cuidadores-grid">
+    <div class="loader">Buscando profissionais na base de dados... <i class="fa-solid fa-spinner fa-spin"></i></div>
+  </div>
+</section>
+
 <a href="https://wa.me/5541997674866" target="_blank" class="btn-wpp"><i class="fa-brands fa-whatsapp"></i></a>
 
+<!-- ==================== FOOTER PADRONIZADO ==================== -->
 <footer class="site-footer">
   <div class="footer-content">
-    <p class="footer-aviso">A Afeto é uma plataforma de divulgação e conexão. Não prestamos serviços de saúde ou cuidado. As informações, valores e disponibilidades apresentados nos perfis são de responsabilidade das profissionais autônomas cadastradas.</p>
-    <p>A Afeto é uma plataforma digital que aproxima famílias de cuidadores de excelência. Nosso papel é fornecer a melhor tecnologia em marketing e segurança de pagamentos para profissionais autônomos. Cada cuidador parceiro atua de forma independente, utilizando nossa vitrine para expandir sua base de clientes, definindo seus próprios horários e repasses com 100% de autonomia.</p>
+
+    <p class="footer-aviso">
+      A Afeto atua como plataforma de conexão entre famílias e cuidadoras autônomas. Não executamos serviços de saúde ou cuidado — as informações dos perfis são de responsabilidade das profissionais cadastradas.
+    </p>
+
+    <p>
+      A Afeto é uma plataforma digital que aproxima famílias de cuidadores com boa reputação, em um ambiente seguro e transparente. Nosso papel é fornecer a melhor tecnologia em apresentação de perfis, marketing e segurança de pagamentos para profissionais autônomos. Cada cuidador parceiro atua de forma independente, utilizando nossa vitrine para expandir sua base de clientes, definindo seus próprios horários e repasses com 100% de autonomia.
+    </p>
+
     <div class="footer-social">
-      <a href="https://www.instagram.com/afetohomecareoficial" target="_blank" aria-label="Instagram">
+      <a href="https://www.instagram.com/afetohomecareoficial" target="_blank" aria-label="Instagram Afeto Homecare">
         <i class="fa-brands fa-instagram"></i>
       </a>
+      <a href="https://wa.me/5541997674866?text=Ol%C3%A1!%20Gostaria%20de%20saber%20mais%20sobre%20a%20Afeto." target="_blank" aria-label="WhatsApp Afeto Homecare">
+        <i class="fa-brands fa-whatsapp"></i>
+      </a>
+      <a href="mailto:afetohomecareoficial@gmail.com" aria-label="E-mail Afeto Homecare">
+        <i class="fa-solid fa-envelope"></i>
+      </a>
     </div>
+
+    <div class="footer-info">
+      <span><i class="fa-solid fa-location-dot"></i> Curitiba-PR</span>
+    </div>
+
     <div class="footer-links">
       <a href="termos.html">Termos de Uso</a>
       <a href="privacidade.html">Política de Privacidade</a>
     </div>
+
+    <div class="footer-legal">
+      Afeto Homecare &copy; 2026. Todos os direitos reservados.
+    </div>
+
   </div>
 </footer>
 
@@ -843,7 +926,6 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
     e.preventDefault();
     if (enviando) return;
 
-    // Validações em ordem
     if (bairrosSelecionados.length === 0) return destacarErro('bairro', 'input-bairros', 'Selecione pelo menos um bairro de atuação.');
 
     var nome = document.getElementById('nome').value.trim();
@@ -873,7 +955,6 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
     if (!document.getElementById('termo3').checked) return destacarErro('termo', 'termo3', 'Você precisa declarar que as informações são verdadeiras.');
     if (!document.getElementById('termo4').checked) return destacarErro('termo', 'termo4', 'Você precisa declarar que não possui antecedentes criminais.');
 
-    // Tudo OK, envia
     enviando = true;
     btnEnviar.disabled = true;
     btnEnviar.innerHTML = 'Enviando... <span class="spinner"></span>';
@@ -907,6 +988,116 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
       btnEnviar.innerHTML = 'Enviar Cadastro <i class="fa-solid fa-heart"></i>';
     }
   });
+
+  // ============ PROFISSIONAIS ATIVOS (AIRTABLE) ============
+  var API_KEY = 'patl042fqFhzdECNS.31172479b55fffd9c3b5c7d7e7b5dee4a19b0b5600eb2273aa02d0ec427b35ae';
+  var BASE_ID = 'apphAWeT91l1dMWM5';
+  var TABLE_NAME = 'Cuidadores';
+
+  function resizeAirtablePhoto(url, width, height) {
+    if (!url) return '';
+    var separator = url.indexOf('?') !== -1 ? '&' : '?';
+    return url + separator + 'width=' + width + '&height=' + height + '&fit=cover';
+  }
+
+  function renderizarCard(record) {
+    var f = record.fields;
+    var nome = f.Nome || 'Sem nome';
+    var especialidade = f.Especialidade || 'Cuidador(a)';
+    var bairro = f.Bairro || 'Curitiba';
+
+    var fotoHTML = '<i class="fa-solid fa-user"></i>';
+    if (f.Foto && f.Foto.length > 0) {
+      var fotoOtimizada = resizeAirtablePhoto(f.Foto[0].url, 300, 300);
+      fotoHTML = '<img src="' + fotoOtimizada + '" alt="' + nome + '" loading="lazy" decoding="async" width="130" height="130">';
+    }
+
+    var seloCategoria = '';
+    var cardClassAdd = '';
+    var anelClassAdd = '';
+    var isDiamante = false;
+
+    if (f.Categoria) {
+      var catText = f.Categoria.toLowerCase();
+      if (catText.indexOf('diamante') !== -1) { cardClassAdd = 'card-diamante'; anelClassAdd = 'anel-diamante'; seloCategoria = '<span class="cuidador-badge badge-diamante"><i class="fa-solid fa-award"></i> Diamante</span>'; isDiamante = true; }
+      else if (catText.indexOf('ouro') !== -1) { cardClassAdd = 'card-ouro'; anelClassAdd = 'anel-ouro'; seloCategoria = '<span class="cuidador-badge badge-ouro"><i class="fa-solid fa-award"></i> Ouro</span>'; }
+      else if (catText.indexOf('prata') !== -1) { cardClassAdd = 'card-prata'; anelClassAdd = 'anel-prata'; seloCategoria = '<span class="cuidador-badge badge-prata"><i class="fa-solid fa-award"></i> Prata</span>'; }
+      else if (catText.indexOf('bronze') !== -1) { cardClassAdd = 'card-bronze'; anelClassAdd = 'anel-bronze'; seloCategoria = '<span class="cuidador-badge badge-bronze"><i class="fa-solid fa-award"></i> Bronze</span>'; }
+      else { seloCategoria = '<span class="cuidador-badge badge-novidade"><i class="fa-solid fa-sparkles"></i> Novidade na Afeto</span>'; }
+    } else {
+      seloCategoria = '<span class="cuidador-badge badge-novidade"><i class="fa-solid fa-sparkles"></i> Novidade na Afeto</span>';
+    }
+
+    var seloVerificada = f.Verificada ? '<span class="cuidador-badge badge-verificada"><i class="fa-solid fa-check"></i> Verificada</span>' : '';
+    var seloCoren = f.COREN ? '<span class="cuidador-badge badge-coren"><i class="fa-solid fa-id-card"></i> COREN</span>' : '';
+
+    var estrelasHTML = '';
+    var notaValor = parseFloat(f.Nota);
+    if (!isNaN(notaValor) && notaValor > 0) {
+      var qtdCheias = Math.round(notaValor);
+      if (qtdCheias > 5) qtdCheias = 5;
+      var estrelasStr = '★'.repeat(qtdCheias) + '☆'.repeat(5 - qtdCheias);
+      estrelasHTML = '<span style="display: flex; gap: 2px;">' + estrelasStr + '</span> <span class="nota-numero" style="margin-left: 5px;">' + notaValor.toFixed(1) + '</span>';
+    }
+
+    var turnoHTML = '';
+    if (f.Turno) {
+      var t = f.Turno.toLowerCase();
+      if (t.indexOf('diurno e noturno') !== -1 || t.indexOf('integral') !== -1 || t.indexOf('24') !== -1) {
+        turnoHTML = '<span class="turno-pill turno-integral"><i class="fa-solid fa-sun"></i> <i class="fa-solid fa-moon"></i> Diurno e Noturno</span>';
+      } else if (t.indexOf('noturno') !== -1) {
+        turnoHTML = '<span class="turno-pill turno-noturno"><i class="fa-solid fa-moon"></i> Noturno</span>';
+      } else if (t.indexOf('diurno') !== -1) {
+        turnoHTML = '<span class="turno-pill turno-diurno"><i class="fa-solid fa-sun"></i> Diurno</span>';
+      }
+    }
+
+    var horasAfeto = parseInt(f.Horas) || 0;
+    var displayHoras = '';
+    if (horasAfeto >= 24) {
+      displayHoras = '<span class="cuidador-meta ' + (isDiamante ? 'meta-diamante' : '') + '">' + bairro + ' • ' + horasAfeto + 'h de afeto</span>';
+    } else {
+      displayHoras = '<span class="cuidador-meta ' + (isDiamante ? 'meta-diamante' : '') + '">' + bairro + ' • <span class="texto-disponivel"><span class="luz-online"></span>Disponível</span></span>';
+    }
+
+    return '<div class="cuidador-card ' + cardClassAdd + '" onclick="window.location.href=\'perfil.html?id=' + record.id + '\'">' +
+      '<div class="card-top">' +
+        '<div class="foto-anel ' + anelClassAdd + '">' + fotoHTML + '</div>' +
+      '</div>' +
+      '<div class="cuidador-info">' +
+        '<div class="badges-container">' + seloCategoria + seloVerificada + seloCoren + '</div>' +
+        '<h3 class="cuidador-nome">' + nome + '</h3>' +
+        '<div class="cuidador-stars ' + (isDiamante ? 'stars-diamante' : '') + '">' + estrelasHTML + '</div>' +
+        '<span class="cuidador-tag">' + especialidade + '</span>' +
+        turnoHTML +
+        displayHoras +
+        '<button class="btn-card-acao"><i class="fa-solid fa-user"></i> Ver Perfil Completo</button>' +
+      '</div>' +
+    '</div>';
+  }
+
+  async function carregarCuidadores() {
+    var grid = document.getElementById('cuidadores-grid');
+    if (!grid) return;
+    var url = 'https://api.airtable.com/v0/' + BASE_ID + '/' + TABLE_NAME;
+
+    try {
+      var response = await fetch(url, { headers: { Authorization: 'Bearer ' + API_KEY } });
+      var data = await response.json();
+
+      if (data.records) {
+        grid.innerHTML = '';
+        data.records.forEach(function(record) {
+          grid.innerHTML += renderizarCard(record);
+        });
+      } else {
+        grid.innerHTML = '<div class="loader" style="color:red;">Erro ao carregar profissionais.</div>';
+      }
+    } catch (error) {
+      grid.innerHTML = '<div class="loader" style="color:red;">Erro ao carregar profissionais.</div>';
+    }
+  }
+  carregarCuidadores();
 
 })();
 </script>
