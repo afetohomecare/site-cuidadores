@@ -1,408 +1,786 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Perfil Profissional - Afeto Homecare</title>
-    
-    <meta property="og:type" content="profile">
-    <meta property="og:title" content="Conheça essa profissional - Afeto Homecare">
-    <meta property="og:description" content="Profissional verificada e avaliada por famílias reais. Veja o perfil completo.">
-    <meta property="og:image" content="https://afetocuidadores.pages.dev/og-perfil.jpg">
-    <meta property="og:url" content="https://afetocuidadores.pages.dev/perfil.html">
-    <meta name="twitter:card" content="summary_large_image">
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://api.airtable.com">
-    <link rel="preconnect" href="https://v5.airtableusercontent.com">
-    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
-    
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root { 
-            --lilas: #8b5cf6; --lilas-escuro: #7c3aed; 
-            --preto-fonte: #1f1f1f; --cinza-fonte: #666666; --cinza-azulado: #94a3b8; 
-            --branco: #ffffff; --verde-whatsapp: #25D366; --ouro: #fbbf24;
-            --verde-online: #10b981;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body { 
-            font-family: 'Nunito', sans-serif; 
-            background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
-            color: var(--preto-fonte); 
-            padding: 100px 20px 0 20px; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            min-height: 100vh; 
-        }
-        
-        header { position: fixed; width: 100%; top: 0; left: 0; z-index: 1000; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; background-color: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(0,0,0,0.03); }
-        .logo { font-size: 28px; font-weight: 900; color: var(--lilas); letter-spacing: -1px; text-decoration: none; }
-        .logo span { font-weight: 300; color: var(--cinza-azulado); }
-        .btn-outline { padding: 10px 24px; border-radius: 50px; font-weight: 800; color: var(--lilas); border: 2px solid var(--lilas); transition: 0.3s; background: transparent; font-size: 15px; text-decoration: none; }
-        .btn-outline:hover { background: var(--lilas); color: var(--branco); box-shadow: 0 8px 20px rgba(139, 92, 246, 0.3); transform: translateY(-2px); }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Perfil Profissional - Afeto Homecare</title>
 
-        .perfil-card { max-width: 550px; width: 100%; border-radius: 35px; overflow: hidden; margin-bottom: 20px; transition: all 0.4s ease; display: flex; flex-direction: column; }
-        
-        .card-padrao { background: var(--branco); border: 1px solid #e2e8f0; box-shadow: 0 15px 40px rgba(139, 92, 246, 0.08); }
-        .card-bronze { background: var(--branco); border: 2px solid #fed7aa; box-shadow: 0 15px 40px rgba(180, 83, 9, 0.1); }
-        .card-prata { background: linear-gradient(145deg, #ffffff 60%, #f8fafc 100%); border: 2px solid #cbd5e1; box-shadow: 0 15px 40px rgba(148, 163, 184, 0.15); }
-        .card-ouro { background: linear-gradient(145deg, #ffffff 60%, #fffbeb 100%); border: 2px solid #fcd34d; box-shadow: 0 20px 50px rgba(217, 119, 6, 0.2); }
-        .card-diamante { background: linear-gradient(145deg, #ffffff 40%, #f0f9ff 100%); border: 2px solid #7dd3fc; box-shadow: 0 20px 50px rgba(2, 132, 199, 0.2); }
+<meta property="og:type" content="profile">
+<meta property="og:title" content="Conheça essa profissional - Afeto Homecare">
+<meta property="og:description" content="Profissional verificada e avaliada por famílias reais. Veja o perfil completo.">
+<meta property="og:image" content="https://afetocuidadores.pages.dev/og-perfil.jpg">
+<meta property="og:url" content="https://afetocuidadores.pages.dev/perfil.html">
+<meta name="twitter:card" content="summary_large_image">
 
-        .foto-perfil-container { width: 100%; background-color: var(--branco); display: flex; justify-content: center; padding: 30px 20px 10px; }
-        .foto-perfil-container img { width: 100%; max-width: 260px; aspect-ratio: 3/4; object-fit: cover; border-radius: 24px; box-shadow: 0 15px 35px rgba(0,0,0,0.06); }
-        .foto-perfil-container i { font-size: 100px; color: #cbd5e1; padding: 50px; }
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://api.airtable.com">
+<link rel="preconnect" href="https://v5.airtableusercontent.com">
+<link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-        .badges-container { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-bottom: 15px; }
-        .cuidador-badge { padding: 5px 14px; border-radius: 20px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 5px; }
-        
-        .badge-verificada { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
-        .badge-coren { background: #eef2ff; color: #4338ca; border: 1px solid #c7d2fe; }
-        
-        .badge-bronze { background: #fff7ed; color: #b45309; border: 1px solid #fed7aa; }
-        .badge-prata { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
-        .badge-ouro { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
-        .badge-diamante { background: #f0f9ff; color: #0284c7; border: 1px solid #bae6fd; }
-        
-        .badge-novidade { 
-            background: linear-gradient(135deg, #f5f3ff, #ede9fe); 
-            color: var(--lilas-escuro); 
-            border: 1px solid #c4b5fd; 
-            box-shadow: 0 2px 10px rgba(139, 92, 246, 0.18);
-            position: relative;
-            padding-right: 18px;
-        }
-        .badge-novidade::after { 
-            content: ""; 
-            position: absolute; 
-            top: 50%; 
-            right: 7px;
-            transform: translateY(-50%);
-            width: 7px; height: 7px; 
-            background: var(--ouro); border-radius: 50%; 
-            box-shadow: 0 0 8px rgba(251, 191, 36, 0.9);
-            animation: pulsar-novidade 1.8s infinite;
-        }
-        @keyframes pulsar-novidade { 
-            0%, 100% { opacity: 1; transform: translateY(-50%) scale(1); } 
-            50% { opacity: 0.4; transform: translateY(-50%) scale(1.4); } 
-        }
+<style>
+:root { 
+    --lilas: #8b5cf6; --lilas-escuro: #7c3aed; 
+    --preto-fonte: #1f1f1f; --cinza-fonte: #666666; --cinza-azulado: #94a3b8; 
+    --branco: #ffffff; --verde-whatsapp: #25D366; --ouro: #fbbf24;
+    --verde-online: #10b981;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-        .perfil-corpo { padding: 0 35px 35px 35px; }
-        .nome-profissional { font-size: 28px; font-weight: 900; margin-bottom: 5px; text-align: center; color: var(--preto-fonte); letter-spacing: -0.5px; }
-        
-        .tag-profissional { font-weight: 800; color: var(--lilas); font-size: 16px; margin-bottom: 20px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; }
-        .tag-bairro { color: var(--cinza-fonte); font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 5px; }
+body { 
+    font-family: 'Nunito', sans-serif; 
+    background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+    color: var(--preto-fonte); 
+    padding: 100px 20px 0 20px; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    min-height: 100vh; 
+}
 
-        .turno-pill {
-            padding: 3px 12px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 800;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            text-transform: uppercase;
-            letter-spacing: 0.4px;
-            margin-bottom: 25px;
-        }
-        .turno-diurno { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
-        .turno-noturno { background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; }
-        .turno-integral { background: #f5f3ff; color: #7c3aed; border: 1px solid #ddd6fe; }
+header { 
+    position: fixed; width: 100%; top: 0; left: 0; z-index: 1000; 
+    padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; 
+    background-color: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); 
+    border-bottom: 1px solid rgba(0,0,0,0.03); 
+}
+.logo { font-size: 28px; font-weight: 900; color: var(--lilas); letter-spacing: -1px; text-decoration: none; }
+.logo span { font-weight: 300; color: var(--cinza-azulado); }
+.btn-outline { 
+    padding: 10px 24px; border-radius: 50px; font-weight: 800; color: var(--lilas); 
+    border: 2px solid var(--lilas); transition: 0.3s; background: transparent; 
+    font-size: 15px; text-decoration: none; 
+}
+.btn-outline:hover { background: var(--lilas); color: var(--branco); box-shadow: 0 8px 20px rgba(139, 92, 246, 0.3); transform: translateY(-2px); }
 
-        .bio-box { background: #ffffff; border-left: 4px solid var(--lilas); padding: 20px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.02); }
-        .bio-box h4 { font-size: 15px; color: var(--lilas-escuro); margin-bottom: 8px; font-weight: 800; display:flex; gap: 8px; align-items: center;}
-        .bio-box p { font-size: 15px; color: var(--cinza-fonte); line-height: 1.6; font-weight: 600; margin: 0; }
+.scroll-progress {
+    position: fixed; top: 0; left: 0; height: 3px;
+    background: linear-gradient(90deg, var(--lilas), var(--lilas-escuro));
+    z-index: 9999; width: 0%; transition: width 0.1s ease-out;
+    box-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+}
 
-        .experiencia-container { margin-bottom: 25px; }
-        .experiencia-titulo { font-size: 15px; font-weight: 800; color: var(--preto-fonte); margin-bottom: 10px; }
-        .tags-exp { display: flex; gap: 8px; flex-wrap: wrap; }
-        .tag-exp { background: #f5f3ff; color: var(--lilas-escuro); border: 1px solid #ddd6fe; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 800; }
+.perfil-card { 
+    max-width: 550px; width: 100%; border-radius: 35px; overflow: hidden; 
+    margin-bottom: 20px; transition: all 0.4s ease; display: flex; flex-direction: column; 
+    position: relative; background: var(--branco);
+}
 
-        .info-linha { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size: 16px; border-bottom: 1px solid rgba(0,0,0,0.04); padding-bottom: 12px; }
-        .info-linha span { color: var(--cinza-fonte); font-weight: 700; font-size: 15px;}
-        
-        .tag-disponivel { 
-            color: var(--verde-online); 
-            font-weight: 800; 
-            font-size: 14px; 
-            display: inline-flex; 
-            align-items: center; 
-            gap: 6px;
-        }
-        .luz-online {
-            width: 8px;
-            height: 8px;
-            background: var(--verde-online);
-            border-radius: 50%;
-            display: inline-block;
-            box-shadow: 0 0 8px rgba(16, 185, 129, 0.7);
-            animation: pulsar-online 1.8s infinite;
-        }
-        @keyframes pulsar-online { 
-            0%, 100% { opacity: 1; transform: scale(1); } 
-            50% { opacity: 0.5; transform: scale(1.4); } 
-        }
-        
-        .comentarios-secao { margin-top: 30px; border-top: 1px solid rgba(0,0,0,0.04); padding-top: 25px; }
-        .comentarios-titulo { font-size: 16px; font-weight: 900; color: var(--preto-fonte); margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
-        .comentario-card { background: #ffffff; border-radius: 16px; padding: 18px; margin-bottom: 12px; border: 1px solid #e2e8f0; box-shadow: 0 5px 15px rgba(0,0,0,0.02); border-left: 4px solid var(--ouro); }
-        .comentario-texto { font-size: 15px; color: var(--cinza-fonte); font-weight: 600; font-style: italic; margin-bottom: 8px; line-height: 1.5; }
+.card-iniciante { border: 2px solid #e2e8f0; box-shadow: 0 15px 40px rgba(139, 92, 246, 0.06); }
+.card-bronze { border: 2px solid #fed7aa; box-shadow: 0 15px 40px rgba(180, 83, 9, 0.08); }
+.card-prata { border: 2px solid #cbd5e1; box-shadow: 0 15px 40px rgba(148, 163, 184, 0.1); background: linear-gradient(145deg, #ffffff 60%, #f8fafc 100%); }
+.card-ouro { border: 2px solid #fcd34d; box-shadow: 0 20px 50px rgba(217, 119, 6, 0.15); background: linear-gradient(145deg, #ffffff 60%, #fffbeb 100%); }
+.card-diamante { border: 2px solid #7dd3fc; box-shadow: 0 20px 50px rgba(2, 132, 199, 0.15); background: linear-gradient(145deg, #ffffff 40%, #f0f9ff 100%); }
 
-        .btn-acao { display: flex; justify-content: center; align-items: center; gap: 10px; width: 100%; background: var(--verde-whatsapp); color: var(--branco); text-align: center; padding: 18px; border-radius: 50px; font-weight: 900; text-decoration: none; margin-top: 30px; transition: 0.3s; font-size: 16px; box-shadow: 0 10px 25px rgba(37, 211, 102, 0.3); }
-        .btn-acao:hover { background: #1da851; transform: translateY(-3px); box-shadow: 0 15px 35px rgba(37, 211, 102, 0.4); }
-        .btn-compartilhar { display: block; width: 100%; background: transparent; color: var(--lilas); border: 2px solid var(--lilas); text-align: center; padding: 15px; border-radius: 50px; font-weight: 900; margin-top: 15px; cursor: pointer; transition: 0.3s; font-size: 15px; font-family: 'Nunito', sans-serif;}
-        .btn-compartilhar:hover { background: var(--lilas); color: var(--branco); box-shadow: 0 8px 20px rgba(139, 92, 246, 0.2); }
-        .voltar-link { color: var(--lilas-escuro); font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; margin-top: 20px; margin-bottom: 40px; font-size: 15px; transition: 0.2s;}
-        .voltar-link:hover { transform: translateX(-3px); color: var(--lilas); }
-        
-        .loader { text-align: center; padding: 60px 30px; color: var(--lilas); font-weight: bold; font-size: 18px; }
+.banner-disponivel {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro));
+    color: white; padding: 12px 20px;
+    font-size: 14px; font-weight: 900; letter-spacing: 0.3px;
+    animation: pulseDisponivel 2.5s ease-in-out infinite;
+}
+.banner-disponivel .dot {
+    width: 10px; height: 10px; background: white; border-radius: 50%;
+    box-shadow: 0 0 12px rgba(255,255,255,0.9);
+    animation: pulseDot 1.5s ease-in-out infinite;
+}
+@keyframes pulseDisponivel {
+    0%, 100% { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+    50% { background: linear-gradient(135deg, #7c3aed, #6d28d9); }
+}
+@keyframes pulseDot {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.4); opacity: 0.7; }
+}
 
-        .site-footer { background-color: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); color: var(--cinza-fonte); padding: 40px 20px; text-align: center; border-top: 1px solid #e2e8f0; width: 100%; margin-top: auto; }
-        .footer-content { max-width: 900px; margin: 0 auto; font-size: 13px; line-height: 1.6; }
-        .footer-content p { margin-bottom: 25px; }
-        .footer-aviso { font-size: 11px; color: var(--cinza-azulado); font-weight: 600; line-height: 1.5; font-style: italic; padding: 0 20px; }
-        .footer-social { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; }
-        .footer-social a { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; display: flex; justify-content: center; align-items: center; font-size: 22px; transition: 0.3s; text-decoration: none; box-shadow: 0 8px 20px rgba(139, 92, 246, 0.25); }
-        .footer-social a:hover { transform: translateY(-4px) scale(1.08); box-shadow: 0 12px 28px rgba(139, 92, 246, 0.45); }
-        .footer-links { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-bottom: 20px; }
-        .footer-links a { color: var(--lilas-escuro); font-weight: 800; font-size: 14px; transition: 0.3s; text-decoration: none;}
-        .footer-links a:hover { color: var(--lilas); text-decoration: underline; }
-    </style>
+.foto-perfil-container { 
+    width: 100%; background-color: transparent; 
+    display: flex; justify-content: center; padding: 35px 20px 15px;
+}
+.foto-anel {
+    width: 200px; height: 200px;
+    border-radius: 50%; padding: 5px;
+    display: flex; justify-content: center; align-items: center;
+    background: var(--branco); transition: 0.3s;
+}
+.foto-anel img {
+    width: 100%; height: 100%;
+    border-radius: 50%; object-fit: cover; object-position: center top;
+}
+.anel-iniciante { border: 3px solid #e2e8f0; }
+.anel-bronze { border: 3px solid #b45309; }
+.anel-prata { border: 3px solid #94a3b8; }
+.anel-ouro { border: 3px solid #d97706; box-shadow: 0 4px 15px rgba(217, 119, 6, 0.15); }
+.anel-diamante { border: 3px solid #0ea5e9; box-shadow: 0 4px 20px rgba(14, 165, 233, 0.2); }
+
+.badges-container { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-bottom: 15px; }
+.cuidador-badge { 
+    padding: 5px 14px; border-radius: 20px; font-size: 11px; font-weight: 800; 
+    text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 5px; 
+}
+.badge-verificada { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+.badge-coren { background: #eef2ff; color: #4338ca; border: 1px solid #c7d2fe; }
+.badge-bronze { background: #fff7ed; color: #b45309; border: 1px solid #fed7aa; }
+.badge-prata { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+.badge-ouro { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+.badge-diamante { background: #f0f9ff; color: #0284c7; border: 1px solid #bae6fd; }
+.badge-novidade { 
+    background: linear-gradient(135deg, #f5f3ff, #ede9fe); 
+    color: var(--lilas-escuro); border: 1px solid #c4b5fd; 
+    position: relative; padding-right: 18px;
+}
+.badge-novidade::after { 
+    content: ""; position: absolute; top: 50%; right: 7px;
+    transform: translateY(-50%);
+    width: 7px; height: 7px; background: var(--ouro); border-radius: 50%;
+    box-shadow: 0 0 8px rgba(251, 191, 36, 0.9);
+    animation: pulsar-novidade 1.8s infinite;
+}
+@keyframes pulsar-novidade { 
+    0%, 100% { opacity: 1; transform: translateY(-50%) scale(1); } 
+    50% { opacity: 0.4; transform: translateY(-50%) scale(1.4); } 
+}
+
+.perfil-corpo { padding: 0 35px 35px 35px; }
+.nome-profissional { 
+    font-size: 28px; font-weight: 900; margin-bottom: 5px; text-align: center; 
+    color: var(--preto-fonte); letter-spacing: -0.5px; 
+}
+
+.tag-profissional { 
+    font-weight: 800; color: var(--lilas); font-size: 16px; margin-bottom: 20px; 
+    text-align: center; display: flex; align-items: center; justify-content: center; 
+    gap: 8px; flex-wrap: wrap; 
+}
+.tag-bairro { color: var(--cinza-fonte); font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 5px; }
+
+.turno-pill {
+    padding: 3px 12px; border-radius: 20px; font-size: 11px; font-weight: 800;
+    display: inline-flex; align-items: center; gap: 5px;
+    text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 25px;
+}
+.turno-diurno { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
+.turno-noturno { background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; }
+.turno-integral { background: #f5f3ff; color: #7c3aed; border: 1px solid #ddd6fe; }
+
+.bio-box { 
+    background: #ffffff; border-left: 4px solid var(--lilas); padding: 20px; 
+    border-radius: 12px; margin-bottom: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.02); 
+}
+.bio-box h4 { 
+    font-size: 15px; color: var(--lilas-escuro); margin-bottom: 8px; 
+    font-weight: 800; display:flex; gap: 8px; align-items: center;
+}
+.bio-box p { font-size: 15px; color: var(--cinza-fonte); line-height: 1.6; font-weight: 600; margin: 0; }
+
+.experiencia-container { margin-bottom: 25px; }
+.experiencia-titulo { font-size: 15px; font-weight: 800; color: var(--preto-fonte); margin-bottom: 10px; }
+.tags-exp { display: flex; gap: 8px; flex-wrap: wrap; }
+.tag-exp { 
+    background: #f5f3ff; color: var(--lilas-escuro); border: 1px solid #ddd6fe; 
+    padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 800; 
+}
+
+.info-linha { 
+    display: flex; justify-content: space-between; align-items: center; 
+    margin-bottom: 15px; font-size: 16px; 
+    border-bottom: 1px solid rgba(0,0,0,0.04); padding-bottom: 12px; 
+}
+.info-linha span { color: var(--cinza-fonte); font-weight: 700; font-size: 15px;}
+
+.tag-disponivel { 
+    color: var(--verde-online); font-weight: 800; font-size: 14px; 
+    display: inline-flex; align-items: center; gap: 6px;
+}
+.luz-online {
+    width: 8px; height: 8px; background: var(--verde-online); border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.7);
+    animation: pulsar-online 1.8s infinite;
+}
+@keyframes pulsar-online { 
+    0%, 100% { opacity: 1; transform: scale(1); } 
+    50% { opacity: 0.5; transform: scale(1.4); } 
+}
+
+.estrelas-container {
+    display: flex; justify-content: flex-end; align-items: center; gap: 2px;
+}
+.estrela-anim {
+    color: var(--lilas); font-size: 18px;
+    opacity: 0; transform: scale(0) rotate(-180deg);
+    display: inline-block;
+}
+.estrela-anim.animar {
+    animation: estrelaAparece 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+@keyframes estrelaAparece {
+    0% { opacity: 0; transform: scale(0) rotate(-180deg); }
+    70% { opacity: 1; transform: scale(1.3) rotate(10deg); }
+    100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+.nota-numero-anim {
+    font-size: 15px; font-weight: 900; color: var(--lilas);
+    margin-left: 6px; opacity: 0;
+    transition: opacity 0.4s ease 2.5s;
+}
+.nota-numero-anim.animar { opacity: 1; }
+
+.comentarios-secao { margin-top: 30px; border-top: 1px solid rgba(0,0,0,0.04); padding-top: 25px; }
+.comentarios-titulo { 
+    font-size: 16px; font-weight: 900; color: var(--preto-fonte); 
+    margin-bottom: 15px; display: flex; align-items: center; gap: 8px; 
+}
+.comentario-card { 
+    background: #ffffff; border-radius: 16px; padding: 18px; margin-bottom: 12px; 
+    border: 1px solid #e2e8f0; box-shadow: 0 5px 15px rgba(0,0,0,0.02); 
+    border-left: 4px solid var(--lilas); 
+    animation: comentarioEntra 0.5s ease forwards;
+    opacity: 0; transform: translateY(10px);
+}
+.comentario-card:nth-child(2) { animation-delay: 0.15s; }
+.comentario-card:nth-child(3) { animation-delay: 0.3s; }
+.comentario-card:nth-child(4) { animation-delay: 0.45s; }
+.comentario-card:nth-child(5) { animation-delay: 0.6s; }
+@keyframes comentarioEntra {
+    to { opacity: 1; transform: translateY(0); }
+}
+.comentario-texto { 
+    font-size: 15px; color: var(--cinza-fonte); font-weight: 600; 
+    font-style: italic; line-height: 1.5; 
+}
+
+.btn-acao { 
+    display: flex; justify-content: center; align-items: center; gap: 10px; 
+    width: 100%; background: var(--verde-whatsapp); color: var(--branco); 
+    text-align: center; padding: 18px; border-radius: 50px; font-weight: 900; 
+    text-decoration: none; margin-top: 30px; transition: 0.3s; font-size: 16px; 
+    box-shadow: 0 10px 25px rgba(37, 211, 102, 0.3); 
+    border: none; cursor: pointer; font-family: 'Nunito', sans-serif;
+}
+.btn-acao:hover { background: #1da851; transform: translateY(-3px); box-shadow: 0 15px 35px rgba(37, 211, 102, 0.4); }
+
+.btn-compartilhar { 
+    display: block; width: 100%; background: transparent; color: var(--lilas); 
+    border: 2px solid var(--lilas); text-align: center; padding: 15px; 
+    border-radius: 50px; font-weight: 900; margin-top: 15px; cursor: pointer; 
+    transition: 0.3s; font-size: 15px; font-family: 'Nunito', sans-serif;
+}
+.btn-compartilhar:hover { background: var(--lilas); color: var(--branco); box-shadow: 0 8px 20px rgba(139, 92, 246, 0.2); }
+
+.veja-tambem { max-width: 550px; width: 100%; margin-top: 20px; margin-bottom: 40px; display: none; }
+.veja-tambem.ativo { display: block; }
+.veja-tambem-titulo {
+    text-align: center; font-size: 18px; font-weight: 900; 
+    color: var(--preto-fonte); margin-bottom: 8px; letter-spacing: -0.5px;
+}
+.veja-tambem-sub {
+    text-align: center; font-size: 14px; color: var(--cinza-fonte); 
+    font-weight: 700; margin-bottom: 20px;
+}
+.veja-tambem-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+}
+.mini-card {
+    background: white; border-radius: 20px; padding: 15px 10px; text-align: center;
+    text-decoration: none; color: inherit; border: 1px solid #e2e8f0;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.03); transition: 0.3s; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center;
+}
+.mini-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(139, 92, 246, 0.15);
+    border-color: var(--lilas);
+}
+.mini-card-foto {
+    width: 70px; height: 70px; border-radius: 50%;
+    margin: 0 auto 10px; overflow: hidden;
+    background: #f8f9fc; display: flex; justify-content: center; align-items: center;
+    border: 2px solid #e2e8f0;
+}
+.mini-card-foto img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+.mini-card-foto i { font-size: 28px; color: #cbd5e1; }
+.mini-card-nome {
+    font-size: 13px; font-weight: 900; color: var(--preto-fonte);
+    margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    width: 100%;
+}
+.mini-card-nota {
+    font-size: 12px; font-weight: 900; color: var(--lilas);
+    margin-bottom: 3px; letter-spacing: 0.3px;
+}
+.mini-card-bairro {
+    font-size: 11px; font-weight: 800; color: var(--cinza-fonte);
+    margin-bottom: 5px; display: flex; justify-content: center; align-items: center; gap: 3px;
+}
+.mini-card-bairro i { color: var(--lilas); font-size: 10px; }
+.mini-card-tag { 
+    font-size: 10px; color: var(--cinza-fonte); font-weight: 800; 
+    text-transform: uppercase; letter-spacing: 0.3px;
+}
+
+.reveal-item {
+    opacity: 0; transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal-item.visivel { opacity: 1; transform: translateY(0); }
+
+.site-footer { 
+    background-color: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); 
+    color: var(--cinza-fonte); padding: 40px 20px; text-align: center; 
+    border-top: 1px solid #e2e8f0; width: 100%; margin-top: auto; 
+}
+.footer-content { max-width: 900px; margin: 0 auto; font-size: 13px; line-height: 1.6; }
+.footer-content p { margin-bottom: 25px; }
+.footer-aviso { 
+    font-size: 11px; color: var(--cinza-azulado); font-weight: 600; 
+    line-height: 1.5; font-style: italic; padding: 0 20px; 
+}
+.footer-social { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; }
+.footer-social a { 
+    width: 44px; height: 44px; border-radius: 50%; 
+    background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); 
+    color: white; display: flex; justify-content: center; align-items: center; 
+    font-size: 22px; transition: 0.3s; text-decoration: none; 
+    box-shadow: 0 8px 20px rgba(139, 92, 246, 0.25); 
+}
+.footer-social a:hover { transform: translateY(-4px) scale(1.08); }
+.footer-info { 
+    display: flex; justify-content: center; gap: 25px; flex-wrap: wrap; 
+    margin-bottom: 25px; font-size: 14px; color: var(--cinza-fonte); font-weight: 700; 
+}
+.footer-info i { color: var(--lilas); margin-right: 6px; }
+.footer-links { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-bottom: 20px; }
+.footer-links a { color: var(--lilas-escuro); font-weight: 800; font-size: 14px; text-decoration: none; }
+.footer-links a:hover { color: var(--lilas); text-decoration: underline; }
+.footer-legal { font-size: 11px; color: var(--cinza-azulado); border-top: 1px solid #e2e8f0; padding-top: 20px; }
+
+.loader { text-align: center; padding: 60px 30px; color: var(--lilas); font-weight: bold; font-size: 18px; }
+.voltar-link { 
+    color: var(--lilas-escuro); font-weight: 800; text-decoration: none; 
+    display: inline-flex; align-items: center; gap: 5px; 
+    margin-top: 20px; margin-bottom: 40px; font-size: 15px; transition: 0.2s;
+}
+.voltar-link:hover { transform: translateX(-3px); color: var(--lilas); }
+
+@media (max-width: 600px) {
+    .veja-tambem-grid { gap: 8px; }
+    .mini-card { padding: 12px 6px; }
+    .mini-card-foto { width: 55px; height: 55px; }
+    .mini-card-nome { font-size: 11px; }
+    .mini-card-nota { font-size: 11px; }
+    .mini-card-bairro { font-size: 10px; }
+    .mini-card-tag { font-size: 9px; }
+    .perfil-corpo { padding: 0 22px 22px; }
+    .nome-profissional { font-size: 24px; }
+    .foto-anel { width: 170px; height: 170px; }
+}
+</style>
 </head>
 <body>
 
-    <header>
-        <a href="index.html" class="logo">Afeto<span>Homecare</span></a>
-        <a href="https://afetohomecare.pages.dev" target="_blank" class="btn-outline">Encontrar Afeto</a>
-    </header>
+<div class="scroll-progress" id="scrollProgress"></div>
 
-    <div id="cardPerfil" class="perfil-card card-padrao">
-        <div class="loader">Carregando informações verificadas... <i class="fa-solid fa-spinner fa-spin"></i></div>
-    </div>
-    
-    <a href="index.html" class="voltar-link"><i class="fa-solid fa-arrow-left"></i> Voltar</a>
+<header>
+    <a href="index.html" class="logo">Afeto<span>Homecare</span></a>
+    <a href="https://afetohomecare.pages.dev" target="_blank" class="btn-outline">Encontrar Afeto</a>
+</header>
 
-    <script>
-        const API_KEY = 'patl042fqFhzdECNS.31172479b55fffd9c3b5c7d7e7b5dee4a19b0b5600eb2273aa02d0ec427b35ae';
-        const BASE_ID = 'apphAWeT91l1dMWM5';
-        const TABLE_NAME = 'Cuidadores';
+<div id="cardPerfil" class="perfil-card card-padrao">
+    <div class="loader">Carregando informações verificadas... <i class="fa-solid fa-spinner fa-spin"></i></div>
+</div>
 
-        const params = new URLSearchParams(window.location.search);
-        const recordId = params.get('id');
+<div class="veja-tambem" id="vejaTambem">
+    <div class="veja-tambem-titulo">💜 Veja também</div>
+    <div class="veja-tambem-sub">Outras profissionais que podem combinar com você</div>
+    <div class="veja-tambem-grid" id="vejaTambemGrid"></div>
+</div>
 
-        function resizeAirtablePhoto(url, width, height) {
-            if (!url) return '';
-            const separator = url.includes('?') ? '&' : '?';
-            return `${url}${separator}width=${width}&height=${height}&fit=cover`;
+<a href="index.html" class="voltar-link"><i class="fa-solid fa-arrow-left"></i> Voltar</a>
+
+<script>
+const API_KEY = 'patl042fqFhzdECNS.31172479b55fffd9c3b5c7d7e7b5dee4a19b0b5600eb2273aa02d0ec427b35ae';
+const BASE_ID = 'apphAWeT91l1dMWM5';
+const TABLE_NAME = 'Cuidadores';
+
+var params = new URLSearchParams(window.location.search);
+var recordId = params.get('id');
+var todosRegistros = [];
+
+// =========================================================
+// GERADOR DE NOME ÚNICO (com diferenciação em caso de clash)
+// =========================================================
+function gerarNomeUnico(nome, todosNomes) {
+    if (!nome) return '';
+    var nomeLimpo = nome.trim();
+    var partes = nomeLimpo.split(/\s+/);
+
+    var nomeCurto = partes[0] + (partes[1] ? ' ' + partes[1].charAt(0).toUpperCase() + '.' : '');
+
+    var grupo = [];
+    for (var i = 0; i < todosNomes.length; i++) {
+        var n = (todosNomes[i] || '').trim();
+        if (!n) continue;
+        var p = n.split(/\s+/);
+        var curto = p[0] + (p[1] ? ' ' + p[1].charAt(0).toUpperCase() + '.' : '');
+        if (curto === nomeCurto) grupo.push(n);
+    }
+
+    if (grupo.length <= 1) return nomeCurto;
+
+    var posicao = grupo.indexOf(nomeLimpo);
+
+    if (posicao === 0) return nomeCurto;
+
+    if (posicao === 1) {
+        if (partes.length >= 3) {
+            return partes[0] + ' ' + partes[1] + ' ' + partes[2].charAt(0).toUpperCase() + '.';
+        } else if (partes.length === 2) {
+            return partes[0] + ' ' + partes[1];
+        }
+        return nomeCurto;
+    }
+
+    if (posicao === 2) {
+        if (partes.length >= 4) {
+            return partes[0] + ' ' + partes[1] + ' ' + partes[2] + ' ' + partes[3].charAt(0).toUpperCase() + '.';
+        } else if (partes.length === 3) {
+            return partes[0] + ' ' + partes[1] + ' ' + partes[2];
+        }
+        return partes.slice(0, 3).join(' ');
+    }
+
+    return nomeLimpo;
+}
+
+function extrairComentarios(campo) {
+    if (!campo) return [];
+    if (Array.isArray(campo)) {
+        return campo.map(function(c) { return String(c).trim(); }).filter(function(c) { return c; });
+    }
+    var texto = String(campo).trim();
+    if (!texto) return [];
+    if (texto.indexOf('|||') !== -1) {
+        return texto.split('|||').map(function(c) { return c.trim(); }).filter(function(c) { return c; });
+    }
+    if (texto.indexOf('\n\n') !== -1) {
+        return texto.split(/\n\s*\n/).map(function(c) { return c.trim(); }).filter(function(c) { return c; });
+    }
+    return [texto];
+}
+
+function resizeAirtablePhoto(url, width, height) {
+    if (!url) return '';
+    var sep = url.indexOf('?') !== -1 ? '&' : '?';
+    return url + sep + 'width=' + width + '&height=' + height + '&fit=cover';
+}
+
+// ========== CARREGAR TUDO ==========
+async function carregarTudo() {
+    var container = document.getElementById('cardPerfil');
+
+    if (!recordId) {
+        container.innerHTML = '<div style="padding: 60px; text-align: center;"><h2>Profissional não encontrada</h2></div>';
+        return;
+    }
+
+    var url = 'https://api.airtable.com/v0/' + BASE_ID + '/' + TABLE_NAME;
+
+    try {
+        var response = await fetch(url, { headers: { Authorization: 'Bearer ' + API_KEY } });
+        var data = await response.json();
+
+        if (!data.records) throw new Error('Sem dados');
+
+        todosRegistros = data.records;
+        var perfilAtual = todosRegistros.find(function(r) { return r.id === recordId; });
+
+        if (!perfilAtual) {
+            container.innerHTML = '<div style="padding: 60px; text-align: center;"><h2>Profissional não encontrada</h2></div>';
+            return;
         }
 
-        async function carregarPerfil() {
-            const container = document.getElementById('cardPerfil');
+        renderizarPerfil(perfilAtual);
+        renderizarVejaTambem(perfilAtual, todosRegistros);
 
-            if (!recordId) {
-                container.innerHTML = '<div style="padding: 60px; text-align: center;"><h2>Profissional não encontrada</h2></div>';
-                return;
-            }
+    } catch (error) {
+        container.innerHTML = '<div style="padding: 60px; text-align: center; color:red;">Erro ao carregar o perfil.</div>';
+    }
+}
 
-            const url = `https://api.airtable.com/v0/${BASE_ID}/${TABLE_NAME}/${recordId}`;
+// ========== RENDERIZAR PERFIL ==========
+function renderizarPerfil(record) {
+    var container = document.getElementById('cardPerfil');
+    var f = record.fields;
 
-            try {
-                const response = await fetch(url, { headers: { Authorization: `Bearer ${API_KEY}` } });
-                const data = await response.json();
+    var wppAgencia = f.WhatsAppAgencia || '5541997674866';
+    var precoBase = parseFloat(f.Preco) || 0;
+    var horasNum = parseInt(f.Horas) || 0;
 
-                if(data.fields) {
-                    const f = data.fields;
-                    
-                    const wppAgencia = f.WhatsAppAgencia || "5541997674866";
-                    const precoBase = parseFloat(f.Preco) || 0;
-                    const horasNum = parseInt(f.Horas) || 0;
-                    
-                    let fotoHTML = '<i class="fa-solid fa-user"></i>';
-                    if (f.Foto && f.Foto.length > 0) { 
-                        const fotoOtimizada = resizeAirtablePhoto(f.Foto[0].url, 600, 800);
-                        fotoHTML = `<img src="${fotoOtimizada}" alt="${f.Nome}" loading="lazy" decoding="async">`; 
-                    }
+    var todosNomes = todosRegistros.map(function(r) { return (r.fields && r.fields.Nome) || ''; });
+    var nomeExibicao = gerarNomeUnico(f.Nome || 'Sem nome', todosNomes);
 
-                    let seloCategoria = '';
-                    let cardClassAdd = 'card-padrao';
-                    
-                    if (f.Categoria) {
-                        const catText = f.Categoria.toLowerCase();
-                        if (catText.includes('diamante')) { cardClassAdd = 'card-diamante'; seloCategoria = `<span class="cuidador-badge badge-diamante"><i class="fa-solid fa-award"></i> Diamante</span>`; } 
-                        else if (catText.includes('ouro')) { cardClassAdd = 'card-ouro'; seloCategoria = `<span class="cuidador-badge badge-ouro"><i class="fa-solid fa-award"></i> Ouro</span>`; } 
-                        else if (catText.includes('prata')) { cardClassAdd = 'card-prata'; seloCategoria = `<span class="cuidador-badge badge-prata"><i class="fa-solid fa-award"></i> Prata</span>`; } 
-                        else if (catText.includes('bronze')) { cardClassAdd = 'card-bronze'; seloCategoria = `<span class="cuidador-badge badge-bronze"><i class="fa-solid fa-award"></i> Bronze</span>`; }
-                        else { seloCategoria = `<span class="cuidador-badge badge-novidade"><i class="fa-solid fa-sparkles"></i> Novidade na Afeto</span>`; }
-                    } else {
-                        seloCategoria = `<span class="cuidador-badge badge-novidade"><i class="fa-solid fa-sparkles"></i> Novidade na Afeto</span>`;
-                    }
+    var fotoHTML = '<i class="fa-solid fa-user"></i>';
+    if (f.Foto && f.Foto.length > 0) {
+        var fotoOtimizada = resizeAirtablePhoto(f.Foto[0].url, 600, 800);
+        fotoHTML = '<img src="' + fotoOtimizada + '" alt="' + nomeExibicao + '" loading="lazy" decoding="async">';
+    }
 
-                    container.className = `perfil-card ${cardClassAdd}`;
-                    const seloVerificada = f.Verificada ? `<span class="cuidador-badge badge-verificada"><i class="fa-solid fa-check"></i> Verificada</span>` : '';
-                    const seloCoren = f.COREN ? `<span class="cuidador-badge badge-coren"><i class="fa-solid fa-id-card"></i> COREN</span>` : '';
-                    
-                    const apresentacaoHTML = f.Apresentacao ? `
-                        <div class="bio-box">
-                            <h4><i class="fa-solid fa-user-doctor"></i> Sobre a profissional</h4>
-                            <p>${f.Apresentacao}</p>
-                        </div>
-                    ` : '';
+    var seloCategoria = '';
+    var cardClassAdd = 'card-padrao';
+    var anelClassAdd = 'anel-iniciante';
 
-                    let tagsHTML = '';
-                    if (f.Subespecialidades && Array.isArray(f.Subespecialidades)) {
-                        let badgesExp = f.Subespecialidades.map(sub => `<span class="tag-exp">✓ ${sub}</span>`).join('');
-                        tagsHTML = `
-                            <div class="experiencia-container">
-                                <div class="experiencia-titulo">Especialidades:</div>
-                                <div class="tags-exp">${badgesExp}</div>
-                            </div>
-                        `;
-                    }
+    if (f.Categoria) {
+        var catText = f.Categoria.toLowerCase();
+        if (catText.indexOf('diamante') !== -1) { cardClassAdd = 'card-diamante'; anelClassAdd = 'anel-diamante'; seloCategoria = '<span class="cuidador-badge badge-diamante"><i class="fa-solid fa-award"></i> Diamante</span>'; }
+        else if (catText.indexOf('ouro') !== -1) { cardClassAdd = 'card-ouro'; anelClassAdd = 'anel-ouro'; seloCategoria = '<span class="cuidador-badge badge-ouro"><i class="fa-solid fa-award"></i> Ouro</span>'; }
+        else if (catText.indexOf('prata') !== -1) { cardClassAdd = 'card-prata'; anelClassAdd = 'anel-prata'; seloCategoria = '<span class="cuidador-badge badge-prata"><i class="fa-solid fa-award"></i> Prata</span>'; }
+        else if (catText.indexOf('bronze') !== -1) { cardClassAdd = 'card-bronze'; anelClassAdd = 'anel-bronze'; seloCategoria = '<span class="cuidador-badge badge-bronze"><i class="fa-solid fa-award"></i> Bronze</span>'; }
+        else { seloCategoria = '<span class="cuidador-badge badge-novidade"><i class="fa-solid fa-sparkles"></i> Novidade na Afeto</span>'; }
+    } else {
+        seloCategoria = '<span class="cuidador-badge badge-novidade"><i class="fa-solid fa-sparkles"></i> Novidade na Afeto</span>';
+    }
 
-                    let comentariosHTML = '';
-                    if (f.Comentarios) {
-                        comentariosHTML = `
-                            <div class="comentarios-secao">
-                                <div class="comentarios-titulo"><i class="fa-solid fa-star" style="color: var(--ouro);"></i> O que as famílias dizem:</div>
-                                <div class="comentario-card">
-                                    <div class="comentario-texto">"${f.Comentarios}"</div>
-                                </div>
-                            </div>
-                        `;
-                    }
+    container.className = 'perfil-card ' + cardClassAdd;
 
-                    let turnoHTML = '';
-                    if (f.Turno) {
-                        const t = f.Turno.toLowerCase();
-                        if (t.includes('diurno e noturno') || t.includes('integral') || t.includes('24')) {
-                            turnoHTML = `<span class="turno-pill turno-integral"><i class="fa-solid fa-sun"></i> <i class="fa-solid fa-moon"></i> Diurno e Noturno</span>`;
-                        } else if (t.includes('noturno')) {
-                            turnoHTML = `<span class="turno-pill turno-noturno"><i class="fa-solid fa-moon"></i> Noturno</span>`;
-                        } else if (t.includes('diurno')) {
-                            turnoHTML = `<span class="turno-pill turno-diurno"><i class="fa-solid fa-sun"></i> Diurno</span>`;
-                        }
-                    }
+    var seloVerificada = f.Verificada ? '<span class="cuidador-badge badge-verificada"><i class="fa-solid fa-check"></i> Verificada</span>' : '';
+    var seloCoren = f.COREN ? '<span class="cuidador-badge badge-coren"><i class="fa-solid fa-id-card"></i> COREN</span>' : '';
 
-                    let notaTexto = f.Nota || "5.0";
-                    const linkAtual = encodeURIComponent(window.location.href);
+    var apresentacaoHTML = f.Apresentacao ? 
+        '<div class="bio-box reveal-item"><h4><i class="fa-solid fa-user-doctor"></i> Sobre a profissional</h4><p>' + f.Apresentacao + '</p></div>' : '';
 
-                    let linhaHorasHTML = '';
-                    if (horasNum >= 24) {
-                        linhaHorasHTML = `
-                            <div class="info-linha">
-                                <span>Horas de Afeto</span> 
-                                <strong style="color: var(--preto-fonte);">${horasNum}h</strong>
-                            </div>
-                        `;
-                    } else {
-                        linhaHorasHTML = `
-                            <div class="info-linha">
-                                <span>Status</span> 
-                                <strong class="tag-disponivel"><span class="luz-online"></span> Disponível</strong>
-                            </div>
-                        `;
-                    }
+    var tagsHTML = '';
+    if (f.Subespecialidades && Array.isArray(f.Subespecialidades)) {
+        var badgesExp = f.Subespecialidades.map(function(sub) { return '<span class="tag-exp">✓ ' + sub + '</span>'; }).join('');
+        tagsHTML = '<div class="experiencia-container reveal-item"><div class="experiencia-titulo">Especialidades:</div><div class="tags-exp">' + badgesExp + '</div></div>';
+    }
 
-                    // CÓDIGO INTERNO DA REFERÊNCIA
-                    const iniciais = (f.Nome || "XX").split(' ').filter(p => p.length > 0).map(p => p[0]).slice(0, 2).join('').toUpperCase();
-                    const precoFamilia = Math.ceil(precoBase * 1.15);
-                    const codigoRef = `${iniciais}-${precoFamilia}`;
-                    const mensagemWpp = `Olá! Vi o perfil de *${f.Nome}* na Afeto e gostaria de conversar sobre contratação.%0A%0A🔖 Ref: %23${codigoRef}%0A📍 ${f.Bairro || 'Curitiba'}%0A%0A📌 Perfil: ${linkAtual}`;
+    var turnoHTML = '';
+    if (f.Turno) {
+        var t = f.Turno.toLowerCase();
+        if (t.indexOf('diurno e noturno') !== -1 || t.indexOf('integral') !== -1 || t.indexOf('24') !== -1) {
+            turnoHTML = '<span class="turno-pill turno-integral"><i class="fa-solid fa-sun"></i> <i class="fa-solid fa-moon"></i> Diurno e Noturno</span>';
+        } else if (t.indexOf('noturno') !== -1) {
+            turnoHTML = '<span class="turno-pill turno-noturno"><i class="fa-solid fa-moon"></i> Noturno</span>';
+        } else if (t.indexOf('diurno') !== -1) {
+            turnoHTML = '<span class="turno-pill turno-diurno"><i class="fa-solid fa-sun"></i> Diurno</span>';
+        }
+    }
 
-                    container.innerHTML = `
-                        <div class="foto-perfil-container">
-                            ${fotoHTML}
-                        </div>
-                        <div class="perfil-corpo">
-                            <div class="badges-container">
-                                ${seloCategoria}
-                                ${seloVerificada}
-                                ${seloCoren}
-                            </div>
-                            
-                            <h1 class="nome-profissional">${f.Nome}</h1>
-                            <div class="tag-profissional">
-                                <span>${f.Especialidade}</span>
-                                <span style="color: var(--cinza-azulado);">•</span>
-                                <span class="tag-bairro"><i class="fa-solid fa-location-dot"></i> ${f.Bairro || "Curitiba"}</span>
-                            </div>
-                            
-                            ${turnoHTML}
-                            ${apresentacaoHTML}
-                            ${tagsHTML}
+    var notaTexto = f.Nota || '5.0';
 
-                            <div class="info-linha">
-                                <span>Avaliação Geral</span> 
-                                <strong style="color: var(--ouro); font-size: 18px;">★ ${notaTexto}</strong>
-                            </div>
-                            ${linhaHorasHTML}
-                            
-                            ${comentariosHTML}
+    var linhaHorasHTML = '';
+    if (horasNum >= 24) {
+        linhaHorasHTML = '<div class="info-linha"><span>Horas de Afeto</span><strong style="color: var(--preto-fonte);">' + horasNum + 'h</strong></div>';
+    } else {
+        linhaHorasHTML = '<div class="info-linha"><span>Status</span><strong class="tag-disponivel"><span class="luz-online"></span> Disponível</strong></div>';
+    }
 
-                            <a href="https://wa.me/${wppAgencia}?text=${mensagemWpp}" target="_blank" class="btn-acao">
-                                <i class="fa-brands fa-whatsapp"></i> Solicitar Orçamento
-                            </a>
-                            <button onclick="compartilharPerfil()" class="btn-compartilhar"><i class="fa-solid fa-share-nodes"></i> Compartilhar Perfil</button>
-                        </div>
-                    `;
-                }
-            } catch (error) {
-                container.innerHTML = '<div style="padding: 60px; text-align: center; color:red;">Erro ao carregar o perfil.</div>';
-                container.className = 'perfil-card card-padrao';
-            }
+    var comentarios = extrairComentarios(f.Comentarios);
+    var comentariosHTML = '';
+    if (comentarios.length > 0) {
+        var cardsHTML = comentarios.map(function(c) {
+            return '<div class="comentario-card"><div class="comentario-texto">"' + c + '"</div></div>';
+        }).join('');
+        comentariosHTML = '<div class="comentarios-secao reveal-item"><div class="comentarios-titulo"><i class="fa-solid fa-star" style="color: var(--lilas);"></i> O que as famílias dizem:</div>' + cardsHTML + '</div>';
+    }
+
+    var iniciais = (f.Nome || 'XX').split(' ').filter(function(p) { return p.length > 0; }).map(function(p) { return p[0]; }).slice(0, 2).join('').toUpperCase();
+    var precoFamilia = Math.ceil(precoBase * 1.15);
+    var codigoRef = iniciais + '-' + precoFamilia;
+    var linkAtual = encodeURIComponent(window.location.href);
+
+    var mensagemWpp = 'Olá! Vi o perfil de *' + nomeExibicao + '* na Afeto e gostaria de conversar sobre contratação.%0A%0A🔖 Ref: %23' + codigoRef + '%0A📍 ' + (f.Bairro || 'Curitiba') + '%0A%0A📌 Perfil: ' + linkAtual;
+
+    var estrelasHTML = '<span class="estrela-anim" data-delay="0">★</span><span class="estrela-anim" data-delay="200">★</span><span class="estrela-anim" data-delay="400">★</span><span class="estrela-anim" data-delay="600">★</span><span class="estrela-anim" data-delay="800">★</span><span class="nota-numero-anim" id="notaNumero">' + notaTexto + '</span>';
+
+    container.innerHTML = 
+        '<div class="banner-disponivel"><span class="dot"></span>Disponível para cuidar</div>' +
+        '<div class="foto-perfil-container"><div class="foto-anel ' + anelClassAdd + '">' + fotoHTML + '</div></div>' +
+        '<div class="perfil-corpo">' +
+            '<div class="badges-container">' + seloCategoria + seloVerificada + seloCoren + '</div>' +
+            '<h1 class="nome-profissional">' + nomeExibicao + '</h1>' +
+            '<div class="tag-profissional">' +
+                '<span>' + (f.Especialidade || 'Cuidador(a)') + '</span>' +
+                '<span style="color: var(--cinza-azulado);">•</span>' +
+                '<span class="tag-bairro"><i class="fa-solid fa-location-dot"></i> ' + (f.Bairro || 'Curitiba') + '</span>' +
+            '</div>' +
+            '<div style="text-align: center;">' + turnoHTML + '</div>' +
+            apresentacaoHTML +
+            tagsHTML +
+            '<div class="info-linha"><span>Avaliação Geral</span><div class="estrelas-container">' + estrelasHTML + '</div></div>' +
+            linhaHorasHTML +
+            comentariosHTML +
+            '<a href="https://wa.me/' + wppAgencia + '?text=' + mensagemWpp + '" target="_blank" class="btn-acao"><i class="fa-brands fa-whatsapp"></i> Solicitar Orçamento</a>' +
+            '<button onclick="compartilharPerfil()" class="btn-compartilhar"><i class="fa-solid fa-share-nodes"></i> Compartilhar Perfil</button>' +
+        '</div>';
+
+    setTimeout(function() {
+        document.querySelectorAll('.estrela-anim').forEach(function(estrela) {
+            var delay = parseInt(estrela.getAttribute('data-delay'));
+            setTimeout(function() { estrela.classList.add('animar'); }, delay);
+        });
+        setTimeout(function() {
+            var n = document.getElementById('notaNumero');
+            if (n) n.classList.add('animar');
+        }, 1000);
+    }, 300);
+
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) entry.target.classList.add('visivel');
+        });
+    }, { threshold: 0.15 });
+    document.querySelectorAll('.reveal-item').forEach(function(el) { observer.observe(el); });
+}
+
+// ========== VEJA TAMBÉM ==========
+function renderizarVejaTambem(atual, todos) {
+    var f = atual.fields;
+    var bairroAtual = f.Bairro || '';
+    var especAtual = f.Especialidade || '';
+
+    var outros = todos.filter(function(r) { return r.id !== atual.id; });
+
+    var match1 = outros.filter(function(r) {
+        return r.fields.Bairro === bairroAtual && r.fields.Especialidade === especAtual;
+    });
+    var selecionados = match1.slice(0, 3);
+
+    if (selecionados.length < 3) {
+        var mesmoBairro = outros.filter(function(r) {
+            return r.fields.Bairro === bairroAtual && selecionados.indexOf(r) === -1;
+        });
+        for (var i = 0; i < mesmoBairro.length && selecionados.length < 3; i++) selecionados.push(mesmoBairro[i]);
+    }
+
+    if (selecionados.length < 3) {
+        var mesmaEspec = outros.filter(function(r) {
+            return r.fields.Especialidade === especAtual && selecionados.indexOf(r) === -1;
+        });
+        for (var j = 0; j < mesmaEspec.length && selecionados.length < 3; j++) selecionados.push(mesmaEspec[j]);
+    }
+
+    if (selecionados.length < 3) {
+        for (var k = 0; k < outros.length && selecionados.length < 3; k++) {
+            if (selecionados.indexOf(outros[k]) === -1) selecionados.push(outros[k]);
+        }
+    }
+
+    if (selecionados.length === 0) return;
+
+    var todosNomes = todos.map(function(r) { return (r.fields && r.fields.Nome) || ''; });
+
+    var grid = document.getElementById('vejaTambemGrid');
+    var html = '';
+
+    selecionados.forEach(function(rec) {
+        var rf = rec.fields;
+        var nomeExibicao = gerarNomeUnico(rf.Nome || '', todosNomes);
+        var nota = rf.Nota || '5.0';
+        var bairro = rf.Bairro || 'Curitiba';
+        var espec = rf.Especialidade || 'Cuidador(a)';
+
+        var fotoHTML = '<i class="fa-solid fa-user"></i>';
+        if (rf.Foto && rf.Foto.length > 0) {
+            var fotoOt = resizeAirtablePhoto(rf.Foto[0].url, 200, 200);
+            fotoHTML = '<img src="' + fotoOt + '" alt="' + nomeExibicao + '" loading="lazy" decoding="async">';
         }
 
-        async function compartilharPerfil() {
-            const nomeEl = document.querySelector('.nome-profissional');
-            const nomeProf = nomeEl ? nomeEl.innerText : 'esta profissional';
-            
-            const shareData = {
-                title: `Afeto Homecare - ${nomeProf}`,
-                text: `Conheça o perfil de ${nomeProf} na Afeto Homecare 💜`,
-                url: window.location.href
-            };
+        html += 
+            '<a href="perfil.html?id=' + rec.id + '" class="mini-card">' +
+                '<div class="mini-card-foto">' + fotoHTML + '</div>' +
+                '<div class="mini-card-nome">' + nomeExibicao + '</div>' +
+                '<div class="mini-card-nota">★ ' + nota + '</div>' +
+                '<div class="mini-card-bairro"><i class="fa-solid fa-location-dot"></i> ' + bairro + '</div>' +
+                '<div class="mini-card-tag">' + espec + '</div>' +
+            '</a>';
+    });
 
-            if (navigator.share) {
-                try {
-                    await navigator.share(shareData);
-                    return;
-                } catch (err) {
-                    if (err.name === 'AbortError') return;
-                }
-            }
+    grid.innerHTML = html;
+    document.getElementById('vejaTambem').classList.add('ativo');
+}
 
-            try {
-                await navigator.clipboard.writeText(window.location.href);
-                alert("Link copiado! Agora é só colar onde quiser compartilhar. 💜");
-            } catch (err) {
-                alert("Não foi possível compartilhar automaticamente. Copie o link da barra de endereços.");
-            }
+// ========== COMPARTILHAR ==========
+async function compartilharPerfil() {
+    var nomeEl = document.querySelector('.nome-profissional');
+    var nomeProf = nomeEl ? nomeEl.innerText : 'esta profissional';
+
+    var shareData = {
+        title: 'Afeto Homecare - ' + nomeProf,
+        text: 'Conheça o perfil de ' + nomeProf + ' na Afeto Homecare 💜',
+        url: window.location.href
+    };
+
+    if (navigator.share) {
+        try {
+            await navigator.share(shareData);
+            return;
+        } catch (err) {
+            if (err.name === 'AbortError') return;
         }
+    }
 
-        carregarPerfil();
-    </script>
+    try {
+        await navigator.clipboard.writeText(window.location.href);
+        alert('Link copiado! Agora é só colar onde quiser compartilhar. 💜');
+    } catch (err) {
+        alert('Não foi possível compartilhar automaticamente.');
+    }
+}
 
-    <footer class="site-footer">
-        <div class="footer-content">
-            <p class="footer-aviso">A Afeto é uma plataforma de divulgação e conexão. Não prestamos serviços de saúde ou cuidado. As informações, valores e disponibilidades apresentados nos perfis são de responsabilidade das profissionais autônomas cadastradas.</p>
-            <p>A Afeto é uma plataforma digital que aproxima famílias de cuidadores de excelência. Nosso papel é fornecer a melhor tecnologia em marketing e segurança de pagamentos para profissionais autônomos. Cada cuidador parceiro atua de forma independente, utilizando nossa vitrine para expandir sua base de clientes, definindo seus próprios horários e repasses com 100% de autonomia.</p>
-            <div class="footer-social">
-                <a href="https://www.instagram.com/afetohomecareoficial" target="_blank" aria-label="Instagram Afeto Homecare">
-                    <i class="fa-brands fa-instagram"></i>
-                </a>
-            </div>
-            <div class="footer-links">
-                <a href="termos.html">Termos de Uso</a>
-                <a href="privacidade.html">Política de Privacidade</a>
-            </div>
+// ========== SCROLL PROGRESS ==========
+window.addEventListener('scroll', function() {
+    var winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+    var height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    if (height > 0) {
+        document.getElementById('scrollProgress').style.width = ((winScroll / height) * 100) + '%';
+    }
+});
+
+carregarTudo();
+</script>
+
+<footer class="site-footer">
+    <div class="footer-content">
+        
+        <p class="footer-aviso">
+            A Afeto atua como plataforma de conexão entre famílias e cuidadoras autônomas. Não executamos serviços de saúde ou cuidado — as informações dos perfis são de responsabilidade das profissionais cadastradas.
+        </p>
+        
+        <p>
+            A Afeto é uma plataforma digital que aproxima famílias de cuidadores com boa reputação, em um ambiente seguro e transparente. Nosso papel é fornecer a melhor tecnologia em apresentação de perfis, marketing e segurança de pagamentos para profissionais autônomos. Cada cuidador parceiro atua de forma independente, utilizando nossa vitrine para expandir sua base de clientes, definindo seus próprios horários e repasses com 100% de autonomia.
+        </p>
+        
+        <div class="footer-social">
+            <a href="https://www.instagram.com/afetohomecareoficial" target="_blank" aria-label="Instagram Afeto Homecare">
+                <i class="fa-brands fa-instagram"></i>
+            </a>
+            <a href="https://wa.me/5541997674866?text=Ol%C3%A1!%20Gostaria%20de%20saber%20mais%20sobre%20a%20Afeto." target="_blank" aria-label="WhatsApp Afeto Homecare">
+                <i class="fa-brands fa-whatsapp"></i>
+            </a>
+            <a href="mailto:afetohomecareoficial@gmail.com" aria-label="E-mail Afeto Homecare">
+                <i class="fa-solid fa-envelope"></i>
+            </a>
         </div>
-    </footer>
+        
+        <div class="footer-info">
+            <span><i class="fa-solid fa-location-dot"></i> Curitiba-PR</span>
+        </div>
+        
+        <div class="footer-links">
+            <a href="termos.html">Termos de Uso</a>
+            <a href="privacidade.html">Política de Privacidade</a>
+        </div>
+        
+        <div class="footer-legal">
+            Afeto Homecare &copy; 2026. Todos os direitos reservados.
+        </div>
+        
+    </div>
+</footer>
 
 </body>
 </html>
