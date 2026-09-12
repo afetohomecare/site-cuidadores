@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Para Cuidadores - Afeto Homecare</title>
+<title>Para Cuidadores - Afeto</title>
 
 <meta property="og:type" content="website">
-<meta property="og:title" content="Para Cuidadores - Afeto Homecare">
-<meta property="og:description" content="Plataforma que valoriza o seu cuidado. Receba sem descontos.">
+<meta property="og:title" content="Para Cuidadores - Afeto">
+<meta property="og:description" content="Seu talento valorizado. Você recebe 100% do que define.">
 <meta property="og:image" content="https://afetocuidadores.pages.dev/og-cuidadoras.jpg">
 <meta property="og:url" content="https://afetocuidadores.pages.dev">
 <meta name="twitter:card" content="summary_large_image">
@@ -26,6 +26,7 @@
   --preto-fonte: #1f1f1f; --cinza-fonte: #666666; --cinza-azulado: #94a3b8;
   --branco: #ffffff; --ouro: #fbbf24; --verde-whatsapp: #25D366;
   --verde-online: #10b981; --vermelho-suave: #ef4444;
+  --logo-gap: 0.16em;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: smooth; }
@@ -33,16 +34,46 @@ body { font-family: 'Nunito', sans-serif; background-color: var(--fundo-site); c
 h1, h2, h3 { font-weight: 800; margin-top: 0; }
 a { text-decoration: none; }
 
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--logo-gap);
+  font-family: 'Nunito', sans-serif;
+  font-weight: 900;
+  font-size: 28px;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--lilas);
+  text-decoration: none;
+}
+.logo__mark {
+  flex: none;
+  width: 1.11em;
+  height: 0.69em;
+  transform: translateY(-0.02em);
+  overflow: visible;
+}
+.logo__mark path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 13;
+  stroke-linecap: round;
+}
+
 header { position: fixed; width: 100%; top: 0; z-index: 1000; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; background-color: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(0,0,0,0.03); }
-.logo { font-size: 28px; font-weight: 900; color: var(--lilas); letter-spacing: -1px; }
-.logo span { font-weight: 300; color: var(--cinza-azulado); }
+.header-botoes { display: flex; gap: 10px; align-items: center; }
 .btn-outline { padding: 10px 24px; border-radius: 50px; font-weight: 800; color: var(--lilas); border: 2px solid var(--lilas); background: transparent; font-size: 15px; transition: 0.3s; }
 .btn-outline:hover { background: var(--lilas); color: var(--branco); }
+.btn-outline.hidden-mobile { display: inline-block; }
 
 .hero { min-height: 60vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 80px 20px; background-color: var(--lilas); color: var(--branco); width: calc(100% - 40px); max-width: 1600px; margin: 95px auto 40px auto; border-radius: 50px; box-shadow: 0 20px 40px rgba(139,92,246,0.15); position: relative; overflow: hidden; }
 .hero h1 { font-size: 52px; font-weight: 900; line-height: 1.1; margin-bottom: 20px; max-width: 900px; letter-spacing: -1.5px; position: relative; z-index: 2; }
 .hero h1 span { color: var(--ouro); }
-.hero p { font-size: 20px; font-weight: 700; max-width: 680px; opacity: 0.95; position: relative; z-index: 2; }
+.hero p { font-size: 20px; font-weight: 700; max-width: 680px; opacity: 0.95; position: relative; z-index: 2; margin-bottom: 35px; }
+.hero-cta { display: inline-flex; align-items: center; justify-content: center; gap: 10px; background: white; color: var(--lilas); padding: 18px 42px; border-radius: 50px; font-size: 18px; font-weight: 900; box-shadow: 0 15px 35px rgba(0,0,0,0.15); transition: 0.3s; border: none; cursor: pointer; font-family: 'Nunito', sans-serif; position: relative; z-index: 2; }
+.hero-cta:hover { transform: translateY(-4px) scale(1.03); box-shadow: 0 20px 45px rgba(0,0,0,0.25); color: var(--lilas-escuro); }
+.hero-cta i { font-size: 18px; }
+
 .estrela-flutuante { position: absolute; color: var(--ouro); animation: animarEstrelas linear infinite; z-index: 0; opacity: 0; }
 @keyframes animarEstrelas { 0% { transform: translateY(0) rotate(0deg) scale(0.3); opacity: 0; } 15% { opacity: 0.15; } 80% { transform: translateY(-200px) rotate(180deg) scale(0.7); opacity: 0.15; } 95% { transform: translateY(-230px) rotate(200deg) scale(1.5); opacity: 0; } 100% { transform: translateY(-250px) rotate(210deg) scale(2); opacity: 0; } }
 .e1 { left: 15%; bottom: -20px; animation-duration: 6s; animation-delay: 0s; font-size: 24px; } .e2 { left: 35%; bottom: -10px; animation-duration: 8s; animation-delay: 2s; font-size: 18px; } .e3 { left: 55%; bottom: -30px; animation-duration: 7s; animation-delay: 1s; font-size: 28px; } .e4 { left: 75%; bottom: -15px; animation-duration: 9s; animation-delay: 3s; font-size: 20px; } .e5 { left: 90%; bottom: -25px; animation-duration: 6.5s; animation-delay: 0.5s; font-size: 26px; }
@@ -76,7 +107,30 @@ select:focus { border-color: var(--lilas); background: var(--branco); box-shadow
 input[type=range] { -webkit-appearance: none; width: 100%; height: 12px; background: #cbd5e1; border-radius: 10px; outline: none; }
 input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radius: 50%; background: var(--lilas); cursor: pointer; -webkit-appearance: none; margin-top: -10px; box-shadow: 0 5px 15px rgba(139,92,246,0.5); border: 5px solid var(--branco); }
 .resultado-valor { font-size: 52px; font-weight: 900; margin: 15px 0; letter-spacing: -2px; }
-.resultado-detalhe { background: rgba(255,255,255,0.15); padding: 20px; border-radius: 20px; font-size: 15px; font-weight: 700; display: inline-block; text-align: left; line-height: 1.6; margin-top: 15px; }
+.resultado-detalhe { background: rgba(255,255,255,0.15); padding: 20px; border-radius: 20px; font-size: 15px; font-weight: 700; display: inline-block; text-align: left; line-height: 1.7; margin-top: 15px; }
+.resultado-detalhe .check-icon { color: var(--ouro); margin-right: 6px; }
+
+/* SEÇÃO AUMENTE SEUS GANHOS */
+.ganhos-section { background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); border-radius: 35px; padding: 60px 45px; margin-bottom: 40px; border: 1px solid #ddd6fe; position: relative; overflow: hidden; }
+.ganhos-section::before { content: ""; position: absolute; top: -80px; right: -80px; width: 260px; height: 260px; background: radial-gradient(circle, rgba(139,92,246,0.15), transparent 70%); border-radius: 50%; pointer-events: none; }
+.ganhos-section::after { content: ""; position: absolute; bottom: -100px; left: -100px; width: 300px; height: 300px; background: radial-gradient(circle, rgba(251,191,36,0.12), transparent 70%); border-radius: 50%; pointer-events: none; }
+.ganhos-header { text-align: center; margin-bottom: 45px; position: relative; z-index: 2; }
+.ganhos-header .tag { display: inline-block; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; padding: 6px 18px; border-radius: 50px; font-size: 12px; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 18px; box-shadow: 0 8px 20px rgba(139,92,246,0.25); }
+.ganhos-header h2 { font-size: 34px; font-weight: 900; letter-spacing: -1px; margin-bottom: 12px; color: var(--preto-fonte); line-height: 1.15; }
+.ganhos-header h2 span { color: var(--lilas-escuro); }
+.ganhos-header p { font-size: 17px; font-weight: 700; color: var(--cinza-fonte); max-width: 600px; margin: 0 auto; line-height: 1.55; }
+.ganhos-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 22px; margin-bottom: 40px; position: relative; z-index: 2; }
+.ganho-card { background: white; border-radius: 24px; padding: 30px 28px; border: 1px solid #e2e8f0; box-shadow: 0 10px 30px rgba(139,92,246,0.06); transition: 0.4s; position: relative; overflow: hidden; }
+.ganho-card:hover { transform: translateY(-6px); box-shadow: 0 20px 45px rgba(139,92,246,0.15); border-color: var(--lilas); }
+.ganho-card::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, var(--lilas), var(--lilas-escuro)); }
+.ganho-card .numero { width: 44px; height: 44px; border-radius: 14px; background: linear-gradient(135deg, #f5f3ff, #ede9fe); color: var(--lilas-escuro); font-size: 20px; font-weight: 900; display: flex; justify-content: center; align-items: center; margin-bottom: 16px; border: 1px solid #ddd6fe; }
+.ganho-card h3 { font-size: 18px; font-weight: 900; color: var(--preto-fonte); margin-bottom: 10px; line-height: 1.3; }
+.ganho-card p { font-size: 15px; font-weight: 600; color: var(--cinza-fonte); line-height: 1.55; margin: 0; }
+.ganho-card .destaque-numero { display: inline-block; background: linear-gradient(135deg, #ecfdf5, #d1fae5); color: #059669; font-weight: 900; font-size: 13px; padding: 4px 12px; border-radius: 20px; margin-top: 12px; border: 1px solid #a7f3d0; }
+.ganhos-cta { text-align: center; position: relative; z-index: 2; }
+.ganhos-cta .texto-cta { font-size: 15px; font-weight: 700; color: var(--cinza-fonte); margin-bottom: 18px; }
+.ganhos-cta .btn-planos { display: inline-flex; align-items: center; justify-content: center; gap: 10px; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; padding: 18px 42px; border-radius: 50px; font-size: 17px; font-weight: 900; text-decoration: none; box-shadow: 0 12px 30px rgba(139,92,246,0.35); transition: 0.3s; font-family: 'Nunito', sans-serif; border: none; cursor: pointer; }
+.ganhos-cta .btn-planos:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 18px 40px rgba(139,92,246,0.45); }
 
 .comparison-table-container { background: var(--branco); border-radius: 35px; padding: 50px; box-shadow: 0 25px 60px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; margin-bottom: 60px; overflow-x: auto; }
 .comparison-table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 650px; }
@@ -96,7 +150,7 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
 .faq-icon { color: var(--lilas); font-size: 20px; transition: 0.4s; }
 .faq-item.active .faq-icon { transform: rotate(45deg); }
 .faq-answer { max-height: 0; overflow: hidden; transition: 0.4s; padding: 0 30px; }
-.faq-item.active .faq-answer { max-height: 300px; padding: 0 30px 25px 30px; }
+.faq-item.active .faq-answer { max-height: 500px; padding: 0 30px 25px 30px; }
 .faq-answer p { color: var(--cinza-fonte); font-size: 16px; font-weight: 600; line-height: 1.6; }
 
 .escassez-alerta { display: inline-block; background-color: #fee2e2; color: #b91c1c; padding: 10px 24px; border-radius: 50px; font-weight: 800; font-size: 14px; margin-bottom: 20px; }
@@ -104,7 +158,6 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
 .btn-action-lilas:hover { background-color: var(--lilas-escuro); transform: translateY(-5px) scale(1.02); box-shadow: 0 15px 35px rgba(139,92,246,0.4); }
 .btn-wrapper { text-align: center; margin: 40px 0 60px 0; }
 
-/* ==================== CARDS DE PROFISSIONAIS ==================== */
 .cards-grid { display: flex; gap: 30px; margin-top: 30px; overflow-x: auto; padding-bottom: 25px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
 .cards-grid::-webkit-scrollbar { height: 10px; }
 .cards-grid::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
@@ -140,6 +193,8 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
 .luz-online { width: 7px; height: 7px; background: var(--verde-online); border-radius: 50%; display: inline-block; box-shadow: 0 0 6px rgba(16, 185, 129, 0.7); animation: pulsar-online 1.8s infinite; vertical-align: middle; margin-right: 4px; }
 @keyframes pulsar-online { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.4); } }
 .texto-disponivel { color: var(--verde-online); font-weight: 800; }
+.luz-offline { width: 7px; height: 7px; background: var(--cinza-azulado); border-radius: 50%; display: inline-block; box-shadow: 0 0 6px rgba(148, 163, 184, 0.5); vertical-align: middle; margin-right: 4px; }
+.texto-consultar { color: var(--cinza-fonte); font-weight: 800; }
 
 .cuidador-nome { font-size: 22px; font-weight: 900; margin-bottom: 8px; color: var(--preto-fonte); letter-spacing: -0.5px; }
 .cuidador-stars { color: var(--ouro); font-size: 16px; letter-spacing: 2px; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 900; min-height: 20px; }
@@ -159,7 +214,6 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
 
 .loader { text-align: center; padding: 50px; font-size: 18px; font-weight: bold; color: var(--lilas); width: 100%; }
 
-/* ==================== FORMULÁRIO ==================== */
 .form-wrapper { background: var(--branco); border-radius: 35px; padding: 30px; box-shadow: 0 25px 60px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; max-width: 700px; margin: 40px auto 0 auto; max-height: 0; opacity: 0; overflow: hidden; padding: 0 30px; transition: all 0.6s ease-in-out; }
 .form-wrapper.revelado { max-height: 4500px; opacity: 1; padding: 40px; }
 .form-wrapper h3 { text-align: center; font-size: 28px; margin-bottom: 10px; font-weight: 900; letter-spacing: -1px; }
@@ -245,24 +299,25 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
 .btn-wpp:hover { transform: scale(1.15); }
 @keyframes pulse-green { 0% { box-shadow: 0 0 0 0 rgba(37,211,102,0.5); } 70% { box-shadow: 0 0 0 20px rgba(37,211,102,0); } 100% { box-shadow: 0 0 0 0 rgba(37,211,102,0); } }
 
-/* ==================== FOOTER PADRONIZADO ==================== */
 .site-footer { background-color: var(--fundo-site); color: var(--cinza-fonte); padding: 50px 20px 30px; text-align: center; border-top: 1px solid #e2e8f0; margin-top: 60px; width: 100%; }
 .footer-content { max-width: 900px; margin: 0 auto; font-size: 13px; line-height: 1.6; }
 .footer-content p { margin-bottom: 25px; }
 .footer-aviso { font-size: 11px; color: var(--cinza-azulado); font-weight: 600; line-height: 1.5; font-style: italic; padding: 0 20px; }
 .footer-social { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; }
 .footer-social a { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; display: flex; justify-content: center; align-items: center; font-size: 22px; box-shadow: 0 8px 20px rgba(139,92,246,0.25); transition: 0.3s; }
-.footer-social a:hover { transform: translateY(-4px) scale(1.08); box-shadow: 0 12px 28px rgba(139,92,246,0.45); }
+.footer-social a:hover { transform: translateY(-4px) scale(1.08); }
 .footer-info { display: flex; justify-content: center; gap: 25px; flex-wrap: wrap; margin-bottom: 25px; font-size: 14px; color: var(--cinza-fonte); font-weight: 700; }
 .footer-info i { color: var(--lilas); margin-right: 6px; }
 .footer-links { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-bottom: 20px; }
-.footer-links a { color: var(--lilas-escuro); font-weight: 800; font-size: 14px; transition: 0.3s; }
+.footer-links a { color: var(--lilas-escuro); font-weight: 800; font-size: 14px; }
 .footer-links a:hover { color: var(--lilas); text-decoration: underline; }
 .footer-legal { font-size: 11px; color: var(--cinza-azulado); border-top: 1px solid #e2e8f0; padding-top: 20px; }
 
 @media (max-width: 900px) {
   .hero { margin: 80px 15px 30px 15px; width: calc(100% - 30px); padding: 50px 20px; border-radius: 35px; }
   .hero h1 { font-size: 38px; }
+  .hero p { font-size: 17px; }
+  .hero-cta { padding: 16px 32px; font-size: 16px; }
   .simulador-container, .comparison-table-container { padding: 30px; gap: 30px; border-radius: 25px; }
   .simulador-resultado { padding: 30px 20px; border-radius: 20px; }
   .resultado-valor { font-size: 42px; }
@@ -271,14 +326,33 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
   .form-wrapper.revelado { padding: 25px; }
   .tela-titulo { font-size: 22px; }
   .cuidador-card { flex: 0 0 280px; }
+  .header-botoes .btn-outline { padding: 8px 16px; font-size: 13px; }
+  .header-botoes .btn-outline.hidden-mobile { display: none; }
+  .logo { font-size: 24px; }
+  .ganhos-section { padding: 40px 25px; border-radius: 25px; }
+  .ganhos-header h2 { font-size: 26px; }
+  .ganhos-header p { font-size: 15px; }
+  .ganhos-grid { grid-template-columns: 1fr; gap: 16px; }
+  .ganho-card { padding: 24px 22px; }
+  .ganho-card h3 { font-size: 16px; }
+  .ganhos-cta .btn-planos { padding: 16px 32px; font-size: 15px; width: 100%; }
 }
 </style>
 </head>
 <body>
 
 <header>
-  <a href="https://afetocuidadores.pages.dev" class="logo">Afeto<span>Homecare</span></a>
-  <a href="https://afetohomecare.pages.dev" class="btn-outline">Encontrar Afeto</a>
+  <a href="index.html" class="logo" aria-label="Afeto - Página inicial">
+    <svg class="logo__mark" viewBox="9.5 15.5 111 69" aria-hidden="true" focusable="false">
+      <path d="M71.87 52.72 A28 28 0 1 0 50.20 77.30"/>
+      <path d="M79.80 22.70 A28 28 0 1 1 58.13 47.28"/>
+    </svg>
+    <span class="logo__text">Afeto</span>
+  </a>
+  <div class="header-botoes">
+    <a href="planos.html" class="btn-outline">Planos</a>
+    <a href="https://afetohomecare.pages.dev" class="btn-outline hidden-mobile">Preciso de uma Cuidadora</a>
+  </div>
 </header>
 
 <section class="hero">
@@ -287,57 +361,60 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
   <div class="estrela-flutuante e3">⭐</div>
   <div class="estrela-flutuante e4">✨</div>
   <div class="estrela-flutuante e5">⭐</div>
-  <h1>Seu talento valorizado.<br><span>Receba sem descontos.</span></h1>
-  <p>Junte-se à plataforma tecnológica que valoriza o seu cuidado. Construa sua reputação, defina seu valor limpo por plantão e deixe a atração de famílias e a gestão de cobranças com a gente. Tudo sem taxas ocultas!</p>
+  <h1>Seu talento valorizado.<br><span>Você recebe 100%.</span></h1>
+  <p>A Afeto conecta você às famílias que procuram um cuidado de excelência. Negociação direta, valor definido por você e 100% do pagamento no seu bolso.</p>
+  <button onclick="mostrarFormulario()" class="hero-cta">
+    <i class="fa-solid fa-heart"></i> Criar meu perfil Afeto
+  </button>
 </section>
 
 <section class="section">
   <div class="section-header">
-    <h2>Transparência total nos seus ganhos</h2>
-    <p>Descubra as vantagens de ser dona da sua própria rotina.</p>
+    <h2>Por que trabalhar com a Afeto?</h2>
+    <p>Uma plataforma feita para valorizar o seu cuidado.</p>
   </div>
   <div class="benefits-grid">
     <div class="benefit-card">
-      <div class="icon-box"><i class="fa-solid fa-award" style="color: var(--ouro);"></i></div>
-      <h3>Selo de Credibilidade</h3>
-      <p>Nosso sistema de estrelas valida a sua excelência. Cuidadores com nota máxima justificam diárias mais altas e recebem vagas premium.</p>
-    </div>
-    <div class="benefit-card">
       <div class="icon-box"><i class="fa-solid fa-hand-holding-dollar" style="color: var(--lilas);"></i></div>
-      <h3>Você define o seu valor</h3>
-      <p>A plataforma é sua ferramenta de trabalho. Você decide o repasse líquido que quer receber, e nós garantimos a cobrança segura.</p>
+      <h3>Você fica com tudo</h3>
+      <p>A Afeto não desconta nada do valor que você define. O que você combina com a família é 100% seu. Sem taxas, sem comissão, sem surpresas.</p>
     </div>
     <div class="benefit-card">
-      <div class="icon-box"><i class="fa-solid fa-shield-heart" style="color: var(--lilas-escuro);"></i></div>
-      <h3>Sem Taxas Abusivas</h3>
-      <p>Não descontamos nada do que você quer receber! Adicionamos apenas uma pequena taxa de 15% (uso e manutenção da plataforma) ao valor final cobrado do cliente.</p>
+      <div class="icon-box"><i class="fa-solid fa-magnifying-glass" style="color: var(--lilas-escuro);"></i></div>
+      <h3>A gente encontra as famílias</h3>
+      <p>Nosso trabalho é atrair famílias que buscam um cuidado de qualidade e mostrar o seu perfil para elas. Você cuida, a gente conecta.</p>
+    </div>
+    <div class="benefit-card">
+      <div class="icon-box"><i class="fa-solid fa-shield-halved" style="color: var(--ouro);"></i></div>
+      <h3>Credibilidade que cresce</h3>
+      <p>Cada família atendida bem constrói a sua reputação. As avaliações reais, o histórico de horas e os selos de qualidade se acumulam no perfil — e elevam seu valor no mercado.</p>
     </div>
   </div>
 
   <div class="section-header">
-    <h2>Como funciona em 3 passos</h2>
-    <p>O caminho mais seguro para ser dono da sua agenda.</p>
+    <h2>Como a Afeto valoriza você em 3 passos</h2>
+    <p>Simplicidade para você focar no que realmente importa: o cuidado.</p>
   </div>
   <div class="passos-grid">
-    <div class="passo-card"><div class="passo-num">1</div><h3>Seu Cadastro</h3><p>Você preenche seus dados, define o seu valor de repasse limpo e nos envia suas referências profissionais.</p></div>
-    <div class="passo-card"><div class="passo-num">2</div><h3>Certificação Afeto</h3><p>Nossa equipe valida suas experiências e cria um Perfil de Excelência para você na nossa plataforma.</p></div>
-    <div class="passo-card"><div class="passo-num">3</div><h3>Conexão & Plantões</h3><p>Sua vitrine atrai famílias. Nós gerenciamos a tecnologia de conexão e do pagamento, e você foca apenas em cuidar.</p></div>
+    <div class="passo-card"><div class="passo-num">1</div><h3>Seu perfil, do seu jeito</h3><p>Você cria seu cadastro sem nenhum custo, conta um pouco da sua experiência e tem total liberdade para definir o valor do seu plantão.</p></div>
+    <div class="passo-card"><div class="passo-num">2</div><h3>O Selo Afeto de Confiança</h3><p>Nossa equipe avalia seu perfil com todo o rigor técnico. Estando tudo certinho, criamos sua vitrine profissional para transmitir a máxima segurança que as famílias procuram.</p></div>
+    <div class="passo-card"><div class="passo-num">3</div><h3>Conexão direta e justa</h3><p>As famílias encontram você pelo site ou pelo seu link exclusivo e chamam direto no seu WhatsApp. A negociação é toda sua e 100% do valor do plantão fica com você.</p></div>
   </div>
 
   <div class="btn-wrapper">
-    <button onclick="mostrarFormulario()" class="btn-action-lilas">Quero ser um Cuidador Parceiro</button>
+    <button onclick="mostrarFormulario()" class="btn-action-lilas">Quero ser uma Parceira Afeto</button>
   </div>
 
   <div class="simulador-container">
     <div class="simulador-controles">
-      <h3 style="font-size: 28px; margin-bottom: 10px; letter-spacing: -1px;">Simulador de Ganhos</h3>
-      <p style="color: var(--cinza-fonte); margin-bottom: 25px; font-weight: 700;">Arraste a régua e defina quanto você quer receber limpo.</p>
+      <h3 style="font-size: 28px; margin-bottom: 10px; letter-spacing: -1px;">Calculadora de Ganhos</h3>
+      <p style="color: var(--cinza-fonte); margin-bottom: 25px; font-weight: 700;">Arraste a régua e veja quanto você pode receber por mês.</p>
       <label>Selecione o tipo de Plantão:</label>
       <select id="cargaHoraria" onchange="atualizarRegua()">
         <option value="12" selected>Plantão de 12 Horas</option>
         <option value="24">Plantão de 24 Horas</option>
       </select>
-      <label>Arraste para definir o seu repasse LIVRE por plantão:</label>
+      <label>Quanto você quer receber por plantão?</label>
       <div class="slider-container">
         <span class="valor-destaque" id="displayPreco">R$ 150</span>
         <input type="range" id="sliderPreco" min="100" max="500" step="10" value="150" oninput="calcularGanhos()">
@@ -352,50 +429,99 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
       </select>
     </div>
     <div class="simulador-resultado">
-      <h4 style="margin: 0; font-size: 20px; font-weight: 700; opacity: 0.9;">Você pode receber até (limpo no mês):</h4>
+      <h4 style="margin: 0; font-size: 20px; font-weight: 700; opacity: 0.9;">Você recebe até (100% pra você):</h4>
       <div class="resultado-valor" id="ganhoMensal">R$ 1.800,00</div>
       <div class="resultado-detalhe">
         <strong>Resumo do Plantão:</strong><br><br>
-        ✔️ Seu repasse líquido: <span id="detalheLivre">R$ 150,00</span><br>
-        ✔️ Valor final do plantão: <span id="detalheFamilia">R$ 173,00</span><br>
-        <span style="font-size: 13px; font-weight: 400; opacity: 0.8; display: block; margin-top: 5px;">(Sua parte + 15% da taxa Afeto)</span>
+        <span class="check-icon">✔️</span> Você define: <span id="detalheLivre">R$ 150,00</span><br>
+        <span class="check-icon">✔️</span> O cliente aceita<br>
+        <span class="check-icon">✔️</span> Você recebe: <strong><span id="detalheRecebe">R$ 150,00</span></strong><br>
+        <span class="check-icon">✔️</span> A Afeto não desconta nada<br>
+        <span style="font-size: 13px; font-weight: 400; opacity: 0.85; display: block; margin-top: 8px; line-height: 1.5;">💜 A negociação é direta entre você e a família — sem intermediários e sem taxas.</span>
       </div>
-      <p style="font-size: 14px; opacity: 0.8; margin-top: 20px; line-height: 1.4;">*O pagamento é processado pela plataforma e o seu repasse cai direto na sua conta.</p>
     </div>
   </div>
 
+  <!-- ==================== SEÇÃO AUMENTE SEUS GANHOS ==================== -->
+  <section class="ganhos-section">
+    <div class="ganhos-header">
+      <span class="tag">💜 Como crescer na Afeto</span>
+      <h2>Como <span>aumentar seus ganhos</span> na plataforma</h2>
+      <p>Você já viu quanto pode receber. Agora veja os caminhos práticos pra chegar lá e conquistar mais famílias.</p>
+    </div>
+
+    <div class="ganhos-grid">
+      <div class="ganho-card">
+        <div class="numero">1</div>
+        <h3>Perfil completo atrai 3x mais famílias</h3>
+        <p>Foto bem tirada, bio bem escrita e especialidades preenchidas fazem toda a diferença. Famílias escolhem com os olhos — e o seu perfil é o seu cartão de visita.</p>
+        <span class="destaque-numero">📸 +200% mais cliques</span>
+      </div>
+
+      <div class="ganho-card">
+        <div class="numero">2</div>
+        <h3>Selo Verificada Afeto gera mais confiança</h3>
+        <p>Perfis verificados são escolhidos com mais frequência pelas famílias. É a diferença entre "parece boa" e "é de confiança" — e isso se reflete no número de contatos.</p>
+        <span class="destaque-numero">✅ Mais contatos por semana</span>
+      </div>
+
+      <div class="ganho-card">
+        <div class="numero">3</div>
+        <h3>Histórico de horas certificadas valoriza seu plantão</h3>
+        <p>Cada hora certificada constrói sua reputação e comprova sua experiência. Cuidadores com histórico verificado justificam valores mais altos no mercado.</p>
+        <span class="destaque-numero">⭐ Reputação que vale ouro</span>
+      </div>
+
+      <div class="ganho-card">
+        <div class="numero">4</div>
+        <h3>Aparecer no topo das buscas</h3>
+        <p>Famílias quase sempre escolhem entre os primeiros perfis que aparecem. Estar no topo significa mais visualizações, mais contatos e melhores oportunidades de plantão.</p>
+        <span class="destaque-numero">🚀 Topo = melhores clientes</span>
+      </div>
+    </div>
+
+    <div class="ganhos-cta">
+      <p class="texto-cta">Quer colocar tudo isso em prática? Conheça os planos opcionais da Afeto.</p>
+      <a href="planos.html" class="btn-planos">
+        <i class="fa-solid fa-star"></i> Conhecer os Planos
+      </a>
+    </div>
+  </section>
+
   <div class="btn-wrapper">
-    <button onclick="mostrarFormulario()" class="btn-action-lilas">Quero ser um Cuidador Parceiro</button>
+    <button onclick="mostrarFormulario()" class="btn-action-lilas">Quero ser uma Parceira Afeto</button>
   </div>
 
   <div class="comparison-table-container">
-    <h3 style="font-size: 28px; margin-bottom: 30px; text-align: center; letter-spacing: -1px; font-weight: 900;">Afeto Homecare <span style="color: var(--cinza-azulado);">vs</span> Agências Antigas</h3>
+    <h3 style="font-size: 28px; margin-bottom: 30px; text-align: center; letter-spacing: -1px; font-weight: 900;">Afeto <span style="color: var(--cinza-azulado);">vs</span> Agências Tradicionais</h3>
     <table class="comparison-table">
       <thead>
         <tr>
           <th style="background: transparent; text-align: left; color: var(--cinza-fonte);">O que realmente importa</th>
-          <th class="th-velho">❌ Agências Antigas</th>
+          <th class="th-velho">❌ Agências Tradicionais</th>
           <th class="th-afeto">⭐ Plataforma Afeto</th>
         </tr>
       </thead>
       <tbody>
-        <tr><td><strong>Quem define o seu ganho?</strong></td><td class="col-velho">Eles impõem o valor e ditam as regras do seu trabalho.</td><td class="col-afeto"><span class="check-violeta">✓</span> Você escolhe 100% livre o valor do seu repasse.</td></tr>
-        <tr><td><strong>Descontos no seu bolso</strong></td><td class="col-velho">Retêm até 40% de tudo o que você ganha.</td><td class="col-afeto"><span class="check-violeta">✓</span> Zero desconto no seu repasse. A taxa de 15% da plataforma é somada ao valor final.</td></tr>
-        <tr><td><strong>Valorização Profissional</strong></td><td class="col-velho">Tratada como "só mais um número" na escala.</td><td class="col-afeto"><span class="check-violeta">✓</span> Você é valorizada! Seu perfil evolui com estrelas e avaliações.</td></tr>
-        <tr><td><strong>Segurança no Pagamento</strong></td><td class="col-velho">Cobrança manual e atrasos por parte da agência.</td><td class="col-afeto"><span class="check-violeta">✓</span> Automático, via plataforma, direto para a sua conta.</td></tr>
+        <tr><td><strong>Quem define o seu valor?</strong></td><td class="col-velho">A agência impõe o preço e dita as regras.</td><td class="col-afeto"><span class="check-violeta">✓</span> Você define 100% livre o valor do seu plantão.</td></tr>
+        <tr><td><strong>Quem fica com o valor do plantão?</strong></td><td class="col-velho">A agência retém até 40% do que você ganha.</td><td class="col-afeto"><span class="check-violeta">✓</span> Você fica com 100% do valor negociado.</td></tr>
+        <tr><td><strong>Como as famílias chegam até você?</strong></td><td class="col-velho">A agência esconde sua identidade — você é só mais um número na escala.</td><td class="col-afeto"><span class="check-violeta">✓</span> A Afeto traz clientes até o seu perfil e você negocia direto.</td></tr>
+        <tr><td><strong>Você constrói reputação?</strong></td><td class="col-velho">Nenhum histórico documentado. Você começa do zero em cada casa.</td><td class="col-afeto"><span class="check-violeta">✓</span> Selo Verificada, avaliações reais e histórico de horas no seu perfil.</td></tr>
+        <tr><td><strong>Você pode recusar plantões?</strong></td><td class="col-velho">Não. Você é escalada e não tem voz na decisão.</td><td class="col-afeto"><span class="check-violeta">✓</span> Sim, sempre. Você escolhe quando e para quem trabalhar.</td></tr>
+        <tr><td><strong>Você pode atender clientes próprios?</strong></td><td class="col-velho">Normalmente é proibido por contrato.</td><td class="col-afeto"><span class="check-violeta">✓</span> Sim, sem problema. Você é autônoma e livre.</td></tr>
+        <tr><td><strong>Você recebe suporte quando dá errado?</strong></td><td class="col-velho">Você fica sozinha para resolver.</td><td class="col-afeto"><span class="check-violeta">✓</span> A Afeto atua como facilitadora — em conflitos, substituições e suporte.</td></tr>
       </tbody>
     </table>
   </div>
 
   <div style="text-align: center; margin-bottom: 40px;">
     <span class="escassez-alerta">⚠️ Vagas limitadas em Curitiba.</span><br>
-    <button onclick="mostrarFormulario()" class="btn-action-lilas">Quero ser um Cuidador Parceiro</button>
+    <button onclick="mostrarFormulario()" class="btn-action-lilas">Quero ser uma Parceira Afeto</button>
   </div>
 
-  <!-- ==================== FORMULÁRIO ==================== -->
   <div id="formulario-box" class="form-wrapper">
     <div id="form-area">
-      <h3>Pré-Cadastro de Cuidador Parceiro</h3>
+      <h3>Pré-Cadastro de Cuidadora Parceira</h3>
       <p class="sub-form">Preencha os dados abaixo. Em breve entraremos em contato pelo WhatsApp com os próximos passos. 💜</p>
 
       <form id="form-cuidadora" novalidate>
@@ -451,7 +577,7 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
 
         <div class="form-campo">
           <label for="valor-plantao">Quanto você gostaria de receber por plantão de 12h?</label>
-          <span class="ajuda">Esse é o valor líquido que você recebe, sem desconto. É você quem decide!</span>
+          <span class="ajuda">Esse é o valor que você define. A negociação com a família é direta — a Afeto não desconta nada.</span>
           <div class="input-prefix">
             <span>R$</span>
             <input type="number" id="valor-plantao" name="valor_plantao" placeholder="150" min="50" max="2000" step="10" required>
@@ -472,8 +598,8 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
           <div class="aviso-noturno">
             <span class="emoji">💜</span>
             <div>
-              <strong>Aqui na Afeto pensamos em você!</strong><br>
-              Sabemos que plantões noturnos exigem ainda mais dedicação. Por isso, adicionamos um <strong>adicional de 20%</strong> sobre o valor que você definir quando o plantão for noturno. Seu cuidado valorizado como deve.
+              <strong>Plantões noturnos exigem mais.</strong><br>
+              Você define se quer cobrar um valor adicional pelos plantões noturnos — a decisão é sempre sua. A Afeto não interfere na sua negociação com a família.
             </div>
           </div>
         </div>
@@ -526,11 +652,11 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
 
           <div class="termo-item" data-termo="termo1">
             <input type="checkbox" id="termo1" name="aceite_termos" value="Sim">
-            <label for="termo1">Li e concordo com os <a href="termos.html" target="_blank">Termos de Uso</a> e a <a href="privacidade.html" target="_blank">Política de Privacidade</a> da Afeto Homecare.</label>
+            <label for="termo1">Li e concordo com os <a href="termos.html" target="_blank">Termos de Uso</a> e a <a href="privacidade.html" target="_blank">Política de Privacidade</a> da Afeto.</label>
           </div>
           <div class="termo-item" data-termo="termo2">
             <input type="checkbox" id="termo2" name="aceite_lgpd" value="Sim">
-            <label for="termo2">Autorizo a Afeto Homecare a tratar meus dados pessoais e profissionais para fins de cadastro, exibição do meu perfil na plataforma e contato sobre oportunidades de plantão.</label>
+            <label for="termo2">Autorizo a Afeto a tratar meus dados pessoais e profissionais para fins de cadastro, exibição do meu perfil na plataforma e contato sobre oportunidades de plantão.</label>
           </div>
           <div class="termo-item" data-termo="termo3">
             <input type="checkbox" id="termo3" name="veracidade" value="Sim">
@@ -538,7 +664,7 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
           </div>
           <div class="termo-item" data-termo="termo4">
             <input type="checkbox" id="termo4" name="antecedentes" value="Sim">
-            <label for="termo4">Declaro que não possuo antecedentes criminais e autorizo a Afeto Homecare a verificar essa informação junto aos órgãos competentes.</label>
+            <label for="termo4">Declaro que não possuo antecedentes criminais e autorizo a Afeto a verificar essa informação junto aos órgãos competentes.</label>
           </div>
         </div>
 
@@ -552,9 +678,15 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
       <div class="tela-icone sucesso"><i class="fa-solid fa-check"></i></div>
       <div class="tela-titulo">Pré-cadastro enviado com sucesso!</div>
       <p class="tela-texto">Em breve entraremos em contato pelo WhatsApp com os próximos passos. 💜</p>
-      <button type="button" onclick="voltarAoInicio()" class="tela-botao sucesso">
-        <i class="fa-solid fa-arrow-up"></i> Voltar ao início
-      </button>
+
+      <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 10px;">
+        <a href="planos.html" class="tela-botao sucesso" style="text-decoration: none;">
+          <i class="fa-solid fa-star"></i> Conhecer os Planos
+        </a>
+        <button type="button" onclick="voltarAoInicio()" class="tela-botao erro">
+          <i class="fa-solid fa-arrow-up"></i> Voltar ao início
+        </button>
+      </div>
     </div>
 
     <div id="tela-erro" class="tela-resultado">
@@ -575,28 +707,31 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
   </div>
   <div class="faq-container">
     <div class="faq-item">
-      <button class="faq-question">O que o serviço da Afeto inclui para o Cuidador? <i class="fa-solid fa-plus faq-icon"></i></button>
-      <div class="faq-answer"><p>Atuamos como sua vitrine de excelência. Nossa plataforma atrai famílias que buscam qualidade. Quanto melhor você for avaliada nos plantões, mais o seu perfil ganha destaque, ajudando você a atrair clientes e valorizar o seu trabalho.</p></div>
+      <button class="faq-question">A Afeto cobra alguma taxa ou comissão? <i class="fa-solid fa-plus faq-icon"></i></button>
+      <div class="faq-answer"><p>Não. A Afeto não desconta nada do valor que você combina com a família. O que você define é 100% seu. Nosso papel é te conectar com famílias que procuram um cuidado de qualidade, dar credibilidade ao seu perfil e te dar suporte quando você precisar.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question">Como as famílias chegam até mim? <i class="fa-solid fa-plus faq-icon"></i></button>
+      <div class="faq-answer"><p>De duas formas: pelo nosso site (onde as famílias buscam cuidadoras por bairro, especialidade e avaliação) e pelo seu link exclusivo, que você pode compartilhar na bio do Instagram, no status do WhatsApp ou com quem você quiser. Quando a família te encontra, ela entra em contato direto com você.</p></div>
     </div>
     <div class="faq-item">
       <button class="faq-question">E se eu não me adaptar à família ou ao paciente? <i class="fa-solid fa-plus faq-icon"></i></button>
-      <div class="faq-answer"><p>Se a família ou você perceberem que não houve "sintonia" no plantão, a nossa plataforma facilita a transição transparente para outro cuidador parceiro, sem prejudicar o seu perfil.</p></div>
+      <div class="faq-answer"><p>Se a família ou você perceberem que não houve "sintonia" no plantão, basta informar à Afeto. A gente atua na busca de outra profissional ou de outra família, sem prejudicar o seu perfil. Você tem total liberdade para recusar plantões e seguir sua rotina.</p></div>
     </div>
     <div class="faq-item">
-      <button class="faq-question">Quais são as opções de horários disponíveis? <i class="fa-solid fa-plus faq-icon"></i></button>
-      <div class="faq-answer"><p>Você tem flexibilidade total. Trabalhamos com demandas para plantões de 6h, 12h (diurnos e noturnos), além de coberturas de finais de semana.</p></div>
+      <button class="faq-question">Como funciona o pagamento? <i class="fa-solid fa-plus faq-icon"></i></button>
+      <div class="faq-answer"><p>Você combina o valor e a forma de pagamento direto com a família — Pix, dinheiro, transferência, o que for melhor para vocês. A Afeto não interfere na negociação e não toca no dinheiro. Você recebe 100% do que for combinado.</p></div>
     </div>
     <div class="faq-item">
-      <button class="faq-question">Como recebo os pagamentos? <i class="fa-solid fa-plus faq-icon"></i></button>
-      <div class="faq-answer"><p>Via Pix em até dois dias úteis após a realização do plantão.</p></div>
+      <button class="faq-question">Preciso pagar algo para estar na Afeto? <i class="fa-solid fa-plus faq-icon"></i></button>
+      <div class="faq-answer"><p>Não. O cadastro é 100% gratuito e você pode usar a plataforma sem pagar nada. Existem planos opcionais de visibilidade para quem quer aparecer no topo das buscas ou ter destaque no perfil — mas isso é escolha sua e nunca uma obrigação para trabalhar. <a href="planos.html" style="color: var(--lilas-escuro); font-weight: 800; text-decoration: underline;">Ver planos opcionais</a>.</p></div>
     </div>
   </div>
 </section>
 
-<!-- ==================== PROFISSIONAIS ATIVOS ==================== -->
 <section class="section" id="profissionais-ativos" style="padding-top: 20px; padding-bottom: 40px;">
   <div class="section-header">
-    <h2>Profissionais Ativos na Afeto</h2>
+    <h2>Profissionais Ativas na Afeto</h2>
     <p>Role para o lado e veja o nível de excelência que as famílias encontram aqui.</p>
   </div>
   <div class="cards-grid" id="cuidadores-grid">
@@ -606,7 +741,6 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
 
 <a href="https://wa.me/5541997674866" target="_blank" class="btn-wpp"><i class="fa-brands fa-whatsapp"></i></a>
 
-<!-- ==================== FOOTER PADRONIZADO ==================== -->
 <footer class="site-footer">
   <div class="footer-content">
 
@@ -615,17 +749,17 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
     </p>
 
     <p>
-      A Afeto é uma plataforma digital que aproxima famílias de cuidadores com boa reputação, em um ambiente seguro e transparente. Nosso papel é fornecer a melhor tecnologia em apresentação de perfis, marketing e segurança de pagamentos para profissionais autônomos. Cada cuidador parceiro atua de forma independente, utilizando nossa vitrine para expandir sua base de clientes, definindo seus próprios horários e repasses com 100% de autonomia.
+      A Afeto é uma plataforma digital que aproxima famílias de cuidadores com boa reputação, em um ambiente seguro e transparente. Nosso papel é fornecer a melhor tecnologia em apresentação de perfis e marketing para profissionais autônomos. Cada cuidador parceiro atua de forma independente, utilizando nossa vitrine para expandir sua base de clientes, definindo seus próprios horários e ganhos com 100% de autonomia.
     </p>
 
     <div class="footer-social">
-      <a href="https://www.instagram.com/afetohomecareoficial" target="_blank" aria-label="Instagram Afeto Homecare">
+      <a href="https://www.instagram.com/afetohomecareoficial" target="_blank" aria-label="Instagram Afeto">
         <i class="fa-brands fa-instagram"></i>
       </a>
-      <a href="https://wa.me/5541997674866?text=Ol%C3%A1!%20Gostaria%20de%20saber%20mais%20sobre%20a%20Afeto." target="_blank" aria-label="WhatsApp Afeto Homecare">
+      <a href="https://wa.me/5541997674866?text=Ol%C3%A1!%20Gostaria%20de%20saber%20mais%20sobre%20a%20Afeto." target="_blank" aria-label="WhatsApp Afeto">
         <i class="fa-brands fa-whatsapp"></i>
       </a>
-      <a href="mailto:afetohomecareoficial@gmail.com" aria-label="E-mail Afeto Homecare">
+      <a href="mailto:afetohomecareoficial@gmail.com" aria-label="E-mail Afeto">
         <i class="fa-solid fa-envelope"></i>
       </a>
     </div>
@@ -635,12 +769,13 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
     </div>
 
     <div class="footer-links">
+      <a href="planos.html">Planos</a>
       <a href="termos.html">Termos de Uso</a>
       <a href="privacidade.html">Política de Privacidade</a>
     </div>
 
     <div class="footer-legal">
-      Afeto Homecare &copy; 2026. Todos os direitos reservados.
+      Afeto &copy; 2026. Todos os direitos reservados.
     </div>
 
   </div>
@@ -650,7 +785,6 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
 (function() {
   "use strict";
 
-  // ============ SIMULADOR ============
   window.atualizarPreenchimentoRegua = function(slider) {
     var min = slider.min, max = slider.max, val = slider.value;
     var p = ((val - min) / (max - min)) * 100;
@@ -669,15 +803,13 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
     var dias = parseInt(document.getElementById('diasSemana').value);
     window.atualizarPreenchimentoRegua(slider);
     document.getElementById('displayPreco').innerText = 'R$ ' + valor.toFixed(0);
-    var finalFamilia = Math.ceil(valor * 1.15);
     var mensal = valor * (dias * 4);
     document.getElementById('ganhoMensal').innerText = 'R$ ' + mensal.toFixed(2).replace('.', ',');
     document.getElementById('detalheLivre').innerText = 'R$ ' + valor.toFixed(2).replace('.', ',');
-    document.getElementById('detalheFamilia').innerText = 'R$ ' + finalFamilia.toFixed(2).replace('.', ',');
+    document.getElementById('detalheRecebe').innerText = 'R$ ' + valor.toFixed(2).replace('.', ',');
   };
   window.calcularGanhos();
 
-  // ============ FAQ ============
   var faqs = document.querySelectorAll('.faq-item');
   faqs.forEach(function(item) {
     var btn = item.querySelector('.faq-question');
@@ -704,7 +836,6 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
     document.getElementById('formulario-box').scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  // ============ LISTA DE BAIRROS ============
   var BAIRROS = [
     "Abranches","Água Verde","Ahú","Alto Boqueirão","Alto da Glória","Alto da Rua XV",
     "Atuba","Augusta","Bacacheri","Bairro Alto","Barreirinha","Batatzinho","Batel",
@@ -864,7 +995,6 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
     }
   });
 
-  // ============ TOAST AFETO ============
   function mostrarToast(msg) {
     var antigo = document.getElementById('toast-afeto');
     if (antigo) antigo.remove();
@@ -919,7 +1049,6 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
     }
   }
 
-  // ============ ENVIO ============
   var enviando = false;
 
   form.addEventListener('submit', async function(e) {
@@ -1006,8 +1135,11 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
     var especialidade = f.Especialidade || 'Cuidador(a)';
     var bairro = f.Bairro || 'Curitiba';
 
+    // ⚡ Foto só aparece se tiver plano pago
+    var temPlanoPago = f.PlanoProfissional === true || f.PlanoDestaque === true;
+
     var fotoHTML = '<i class="fa-solid fa-user"></i>';
-    if (f.Foto && f.Foto.length > 0) {
+    if (temPlanoPago && f.Foto && f.Foto.length > 0) {
       var fotoOtimizada = resizeAirtablePhoto(f.Foto[0].url, 300, 300);
       fotoHTML = '<img src="' + fotoOtimizada + '" alt="' + nome + '" loading="lazy" decoding="async" width="130" height="130">';
     }
@@ -1028,7 +1160,7 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
       seloCategoria = '<span class="cuidador-badge badge-novidade"><i class="fa-solid fa-sparkles"></i> Novidade na Afeto</span>';
     }
 
-    var seloVerificada = f.Verificada ? '<span class="cuidador-badge badge-verificada"><i class="fa-solid fa-check"></i> Verificada</span>' : '';
+    var seloVerificada = (temPlanoPago && f.Verificada) ? '<span class="cuidador-badge badge-verificada"><i class="fa-solid fa-check"></i> Verificada</span>' : '';
     var seloCoren = f.COREN ? '<span class="cuidador-badge badge-coren"><i class="fa-solid fa-id-card"></i> COREN</span>' : '';
 
     var estrelasHTML = '';
@@ -1052,12 +1184,16 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
       }
     }
 
+    // ⚡ Disponível só conta se tiver plano pago
     var horasAfeto = parseInt(f.Horas) || 0;
+    var estaDisponivel = (f.Disponivel === true) && temPlanoPago;
     var displayHoras = '';
     if (horasAfeto >= 24) {
       displayHoras = '<span class="cuidador-meta ' + (isDiamante ? 'meta-diamante' : '') + '">' + bairro + ' • ' + horasAfeto + 'h de afeto</span>';
-    } else {
+    } else if (estaDisponivel) {
       displayHoras = '<span class="cuidador-meta ' + (isDiamante ? 'meta-diamante' : '') + '">' + bairro + ' • <span class="texto-disponivel"><span class="luz-online"></span>Disponível</span></span>';
+    } else {
+      displayHoras = '<span class="cuidador-meta ' + (isDiamante ? 'meta-diamante' : '') + '">' + bairro + ' • <span class="texto-consultar"><span class="luz-offline"></span>Consultar disponibilidade</span></span>';
     }
 
     return '<div class="cuidador-card ' + cardClassAdd + '" onclick="window.location.href=\'perfil.html?id=' + record.id + '\'">' +
@@ -1086,8 +1222,18 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
       var data = await response.json();
 
       if (data.records) {
+        // ⚡ Só mostra na vitrine quem tem plano pago ativo
+        var apenasPagantes = data.records.filter(function(r) {
+          return r.fields.PlanoProfissional === true || r.fields.PlanoDestaque === true;
+        });
+
         grid.innerHTML = '';
-        data.records.forEach(function(record) {
+        if (apenasPagantes.length === 0) {
+          grid.innerHTML = '<div class="loader">Em breve novas profissionais por aqui 💜</div>';
+          return;
+        }
+
+        apenasPagantes.forEach(function(record) {
           grid.innerHTML += renderizarCard(record);
         });
       } else {

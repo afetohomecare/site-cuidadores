@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Planos - Afeto Homecare</title>
+<title>Planos - Afeto</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
@@ -15,8 +15,35 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
 .wrap { max-width: 900px; margin: 0 auto; padding: 40px 15px; }
 
 .header { text-align: center; margin-bottom: 30px; }
-.header .logo { font-size: 26px; font-weight: 900; color: var(--lilas); letter-spacing: -1px; margin-bottom: 16px; }
-.header .logo span { font-weight: 300; color: var(--cinza-azulado); }
+
+/* ============ LOGO NOVA ============ */
+.header .logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.16em;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 900;
+  font-size: 26px;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--lilas);
+  text-decoration: none;
+  margin-bottom: 16px;
+}
+.header .logo__mark {
+  flex: none;
+  width: 1.11em;
+  height: 0.69em;
+  transform: translateY(-0.02em);
+  overflow: visible;
+}
+.header .logo__mark path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 13;
+  stroke-linecap: round;
+}
+
 .header h1 { font-size: 28px; font-weight: 900; letter-spacing: -1px; margin-bottom: 12px; line-height: 1.2; }
 .header p { font-size: 15px; color: var(--cinza-fonte); font-weight: 700; max-width: 520px; margin: 0 auto; line-height: 1.55; }
 
@@ -50,7 +77,6 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
 .card-lista { list-style: none; flex: 1; margin-bottom: 24px; }
 .card-lista li { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; font-weight: 700; line-height: 1.5; padding: 6px 0; color: var(--cinza-fonte); }
 .card-lista li i { color: var(--lilas); font-size: 11px; margin-top: 4px; flex-shrink: 0; width: 12px; }
-.card-lista li.item-neutro i { color: var(--cinza-azulado); }
 .card-lista li.item-extra i { color: var(--ouro); }
 .card-lista li strong { color: var(--preto-fonte); }
 
@@ -71,6 +97,11 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
 .sem-fidelidade p { font-size: 13px; color: var(--lilas-escuro); font-weight: 800; line-height: 1.55; margin: 0; }
 .sem-fidelidade strong { color: var(--preto-fonte); }
 
+.ja-paguei { text-align: center; margin: 30px 0 10px 0; padding: 24px; background: linear-gradient(135deg, #f5f3ff, #ede9fe); border-radius: 16px; border: 1px solid #ddd6fe; }
+.ja-paguei p { font-size: 15px; font-weight: 800; color: var(--lilas-escuro); margin-bottom: 14px; }
+.ja-paguei a { display: inline-flex; align-items: center; gap: 10px; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; padding: 14px 32px; border-radius: 50px; font-size: 15px; font-weight: 900; text-decoration: none; box-shadow: 0 8px 20px rgba(139,92,246,0.3); transition: 0.3s; }
+.ja-paguei a:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(139,92,246,0.4); }
+
 .comparativo { background: white; border-radius: 20px; padding: 30px 26px; border: 1px solid #e2e8f0; margin-bottom: 24px; }
 .comparativo h3 { font-size: 16px; font-weight: 900; text-align: center; margin-bottom: 22px; letter-spacing: -0.5px; }
 .comparativo-tabela { width: 100%; border-collapse: collapse; font-size: 13px; }
@@ -87,7 +118,6 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
 .info-bloco p { font-size: 13px; color: var(--cinza-fonte); font-weight: 700; line-height: 1.6; margin: 0; }
 .info-bloco strong { color: var(--preto-fonte); }
 
-/* ========== ÍCONES DE SEGURANÇA (AUMENTADOS) ========== */
 .rodape-seguranca { display: flex; justify-content: center; gap: 28px; flex-wrap: wrap; margin-bottom: 8px; padding: 18px 0 8px; }
 .rodape-seguranca .item-seg { display: inline-flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 800; color: var(--preto-fonte); }
 .rodape-seguranca .item-seg i { color: var(--verde); font-size: 22px; }
@@ -95,7 +125,6 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
 .rodape-seguranca .item-seg .texto-seg .titulo-seg { font-size: 14px; font-weight: 900; color: var(--preto-fonte); }
 .rodape-seguranca .item-seg .texto-seg .sub-seg { font-size: 12px; font-weight: 700; color: var(--cinza-fonte); }
 
-/* ==================== FOOTER PADRONIZADO ==================== */
 .site-footer { background-color: var(--fundo-site); color: var(--cinza-fonte); padding: 50px 20px 30px; text-align: center; border-top: 1px solid #e2e8f0; margin-top: 40px; width: 100%; }
 .footer-content { max-width: 900px; margin: 0 auto; font-size: 13px; line-height: 1.6; }
 .footer-content p { margin-bottom: 25px; }
@@ -136,7 +165,13 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
 <div class="wrap">
 
     <div class="header">
-        <div class="logo">Afeto<span>Homecare</span></div>
+        <div class="logo" aria-label="Afeto">
+            <svg class="logo__mark" viewBox="9.5 15.5 111 69" aria-hidden="true" focusable="false">
+                <path d="M71.87 52.72 A28 28 0 1 0 50.20 77.30"/>
+                <path d="M79.80 22.70 A28 28 0 1 1 58.13 47.28"/>
+            </svg>
+            <span class="logo__text">Afeto</span>
+        </div>
         <h1>Escolha como quer aparecer</h1>
         <p>Seu perfil profissional na Afeto. Comece grátis e ative recursos quando fizer sentido para você.</p>
     </div>
@@ -205,7 +240,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
                 <li><i class="fa-solid fa-check"></i> <strong>Nós te divulgamos</strong></li>
             </ul>
 
-            <a href="#" class="card-btn profissional-btn">Quero ser Profissional</a>
+            <a href="https://wa.me/5541997674866?text=Ol%C3%A1!%20Quero%20assinar%20o%20Plano%20Profissional%20da%20Afeto.%20Pode%20me%20passar%20os%20pr%C3%B3ximos%20passos%3F" target="_blank" class="card-btn profissional-btn">Quero ser Profissional</a>
             <div class="card-nota">Mais famílias te encontram</div>
         </div>
 
@@ -234,7 +269,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
                 <li class="item-extra"><i class="fa-solid fa-plus"></i> <strong>Oportunidades exclusivas</strong></li>
             </ul>
 
-            <a href="#" class="card-btn destaque-btn">Quero Destaque</a>
+            <a href="https://wa.me/5541997674866?text=Ol%C3%A1!%20Quero%20assinar%20o%20Plano%20Destaque%20da%20Afeto.%20Pode%20me%20passar%20os%20pr%C3%B3ximos%20passos%3F" target="_blank" class="card-btn destaque-btn">Quero Destaque</a>
             <div class="card-nota">Máxima visibilidade</div>
         </div>
 
@@ -248,6 +283,13 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
     <div class="sem-fidelidade">
         <div class="icone"><i class="fa-solid fa-heart"></i></div>
         <p><strong>Sem fidelidade:</strong> cancele quando quiser, em 1 clique, sem burocracia.</p>
+    </div>
+
+    <div class="ja-paguei">
+        <p>Já fez o pagamento e ainda não completou seu perfil?</p>
+        <a href="upgrade.html">
+            <i class="fa-solid fa-arrow-right"></i> Completar meu perfil agora
+        </a>
     </div>
 
     <div class="comparativo">
@@ -345,7 +387,6 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
 
 </div>
 
-<!-- ==================== FOOTER PADRONIZADO ==================== -->
 <footer class="site-footer">
     <div class="footer-content">
 
@@ -358,13 +399,13 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
         </p>
 
         <div class="footer-social">
-            <a href="https://www.instagram.com/afetohomecareoficial" target="_blank" aria-label="Instagram Afeto Homecare">
+            <a href="https://www.instagram.com/afetohomecareoficial" target="_blank" aria-label="Instagram Afeto">
                 <i class="fa-brands fa-instagram"></i>
             </a>
-            <a href="https://wa.me/5541997674866?text=Ol%C3%A1!%20Gostaria%20de%20saber%20mais%20sobre%20a%20Afeto." target="_blank" aria-label="WhatsApp Afeto Homecare">
+            <a href="https://wa.me/5541997674866?text=Ol%C3%A1!%20Gostaria%20de%20saber%20mais%20sobre%20a%20Afeto." target="_blank" aria-label="WhatsApp Afeto">
                 <i class="fa-brands fa-whatsapp"></i>
             </a>
-            <a href="mailto:afetohomecareoficial@gmail.com" aria-label="E-mail Afeto Homecare">
+            <a href="mailto:afetohomecareoficial@gmail.com" aria-label="E-mail Afeto">
                 <i class="fa-solid fa-envelope"></i>
             </a>
         </div>
@@ -379,7 +420,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
         </div>
 
         <div class="footer-legal">
-            Afeto Homecare &copy; 2026. Todos os direitos reservados. CNPJ: 64.215.069/0001-15.
+            Afeto &copy; 2026. Todos os direitos reservados. CNPJ: 64.215.069/0001-15.
         </div>
 
     </div>

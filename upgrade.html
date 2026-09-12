@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Complete seu Perfil - Afeto</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+:root { --lilas: #8b5cf6; --lilas-escuro: #7c3aed; --fundo-site: #f8f9fc; --preto-fonte: #1f1f1f; --cinza-fonte: #666666; --cinza-azulado: #94a3b8; --branco: #ffffff; --ouro: #fbbf24; --verde: #10b981; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); color: var(--preto-fonte); padding: 40px 20px; min-height: 100vh; }
+
+.wrap { max-width: 620px; margin: 0 auto; }
+
+.boas-vindas { text-align: center; margin-bottom: 30px; }
+.boas-vindas .check-icon {
+  width: 80px; height: 80px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  border-radius: 50%;
+  display: flex; justify-content: center; align-items: center;
+  font-size: 40px; color: white;
+  margin: 0 auto 20px;
+  box-shadow: 0 15px 35px rgba(16,185,129,0.35);
+  animation: pulseCheck 2s ease-in-out infinite;
+}
+@keyframes pulseCheck {
+  0%, 100% { transform: scale(1); box-shadow: 0 15px 35px rgba(16,185,129,0.35); }
+  50% { transform: scale(1.05); box-shadow: 0 20px 45px rgba(16,185,129,0.5); }
+}
+.boas-vindas h1 { font-size: 28px; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 10px; }
+.boas-vindas h1 span { color: var(--lilas-escuro); }
+.boas-vindas p { font-size: 15px; color: var(--cinza-fonte); font-weight: 700; max-width: 480px; margin: 0 auto; line-height: 1.55; }
+
+.form-card {
+  background: white;
+  border-radius: 30px;
+  padding: 40px;
+  box-shadow: 0 25px 60px rgba(139,92,246,0.1);
+  border: 1px solid #e2e8f0;
+}
+.form-card h2 {
+  font-size: 20px; font-weight: 900; letter-spacing: -0.5px;
+  margin-bottom: 8px; color: var(--preto-fonte);
+  display: flex; align-items: center; gap: 10px;
+}
+.form-card h2 i { color: var(--lilas); }
+.form-card .subtitulo {
+  font-size: 14px; color: var(--cinza-fonte); font-weight: 600;
+  margin-bottom: 28px; line-height: 1.55;
+}
+
+.campo { margin-bottom: 22px; }
+.campo label {
+  display: block; font-weight: 800; margin-bottom: 8px;
+  font-size: 14px; color: var(--preto-fonte);
+}
+.campo .ajuda {
+  display: block; font-size: 12px; color: var(--cinza-fonte);
+  font-weight: 600; margin-bottom: 8px; line-height: 1.5;
+}
+.campo input[type="text"],
+.campo input[type="tel"],
+.campo textarea,
+.campo select {
+  width: 100%; padding: 15px 18px; border-radius: 16px;
+  border: 2px solid #e2e8f0;
+  font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 700;
+  background: var(--fundo-site); color: var(--preto-fonte);
+  outline: none; transition: 0.3s;
+}
+.campo input:focus, .campo textarea:focus, .campo select:focus {
+  border-color: var(--lilas); background: white;
+  box-shadow: 0 0 0 4px rgba(139,92,246,0.12);
+}
+.campo textarea { resize: vertical; min-height: 100px; }
+
+.foto-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border: 2px dashed #cbd5e1;
+  border-radius: 20px;
+  padding: 35px 20px;
+  background: var(--fundo-site);
+  cursor: pointer;
+  transition: 0.3s;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.foto-upload:hover {
+  border-color: var(--lilas);
+  background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+}
+.foto-upload input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.foto-upload .icone {
+  width: 60px; height: 60px;
+  background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro));
+  color: white; border-radius: 50%;
+  display: flex; justify-content: center; align-items: center;
+  font-size: 24px;
+  box-shadow: 0 10px 25px rgba(139,92,246,0.3);
+}
+.foto-upload .titulo {
+  font-size: 15px; font-weight: 900; color: var(--preto-fonte);
+}
+.foto-upload .subtitulo-foto {
+  font-size: 12.5px; font-weight: 600; color: var(--cinza-fonte);
+}
+.foto-upload.tem-foto {
+  border-style: solid;
+  border-color: var(--verde);
+  background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+}
+.foto-preview {
+  display: none;
+  width: 140px; height: 140px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid white;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+.foto-preview.ativo { display: block; }
+.foto-upload.tem-foto .icone,
+.foto-upload.tem-foto .titulo,
+.foto-upload.tem-foto .subtitulo-foto { display: none; }
+.foto-upload .trocar-foto {
+  display: none;
+  font-size: 13px; font-weight: 800; color: #059669;
+}
+.foto-upload.tem-foto .trocar-foto { display: block; }
+
+.checkbox-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+}
+.checkbox-item {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--fundo-site);
+  padding: 12px 14px; border-radius: 12px;
+  border: 2px solid #e2e8f0;
+  cursor: pointer; transition: 0.3s;
+  font-size: 14px; font-weight: 700;
+}
+.checkbox-item:hover { border-color: var(--lilas); }
+.checkbox-item input[type="checkbox"] {
+  width: 18px; height: 18px; accent-color: var(--lilas);
+  cursor: pointer; flex-shrink: 0;
+}
+.checkbox-item.ativo {
+  background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+  border-color: var(--lilas); color: var(--lilas-escuro);
+}
+
+.btn-enviar {
+  width: 100%; padding: 20px;
+  background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro));
+  color: white; border: none; border-radius: 50px;
+  font-size: 17px; font-weight: 900;
+  cursor: pointer; transition: 0.3s;
+  box-shadow: 0 10px 25px rgba(139,92,246,0.3);
+  font-family: 'Nunito', sans-serif;
+  display: flex; justify-content: center; align-items: center; gap: 10px;
+  margin-top: 10px;
+}
+.btn-enviar:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 35px rgba(139,92,246,0.45);
+}
+.btn-enviar:disabled { background: #cbd5e1; cursor: not-allowed; box-shadow: none; }
+
+.sucesso-card {
+  display: none; text-align: center; padding: 50px 30px;
+  background: white; border-radius: 30px;
+  box-shadow: 0 25px 60px rgba(139,92,246,0.1);
+  border: 1px solid #e2e8f0;
+}
+.sucesso-card.ativo { display: block; animation: fadeUp 0.5s ease; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.sucesso-card .icone {
+  width: 90px; height: 90px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  border-radius: 50%;
+  display: flex; justify-content: center; align-items: center;
+  font-size: 45px; color: white;
+  margin: 0 auto 22px;
+  box-shadow: 0 15px 35px rgba(16,185,129,0.4);
+}
+.sucesso-card h2 {
+  font-size: 24px; font-weight: 900;
+  letter-spacing: -0.5px; margin-bottom: 12px;
+}
+.sucesso-card .texto-principal {
+  font-size: 15px; color: var(--cinza-fonte);
+  font-weight: 600; line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.bloco-analise {
+  background: linear-gradient(135deg, #fffbeb, #fef3c7);
+  border: 1px solid #fde68a;
+  border-radius: 16px;
+  padding: 20px 22px;
+  margin-bottom: 24px;
+  text-align: left;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.bloco-analise .emoji { font-size: 24px; line-height: 1; flex-shrink: 0; }
+.bloco-analise .txt {
+  font-size: 14px; font-weight: 700; color: #78350f;
+  line-height: 1.55;
+}
+.bloco-analise .txt strong { color: #7c2d12; display: block; margin-bottom: 4px; font-size: 15px; }
+
+.bloco-prazo {
+  display: flex; align-items: center; gap: 10px; justify-content: center;
+  font-size: 13.5px; font-weight: 700; color: var(--cinza-fonte);
+  margin-bottom: 20px;
+}
+.bloco-prazo i { color: var(--lilas); font-size: 16px; }
+
+@media (max-width: 600px) {
+  .form-card { padding: 28px 22px; border-radius: 24px; }
+  .boas-vindas h1 { font-size: 23px; }
+  .checkbox-grid { grid-template-columns: 1fr; }
+  .foto-upload { padding: 28px 16px; }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="boas-vindas">
+    <div class="check-icon"><i class="fa-solid fa-check"></i></div>
+    <h1>Pagamento confirmado! <span>💜</span></h1>
+    <p>Agora falta só um passo pra deixar seu perfil completo e começar a atrair mais famílias.</p>
+  </div>
+
+  <div id="form-area" class="form-card">
+    <h2><i class="fa-solid fa-user-pen"></i> Complete seu perfil</h2>
+    <p class="subtitulo">Esses dados vão aparecer no seu perfil público. Quanto mais completo, mais famílias vão te encontrar.</p>
+
+    <form id="form-upgrade" novalidate enctype="multipart/form-data">
+
+      <div class="campo">
+        <label for="nome">Nome completo (igual ao do cadastro):</label>
+        <input type="text" id="nome" name="nome" placeholder="Digite seu nome completo" required>
+      </div>
+
+      <div class="campo">
+        <label for="whatsapp">WhatsApp (com DDD):</label>
+        <input type="tel" id="whatsapp" name="whatsapp" placeholder="(41) 99999-9999" required>
+      </div>
+
+      <div class="campo">
+        <label>Foto profissional:</label>
+        <span class="ajuda">Escolha uma foto sua, de preferência com rosto visível e fundo neutro. Máximo 5MB.</span>
+        <label class="foto-upload" id="foto-upload">
+          <input type="file" id="foto" name="foto" accept="image/*">
+          <div class="icone"><i class="fa-solid fa-camera"></i></div>
+          <img class="foto-preview" id="foto-preview" alt="Pré-visualização">
+          <div class="titulo">Toque pra escolher sua foto</div>
+          <div class="subtitulo-foto">JPG, PNG ou WEBP · até 5MB</div>
+          <div class="trocar-foto"><i class="fa-solid fa-rotate"></i> Trocar foto</div>
+        </label>
+      </div>
+
+      <div class="campo">
+        <label for="bio">Sua apresentação:</label>
+        <span class="ajuda">Conte um pouco sobre você, sua experiência e o que te motiva a cuidar. Isso aparece no seu perfil.</span>
+        <textarea id="bio" name="bio" placeholder="Ex: Sou cuidadora há 8 anos, especializada em idosos com Alzheimer. Tenho paciência, carinho e atenção aos detalhes..." required></textarea>
+      </div>
+
+      <div class="campo">
+        <label>Suas especialidades:</label>
+        <span class="ajuda">Marque todas que se aplicam. Essas tags aparecem no seu perfil.</span>
+        <div class="checkbox-grid" id="subespecialidades">
+          <label class="checkbox-item"><input type="checkbox" name="sub" value="Alzheimer"> Alzheimer</label>
+          <label class="checkbox-item"><input type="checkbox" name="sub" value="Parkinson"> Parkinson</label>
+          <label class="checkbox-item"><input type="checkbox" name="sub" value="Pós-operatório"> Pós-operatório</label>
+          <label class="checkbox-item"><input type="checkbox" name="sub" value="Cuidados Paliativos"> Cuidados Paliativos</label>
+          <label class="checkbox-item"><input type="checkbox" name="sub" value="Acamados"> Acamados</label>
+          <label class="checkbox-item"><input type="checkbox" name="sub" value="Diabetes"> Diabetes</label>
+          <label class="checkbox-item"><input type="checkbox" name="sub" value="Hipertensão"> Hipertensão</label>
+          <label class="checkbox-item"><input type="checkbox" name="sub" value="Demência"> Demência</label>
+          <label class="checkbox-item"><input type="checkbox" name="sub" value="Fisioterapia domiciliar"> Fisioterapia</label>
+          <label class="checkbox-item"><input type="checkbox" name="sub" value="Acompanhamento hospitalar"> Hospitalar</label>
+        </div>
+      </div>
+
+      <div class="campo">
+        <label for="cursos">Cursos e certificações:</label>
+        <span class="ajuda">Coloque um curso por linha. Ex: "Cuidador de Idosos (120h) — SENAC".</span>
+        <textarea id="cursos" name="cursos" placeholder="Ex:&#10;Curso de Cuidador de Idosos (120h) — SENAC&#10;Primeiros Socorros (40h) — Cruz Vermelha"></textarea>
+      </div>
+
+      <div class="campo">
+        <label for="indicadoPor">Código de indicação (opcional):</label>
+        <span class="ajuda">Se alguém te indicou a Afeto, cole aqui o código que ela te passou. Isso ajuda ela a ganhar benefícios 💜</span>
+        <input type="text" id="indicadoPor" name="indicadoPor" placeholder="Ex: recABC123XYZ">
+      </div>
+
+      <button type="submit" id="btn-enviar" class="btn-enviar">
+        Enviar e completar meu perfil <i class="fa-solid fa-heart"></i>
+      </button>
+    </form>
+  </div>
+
+  <div id="tela-sucesso" class="sucesso-card">
+    <div class="icone"><i class="fa-solid fa-check"></i></div>
+    <h2>Perfil enviado com sucesso! 🎉</h2>
+    <p class="texto-principal">
+      Recebemos seus dados e sua foto. Agora é com a gente!
+    </p>
+
+    <div class="bloco-analise">
+      <span class="emoji">🔍</span>
+      <div class="txt">
+        <strong>Próximo passo: análise</strong>
+        Nossa equipe vai revisar suas informações com carinho pra garantir que tudo esteja impecável no seu perfil. Assim que aprovado, seu perfil atualizado vai ao ar automaticamente.
+      </div>
+    </div>
+
+    <div class="bloco-prazo">
+      <i class="fa-solid fa-clock"></i>
+      <span>Prazo de análise: até 48h úteis</span>
+    </div>
+
+    <a href="https://wa.me/5541997674866?text=Ol%C3%A1!%20Acabei%20de%20preencher%20o%20formul%C3%A1rio%20de%20upgrade." target="_blank" style="display: inline-flex; align-items: center; gap: 10px; background: #25D366; color: white; padding: 16px 32px; border-radius: 50px; font-size: 15px; font-weight: 900; text-decoration: none; box-shadow: 0 12px 30px rgba(37,211,102,0.35); transition: 0.3s;">
+      <i class="fa-brands fa-whatsapp"></i> Falar com a Afeto
+    </a>
+  </div>
+
+</div>
+
+<script>
+(function() {
+  "use strict";
+
+  var form = document.getElementById('form-upgrade');
+  var btnEnviar = document.getElementById('btn-enviar');
+  var formArea = document.getElementById('form-area');
+  var telaSucesso = document.getElementById('tela-sucesso');
+
+  // Máscara do WhatsApp
+  var campoWhats = document.getElementById('whatsapp');
+  campoWhats.addEventListener('input', function() {
+    var x = this.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
+    this.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
+  });
+
+  // Preview da foto
+  var inputFoto = document.getElementById('foto');
+  var preview = document.getElementById('foto-preview');
+  var fotoUpload = document.getElementById('foto-upload');
+  var arquivoFoto = null;
+
+  inputFoto.addEventListener('change', function() {
+    var file = this.files[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert('A foto precisa ter no máximo 5MB. Escolha uma imagem menor.');
+      this.value = '';
+      return;
+    }
+    if (!file.type.startsWith('image/')) {
+      alert('Por favor, escolha um arquivo de imagem.');
+      this.value = '';
+      return;
+    }
+
+    arquivoFoto = file;
+
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      preview.src = e.target.result;
+      preview.classList.add('ativo');
+      fotoUpload.classList.add('tem-foto');
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // Estado visual dos checkboxes
+  document.querySelectorAll('.checkbox-item input').forEach(function(cb) {
+    cb.addEventListener('change', function() {
+      this.closest('.checkbox-item').classList.toggle('ativo', this.checked);
+    });
+  });
+
+  var enviando = false;
+
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    if (enviando) return;
+
+    var nome = document.getElementById('nome').value.trim();
+    var whats = document.getElementById('whatsapp').value.trim();
+    var bio = document.getElementById('bio').value.trim();
+
+    if (!nome) { alert('Por favor, preencha seu nome completo.'); return; }
+    if (!whats || whats.replace(/\D/g, '').length < 10) { alert('Por favor, preencha seu WhatsApp com DDD.'); return; }
+    if (!bio) { alert('Por favor, escreva uma breve apresentação.'); return; }
+    if (!arquivoFoto) { alert('Por favor, envie sua foto profissional.'); return; }
+
+    enviando = true;
+    btnEnviar.disabled = true;
+    btnEnviar.innerHTML = 'Enviando... <span style="display:inline-block;width:16px;height:16px;border:3px solid rgba(255,255,255,0.4);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite;"></span>';
+
+    try {
+      var dados = new FormData(form);
+
+      // Junta as subespecialidades marcadas
+      var subs = [];
+      document.querySelectorAll('#subespecialidades input:checked').forEach(function(cb) {
+        subs.push(cb.value);
+      });
+      dados.append('subespecialidades', subs.join(' | '));
+      dados.append('indicadoPor', document.getElementById('indicadoPor').value.trim());
+      dados.append('origem', 'upgrade');
+
+      var envio = fetch('/upgrade', { method: 'POST', body: dados })
+        .then(function(r) { return r.ok ? 'ok' : 'erro'; })
+        .catch(function() { return 'erro'; });
+
+      var timeout = new Promise(function(resolve) { setTimeout(resolve, 15000, 'timeout'); });
+      var resultado = await Promise.race([envio, timeout]);
+
+      if (resultado === 'erro') throw new Error('Falha');
+
+      formArea.style.display = 'none';
+      telaSucesso.classList.add('ativo');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    } catch (err) {
+      alert('Não foi possível enviar. Verifique sua conexão e tente novamente.');
+      btnEnviar.disabled = false;
+      btnEnviar.innerHTML = 'Enviar e completar meu perfil <i class="fa-solid fa-heart"></i>';
+    } finally {
+      enviando = false;
+    }
+  });
+})();
+</script>
+<style>
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</body>
+</html>

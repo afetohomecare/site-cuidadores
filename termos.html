@@ -3,16 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Termos de Uso - Afeto Homecare</title>
+    <title>Termos de Uso - Afeto</title>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --lilas: #8b5cf6; --lilas-escuro: #7c3aed; --fundo-site: #f8f9fc; --preto-fonte: #1f1f1f; --cinza-fonte: #666666; --cinza-azulado: #94a3b8; --branco: #ffffff; --ouro: #fbbf24; }
+        :root { --lilas: #8b5cf6; --lilas-escuro: #7c3aed; --fundo-site: #f8f9fc; --preto-fonte: #1f1f1f; --cinza-fonte: #666666; --cinza-azulado: #94a3b8; --branco: #ffffff; --ouro: #fbbf24; --verde: #10b981; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Nunito', sans-serif; background-color: var(--fundo-site); color: var(--preto-fonte); line-height: 1.6; }
         header { position: fixed; width: 100%; top: 0; left: 0; z-index: 1000; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; background-color: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(0,0,0,0.03); }
-        .logo { font-size: 28px; font-weight: 900; color: var(--lilas); letter-spacing: -1px; text-decoration: none; }
-        .logo span { font-weight: 300; color: var(--cinza-azulado); }
+
+        /* ============ LOGO ============ */
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.16em;
+            font-family: 'Nunito', sans-serif;
+            font-weight: 900;
+            font-size: 28px;
+            line-height: 1;
+            letter-spacing: -0.03em;
+            color: var(--lilas);
+            text-decoration: none;
+        }
+        .logo__mark {
+            flex: none;
+            width: 1.11em;
+            height: 0.69em;
+            transform: translateY(-0.02em);
+            overflow: visible;
+        }
+        .logo__mark path {
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 13;
+            stroke-linecap: round;
+        }
+
         .btn-outline { padding: 10px 24px; border-radius: 50px; font-weight: 800; color: var(--lilas); border: 2px solid var(--lilas); transition: 0.3s; background: transparent; font-size: 15px; text-decoration: none; }
         .btn-outline:hover { background: var(--lilas); color: var(--branco); box-shadow: 0 8px 20px rgba(139, 92, 246, 0.3); transform: translateY(-2px); }
         .container { max-width: 800px; margin: 120px auto 60px auto; background: var(--branco); padding: 50px; border-radius: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.03); border: 1px solid #e2e8f0; }
@@ -25,12 +51,19 @@
         ul { margin-bottom: 20px; padding-left: 20px; }
         li { font-size: 16px; color: var(--cinza-fonte); margin-bottom: 10px; font-weight: 600; line-height: 1.6; }
         strong { color: var(--preto-fonte); font-weight: 800; }
-        .destaque { background: #f5f3ff; border-left: 4px solid var(--lilas); padding: 18px 22px; border-radius: 12px; margin: 20px 0; overflow-x: auto; }
+        a { color: var(--lilas-escuro); font-weight: 800; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .destaque { background: #f5f3ff; border-left: 4px solid var(--lilas); padding: 18px 22px; border-radius: 12px; margin: 20px 0; }
         .destaque p { margin-bottom: 0; font-size: 15px; }
-        .destaque ul { margin-top: 10px; margin-bottom: 10px; padding-left: 20px; }
-        .destaque li { font-size: 15px; margin-bottom: 6px; }
+        .destaque p + p { margin-top: 10px; }
         .alerta { background: #fffbeb; border-left: 4px solid var(--ouro); padding: 18px 22px; border-radius: 12px; margin: 20px 0; }
         .alerta p { margin-bottom: 0; font-size: 15px; color: #78350f; }
+        .sucesso { background: #ecfdf5; border-left: 4px solid var(--verde); padding: 18px 22px; border-radius: 12px; margin: 20px 0; }
+        .sucesso p { margin-bottom: 0; font-size: 15px; color: #065f46; }
+        .sumario { background: #f8f9fc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 22px 26px; margin-bottom: 30px; }
+        .sumario h3 { margin-top: 0; margin-bottom: 12px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--cinza-fonte); }
+        .sumario ol { padding-left: 20px; margin: 0; }
+        .sumario li { font-size: 14px; margin-bottom: 6px; font-weight: 700; color: var(--lilas-escuro); }
 
         .site-footer { background-color: var(--fundo-site); color: var(--cinza-fonte); padding: 50px 20px 30px; text-align: center; border-top: 1px solid #e2e8f0; margin-top: 60px; width: 100%; }
         .footer-content { max-width: 900px; margin: 0 auto; font-size: 13px; line-height: 1.6; }
@@ -52,330 +85,560 @@
 <body>
 
     <header>
-        <a href="index.html" class="logo">Afeto<span>Homecare</span></a>
-        <a href="index.html" class="btn-outline">Voltar ao Início</a>
+        <a href="index.html" class="logo" aria-label="Afeto - Página inicial">
+            <svg class="logo__mark" viewBox="9.5 15.5 111 69" aria-hidden="true" focusable="false">
+                <path d="M71.87 52.72 A28 28 0 1 0 50.20 77.30"/>
+                <path d="M79.80 22.70 A28 28 0 1 1 58.13 47.28"/>
+            </svg>
+            <span class="logo__text">Afeto</span>
+        </a>
+        <a href="https://afetohomecare.pages.dev" class="btn-outline">Voltar ao Início</a>
     </header>
 
     <div class="container">
         <h1>Termos e Condições de Uso</h1>
         <div class="data-atualizacao">Última atualização: Setembro de 2026</div>
 
-        <p>A <strong>Afeto Homecare</strong> (inscrita no CNPJ sob o nº 64.215.069/0001-15) é uma empresa provedora de tecnologia e infraestrutura digital. Ao preencher o pré-cadastro, cadastrar-se, contratar ou de qualquer forma utilizar a plataforma, o Usuário (seja ele <strong>Profissional Parceiro</strong> ou <strong>Família Contratante</strong>) manifesta sua concordância livre, expressa e informada com todos os termos descritos neste documento, bem como com a Política de Privacidade da Afeto.</p>
+        <p>A <strong>Afeto</strong> (inscrita no CNPJ sob o nº 64.215.069/0001-15, com sede em Curitiba-PR) é uma empresa provedora de tecnologia e infraestrutura digital. Ao preencher o pré-cadastro, cadastrar-se, assinar um plano, contratar qualquer serviço opcional ou de qualquer forma utilizar a plataforma, o Usuário (seja ele <strong>Cuidadora Parceira</strong> ou <strong>Família Contratante</strong>) manifesta sua concordância livre, expressa e informada com todos os termos descritos neste documento, bem como com a Política de Privacidade da Afeto.</p>
 
-        <h2>1. Natureza Jurídica do Serviço</h2>
-        <p>A Afeto Homecare atua estritamente como provedora de um software de <strong>licenciamento de vitrine digital, curadoria de profissionais e facilitação de transações de pagamento</strong>. A plataforma limita-se a aproximar Usuários (Famílias) que buscam serviços de apoio domiciliar e Profissionais Parceiros (autônomos) dispostos a prestar tais serviços.</p>
-        <p>A Afeto <strong>NÃO ATUA</strong> como agência de empregos, agência de cuidado, cooperativa, clínica médica, hospital, empresa de prestação de serviços de saúde (homecare tradicional) ou qualquer outra modalidade que implique responsabilidade técnica sobre o cuidado prestado. A plataforma não possui qualquer ingerência técnica, clínica, operacional, disciplinar ou de fiscalização sobre o serviço executado pela Profissional Parceira.</p>
-        <p>A Afeto também <strong>não atua como garantidora</strong> do cumprimento das obrigações assumidas entre as partes, sejam elas de natureza financeira, técnica, ética ou comportamental.</p>
-
-        <div class="destaque">
-            <p><strong>Resumo prático:</strong> a Afeto é uma vitrine tecnológica e uma intermediadora de conexão e pagamento. O cuidado é prestado exclusivamente pela Profissional Parceira, autônoma e independente, que assume integral responsabilidade técnica, civil, ética, criminal e fiscal pelo serviço executado.</p>
+        <div class="sumario">
+            <h3>Sumário</h3>
+            <ol>
+                <li>Definições</li>
+                <li>Natureza Jurídica do Serviço</li>
+                <li>Cadastro e Elegibilidade</li>
+                <li>Atribuições Profissionais e Escopo de Atuação</li>
+                <li>Planos, Assinaturas e Pagamento</li>
+                <li>Cancelamento, Não Reembolso e Exclusão de Conta</li>
+                <li>Serviço Opcional de Certificação de Horas</li>
+                <li>Obrigações da Cuidadora Parceira</li>
+                <li>Obrigações da Família Contratante</li>
+                <li>Inexistência de Vínculo Empregatício</li>
+                <li>Verificação de Perfil e Antecedentes</li>
+                <li>Moderação de Conteúdo</li>
+                <li>Avaliações e Reputação</li>
+                <li>Comunicações e Marketing</li>
+                <li>Emergências e Casos Especiais</li>
+                <li>Limitação de Responsabilidade</li>
+                <li>Isenções Específicas</li>
+                <li>Propriedade Intelectual</li>
+                <li>Proteção de Dados (LGPD)</li>
+                <li>Suspensão e Exclusão de Conta</li>
+                <li>Força Maior e Caso Fortuito</li>
+                <li>Independência das Cláusulas</li>
+                <li>Tolerância e Renúncia</li>
+                <li>Cessão de Posição Contratual</li>
+                <li>Alterações dos Termos</li>
+                <li>Legislação Aplicável e Foro</li>
+                <li>Contato</li>
+            </ol>
         </div>
 
-        <h2>2. Cadastro, Elegibilidade e Veracidade das Informações</h2>
+        <h2>1. Definições</h2>
+        <p>Para os fins destes Termos, aplicam-se as seguintes definições:</p>
+        <ul>
+            <li><strong>Afeto / Plataforma:</strong> a Afeto, pessoa jurídica de direito privado, provedora da vitrine digital e dos serviços acessórios descritos nestes Termos;</li>
+            <li><strong>Cuidadora Parceira:</strong> pessoa física maior de 18 anos, autônoma, cadastrada na plataforma, que oferece seus serviços de cuidado domiciliar de forma independente;</li>
+            <li><strong>Família Contratante:</strong> pessoa física ou jurídica que utiliza a plataforma para localizar e contratar Cuidadoras Parceiras;</li>
+            <li><strong>Plantão:</strong> período de cuidado efetivamente contratado e prestado diretamente entre a Família Contratante e a Cuidadora Parceira;</li>
+            <li><strong>Certificação de Horas:</strong> serviço opcional oferecido pela Afeto, mediante remuneração específica, que valida o histórico de horas trabalhadas pela Cuidadora Parceira no perfil público;</li>
+            <li><strong>Plano Gratuito:</strong> plano básico ativado automaticamente ao aceitar estes Termos e concluir o pré-cadastro, sem qualquer custo;</li>
+            <li><strong>Planos Pagos:</strong> planos opcionais que concedem recursos adicionais de visibilidade e personalização;</li>
+            <li><strong>Usuário:</strong> termo genérico que abrange tanto a Cuidadora Parceira quanto a Família Contratante;</li>
+            <li><strong>Conteúdo:</strong> textos, imagens, fotos, vídeos, avaliações, comentários e demais informações fornecidas pelo Usuário.</li>
+        </ul>
+
+        <h2>2. Natureza Jurídica do Serviço</h2>
+        <p>A Afeto atua estritamente como provedora de uma <strong>vitrine digital</strong> e de serviços tecnológicos de apresentação de perfis. A plataforma limita-se a <strong>aproximar</strong> Famílias Contratantes de Cuidadoras Parceiras autônomas.</p>
+        <p>A Afeto <strong>NÃO atua</strong> como:</p>
+        <ul>
+            <li>Agência de empregos, agência de cuidado, cooperativa ou empresa de homecare tradicional;</li>
+            <li>Clínica médica, hospital ou prestadora de serviços de saúde;</li>
+            <li>Intermediadora, custodiante ou processadora de pagamentos de plantões;</li>
+            <li>Garantidora do cumprimento de obrigações financeiras, técnicas, éticas ou comportamentais entre as partes;</li>
+            <li>Empregadora das Cuidadoras Parceiras.</li>
+        </ul>
+        <p>A plataforma não possui qualquer ingerência técnica, clínica, operacional, disciplinar ou de fiscalização sobre o serviço executado pela Cuidadora Parceira.</p>
+
+        <div class="destaque">
+            <p><strong>Resumo prático:</strong> a Afeto é uma vitrine tecnológica que apresenta Cuidadoras Parceiras às Famílias Contratantes. O contato, a negociação, o pagamento e a execução do cuidado são <strong>exclusivamente</strong> entre a Cuidadora Parceira e a Família Contratante. A Afeto não participa da relação de consumo referente ao plantão.</p>
+        </div>
+
+        <h2>3. Cadastro e Elegibilidade</h2>
         <p>Para utilizar a plataforma, o Usuário declara ser maior de 18 (dezoito) anos, civilmente capaz e estar em pleno gozo de seus direitos civis. Ao se cadastrar, o Usuário se compromete a:</p>
         <ul>
             <li>Fornecer informações <strong>verdadeiras, precisas, completas e atualizadas</strong>, sob pena de responsabilização civil e criminal nos termos dos artigos 171 e 299 do Código Penal;</li>
-            <li>Manter seus dados cadastrais atualizados;</li>
+            <li>Manter seus dados cadastrais atualizados, especialmente o WhatsApp público da Cuidadora Parceira;</li>
             <li>Não utilizar dados de terceiros sem autorização expressa;</li>
             <li>Não compartilhar sua conta com terceiros.</li>
         </ul>
         <p>A Afeto reserva-se o direito de recusar, suspender ou cancelar qualquer cadastro que apresente informações falsas, incompletas ou que violem estes Termos, sem qualquer obrigação de indenização.</p>
 
-        <h2>3. Inexistência de Vínculo Empregatício</h2>
-        <p>O Profissional Parceiro reconhece e aceita que utiliza a plataforma na condição de <strong>Trabalhador Autônomo Independente</strong>, assumindo integralmente os riscos de sua própria atividade econômica. Não há, sob nenhuma hipótese, a configuração dos elementos caracterizadores do vínculo empregatício previstos no Art. 3º da Consolidação das Leis do Trabalho (CLT), tampouco relação de emprego com a Afeto.</p>
-        <p>Ficam expressamente afastadas:</p>
+        <h3>3.1. Plano Gratuito Automático</h3>
+        <p>Ao aceitar estes Termos e concluir o envio do pré-cadastro, a Cuidadora Parceira passa a integrar automaticamente o <strong>Plano Gratuito</strong>, sem qualquer custo e sem necessidade de informar dados de pagamento. Este plano concede acesso às funcionalidades básicas da plataforma (link exclusivo, compartilhamento de perfil e divulgação própria).</p>
+
+        <h3>3.2. Upgrade Opcional</h3>
+        <p>A adesão aos Planos Pagos é <strong>totalmente opcional</strong>. A Cuidadora Parceira pode permanecer indefinidamente no Plano Gratuito, sem prejuízo à sua permanência na plataforma.</p>
+
+        <h2>4. Atribuições Profissionais e Escopo de Atuação</h2>
+        <p>A Afeto é uma plataforma de vitrine digital e <strong>não se responsabiliza pela execução técnica do cuidado</strong>. Cada Cuidadora Parceira é integralmente responsável por atuar <strong>exclusivamente dentro dos limites legais e éticos de sua formação profissional</strong>, respondendo individualmente por eventuais excessos ou práticas vedadas à sua categoria.</p>
+
+        <h3>4.1. Categorias Profissionais e Limites Legais</h3>
+        <p>A plataforma cadastra profissionais de diferentes formações, e cada uma possui atribuições específicas, conforme a legislação brasileira vigente (em especial a <strong>Lei nº 7.498/1986</strong>, que regulamenta o Exercício da Enfermagem, e as resoluções do <strong>COFEN</strong>):</p>
+
+        <h4>a) Enfermeira(o)</h4>
         <ul>
-            <li><strong>A subordinação:</strong> a Profissional Parceira não recebe ordens diretas, metas de produtividade, escalas obrigatórias, sanções disciplinares ou avaliações de desempenho de natureza trabalhista por parte da Afeto. A classificação por estrelas possui finalidade exclusivamente reputacional e informativa, sendo gerada pelas avaliações espontâneas das Famílias Contratantes.</li>
-            <li><strong>A habitualidade:</strong> a Profissional Parceira possui total liberdade para aceitar ou recusar plantões, ativar ou desativar seu perfil, definir sua disponibilidade de horários e interromper o uso da plataforma a qualquer momento, sem qualquer penalidade ou necessidade de justificativa.</li>
-            <li><strong>A exclusividade:</strong> é plenamente permitido à Profissional Parceira manter sua própria carteira de clientes diretos, bem como utilizar plataformas concorrentes e demais canais de captação simultaneamente.</li>
-            <li><strong>A pessoalidade:</strong> caso deseje e haja acordo prévio com a Família Contratante, a Profissional Parceira pode ser substituída por outra profissional cadastrada na plataforma.</li>
-            <li><strong>O poder disciplinar:</strong> a Afeto não aplica advertências, suspensões disciplinares, demissões ou quaisquer sanções de natureza empregatícia.</li>
+            <li>Profissional de nível superior com <strong>registro ativo no COREN</strong>;</li>
+            <li>Pode realizar <strong>procedimentos de maior complexidade</strong>, tais como: administração de medicamentos endovenosos, curativos complexos, cuidados com cateteres, sondas e ostomias, avaliação clínica de enfermagem, e demais procedimentos previstos em sua competência legal;</li>
+            <li>Pode exercer supervisão técnica sobre Técnicos e Auxiliares de Enfermagem, quando aplicável;</li>
+            <li>É vedado o exercício profissional sem o respectivo registro ativo no COREN.</li>
+        </ul>
+
+        <h4>b) Técnica(o) de Enfermagem</h4>
+        <ul>
+            <li>Profissional de nível médio com <strong>registro ativo no COREN</strong>;</li>
+            <li>Pode realizar procedimentos de <strong>média complexidade</strong>, sempre sob supervisão do Enfermeiro, tais como: administração de medicamentos por via oral e intramuscular, curativos simples e de média complexidade, verificação de sinais vitais, entre outros procedimentos previstos em sua competência legal;</li>
+            <li><strong>Não pode</strong> realizar procedimentos privativos de Enfermeiro (como administração de medicamentos endovenosos sem supervisão, avaliação clínica de enfermagem, entre outros);</li>
+            <li>É vedado o exercício profissional sem o respectivo registro ativo no COREN.</li>
+        </ul>
+
+        <h4>c) Cuidadora de Idosos / Cuidador de Idosos</h4>
+        <ul>
+            <li>Profissional sem registro em conselho de classe, voltada ao <strong>cuidado não técnico</strong>;</li>
+            <li>Atua em atividades de apoio, tais como: companhia, auxílio na alimentação, higiene pessoal, mobilidade, administração de medicamentos por via oral (mediante prescrição médica), acompanhamento em consultas e rotinas diárias;</li>
+            <li><strong>NÃO pode</strong> realizar procedimentos técnicos de enfermagem, como aplicação de injeções, curativos complexos, cuidados com sondas, cateteres ou medicamentos endovenosos;</li>
+            <li>Caso o paciente exija procedimentos técnicos, a Família Contratante deverá contratar profissional habilitado (Enfermeira ou Técnica de Enfermagem com COREN ativo).</li>
+        </ul>
+
+        <h4>d) Acompanhante Hospitalar</h4>
+        <ul>
+            <li>Profissional voltada ao <strong>acompanhamento e suporte não técnico</strong> em ambiente hospitalar;</li>
+            <li>Atua em atividades de companhia, apoio emocional, auxílio em rotinas hospitalares e comunicação com a equipe médica;</li>
+            <li><strong>NÃO pode</strong> realizar procedimentos técnicos de enfermagem ou de saúde.</li>
+        </ul>
+
+        <h4>e) Estudante da Área da Saúde</h4>
+        <ul>
+            <li>Profissional em formação, atuando em atividades compatíveis com seu nível de aprendizado;</li>
+            <li><strong>NÃO pode</strong> realizar procedimentos técnicos que exijam formação completa ou registro profissional;</li>
+            <li>Deve atuar estritamente sob supervisão, quando o caso exigir.</li>
+        </ul>
+
+        <h3>4.2. Regras Gerais de Escopo</h3>
+        <p>Independentemente da categoria, é expressamente vedado a qualquer Cuidadora Parceira:</p>
+        <ul>
+            <li>Realizar procedimentos para os quais não possua habilitação legal, formação específica ou registro profissional exigido;</li>
+            <li>Prescrever medicamentos, realizar diagnósticos ou emitir opinião clínica de natureza médica;</li>
+            <li>Assumir atribuições privativas de outra categoria profissional;</li>
+            <li>Atuar em desacordo com as normas do respectivo conselho de classe, quando aplicável;</li>
+            <li>Omitir informação relevante sobre sua formação real ou sobre a ausência de registro em conselho profissional.</li>
+        </ul>
+
+        <h3>4.3. Responsabilidade da Família Contratante</h3>
+        <p>A Família Contratante é responsável por avaliar, antes da contratação, se a categoria profissional da Cuidadora Parceira é compatível com a complexidade do cuidado exigido pelo paciente.</p>
+        <p>A Família Contratante que contratar profissional de categoria incompatível com as necessidades do paciente assume <strong>integralmente o risco</strong> decorrente dessa escolha, eximindo a Afeto de qualquer responsabilidade sobre o resultado.</p>
+
+        <h3>4.4. Limitação de Responsabilidade da Afeto sobre o Escopo Profissional</h3>
+        <p>A Afeto <strong>NÃO se responsabiliza</strong> por:</p>
+        <ul>
+            <li>Atos praticados por Cuidadoras Parceiras fora do escopo legal de sua categoria profissional;</li>
+            <li>Danos decorrentes da contratação de profissional com formação incompatível com a complexidade do cuidado exigido;</li>
+            <li>Consequências do exercício irregular de profissão ou da atuação sem registro em conselho de classe, quando exigido por lei;</li>
+            <li>Eventuais autuações, sanções ou processos éticos movidos contra a Cuidadora Parceira por seus respectivos conselhos de classe.</li>
         </ul>
 
         <div class="alerta">
-            <p><strong>Importante:</strong> a Afeto recomenda que cada Profissional Parceira formalize sua atividade como Microempreendedor Individual (MEI), profissional autônomo ou pessoa jurídica, conforme sua realidade, sendo exclusivamente responsável por sua regularização fiscal e tributária.</p>
+            <p><strong>Importante:</strong> a Afeto recomenda que cada Cuidadora Parceira conheça profundamente os limites legais de sua atuação e que a Família Contratante verifique, junto à profissional, se sua formação é compatível com a complexidade do cuidado exigido. A segurança do paciente e a legalidade da atuação profissional são responsabilidades compartilhadas diretamente entre Cuidadora Parceira e Família Contratante.</p>
         </div>
 
-        <h2>4. Obrigações da Profissional Parceira</h2>
-        <p>Ao se cadastrar e permanecer ativa na plataforma, a Profissional Parceira se compromete a:</p>
+        <h3>4.5. Contratação via Link ou Perfil Público</h3>
+        <p>O contato inicial entre a Família Contratante e a Cuidadora Parceira ocorre diretamente, por meio do WhatsApp público indicado no perfil. A Afeto <strong>não participa, não intermedeia e não se responsabiliza</strong> pelas negociações, ajustes de valores, condições de trabalho ou execução do serviço ajustado entre as partes.</p>
+
+        <h3>4.6. Existência de Responsabilidade Exclusiva da Cuidadora Parceira</h3>
+        <p>A Cuidadora Parceira é a <strong>única e exclusiva responsável</strong> por toda e qualquer atividade profissional que venha a exercer, respondendo integralmente, de forma individual, por eventuais danos causados à Família Contratante, ao paciente, a terceiros ou à própria Afeto, na esfera cível, criminal, administrativa, ética e trabalhista.</p>
+
+        <h3>4.7. Direito de Modificar a Plataforma</h3>
+        <p>A Afeto reserva-se o direito de, a qualquer momento e sem necessidade de aviso prévio, <strong>modificar, adicionar, remover, redesenhar, descontinuar ou reorganizar</strong> quaisquer funcionalidades, recursos, layouts, identidade visual, algoritmos de busca, critérios de destaque, benefícios de planos ou canais de comunicação da plataforma.</p>
+        <p>Isso inclui, mas não se limita a:</p>
+        <ul>
+            <li>Alterações no layout do site e dos perfis;</li>
+            <li>Mudanças nos critérios de ordenação e destaque de perfis;</li>
+            <li>Adição, alteração ou remoção de recursos dos planos;</li>
+            <li>Criação, fusão ou extinção de planos e serviços opcionais;</li>
+            <li>Integração com novos parceiros, ferramentas ou tecnologias;</li>
+            <li>Alteração de domínios, subdomínios ou endereços eletrônicos.</li>
+        </ul>
+        <p>Quando as alterações afetarem substancialmente os benefícios essenciais de um plano pago já contratado, a Afeto comunicará com antecedência de <strong>30 (trinta) dias</strong>, garantindo à Cuidadora Parceira o direito de cancelar sem multa (item 6.2).</p>
+
+        <h3>4.8. Uso de Inteligência Artificial e Automação</h3>
+        <p>A Afeto poderá, no presente ou no futuro, utilizar sistemas automatizados, algoritmos e ferramentas de <strong>inteligência artificial</strong> para as seguintes finalidades:</p>
+        <ul>
+            <li>Ranqueamento e ordenação de perfis nas buscas;</li>
+            <li>Curadoria e recomendação de profissionais para famílias;</li>
+            <li>Moderação automatizada de conteúdo;</li>
+            <li>Detecção de fraudes e comportamentos suspeitos;</li>
+            <li>Atendimento automatizado ao usuário;</li>
+            <li>Análise de métricas agregadas para melhoria contínua.</li>
+        </ul>
+        <p>O uso de tais ferramentas <strong>não isenta a Afeto</strong> de observar os princípios e direitos previstos na LGPD e demais legislações aplicáveis, incluindo o direito à revisão de decisões automatizadas previsto no Art. 20 da LGPD.</p>
+
+        <h2>5. Planos, Assinaturas e Pagamento</h2>
+        <p>A Afeto adota um modelo de negócio baseado em <strong>assinaturas opcionais de visibilidade</strong> e em <strong>serviços opcionais de certificação</strong>, não havendo cobrança de comissão, taxa de intermediação ou qualquer percentual sobre o valor dos plantões negociados entre as partes.</p>
+
+        <h3>5.1. Planos Disponíveis</h3>
+        <p>A Cuidadora Parceira pode optar, a qualquer momento, por um dos seguintes planos:</p>
+        <ul>
+            <li><strong>Plano Gratuito:</strong> sem custo, ativado automaticamente no cadastro, com recursos básicos;</li>
+            <li><strong>Plano Profissional:</strong> assinatura mensal de <strong>R$ 24,90</strong>, com recursos adicionais de visibilidade, personalização e Selo Verificada Afeto;</li>
+            <li><strong>Plano Destaque:</strong> assinatura mensal de <strong>R$ 69,90</strong>, que inclui todos os benefícios do Plano Profissional, acrescidos de posicionamento destacado nas buscas, prioridade em indicações e demais recursos descritos na página de planos.</li>
+        </ul>
+
+        <h3>5.2. Valores, Promoções e Reajustes</h3>
+        <p>Os valores indicados nesta cláusula são <strong>valores base de referência</strong> e poderão ser <strong>atualizados, reajustados, promovidos ou descontinuados</strong> pela Afeto a qualquer momento, a seu exclusivo critério, respeitadas as condições abaixo.</p>
+
+        <h4>a) Aviso prévio</h4>
+        <p>Alterações que resultem em <strong>aumento</strong> do valor pago pela Cuidadora Parceira assinante serão comunicadas com antecedência mínima de <strong>30 (trinta) dias</strong>, por e-mail, WhatsApp ou notificação na plataforma.</p>
+
+        <h4>b) Direito de cancelamento sem multa</h4>
+        <p>Em caso de discordância com o novo valor, a Cuidadora Parceira poderá <strong>cancelar a assinatura a qualquer momento</strong>, sem multa, sem burocracia e sem qualquer penalidade, sendo o novo valor aplicado apenas se a assinatura permanecer ativa após o prazo de aviso.</p>
+
+        <h4>c) Promoções e descontos</h4>
+        <p>A Afeto poderá oferecer, a qualquer momento, <strong>promoções, descontos temporários, condições especiais de adesão, planos sazonais ou benefícios para categorias específicas</strong>, incluindo <strong>desconto para pagamento via Pix</strong>, sem que isso configure direito adquirido ou obrigação de manutenção futura da mesma condição.</p>
+
+        <h4>d) Promoções por tempo limitado</h4>
+        <p>Promoções poderão ter prazo de validade determinado. Ao término do período promocional, o valor retorna automaticamente ao preço regular vigente, mediante comunicação prévia à Cuidadora Parceira.</p>
+
+        <h4>e) Inexistência de direito adquirido</h4>
+        <p>A contratação de um plano em determinado valor <strong>não gera direito adquirido</strong> à manutenção perpétua desse valor. A Cuidadora Parceira reconhece que os preços podem variar ao longo do tempo, em razão de custos operacionais, tributários, tecnológicos, inflação ou reestruturação do modelo de negócio.</p>
+
+        <h4>f) Transparência</h4>
+        <p>Os valores vigentes estarão sempre disponíveis na página de planos da plataforma e serão informados na fatura de cada ciclo de cobrança.</p>
+
+        <h3>5.3. Formas de Pagamento</h3>
+        <p>As assinaturas poderão ser pagas por meio de:</p>
+        <ul>
+            <li><strong>Cartão de crédito</strong> (cobrança recorrente automática);</li>
+            <li><strong>Débito recorrente</strong> (quando disponível);</li>
+            <li><strong>Pix</strong> (pagamento mensal manual até a data de vencimento);</li>
+            <li>Outros meios que venham a ser disponibilizados pela Afeto.</li>
+        </ul>
+        <p>O processamento dos pagamentos é realizado por meio de <strong>gateway de pagamento credenciado</strong>, com toda a segurança e criptografia aplicáveis. A Afeto não tem acesso aos dados sensíveis do meio de pagamento utilizado (como número completo do cartão).</p>
+
+        <h3>5.4. Renovação Automática</h3>
+        <p>As assinaturas são <strong>renovadas automaticamente</strong> a cada ciclo mensal, salvo cancelamento expresso pela Cuidadora Parceira antes da data de renovação.</p>
+
+        <h3>5.5. Inadimplência</h3>
+        <p>Em caso de falha no pagamento por qualquer motivo (cartão expirado, sem limite, débito automático não autorizado, Pix não realizado até a data de vencimento), a Afeto poderá:</p>
+        <ul>
+            <li>Enviar comunicações de regularização por e-mail, WhatsApp ou notificação na plataforma;</li>
+            <li>Conceder tolerância de alguns dias para regularização, a critério da Afeto;</li>
+            <li>Suspender os recursos do Plano Pago até a regularização integral;</li>
+            <li>Após 30 (trinta) dias de inadimplência, <strong>rebaixar automaticamente a conta para o Plano Gratuito</strong>, mantendo o perfil básico ativo;</li>
+            <li>Eventualmente, encaminhar o débito para cobrança administrativa ou judicial.</li>
+        </ul>
+
+        <h3>5.6. Inexistência de Comissão sobre Plantões</h3>
+        <p>A Afeto <strong>NÃO cobra</strong> comissão, taxa de intermediação, <em>markup</em>, taxa de tecnologia ou qualquer outro percentual sobre o valor dos plantões negociados entre a Cuidadora Parceira e a Família Contratante. O valor definido pela Cuidadora é <strong>100% seu</strong>.</p>
+
+        <h2>6. Cancelamento, Não Reembolso e Exclusão de Conta</h2>
+
+        <h3>6.1. Como Cancelar</h3>
+        <p>O cancelamento da assinatura poderá ser solicitado a qualquer momento, sem multa e sem burocracia, por meio de:</p>
+        <ul>
+            <li>Botão específico no painel da Cuidadora Parceira (quando disponível);</li>
+            <li>Mensagem enviada ao WhatsApp oficial da Afeto;</li>
+            <li>E-mail para o endereço oficial de contato.</li>
+        </ul>
+
+        <h3>6.2. Efeitos do Cancelamento</h3>
+        <p>O cancelamento interrompe a cobrança no próximo ciclo de faturamento. O acesso aos recursos do Plano Pago permanece <strong>ativo até o fim do ciclo já pago</strong>, sendo automaticamente convertido para o Plano Gratuito ao término deste período.</p>
+
+        <h3>6.3. Não Reembolso</h3>
+        <p>Considerando a natureza dos serviços prestados — de <strong>acesso digital imediato</strong> e conteúdo disponibilizado em tempo real —, <strong>não haverá reembolso</strong> dos valores pagos a título de assinatura, ainda que o cancelamento ocorra antes do término do ciclo contratado.</p>
+        <p>A Cuidadora Parceira reconhece que o acesso à plataforma é disponibilizado de forma integral e imediata no momento da contratação, não sendo possível a "devolução" do serviço prestado, equiparando-se à hipótese de fornecimento de conteúdo digital ou serviço já usufruído.</p>
+
+        <div class="alerta">
+            <p><strong>Atenção:</strong> a Afeto respeita integralmente o <strong>direito de arrependimento</strong> previsto no Art. 49 do Código de Defesa do Consumidor (prazo de 7 dias corridos, contados da contratação, quando a contratação ocorrer fora do estabelecimento comercial). Caso a Cuidadora Parceira exerça esse direito dentro do prazo legal e antes de usufruir dos recursos do plano, o reembolso será integral.</p>
+        </div>
+
+        <h3>6.4. Cancelamento dos Serviços Opcionais</h3>
+        <p>O serviço opcional de Certificação de Horas (item 7 abaixo) poderá ser cancelado ou não solicitado a qualquer momento, sem qualquer prejuízo ao uso regular da plataforma.</p>
+
+        <h3>6.5. Exclusão Definitiva da Conta</h3>
+        <p>A qualquer momento e sem necessidade de justificativa, a Cuidadora Parceira poderá solicitar a <strong>exclusão definitiva de sua conta e de seu perfil</strong> da plataforma, por meio dos canais oficiais de atendimento (WhatsApp, e-mail ou botão específico no painel, quando disponível).</p>
+        <p>A exclusão implica:</p>
+        <ul>
+            <li>Remoção do perfil público da vitrine digital;</li>
+            <li>Interrupção imediata de qualquer cobrança futura;</li>
+            <li>Eliminação dos dados pessoais, ressalvadas as hipóteses legais de conservação (Seção 10 da Política de Privacidade);</li>
+            <li>Manutenção dos dados estritamente necessários ao cumprimento de obrigações fiscais, contábeis, regulatórias ou para exercício regular de direitos.</li>
+        </ul>
+        <p>A exclusão é <strong>irreversível</strong>. Caso a Cuidadora Parceira deseje retornar à plataforma no futuro, deverá realizar novo cadastro, sujeito às condições vigentes naquele momento.</p>
+        <p>Valores eventualmente devidos à Afeto até a data da exclusão permanecem exigíveis.</p>
+
+        <h2>7. Serviço Opcional de Certificação de Horas</h2>
+        <p>A Afeto oferece, de forma <strong>totalmente opcional</strong>, um serviço de curadoria e certificação de horas trabalhadas, com custo base de referência de <strong>R$ 1,00 (um real) por hora certificada</strong>.</p>
+        <p>O valor indicado é <strong>valor base de referência</strong> e poderá ser atualizado, reajustado ou promovido pela Afeto a qualquer momento, mediante aviso prévio de <strong>30 (trinta) dias</strong> às Cuidadoras Parceiras ativas. O serviço é opcional e sua contratação somente ocorrerá mediante aceite expresso do valor vigente no momento da solicitação, sendo vedada a cobrança retroativa por horas já certificadas sob valor anterior.</p>
+
+        <h3>7.1. Objetivo do Serviço</h3>
+        <p>O serviço consiste em:</p>
+        <ul>
+            <li>A Cuidadora Parceira relata à Afeto os plantões efetivamente realizados, informando os dados do cliente e as horas correspondentes;</li>
+            <li>A Afeto entra em contato com a Família Contratante para confirmar a realização do plantão e colher avaliação;</li>
+            <li>Uma vez confirmado, a Afeto credita as horas no perfil público da Cuidadora Parceira, que passam a integrar seu <strong>histórico verificado</strong> na vitrine;</li>
+            <li>Somente após a atualização do perfil, é gerada a cobrança referente ao serviço.</li>
+        </ul>
+
+        <h3>7.2. Regras Operacionais</h3>
+        <ul>
+            <li><strong>Mínimo por solicitação:</strong> 10 (dez) horas;</li>
+            <li><strong>Prazo de certificação:</strong> até 10 (dez) dias corridos, contados da solicitação;</li>
+            <li><strong>Ausência de resposta da Família:</strong> caso a Família Contratante não responda dentro do prazo, a solicitação é <strong>negada automaticamente</strong>, sem geração de cobrança;</li>
+            <li><strong>Limite máximo:</strong> não há limite máximo de horas por mês. O serviço é livre e a Cuidadora Parceira decide quantas horas deseja certificar;</li>
+            <li><strong>Peso das horas:</strong> cada hora certificada tem o mesmo peso e o mesmo custo, independentemente do período (diurno ou noturno);</li>
+            <li><strong>Solicitação:</strong> poderá ser feita via WhatsApp, e-mail, canal oficial ou, futuramente, por botão específico no painel da Cuidadora Parceira.</li>
+        </ul>
+
+        <h3>7.3. Autodeclaração e Verificação Amostral</h3>
+        <p>A Cuidadora Parceira declara, no ato da solicitação, que as informações fornecidas são verdadeiras. A Afeto poderá, a qualquer momento e a seu exclusivo critério, realizar <strong>verificações amostrais ou específicas</strong>, entrando em contato com a Família Contratante ou adotando outros meios de confirmação.</p>
+        <p>A <strong>falsidade de declaração</strong> ou a tentativa de certificar horas não realizadas configura violação grave destes Termos, sujeitando a Cuidadora Parceira a:</p>
+        <ul>
+            <li>Estorno das horas certificadas indevidamente;</li>
+            <li>Suspensão imediata do perfil;</li>
+            <li>Exclusão definitiva da plataforma, sem prejuízo das medidas cíveis e criminais cabíveis;</li>
+            <li>Responsabilização pelos prejuízos causados à Afeto e a terceiros.</li>
+        </ul>
+
+        <h3>7.4. Serviço Facultativo</h3>
+        <p>A adesão ao serviço de Certificação de Horas é <strong>facultativa</strong> e não é pré-requisito para uso da plataforma ou para permanência em qualquer plano. Trata-se de um diferencial competitivo que valoriza a reputação da Cuidadora Parceira perante as Famílias Contratantes.</p>
+
+        <h2>8. Obrigações da Cuidadora Parceira</h2>
+        <p>Ao se cadastrar e permanecer ativa na plataforma, a Cuidadora Parceira se compromete a:</p>
         <ul>
             <li>Prestar o serviço com <strong>diligência, zelo, boa-fé e respeito à dignidade humana</strong>, seguindo as melhores práticas do cuidado domiciliar;</li>
+            <li>Atuar <strong>exclusivamente dentro dos limites legais e éticos de sua categoria profissional</strong>, conforme detalhado na Seção 4 destes Termos;</li>
             <li>Manter atualizados seus dados cadastrais, documentos profissionais (como COREN, quando aplicável) e certificações;</li>
             <li>Não praticar qualquer ato que configure violência física, psicológica, moral, sexual, patrimonial ou negligência contra o paciente, sob pena de <strong>exclusão imediata</strong> da plataforma e comunicação às autoridades competentes;</li>
             <li>Respeitar a privacidade, a intimidade e a confidencialidade das informações da Família Contratante e do paciente, nos termos da LGPD;</li>
             <li>Cumprir os horários e compromissos assumidos com a Família Contratante, avisando com antecedência em casos de imprevisto;</li>
             <li>Não comparecer ao plantão sob efeito de álcool, drogas ilícitas ou medicamentos que comprometam sua capacidade de cuidado;</li>
-            <li>Não delegar o plantão a terceiros sem o conhecimento prévio da Afeto e da Família Contratante;</li>
+            <li>Não delegar o plantão a terceiros sem o conhecimento prévio da Família Contratante;</li>
             <li>Emitir recibos ou notas fiscais, quando solicitado, e arcar com suas obrigações fiscais, previdenciárias e tributárias;</li>
-            <li>Manter conduta ética e profissional em todas as interações na plataforma.</li>
+            <li>Manter conduta ética e profissional em todas as interações na plataforma;</li>
+            <li>Informar à Afeto, com veracidade, os plantões realizados quando desejar usufruir do serviço de Certificação de Horas.</li>
         </ul>
 
-        <h2>5. Obrigações da Família Contratante</h2>
+        <h2>9. Obrigações da Família Contratante</h2>
         <p>A Família Contratante, ao utilizar a plataforma, se compromete a:</p>
         <ul>
-            <li>Fornecer informações verdadeiras sobre o estado de saúde do paciente e suas necessidades, para que a Profissional Parceira possa avaliar a adequação do serviço;</li>
-            <li>Tratar a Profissional Parceira com <strong>respeito e dignidade</strong>, não sendo tolerado qualquer ato de assédio, discriminação, violência ou abuso;</li>
-            <li>Efetuar o pagamento pelos serviços contratados nos prazos e valores acordados;</li>
-            <li>Não solicitar à Profissional Parceira a realização de atividades fora do escopo de sua formação ou que contrariem a legislação;</li>
-            <li>Não contatar a Profissional Parceira por fora da plataforma com o objetivo de burlar a Taxa de Serviço e Tecnologia, antes ou após a contratação formalizada;</li>
+            <li>Fornecer informações verdadeiras sobre o estado de saúde do paciente e suas necessidades, para que a Cuidadora Parceira possa avaliar a adequação do serviço;</li>
+            <li>Avaliar previamente se a <strong>categoria profissional</strong> da Cuidadora Parceira é compatível com a complexidade do cuidado exigido pelo paciente;</li>
+            <li>Contratar profissional habilitado (Enfermeira ou Técnica de Enfermagem com COREN ativo) sempre que o caso exigir procedimentos técnicos de enfermagem;</li>
+            <li>Tratar a Cuidadora Parceira com <strong>respeito e dignidade</strong>, não sendo tolerado qualquer ato de assédio, discriminação, violência ou abuso;</li>
+            <li>Efetuar o pagamento pelos serviços contratados nos prazos e valores acordados <strong>diretamente com a Cuidadora Parceira</strong>, sem participação da Afeto;</li>
+            <li>Não solicitar à Cuidadora Parceira a realização de atividades fora do escopo de sua formação ou que contrariem a legislação;</li>
             <li>Manter o ambiente domiciliar seguro e adequado para a prestação do serviço;</li>
-            <li>Comunicar imediatamente à Afeto qualquer incidente, conflito ou descumprimento contratual.</li>
+            <li>Comunicar à Afeto qualquer incidente, conflito ou descumprimento contratual, para fins de suporte operacional;</li>
+            <li>Colaborar com o serviço opcional de Certificação de Horas, quando acionada pela Afeto, confirmando plantões realizados e fornecendo avaliação sobre a Cuidadora Parceira.</li>
         </ul>
 
-        <h2>6. Verificação de Perfil e Antecedentes</h2>
-        <p>A Afeto realiza a verificação inicial de documentos, referências profissionais e antecedentes criminais das Profissionais Parceiras antes da aprovação do perfil, podendo refazer essa verificação periodicamente ou sempre que houver denúncia relevante.</p>
+        <h2>10. Inexistência de Vínculo Empregatício</h2>
+        <p>A Cuidadora Parceira reconhece e aceita que utiliza a plataforma na condição de <strong>Trabalhadora Autônoma Independente</strong>, assumindo integralmente os riscos de sua própria atividade econômica. Não há, sob nenhuma hipótese, a configuração dos elementos caracterizadores do vínculo empregatício previstos no Art. 3º da Consolidação das Leis do Trabalho (CLT), tampouco relação de emprego com a Afeto.</p>
+        <p>Ficam expressamente afastadas:</p>
+        <ul>
+            <li><strong>A subordinação:</strong> a Cuidadora Parceira não recebe ordens diretas, metas de produtividade, escalas obrigatórias ou sanções disciplinares de natureza trabalhista;</li>
+            <li><strong>A habitualidade:</strong> a Cuidadora Parceira tem total liberdade para aceitar ou recusar plantões, ativar ou desativar seu perfil e interromper o uso da plataforma a qualquer momento;</li>
+            <li><strong>A exclusividade:</strong> é permitido à Cuidadora manter carteira própria de clientes e utilizar plataformas concorrentes;</li>
+            <li><strong>A pessoalidade:</strong> a Cuidadora pode, mediante acordo com a Família Contratante, indicar substituta;</li>
+            <li><strong>O poder disciplinar:</strong> a Afeto não aplica advertências, suspensões ou sanções de natureza empregatícia.</li>
+        </ul>
+
+        <div class="alerta">
+            <p><strong>Importante:</strong> a Afeto recomenda que cada Cuidadora Parceira formalize sua atividade como Microempreendedor Individual (MEI), profissional autônomo ou pessoa jurídica, sendo exclusivamente responsável por sua regularização fiscal e tributária.</p>
+        </div>
+
+        <h2>11. Verificação de Perfil e Antecedentes</h2>
+        <p>A Afeto realiza a <strong>verificação inicial de documentos, referências profissionais e autodeclaração de antecedentes</strong> das Cuidadoras Parceiras antes da aprovação do perfil.</p>
+        <p>A Afeto poderá, a seu exclusivo critério e sempre que julgar necessário, realizar <strong>verificações complementares</strong>, incluindo consultas a órgãos públicos, serviços especializados ou contato com as Famílias Contratantes, tanto no momento do cadastro quanto periodicamente ou em caso de denúncia.</p>
         <p>Contudo, o Usuário reconhece e aceita que:</p>
         <ul>
-            <li>A Afeto <strong>não garante a ausência de riscos futuros</strong> ou a conduta futura da Profissional Parceira;</li>
+            <li>A Afeto <strong>não garante a ausência de riscos futuros</strong> ou a conduta futura da Cuidadora Parceira;</li>
             <li>A decisão final de contratação é sempre da Família Contratante, sendo sua exclusiva responsabilidade avaliar a adequação da profissional ao caso concreto;</li>
-            <li>A Afeto não se responsabiliza por atos praticados pela Profissional Parceira antes, durante ou após o uso da plataforma.</li>
+            <li>A Afeto não se responsabiliza por atos praticados pela Cuidadora Parceira antes, durante ou após o uso da plataforma;</li>
+            <li>A declaração de antecedentes fornecida pela Cuidadora Parceira é de sua inteira responsabilidade, respondendo civil e criminalmente por eventuais falsidades.</li>
         </ul>
 
-        <h2>7. Formação do Preço, Adicional Noturno e Licenciamento Tecnológico</h2>
-        <p>A Profissional Parceira possui total liberdade e autonomia para precificar seu próprio serviço. O modelo financeiro da plataforma opera da seguinte forma:</p>
-
-        <h3>7.1. Repasse Líquido Livre</h3>
-        <p>A Profissional Parceira determina, em seu cadastro, o valor líquido que deseja receber por sua diária ou plantão. Este valor pertence integralmente à Profissional e não sofre retenções por parte da plataforma. Este valor constitui a <strong>base de cálculo</strong> de todas as demais composições financeiras previstas nestes Termos.</p>
-
-        <h3>7.2. Adicional Noturno (20%)</h3>
-        <p>Quando um plantão for <strong>efetivamente realizado no período noturno</strong>, a Afeto Homecare aplica automaticamente um <strong>adicional de 20% (vinte por cento)</strong> sobre o Repasse Líquido Livre definido pela Profissional Parceira. Esse adicional é repassado <strong>integralmente à Profissional Parceira</strong>.</p>
-        <p>É importante esclarecer que a simples disponibilidade declarada pela Profissional Parceira para atuar em regime noturno <strong>não implica aplicação automática do adicional</strong>. O acréscimo de 20% incide única e exclusivamente sobre plantões que forem de fato realizados no período noturno.</p>
-
-        <h3>7.3. Taxa de Serviço e Tecnologia (15%)</h3>
-        <p>Pelo uso da infraestrutura tecnológica e dos serviços de curadoria oferecidos pela plataforma, a Afeto aplica um <em>markup</em> fixo de 15% (quinze por cento) calculado sobre o valor final do Repasse Líquido, <strong>já incluído o adicional noturno quando efetivamente aplicável</strong>. Esta Taxa é cobrada diretamente da Família Contratante e <strong>não é descontada do Repasse Líquido da Profissional Parceira</strong>.</p>
-
-        <h4>O que está incluso na Taxa de Serviço e Tecnologia:</h4>
+        <h2>12. Moderação de Conteúdo</h2>
+        <p>Todos os conteúdos fornecidos pela Cuidadora Parceira (fotos, textos, biografia, especialidades, descrições) passarão por <strong>moderação prévia</strong> antes de serem publicados na plataforma.</p>
+        <p>A Afeto reserva-se o direito de:</p>
         <ul>
-            <li><strong>Vitrine digital e apresentação de perfis:</strong> manutenção da plataforma, curadoria de perfis verificados, exibição de avaliações, categorias e especialidades;</li>
-            <li><strong>Indicação e curadoria de profissionais:</strong> busca ativa, triagem e indicação de Profissionais Parceiras compatíveis com a necessidade de cada Família;</li>
-            <li><strong>Recomendação de novas parceiras em caso de ausência:</strong> quando uma Profissional Parceira não puder comparecer (doença, imprevisto pessoal, emergência), a Afeto atua na busca e indicação de uma nova profissional cadastrada;</li>
-            <li><strong>Substituição em caso de incompatibilidade:</strong> se não houver "sintonia", a Afeto oferece suporte para a transição a outra profissional, sem custo adicional;</li>
-            <li><strong>Processamento seguro de pagamentos:</strong> uso de gateway credenciado, custódia temporária dos valores, repasse via Pix e emissão de comprovantes;</li>
-            <li><strong>Suporte operacional:</strong> atendimento por WhatsApp para dúvidas, mediações e suporte a ambas as partes;</li>
-            <li><strong>Marketing e divulgação:</strong> campanhas digitais, gestão de redes sociais e estratégias de atração;</li>
-            <li><strong>Verificação de antecedentes:</strong> checagem inicial e periódica de documentos, referências e antecedentes criminais;</li>
-            <li><strong>Manutenção e evolução da plataforma:</strong> desenvolvimento contínuo, hospedagem, segurança da informação e backups.</li>
+            <li>Recusar, editar ou remover conteúdos que violem estes Termos, a legislação vigente, a moral e os bons costumes ou os padrões visuais da plataforma;</li>
+            <li>Padronizar imagens de perfil (por exemplo, remoção de fundo, ajuste de enquadramento), visando a identidade visual e a segurança da plataforma;</li>
+            <li>Suspender a publicação de conteúdos que estejam sob análise;</li>
+            <li>Notificar a Cuidadora Parceira sobre ajustes necessários.</li>
         </ul>
+        <p>A moderação não configura censura, mas sim exercício regular do direito da Afeto de manter a qualidade e a segurança da vitrine digital.</p>
 
-        <div class="destaque">
-            <p><strong>Em resumo:</strong> a Taxa de Serviço e Tecnologia é o valor pago pela Família Contratante para ter acesso a uma curadoria de profissionais verificados, com suporte em eventuais imprevistos, segurança no pagamento e continuidade do cuidado. Ela não é descontada da Profissional Parceira.</p>
-        </div>
+        <h2>13. Avaliações e Reputação</h2>
+        <p>A plataforma disponibiliza um sistema de avaliações e selos de reputação (Bronze, Prata, Ouro, Diamante) que tem como objetivo valorizar a excelência das Cuidadoras Parceiras.</p>
 
-        <h3>7.4. Exemplos Práticos</h3>
-        <div class="destaque">
-            <p><strong>Exemplo 1 — Plantão Diurno de 12h:</strong></p>
-            <ul>
-                <li>Repasse líquido base: <strong>R$ 150,00</strong></li>
-                <li>Taxa Afeto (15% sobre R$ 150): R$ 22,50</li>
-                <li><strong>Valor final pago pela Família: R$ 172,50</strong></li>
-                <li>Valor recebido pela Profissional: R$ 150,00</li>
-            </ul>
-            <p style="margin-top: 15px;"><strong>Exemplo 2 — Plantão Noturno de 12h (mesmo repasse base):</strong></p>
-            <ul>
-                <li>Repasse base: R$ 150,00</li>
-                <li>Adicional Noturno (+20%): R$ 30,00</li>
-                <li><strong>Repasse líquido da Profissional: R$ 180,00</strong></li>
-                <li>Taxa Afeto (15% sobre R$ 180): R$ 27,00</li>
-                <li><strong>Valor final pago pela Família: R$ 207,00</strong></li>
-            </ul>
-        </div>
+        <h3>13.1. Origem das Avaliações</h3>
+        <p>As avaliações poderão ser postadas por Famílias Contratantes que tiveram contato com a Cuidadora Parceira por meio da plataforma, especialmente aquelas cujos plantões foram confirmados no serviço de Certificação de Horas.</p>
 
-        <h3>7.5. Autonomia da Profissional e Transparência</h3>
-        <p>A Afeto não interfere na definição dos valores praticados pelas Profissionais Parceiras, tampouco retém qualquer percentual do Repasse Líquido Livre.</p>
+        <h3>13.2. Boa-fé</h3>
+        <p>As avaliações devem refletir a experiência real da Família Contratante. É vedado postar avaliações falsas, ofensivas, difamatórias ou com intuito de prejudicar indevidamente a Cuidadora Parceira.</p>
 
-        <h2>8. Processamento de Pagamentos e Tributos</h2>
-        <p>A Afeto atua como facilitadora financeira. Os valores pagos pelas Famílias transitam pelo ecossistema tecnológico e são repassados à Profissional Parceira, via transferência Pix, em até <strong>2 (dois) dias úteis</strong> após a realização do plantão validado.</p>
-        <p>A Profissional Autônoma é a <strong>única e exclusiva responsável</strong> por suas obrigações fiscais e tributárias, incluindo, mas não se limitando ao recolhimento de ISS, INSS, Imposto de Renda (Carnê-Leão), contribuições ao MEI ou qualquer outro tributo incidente sobre sua atividade.</p>
-
-        <h2>9. Reserva, Pagamento e Política de Cancelamento</h2>
-
-        <h3>9.1. Reserva do Plantão mediante Pagamento</h3>
-        <p>O plantão, pacote de cuidado ou escala somente será considerado <strong>reservado</strong> após a confirmação do pagamento pela Família Contratante, por meio do gateway de pagamento integrado à plataforma. Antes da confirmação do pagamento:</p>
+        <h3>13.3. Moderação de Avaliações</h3>
+        <p>A Afeto reserva-se o direito de remover avaliações que:</p>
         <ul>
-            <li>A data e o horário permanecem disponíveis para outras famílias;</li>
-            <li>A Profissional Parceira não está obrigada a bloqueá-los em sua agenda;</li>
-            <li>Não há qualquer compromisso firmado entre as partes, tampouco obrigação de comparecimento.</li>
+            <li>Contenham linguagem ofensiva, discriminatória, difamatória ou ilegal;</li>
+            <li>Sejam comprovadamente falsas ou fraudulentas;</li>
+            <li>Exponham dados pessoais de terceiros sem autorização;</li>
+            <li>Violem estes Termos ou a legislação vigente.</li>
         </ul>
-        <p>Após a confirmação do pagamento, a agenda da Profissional Parceira é <strong>bloqueada</strong> em favor da Família Contratante, e ambas as partes assumem o compromisso de comparecimento nas condições pactuadas.</p>
 
-        <h3>9.2. Política de Cancelamento pela Família Contratante</h3>
-        <p>Em caso de cancelamento por parte da Família Contratante, após a confirmação do pagamento, aplicam-se as seguintes regras, calculadas em relação ao horário originalmente marcado para o início do plantão:</p>
+        <h3>13.4. Contestação</h3>
+        <p>A Cuidadora Parceira poderá contestar avaliações que considerar injustas, enviando sua manifestação pelos canais oficiais de atendimento. A Afeto analisará a contestação e decidirá, a seu exclusivo critério, sobre a manutenção, ajuste ou remoção da avaliação.</p>
 
-        <div class="destaque">
-            <table style="width: 100%; border-collapse: collapse; font-size: 15px; min-width: 480px;">
-                <thead>
-                    <tr style="border-bottom: 2px solid var(--lilas);">
-                        <th style="text-align: left; padding: 10px 8px; color: var(--preto-fonte); font-weight: 900;">Momento do Cancelamento</th>
-                        <th style="text-align: center; padding: 10px 8px; color: var(--preto-fonte); font-weight: 900;">Reembolso</th>
-                        <th style="text-align: center; padding: 10px 8px; color: var(--preto-fonte); font-weight: 900;">Multa</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr style="border-bottom: 1px solid #e2e8f0;">
-                        <td style="padding: 10px 8px;">Até 48h antes do horário marcado</td>
-                        <td style="text-align: center; padding: 10px 8px; color: #059669; font-weight: 800;">100%</td>
-                        <td style="text-align: center; padding: 10px 8px; color: #059669; font-weight: 800;">Isento</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #e2e8f0;">
-                        <td style="padding: 10px 8px;">Entre 48h e 24h antes</td>
-                        <td style="text-align: center; padding: 10px 8px; color: #d97706; font-weight: 800;">90%</td>
-                        <td style="text-align: center; padding: 10px 8px; color: #d97706; font-weight: 800;">10%</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #e2e8f0;">
-                        <td style="padding: 10px 8px;">Entre 24h e 12h antes</td>
-                        <td style="text-align: center; padding: 10px 8px; color: #d97706; font-weight: 800;">70%</td>
-                        <td style="text-align: center; padding: 10px 8px; color: #d97706; font-weight: 800;">30%</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #e2e8f0;">
-                        <td style="padding: 10px 8px;">Entre 12h e 4h antes</td>
-                        <td style="text-align: center; padding: 10px 8px; color: #dc2626; font-weight: 800;">50%</td>
-                        <td style="text-align: center; padding: 10px 8px; color: #dc2626; font-weight: 800;">50%</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 10px 8px;">Menos de 4h antes ou não comparecimento</td>
-                        <td style="text-align: center; padding: 10px 8px; color: #dc2626; font-weight: 800;">40%</td>
-                        <td style="text-align: center; padding: 10px 8px; color: #dc2626; font-weight: 800;">60%</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <p style="font-size: 14px; color: var(--cinza-azulado); font-style: italic; margin-top: 12px;">A multa máxima aplicável é limitada a 60% (sessenta por cento) do valor pago, em observância aos princípios da razoabilidade e proporcionalidade previstos no Código de Defesa do Consumidor, garantindo-se sempre à Família Contratante o reembolso mínimo de 40% (quarenta por cento) do valor pago, ainda que o cancelamento ocorra em cima do horário.</p>
-
-        <h3>9.3. Destinação do Valor Retido a Título de Multa</h3>
-        <p>O valor retido a título de multa de cancelamento será distribuído da seguinte forma:</p>
+        <h2>14. Comunicações e Marketing</h2>
+        <p>Ao aceitar estes Termos, a Cuidadora Parceira autoriza a Afeto a:</p>
         <ul>
-            <li><strong>15% (quinze por cento) para a Afeto Homecare</strong>, correspondente à sua taxa de intermediação proporcional — mantendo-se exatamente o mesmo percentual que a plataforma receberia em caso de realização regular do plantão;</li>
-            <li><strong>85% (oitenta e cinco por cento) para a Profissional Parceira</strong>, a título de compensação pela reserva de agenda, eventual deslocamento realizado e impossibilidade de aceitar outros plantões no mesmo período.</li>
+            <li>Utilizar seu nome de exibição, foto, especialidades, região de atuação e demais informações do perfil público em <strong>materiais de divulgação, redes sociais, anúncios e campanhas institucionais</strong> da Afeto;</li>
+            <li>Enviar comunicações sobre a plataforma, atualizações, promoções e oportunidades por e-mail, WhatsApp ou notificações internas;</li>
+            <li>Enviar comunicações transacionais sobre pagamentos, faturas e status da conta.</li>
         </ul>
+        <p>A Cuidadora Parceira poderá, a qualquer momento, solicitar o descadastramento de comunicações promocionais, mantendo-se obrigatórias as comunicações transacionais relacionadas à sua conta.</p>
 
-        <div class="destaque">
-            <p><strong>Exemplo prático — Plantão diurno de 12h:</strong></p>
-            <ul>
-                <li>Valor pago pela Família: <strong>R$ 172,50</strong></li>
-                <li>Cenário: cancelamento 18 horas antes (multa de 30%)</li>
-                <li>Multa aplicada: 30% de R$ 172,50 = <strong>R$ 51,75</strong></li>
-                <li>Reembolso à Família: <strong>R$ 120,75</strong></li>
-                <li>Parte da Afeto (15% da multa): <strong>R$ 7,76</strong></li>
-                <li>Parte da Profissional Parceira (85% da multa): <strong>R$ 43,99</strong></li>
-            </ul>
-        </div>
-
-        <h3>9.4. Reagendamento (sem multa)</h3>
-        <p>A Família Contratante poderá, em vez de cancelar, <strong>reagendar</strong> o plantão para outra data, sem aplicação de multa, desde que:</p>
-        <ul>
-            <li>O novo horário seja acordado entre a Profissional Parceira e a Família Contratante, com ciência da Afeto;</li>
-            <li>O reagendamento ocorra dentro de 30 (trinta) dias corridos a contar da data originalmente marcada;</li>
-            <li>Haja disponibilidade na agenda da Profissional Parceira para a nova data.</li>
-        </ul>
-        <p>Caso a Profissional Parceira não possa atender à nova data, aplicam-se as regras de substituição por outra profissional cadastrada, conforme item 7.3 destes Termos.</p>
-
-        <h3>9.5. Exceções — Hipóteses sem Aplicação de Multa</h3>
-        <p>Não será aplicada multa, com reembolso integral à Família Contratante, nas seguintes hipóteses, mediante apresentação de documentação comprobatória em até 5 (cinco) dias contados do cancelamento:</p>
-        <ul>
-            <li>Falecimento do paciente ou de familiar direto responsável pela contratação;</li>
-            <li>Internação hospitalar de urgência do paciente ou do familiar responsável;</li>
-            <li>Casos fortuitos ou de força maior, tais como catástrofes naturais, calamidade pública, interdições determinadas por autoridades competentes, entre outros eventos imprevisíveis e inevitáveis.</li>
-        </ul>
-
-        <h3>9.6. Cancelamentos pela Profissional Parceira</h3>
-        <p>Considerando a natureza autônoma da relação estabelecida entre a Afeto e a Profissional Parceira, <strong>não há aplicação de multa financeira</strong> em caso de cancelamento pela profissional.</p>
-        <p>Contudo, cancelamentos reiterados, sem justificativa adequada, poderão gerar as seguintes consequências reputacionais e contratuais:</p>
-        <ul>
-            <li><strong>Registro de advertência interna (strike)</strong> no perfil da Profissional Parceira;</li>
-            <li><strong>Suspensão temporária</strong> do perfil em caso de 3 (três) advertências acumuladas em até 60 (sessenta) dias corridos;</li>
-            <li><strong>Exclusão definitiva do perfil</strong> em caso de 5 (cinco) advertências acumuladas ou em caso de cancelamento sem qualquer comunicação prévia à Família Contratante e à Afeto.</li>
-        </ul>
-        <p>Em caso de cancelamento pela Profissional Parceira, a Família Contratante receberá <strong>reembolso integral do valor pago</strong>, e a Afeto atuará na busca de profissional substituta, conforme descrito no item 7.3 destes Termos.</p>
-
-        <h3>9.7. Atrasos</h3>
-        <p>Atrasos superiores a 30 (trinta) minutos, sem comunicação prévia e justificativa adequada, poderão ser interpretados, a critério da Afeto, como <strong>cancelamento tácito</strong> pela Profissional Parceira, aplicando-se, no que couber, as regras desta seção para fins de substituição e reembolso à Família Contratante.</p>
-
-        <h3>9.8. Conversão da Multa em Crédito</h3>
-        <p>A critério da Família Contratante e mediante solicitação expressa à Afeto, o valor retido a título de multa poderá ser <strong>convertido em crédito</strong> para uma nova contratação na plataforma, desde que utilizada em até <strong>90 (noventa) dias</strong> a contar da data do cancelamento. Nesta hipótese, o valor correspondente à parte da Profissional Parceira (85%) será repassado integralmente a ela no momento da conversão, e a Afeto renuncia à sua parte (15%) como incentivo à retomada da contratação.</p>
-
-        <h2>10. Emergências e Incidentes Durante o Plantão</h2>
+        <h2>15. Emergências e Casos Especiais</h2>
         <p>A Afeto <strong>NÃO é responsável</strong> por atendimentos de emergência, orientações médicas, decisões clínicas ou qualquer ato de natureza técnica durante a execução do serviço.</p>
         <p>Em caso de emergências (quedas, mal-estar súbito, complicações clínicas, óbito, entre outros), a conduta esperada é:</p>
         <ul>
-            <li>A Profissional Parceira deverá acionar imediatamente o <strong>SAMU (192)</strong>, o Corpo de Bombeiros (193) ou o serviço médico de emergência competente;</li>
+            <li>A Cuidadora Parceira deverá acionar imediatamente o <strong>SAMU (192)</strong>, o Corpo de Bombeiros (193) ou o serviço médico de emergência competente;</li>
             <li>Comunicar imediatamente a Família Contratante e, na sequência, a Afeto, para que esta possa prestar o suporte operacional cabível;</li>
             <li>Registrar o ocorrido por escrito, sempre que possível, com data, hora e detalhes;</li>
             <li>A Afeto atuará apenas como <strong>facilitadora de comunicação</strong>, não assumindo qualquer responsabilidade sobre o desfecho clínico ou sobre as decisões tomadas pelas partes.</li>
         </ul>
 
+        <h3>15.1. Pacientes com Condições Especiais</h3>
+        <p>É responsabilidade da Família Contratante informar, de forma completa e verídica, eventuais condições especiais do paciente, tais como doenças mentais graves, dependência química, agressividade conhecida, doenças infectocontagiosas ou quaisquer outras condições que possam representar risco à Cuidadora Parceira ou a terceiros.</p>
+        <p>Caso a Família Contratante omita essas informações, a Cuidadora Parceira poderá interromper a prestação do serviço sem qualquer penalidade, respondendo a Família Contratante integralmente por eventuais danos causados.</p>
+
+        <h3>15.2. Menores de Idade</h3>
+        <p>A plataforma não é destinada à contratação de cuidados para menores de 18 (dezoito) anos. Caso a Família Contratante tenha essa necessidade, deverá fazê-lo sob sua exclusiva responsabilidade e supervisão, mantendo-se a Afeto isenta de qualquer responsabilidade.</p>
+
         <div class="alerta">
             <p><strong>Importante:</strong> a Afeto não possui equipe médica, serviço de pronto atendimento ou equipe de emergência. A plataforma não substitui, em nenhuma hipótese, o acionamento dos serviços públicos ou privados de saúde.</p>
         </div>
 
-        <h2>11. Isenções Específicas de Responsabilidade</h2>
+        <h2>16. Limitação de Responsabilidade</h2>
+        <p>Sendo a Afeto apenas uma provedora de tecnologia de aproximação e vitrine digital, a Cuidadora Parceira é a <strong>única e exclusiva responsável</strong> técnica, civil, ética e criminalmente pela execução de seus serviços. A Afeto não se responsabiliza por quaisquer danos materiais, morais, físicos, estéticos, psicológicos ou lucros cessantes oriundos da relação direta estabelecida entre a Cuidadora Parceira e a Família Contratante.</p>
+        <p>Sem prejuízo do disposto no Código de Defesa do Consumidor, a responsabilidade total da Afeto, em qualquer hipótese, fica limitada ao valor efetivamente recebido pela plataforma a título de assinatura ou serviço opcional na relação específica objeto do litígio, nos últimos 12 (doze) meses.</p>
+
+        <h2>17. Isenções Específicas</h2>
         <p>Sem prejuízo das demais disposições destes Termos, o Usuário reconhece e aceita que a Afeto <strong>não é responsável</strong>, em nenhuma hipótese, por:</p>
         <ul>
-            <li><strong>Danos materiais</strong> causados pela Profissional Parceira a bens da Família Contratante ou de terceiros, tais como quebra, riscos, manchas ou deterioração de objetos;</li>
-            <li><strong>Furto, roubo, apropriação indébita</strong> ou qualquer subtração de bens praticada pela Profissional Parceira, pela Família Contratante ou por terceiros;</li>
+            <li><strong>Atos praticados por Cuidadoras Parceiras fora do escopo legal de sua categoria profissional</strong>;</li>
+            <li><strong>Danos decorrentes da contratação de profissional com formação incompatível</strong> com a complexidade do cuidado exigido;</li>
+            <li><strong>Exercício irregular de profissão</strong> ou atuação sem registro em conselho de classe, quando exigido por lei;</li>
+            <li><strong>Danos materiais</strong> causados pela Cuidadora Parceira a bens da Família Contratante ou de terceiros;</li>
+            <li><strong>Furto, roubo, apropriação indébita</strong> ou qualquer subtração de bens praticada pela Cuidadora Parceira, pela Família Contratante ou por terceiros;</li>
             <li><strong>Acidentes, lesões, agravamento de quadro clínico ou óbito</strong> do paciente durante o plantão, salvo comprovada conduta direta e dolosa da plataforma;</li>
-            <li><strong>Negligência, imprudência ou imperícia</strong> praticada pela Profissional Parceira;</li>
+            <li><strong>Negligência, imprudência ou imperícia</strong> praticada pela Cuidadora Parceira;</li>
             <li><strong>Assédio moral, sexual, discriminação ou qualquer conduta ilícita</strong> praticada entre as partes;</li>
-            <li><strong>Extravio, perda ou dano</strong> a documentos, medicamentos, exames ou objetos pessoais do paciente;</li>
-            <li><strong>Descumprimento de horários, faltas, atrasos ou abandono de plantão</strong> pela Profissional Parceira;</li>
-            <li><strong>Inadimplência ou atraso no pagamento</strong> pela Família Contratante;</li>
-            <li><strong>Falhas de comunicação, ruídos ou desentendimentos</strong> entre a Família Contratante e a Profissional Parceira;</li>
+            <li><strong>Descumprimento de horários, faltas, atrasos ou abandono de plantão</strong> pela Cuidadora Parceira;</li>
+            <li><strong>Inadimplência, atraso no pagamento ou desacordos financeiros</strong> entre a Família Contratante e a Cuidadora Parceira;</li>
+            <li><strong>Falhas de comunicação, ruídos ou desentendimentos</strong> entre a Família Contratante e a Cuidadora Parceira;</li>
             <li><strong>Informações incorretas ou incompletas</strong> fornecidas por qualquer das partes;</li>
             <li><strong>Falhas, instabilidades, indisponibilidades ou ataques cibernéticos</strong> sofridos pela plataforma;</li>
-            <li><strong>Uso indevido dos dados de uma parte pela outra</strong>, especialmente contatos obtidos via plataforma utilizados para finalidades não autorizadas.</li>
+            <li><strong>Uso indevido dos dados de uma parte pela outra</strong>, especialmente contatos obtidos via plataforma utilizados para finalidades não autorizadas;</li>
+            <li><strong>Informações falsas prestadas no serviço de Certificação de Horas.</strong></li>
         </ul>
 
-        <h2>12. Uso Indevido da Plataforma</h2>
-        <p>É expressamente vedado ao Usuário:</p>
+        <h3>17.1. Links e Serviços de Terceiros</h3>
+        <p>A plataforma poderá conter links, integrações ou redirecionamentos para <strong>sites, aplicativos e serviços de terceiros</strong>, tais como WhatsApp, Instagram, Facebook, gateways de pagamento e demais ferramentas.</p>
+        <p>A Afeto <strong>NÃO é responsável</strong> por:</p>
         <ul>
-            <li>Utilizar a plataforma para finalidades ilícitas, fraudulentas ou contrárias à moral e aos bons costumes;</li>
-            <li>Contatar a Profissional Parceira ou a Família Contratante por fora da plataforma com o objetivo de burlar a Taxa de Serviço e Tecnologia, antes ou após a formalização do contrato pela plataforma;</li>
-            <li>Copiar, reproduzir, raspar (<em>scraping</em>) ou utilizar dados de terceiros da plataforma sem autorização expressa;</li>
-            <li>Publicar conteúdo ofensivo, discriminatório, difamatório, violento ou ilegal;</li>
-            <li>Utilizar dados de outra pessoa sem autorização;</li>
-            <li>Tentar acessar áreas restritas, contas de terceiros ou sistemas internos da plataforma;</li>
-            <li>Praticar qualquer ato que comprometa a segurança, estabilidade ou integridade da plataforma.</li>
+            <li>O conteúdo, políticas, práticas ou disponibilidade desses serviços de terceiros;</li>
+            <li>Eventuais falhas, indisponibilidades, interrupções ou alterações nesses serviços;</li>
+            <li>Danos, prejuízos ou vazamentos de dados decorrentes do uso desses serviços pelo Usuário;</li>
+            <li>Alterações de regras, tarifas ou condições impostas pelos provedores desses serviços.</li>
         </ul>
-        <p>O descumprimento destas vedações poderá implicar suspensão ou exclusão imediata da conta, sem prejuízo das medidas judiciais cabíveis, incluindo indenização por perdas e danos.</p>
+        <p>O acesso aos serviços de terceiros ocorre por conta e risco do Usuário, sendo recomendável a leitura das respectivas políticas e termos.</p>
 
-        <h2>13. Responsabilidade Civil e Limitação de Danos</h2>
-        <p>Sendo a Afeto apenas uma provedora de tecnologia de aproximação e curadoria, a Profissional Parceira é a <strong>única e exclusiva responsável</strong> técnica, civil, ética e criminalmente pela execução de seus serviços. A Afeto não se responsabiliza por quaisquer danos materiais, morais, físicos, estéticos, psicológicos ou lucros cessantes oriundos da relação direta estabelecida entre a Profissional e a Família Contratante.</p>
-        <p>Sem prejuízo do disposto no Código de Defesa do Consumidor, a responsabilidade total da Afeto, em qualquer hipótese, fica limitada ao valor da Taxa de Tecnologia efetivamente recebida pela plataforma na transação específica objeto do litígio.</p>
+        <h2>18. Propriedade Intelectual</h2>
+        <p>Todos os elementos da plataforma — marca, logotipo, layout, design, código-fonte, textos, imagens, banco de dados e demais conteúdos — são de propriedade exclusiva da Afeto, protegidos pela Lei de Propriedade Industrial (Lei nº 9.279/96), pela Lei de Direitos Autorais (Lei nº 9.610/98) e pela Lei do Software (Lei nº 9.609/98).</p>
+        <p>É vedada a reprodução, cópia, distribuição, engenharia reversa, <em>scraping</em> ou uso não autorizado sob qualquer forma, sob pena de responsabilização civil e criminal.</p>
 
-        <h2>14. Suspensão e Exclusão de Conta</h2>
+        <h2>19. Proteção de Dados (LGPD)</h2>
+        <p>O tratamento de dados pessoais realizado pela Afeto observa integralmente a <strong>Lei Geral de Proteção de Dados Pessoais (Lei nº 13.709/2018 — LGPD)</strong>, conforme detalhado em sua Política de Privacidade, disponível em <a href="privacidade.html">privacidade.html</a>.</p>
+        <p>O Encarregado de Proteção de Dados (DPO) da Afeto pode ser contatado pelo e-mail <strong>afetohomecareoficial@gmail.com</strong>.</p>
+
+        <h2>20. Suspensão e Exclusão de Conta</h2>
         <p>A Afeto reserva-se o direito de <strong>suspender ou excluir</strong>, a seu exclusivo critério e sem necessidade de aviso prévio em casos graves, contas que:</p>
         <ul>
-            <li>Violem qualquer disposição destes Termos de Uso ou da Política de Privacidade;</li>
+            <li>Violem qualquer disposição destes Termos ou da Política de Privacidade;</li>
             <li>Apresentem documentos falsos, adulterados ou informações inverídicas;</li>
+            <li>Atuem comprovadamente fora do escopo legal de sua categoria profissional;</li>
             <li>Recebam denúncias graves de má conduta, violência, assédio, discriminação, negligência ou abuso, devidamente apuradas;</li>
             <li>Apresentem reiteradas avaliações negativas das Famílias Contratantes;</li>
-            <li>Pratiquem fraude, tentativa de burlar o sistema de pagamentos ou qualquer ato ilícito;</li>
+            <li>Pratiquem fraude ou qualquer ato ilícito;</li>
             <li>Utilizem a plataforma para fins diversos dos previstos nestes Termos;</li>
-            <li>Apresentem cancelamentos reiterados e injustificados de plantões;</li>
-            <li>Descumpram os deveres de conduta previstos nas seções 4 e 5 destes Termos.</li>
+            <li>Pratiquem falsidade de declaração no serviço de Certificação de Horas;</li>
+            <li>Descumpram os deveres de conduta previstos nas seções 8 e 9 destes Termos.</li>
         </ul>
-        <p>Nos casos que não configurem gravidade extrema, será garantido à Profissional Parceira o direito de tomar ciência dos motivos e apresentar sua defesa antes da exclusão definitiva.</p>
+        <p>Nos casos que não configurem gravidade extrema, será garantida à Cuidadora Parceira a oportunidade de tomar ciência dos motivos e apresentar sua defesa antes da exclusão definitiva.</p>
+        <p>A exclusão de conta pela Afeto não gera direito a reembolso de valores já pagos, ressalvadas as hipóteses legais.</p>
 
-        <h2>15. Recomendação de Seguro de Responsabilidade Civil</h2>
-        <p>A Afeto <strong>recomenda fortemente</strong> que a Profissional Parceira contrate seguro de responsabilidade civil profissional próprio, que cubra eventuais danos causados a terceiros durante a prestação do serviço. A contratação é opcional, mas representa uma camada adicional de proteção tanto para a profissional quanto para a Família Contratante.</p>
+        <h2>21. Força Maior e Caso Fortuito</h2>
+        <p>A Afeto não será responsabilizada pelo descumprimento de qualquer obrigação prevista nestes Termos quando tal descumprimento decorrer de <strong>eventos de força maior ou caso fortuito</strong>, nos termos do Art. 393 do Código Civil, incluindo, mas não se limitando a:</p>
+        <ul>
+            <li>Catástrofes naturais, pandemias, epidemias e calamidades públicas;</li>
+            <li>Guerras, conflitos armados, atos de terrorismo ou distúrbios civis;</li>
+            <li>Interrupções generalizadas de energia elétrica, internet ou serviços de telecomunicações;</li>
+            <li>Ataques cibernéticos, invasões, falhas de segurança em provedores terceiros;</li>
+            <li>Indisponibilidade prolongada de serviços de nuvem, hospedagem ou gateways de pagamento;</li>
+            <li>Decisões, atos ou determinações de autoridades governamentais;</li>
+            <li>Greves, paralisações ou restrições de serviços essenciais.</li>
+        </ul>
+        <p>Nessas hipóteses, as obrigações afetadas ficarão suspensas pelo período necessário à normalização, sem qualquer direito a indenização por parte do Usuário.</p>
 
-        <h2>16. Propriedade Intelectual</h2>
-        <p>Todos os elementos da plataforma — marca, logotipo, layout, design, código-fonte, textos, imagens e demais conteúdos — são de propriedade exclusiva da Afeto Homecare, protegidos pela Lei de Propriedade Industrial (Lei nº 9.279/96) e pela Lei de Direitos Autorais (Lei nº 9.610/98). É vedada a reprodução, cópia ou uso não autorizado sob qualquer forma.</p>
+        <h2>22. Independência das Cláusulas</h2>
+        <p>Caso qualquer disposição destes Termos seja considerada <strong>inválida, ilegal ou inexequível</strong> por autoridade competente ou decisão judicial, as demais disposições permanecerão em pleno vigor e efeito, não sendo afetadas.</p>
+        <p>A cláusula considerada inválida será <strong>substituída por outra que, na medida do possível, preserve a intenção original das partes</strong> e a finalidade econômica e jurídica da relação.</p>
 
-        <h2>17. Moderação de Perfil</h2>
-        <p>A Afeto reserva-se o direito de otimizar ou padronizar as imagens de perfil fornecidas (por exemplo, remoção de fundo e adequação a padrões visuais), visando a segurança e a identidade visual da plataforma, bem como suspender perfis que violem diretrizes de segurança ou que apresentem documentação inválida.</p>
+        <h2>23. Tolerância e Renúncia</h2>
+        <p>A eventual <strong>tolerância</strong> da Afeto quanto ao descumprimento de qualquer obrigação prevista nestes Termos, ou o <strong>não exercício imediato</strong> de qualquer direito, não constitui novação, renúncia, perdão ou modificação das condições aqui estabelecidas.</p>
+        <p>Qualquer renúncia da Afeto a direitos previstos nestes Termos somente será válida se expressa por escrito e assinada por representante legal.</p>
 
-        <h2>18. Resolução de Conflitos entre Usuários</h2>
-        <p>Eventuais conflitos entre Profissionais Parceiras e Famílias Contratantes deverão ser resolvidos preferencialmente de forma direta e amigável entre as partes. A Afeto poderá, a seu critério e <strong>sem qualquer obrigação</strong>, atuar como facilitadora da comunicação, sem assumir responsabilidade pelos fatos ou pelo resultado da negociação.</p>
+        <h2>24. Cessão de Posição Contratual</h2>
+        <p>A Afeto poderá, a qualquer momento e sem necessidade de consentimento prévio dos Usuários, <strong>ceder ou transferir</strong>, total ou parcialmente, sua posição contratual, seus direitos e obrigações decorrentes destes Termos, bem como sua base de dados, em casos de:</p>
+        <ul>
+            <li>Venda, fusão, incorporação, cisão ou reorganização societária da Afeto;</li>
+            <li>Transferência do controle societário;</li>
+            <li>Reestruturação do modelo de negócio;</li>
+            <li>Sucessão universal ou por qualquer outra forma legalmente prevista.</li>
+        </ul>
+        <p>Em qualquer hipótese, a Afeto garantirá que a entidade cessionária observe integralmente as obrigações aqui previstas, incluindo as relativas à proteção de dados pessoais.</p>
+        <p>Alterações relevantes na titularidade serão comunicadas aos Usuários por e-mail, WhatsApp ou notificação na plataforma.</p>
 
-        <h2>19. Alterações dos Termos</h2>
-        <p>A Afeto poderá atualizar estes Termos de Uso a qualquer momento. As alterações entrarão em vigor na data de sua publicação na plataforma, e o uso contínuo dos serviços implicará aceitação tácita das novas condições. Recomendamos a leitura periódica deste documento.</p>
+        <h2>25. Alterações dos Termos</h2>
+        <p>A Afeto poderá atualizar estes Termos de Uso a qualquer momento, visando refletir melhorias, mudanças legislativas, alterações no modelo de negócio ou novas práticas de mercado.</p>
+        <p>Alterações relevantes serão comunicadas com antecedência mínima de <strong>30 (trinta) dias</strong> às Cuidadoras Parceiras ativas, por e-mail, WhatsApp ou notificação na plataforma. O uso contínuo dos serviços após esse prazo implicará aceitação tácita das novas condições.</p>
 
-        <h2>20. Legislação Aplicável e Foro</h2>
-        <p>Estes Termos são regidos pelas leis da República Federativa do Brasil. Fica eleito o Foro da Comarca de Curitiba, Estado do Paraná, para dirimir quaisquer controvérsias decorrentes da interpretação ou execução destes Termos de Uso, com renúncia a qualquer outro, por mais privilegiado que seja.</p>
+        <h2>26. Legislação Aplicável e Foro</h2>
+        <p>Estes Termos são regidos pelas leis da República Federativa do Brasil, em especial pelo Código Civil, pelo Código de Defesa do Consumidor (quando aplicável), pelo Marco Civil da Internet (Lei nº 12.965/2014) e pela LGPD.</p>
+        <p>Fica eleito o Foro da Comarca de <strong>Curitiba, Estado do Paraná</strong>, para dirimir quaisquer controvérsias decorrentes da interpretação ou execução destes Termos, com renúncia a qualquer outro, por mais privilegiado que seja.</p>
+        <p>Para Usuários que se enquadrem na condição legal de consumidores, será respeitado o foro de seu domicílio, nos termos do Código de Defesa do Consumidor.</p>
 
-        <h2>21. Contato</h2>
-        <p>Para dúvidas, solicitações ou comunicações relacionadas a estes Termos, o Usuário pode entrar em contato pelo e-mail <strong>afetohomecareoficial@gmail.com</strong>.</p>
+        <h2>27. Contato</h2>
+        <p>Para dúvidas, solicitações, reclamações ou comunicações relacionadas a estes Termos, o Usuário pode entrar em contato pelos canais oficiais:</p>
+        <ul>
+            <li><strong>E-mail:</strong> afetohomecareoficial@gmail.com</li>
+            <li><strong>WhatsApp:</strong> (41) 99767-4866</li>
+            <li><strong>Instagram:</strong> @afetohomecareoficial</li>
+        </ul>
+
+        <p style="margin-top: 40px; font-size: 14px; color: var(--cinza-azulado); font-weight: 700; text-align: center;">— Fim dos Termos de Uso —</p>
     </div>
 
     <footer class="site-footer">
@@ -384,16 +647,16 @@
                 A Afeto atua como plataforma de conexão entre famílias e cuidadoras autônomas. Não executamos serviços de saúde ou cuidado — as informações dos perfis são de responsabilidade das profissionais cadastradas.
             </p>
             <p>
-                A Afeto é uma plataforma digital que aproxima famílias de cuidadores com boa reputação, em um ambiente seguro e transparente. Nosso papel é fornecer a melhor tecnologia em apresentação de perfis, marketing e segurança de pagamentos para profissionais autônomos. Cada cuidador parceiro atua de forma independente, utilizando nossa vitrine para expandir sua base de clientes, definindo seus próprios horários e repasses com 100% de autonomia.
+                A Afeto é uma plataforma digital que aproxima famílias de cuidadores com boa reputação, em um ambiente seguro e transparente. Nosso papel é fornecer a melhor tecnologia em apresentação de perfis e marketing para profissionais autônomos. Cada cuidador parceiro atua de forma independente, utilizando nossa vitrine para expandir sua base de clientes, definindo seus próprios horários e ganhos com 100% de autonomia.
             </p>
             <div class="footer-social">
-                <a href="https://www.instagram.com/afetohomecareoficial" target="_blank" aria-label="Instagram Afeto Homecare">
+                <a href="https://www.instagram.com/afetohomecareoficial" target="_blank" aria-label="Instagram Afeto">
                     <i class="fa-brands fa-instagram"></i>
                 </a>
-                <a href="https://wa.me/5541997674866?text=Ol%C3%A1!%20Gostaria%20de%20saber%20mais%20sobre%20a%20Afeto." target="_blank" aria-label="WhatsApp Afeto Homecare">
+                <a href="https://wa.me/5541997674866?text=Ol%C3%A1!%20Gostaria%20de%20saber%20mais%20sobre%20a%20Afeto." target="_blank" aria-label="WhatsApp Afeto">
                     <i class="fa-brands fa-whatsapp"></i>
                 </a>
-                <a href="mailto:afetohomecareoficial@gmail.com" aria-label="E-mail Afeto Homecare">
+                <a href="mailto:afetohomecareoficial@gmail.com" aria-label="E-mail Afeto">
                     <i class="fa-solid fa-envelope"></i>
                 </a>
             </div>
@@ -405,7 +668,7 @@
                 <a href="privacidade.html">Política de Privacidade</a>
             </div>
             <div class="footer-legal">
-                Afeto Homecare &copy; 2026. Todos os direitos reservados. CNPJ: 64.215.069/0001-15.
+                Afeto &copy; 2026. Todos os direitos reservados. CNPJ: 64.215.069/0001-15.
             </div>
         </div>
     </footer>

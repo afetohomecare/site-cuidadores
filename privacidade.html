@@ -3,16 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Política de Privacidade - Afeto Homecare</title>
+    <title>Política de Privacidade - Afeto</title>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --lilas: #8b5cf6; --lilas-escuro: #7c3aed; --fundo-site: #f8f9fc; --preto-fonte: #1f1f1f; --cinza-fonte: #666666; --cinza-azulado: #94a3b8; --branco: #ffffff; --ouro: #fbbf24; }
+        :root { --lilas: #8b5cf6; --lilas-escuro: #7c3aed; --fundo-site: #f8f9fc; --preto-fonte: #1f1f1f; --cinza-fonte: #666666; --cinza-azulado: #94a3b8; --branco: #ffffff; --ouro: #fbbf24; --verde: #10b981; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Nunito', sans-serif; background-color: var(--fundo-site); color: var(--preto-fonte); line-height: 1.6; }
         header { position: fixed; width: 100%; top: 0; left: 0; z-index: 1000; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; background-color: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(0,0,0,0.03); }
-        .logo { font-size: 28px; font-weight: 900; color: var(--lilas); letter-spacing: -1px; text-decoration: none; }
-        .logo span { font-weight: 300; color: var(--cinza-azulado); }
+
+        /* ============ LOGO ============ */
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.16em;
+            font-family: 'Nunito', sans-serif;
+            font-weight: 900;
+            font-size: 28px;
+            line-height: 1;
+            letter-spacing: -0.03em;
+            color: var(--lilas);
+            text-decoration: none;
+        }
+        .logo__mark {
+            flex: none;
+            width: 1.11em;
+            height: 0.69em;
+            transform: translateY(-0.02em);
+            overflow: visible;
+        }
+        .logo__mark path {
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 13;
+            stroke-linecap: round;
+        }
+
         .btn-outline { padding: 10px 24px; border-radius: 50px; font-weight: 800; color: var(--lilas); border: 2px solid var(--lilas); transition: 0.3s; background: transparent; font-size: 15px; text-decoration: none; }
         .btn-outline:hover { background: var(--lilas); color: var(--branco); box-shadow: 0 8px 20px rgba(139, 92, 246, 0.3); transform: translateY(-2px); }
         .container { max-width: 800px; margin: 120px auto 60px auto; background: var(--branco); padding: 50px; border-radius: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.03); border: 1px solid #e2e8f0; }
@@ -20,14 +46,31 @@
         .data-atualizacao { font-size: 14px; color: var(--cinza-azulado); margin-bottom: 40px; font-weight: 700; }
         h2 { font-size: 20px; font-weight: 800; color: var(--lilas-escuro); margin-top: 40px; margin-bottom: 15px; }
         h3 { font-size: 16px; font-weight: 800; color: var(--preto-fonte); margin-top: 20px; margin-bottom: 10px; }
+        h4 { font-size: 15px; font-weight: 800; color: var(--preto-fonte); margin-top: 18px; margin-bottom: 10px; }
         p { font-size: 16px; color: var(--cinza-fonte); margin-bottom: 15px; font-weight: 600; line-height: 1.7; }
         ul { margin-bottom: 20px; padding-left: 20px; }
         li { font-size: 16px; color: var(--cinza-fonte); margin-bottom: 10px; font-weight: 600; line-height: 1.6; }
         strong { color: var(--preto-fonte); font-weight: 800; }
+        a { color: var(--lilas-escuro); font-weight: 800; text-decoration: none; }
+        a:hover { text-decoration: underline; }
         .destaque { background: #f5f3ff; border-left: 4px solid var(--lilas); padding: 18px 22px; border-radius: 12px; margin: 20px 0; }
         .destaque p { margin-bottom: 0; font-size: 15px; }
+        .destaque p + p { margin-top: 10px; }
         .alerta { background: #fffbeb; border-left: 4px solid var(--ouro); padding: 18px 22px; border-radius: 12px; margin: 20px 0; }
         .alerta p { margin-bottom: 0; font-size: 15px; color: #78350f; }
+        .sucesso { background: #ecfdf5; border-left: 4px solid var(--verde); padding: 18px 22px; border-radius: 12px; margin: 20px 0; }
+        .sucesso p { margin-bottom: 0; font-size: 15px; color: #065f46; }
+
+        .sumario { background: #f8f9fc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 22px 26px; margin-bottom: 30px; }
+        .sumario h3 { margin-top: 0; margin-bottom: 12px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--cinza-fonte); }
+        .sumario ol { padding-left: 20px; margin: 0; }
+        .sumario li { font-size: 14px; margin-bottom: 6px; font-weight: 700; color: var(--lilas-escuro); }
+
+        .tabela-dados { width: 100%; border-collapse: separate; border-spacing: 0; margin: 20px 0; font-size: 14px; }
+        .tabela-dados th { background: #f5f3ff; color: var(--lilas-escuro); font-weight: 900; text-align: left; padding: 12px 14px; border-bottom: 2px solid #ddd6fe; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .tabela-dados td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; font-weight: 600; color: var(--cinza-fonte); vertical-align: top; }
+        .tabela-dados td strong { color: var(--preto-fonte); }
+        .tabela-dados tr:last-child td { border-bottom: none; }
 
         .site-footer { background-color: var(--fundo-site); color: var(--cinza-fonte); padding: 50px 20px 30px; text-align: center; border-top: 1px solid #e2e8f0; margin-top: 60px; width: 100%; }
         .footer-content { max-width: 900px; margin: 0 auto; font-size: 13px; line-height: 1.6; }
@@ -43,78 +86,228 @@
         .footer-links a:hover { color: var(--lilas); text-decoration: underline; }
         .footer-legal { font-size: 11px; color: var(--cinza-azulado); border-top: 1px solid #e2e8f0; padding-top: 20px; }
 
-        @media (max-width: 768px) { .container { margin: 100px 20px 40px 20px; padding: 30px; } h1 { font-size: 26px; } }
+        @media (max-width: 768px) {
+            .container { margin: 100px 20px 40px 20px; padding: 30px; }
+            h1 { font-size: 26px; }
+            .tabela-dados th, .tabela-dados td { padding: 10px 8px; font-size: 12.5px; }
+        }
     </style>
 </head>
 <body>
 
     <header>
-        <a href="index.html" class="logo">Afeto<span>Homecare</span></a>
-        <a href="index.html" class="btn-outline">Voltar ao Início</a>
+        <a href="index.html" class="logo" aria-label="Afeto - Página inicial">
+            <svg class="logo__mark" viewBox="9.5 15.5 111 69" aria-hidden="true" focusable="false">
+                <path d="M71.87 52.72 A28 28 0 1 0 50.20 77.30"/>
+                <path d="M79.80 22.70 A28 28 0 1 1 58.13 47.28"/>
+            </svg>
+            <span class="logo__text">Afeto</span>
+        </a>
+        <a href="https://afetohomecare.pages.dev" class="btn-outline">Voltar ao Início</a>
     </header>
 
     <div class="container">
         <h1>Política de Privacidade</h1>
         <div class="data-atualizacao">Última atualização: Setembro de 2026</div>
 
-        <p>A proteção dos dados pessoais e a privacidade dos Usuários são pilares fundamentais da Afeto Homecare. Esta Política foi redigida em estrita conformidade com a <strong>Lei Geral de Proteção de Dados Pessoais (LGPD — Lei nº 13.709/2018)</strong> e demais legislações aplicáveis, descrevendo de forma clara e transparente nossas práticas de tratamento de dados.</p>
+        <p>A proteção dos dados pessoais e a privacidade dos Usuários são pilares fundamentais da <strong>Afeto</strong>. Esta Política foi redigida em estrita conformidade com a <strong>Lei Geral de Proteção de Dados Pessoais (LGPD — Lei nº 13.709/2018)</strong>, o <strong>Marco Civil da Internet (Lei nº 12.965/2014)</strong> e demais legislações aplicáveis, descrevendo de forma clara e transparente nossas práticas de coleta, uso, armazenamento, compartilhamento e eliminação de dados pessoais.</p>
 
-        <h2>1. Definições (Art. 5º da LGPD)</h2>
-        <p>Para fins desta Política, aplicam-se as seguintes definições:</p>
+        <p>Ao utilizar a plataforma, seja como <strong>Cuidadora Parceira</strong> ou como <strong>Família Contratante</strong>, você declara ter lido, compreendido e aceito integralmente as práticas descritas nesta Política.</p>
+
+        <div class="sumario">
+            <h3>Sumário</h3>
+            <ol>
+                <li>Definições</li>
+                <li>Identificação do Controlador e do Encarregado (DPO)</li>
+                <li>Dados Pessoais Coletados</li>
+                <li>Finalidades do Tratamento</li>
+                <li>Bases Legais do Tratamento</li>
+                <li>Tratamento de Dados Pessoais Sensíveis</li>
+                <li>Compartilhamento de Dados com Terceiros</li>
+                <li>Transferência Internacional de Dados</li>
+                <li>Cookies e Tecnologias Similares</li>
+                <li>Retenção e Eliminação de Dados</li>
+                <li>Segurança da Informação</li>
+                <li>Direitos do Titular</li>
+                <li>Como Exercer seus Direitos</li>
+                <li>Menores de Idade</li>
+                <li>Alterações desta Política</li>
+                <li>Legislação Aplicável e Foro</li>
+                <li>Contato</li>
+            </ol>
+        </div>
+
+        <h2>1. Definições</h2>
+        <p>Para fins desta Política, aplicam-se as definições previstas no Art. 5º da LGPD, em especial:</p>
         <ul>
-            <li><strong>Dado Pessoal:</strong> informação relacionada a pessoa natural identificada ou identificável.</li>
-            <li><strong>Dado Pessoal Sensível:</strong> dado sobre origem racial ou étnica, convicção religiosa, opinião política, filiação a sindicato, dado referente à saúde ou à vida sexual, dado genético ou biométrico.</li>
-            <li><strong>Titular:</strong> pessoa natural a quem se referem os dados pessoais.</li>
-            <li><strong>Controlador:</strong> pessoa natural ou jurídica a quem competem as decisões referentes ao tratamento de dados pessoais.</li>
-            <li><strong>Operador:</strong> pessoa natural ou jurídica que realiza o tratamento de dados pessoais em nome do controlador.</li>
-            <li><strong>Encarregado (DPO):</strong> pessoa indicada pelo controlador para atuar como canal de comunicação entre o controlador, os titulares e a Autoridade Nacional de Proteção de Dados (ANPD).</li>
+            <li><strong>Dado Pessoal:</strong> informação relacionada a pessoa natural identificada ou identificável;</li>
+            <li><strong>Dado Pessoal Sensível:</strong> dado sobre origem racial ou étnica, convicção religiosa, opinião política, filiação a sindicato ou a organização de caráter religioso, filosófico ou político, dado referente à saúde ou à vida sexual, dado genético ou biométrico;</li>
+            <li><strong>Titular:</strong> pessoa natural a quem se referem os dados pessoais;</li>
+            <li><strong>Controlador:</strong> pessoa natural ou jurídica a quem competem as decisões referentes ao tratamento de dados pessoais;</li>
+            <li><strong>Operador:</strong> pessoa natural ou jurídica que realiza o tratamento de dados pessoais em nome do controlador;</li>
+            <li><strong>Encarregado (DPO):</strong> pessoa indicada pelo controlador para atuar como canal de comunicação entre o controlador, os titulares e a Autoridade Nacional de Proteção de Dados (ANPD);</li>
+            <li><strong>Tratamento:</strong> toda operação realizada com dados pessoais, como coleta, produção, recepção, classificação, utilização, acesso, reprodução, transmissão, distribuição, processamento, arquivamento, armazenamento, eliminação, avaliação ou controle da informação;</li>
+            <li><strong>Anonimização:</strong> utilização de meios técnicos razoáveis e disponíveis no momento do tratamento, por meio dos quais um dado perde a possibilidade de associação, direta ou indireta, a um indivíduo;</li>
+            <li><strong>Consentimento:</strong> manifestação livre, informada e inequívoca pela qual o titular concorda com o tratamento de seus dados pessoais para uma finalidade determinada.</li>
         </ul>
 
-        <h2>2. Identificação do Controlador</h2>
+        <h2>2. Identificação do Controlador e do Encarregado (DPO)</h2>
         <p>O <strong>Controlador</strong> dos dados pessoais tratados na plataforma é:</p>
         <ul>
-            <li><strong>Razão Social:</strong> Afeto Homecare</li>
+            <li><strong>Razão Social:</strong> Afeto</li>
             <li><strong>CNPJ:</strong> 64.215.069/0001-15</li>
             <li><strong>Endereço:</strong> Curitiba — Paraná, Brasil</li>
-            <li><strong>Contato do Encarregado (DPO):</strong> afetohomecareoficial@gmail.com</li>
+            <li><strong>Contato geral:</strong> afetohomecareoficial@gmail.com</li>
         </ul>
 
-        <h2>3. Bases Legais para o Tratamento de Dados</h2>
-        <p>A coleta e o processamento dos dados pessoais ocorrem fundamentados nas seguintes bases legais previstas no Art. 7º e no Art. 11 da LGPD:</p>
+        <p>O <strong>Encarregado de Proteção de Dados (DPO)</strong>, responsável por atuar como canal de comunicação entre o Controlador, os Titulares e a ANPD, pode ser contatado por meio do e-mail:</p>
+
+        <div class="destaque">
+            <p><strong>Encarregado (DPO):</strong> afetohomecareoficial@gmail.com</p>
+        </div>
+
+        <h2>3. Dados Pessoais Coletados</h2>
+        <p>A Afeto coleta apenas os dados estritamente necessários ao funcionamento da plataforma, observando os princípios da finalidade, adequação e necessidade previstos na LGPD.</p>
+
+        <h3>3.1. Dados da Cuidadora Parceira</h3>
+        <p>Coletamos os seguintes dados quando do cadastro e do uso da plataforma:</p>
+
+        <table class="tabela-dados">
+            <thead>
+                <tr>
+                    <th>Categoria</th>
+                    <th>Dados</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Cadastrais</strong></td>
+                    <td>Nome completo, WhatsApp, e-mail, cidade/região de atuação</td>
+                </tr>
+                <tr>
+                    <td><strong>Profissionais</strong></td>
+                    <td>Categoria profissional (Enfermeira, Técnica de Enfermagem, Cuidadora de Idosos, Acompanhante Hospitalar, Estudante), especialidades, tempo de experiência, cursos e certificações, registro em conselho de classe (COREN, quando aplicável)</td>
+                </tr>
+                <tr>
+                    <td><strong>Perfil público</strong></td>
+                    <td>Foto, biografia, bairros de atuação, turnos disponíveis, valor de referência do plantão, disponibilidade, avaliações e comentários de Famílias Contratantes</td>
+                </tr>
+                <tr>
+                    <td><strong>Declarações</strong></td>
+                    <td>Declaração de veracidade das informações, declaração de ausência de antecedentes criminais (autodeclaração)</td>
+                </tr>
+                <tr>
+                    <td><strong>Financeiros</strong></td>
+                    <td>Dados necessários ao processamento das assinaturas e serviços opcionais (processados por gateway de pagamento credenciado — a Afeto não armazena dados completos de cartão)</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>3.2. Dados da Família Contratante</h3>
+        <table class="tabela-dados">
+            <thead>
+                <tr>
+                    <th>Categoria</th>
+                    <th>Dados</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Cadastrais</strong></td>
+                    <td>Nome, WhatsApp, e-mail</td>
+                </tr>
+                <tr>
+                    <td><strong>Contexto do cuidado</strong></td>
+                    <td>Informações sobre a rotina, necessidades e condições de saúde do paciente, na medida estritamente necessária para viabilizar a conexão com a profissional adequada</td>
+                </tr>
+                <tr>
+                    <td><strong>Interações</strong></td>
+                    <td>Avaliações, comentários e comunicações com a Afeto</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>3.3. Dados Coletados em Serviços Opcionais</h3>
+        <p>Quando a Cuidadora Parceira solicita o serviço de <strong>Certificação de Horas</strong>, coletamos adicionalmente:</p>
         <ul>
-            <li><strong>Execução de Contrato (Art. 7º, V):</strong> para a efetivação do cadastro, repasse financeiro e conexão entre Profissionais Parceiras e Famílias Contratantes.</li>
-            <li><strong>Legítimo Interesse (Art. 7º, IX):</strong> para a curadoria e exibição do perfil público das Profissionais Parceiras na vitrine, prevenção de fraudes e melhoria contínua da plataforma.</li>
-            <li><strong>Cumprimento de Obrigação Legal (Art. 7º, II):</strong> para fins de registros fiscais, manutenção de históricos de transações e atendimento a requisições de autoridades competentes.</li>
-            <li><strong>Consentimento (Art. 7º, I):</strong> para envio de comunicações de marketing, quando aplicável, e para o tratamento de dados sensíveis quando não houver outra base legal específica.</li>
-            <li><strong>Tutela da Saúde (Art. 11, II, f):</strong> quando aplicável ao tratamento de dados sensíveis relacionados ao cuidado, por profissionais de saúde ou autoridades sanitárias.</li>
+            <li>Dados de identificação do cliente (nome e contato), para fins exclusivos de confirmação da realização do plantão;</li>
+            <li>Horas trabalhadas declaradas;</li>
+            <li>Confirmação e avaliação fornecidas pela Família Contratante.</li>
         </ul>
 
-        <h2>4. Dados Coletados</h2>
-        <p>Coletamos unicamente os dados necessários para o regular funcionamento da plataforma:</p>
-
-        <h3>4.1. Dados das Profissionais Parceiras</h3>
+        <h3>3.4. Dados de Navegação</h3>
         <ul>
-            <li><strong>Dados Cadastrais:</strong> nome completo, foto, data de nascimento, endereço, bairros de atuação, telefone, WhatsApp e e-mail.</li>
-            <li><strong>Dados Profissionais:</strong> especialidade, experiências anteriores, cursos e certificações, registro em conselho de classe (ex: COREN) e referências profissionais.</li>
-            <li><strong>Dados Financeiros:</strong> CPF, RG, chaves Pix e dados bancários. <strong>Estes dados são processados em ambiente criptografado e NÃO são, sob nenhuma hipótese, expostos publicamente na vitrine.</strong></li>
+            <li>Endereço IP, tipo de dispositivo, navegador, sistema operacional, páginas visitadas, tempo de permanência e horários de acesso;</li>
+            <li>Coletados por meio de cookies, pixels e tecnologias similares, com finalidade analítica, estatística e de segurança.</li>
         </ul>
 
-        <h3>4.2. Dados das Famílias Contratantes</h3>
+        <h3>3.5. Dados de Comunicação</h3>
         <ul>
-            <li><strong>Dados Cadastrais:</strong> nome, telefone, WhatsApp e e-mail.</li>
-            <li><strong>Dados sobre o Paciente:</strong> informações sobre a rotina, necessidades, condições de saúde e nível de cuidado exigido, com finalidade exclusiva de viabilizar a conexão com a profissional adequada.</li>
+            <li>Histórico de mensagens trocadas com a Afeto por WhatsApp, e-mail ou canais internos;</li>
+            <li>Solicitações de suporte, reclamações e manifestações.</li>
         </ul>
 
-        <h3>4.3. Dados de Navegação</h3>
+        <h2>4. Finalidades do Tratamento</h2>
+        <p>Os dados pessoais coletados são tratados para as seguintes finalidades específicas:</p>
         <ul>
-            <li>Endereço IP, tipo de dispositivo, navegador, páginas visitadas e horários de acesso, coletados por meio de cookies e tecnologias similares, com finalidade analítica e de segurança.</li>
+            <li><strong>Cadastro e criação de perfil</strong> na plataforma;</li>
+            <li><strong>Exibição do perfil público</strong> da Cuidadora Parceira na vitrine digital, permitindo que Famílias Contratantes a encontrem;</li>
+            <li><strong>Conexão entre Cuidadoras Parceiras e Famílias Contratantes</strong>, viabilizando o contato direto via WhatsApp;</li>
+            <li><strong>Processamento de assinaturas</strong> e serviços opcionais contratados;</li>
+            <li><strong>Certificação de horas trabalhadas</strong>, quando solicitada;</li>
+            <li><strong>Moderação de conteúdo</strong>, garantindo conformidade com os Termos de Uso e a legislação vigente;</li>
+            <li><strong>Verificação de identidade</strong> e prevenção a fraudes;</li>
+            <li><strong>Comunicações transacionais</strong> sobre pagamentos, faturas, status da conta e atualizações relevantes;</li>
+            <li><strong>Comunicações promocionais</strong> sobre novidades, promoções e oportunidades (quando autorizado);</li>
+            <li><strong>Melhoria contínua</strong> da plataforma por meio de métricas agregadas e anônimas;</li>
+            <li><strong>Suporte ao usuário</strong> e atendimento a solicitações;</li>
+            <li><strong>Cumprimento de obrigações legais e regulatórias</strong>;</li>
+            <li><strong>Exercício regular de direitos</strong> em processos administrativos, judiciais ou arbitrais.</li>
         </ul>
 
-        <h2>5. Tratamento de Dados Pessoais Sensíveis (Saúde)</h2>
-        <p>A Afeto reconhece que algumas informações fornecidas pelas Famílias Contratantes sobre os pacientes podem ser classificadas como <strong>dados pessoais sensíveis</strong>, especialmente aquelas relacionadas à saúde, nos termos do Art. 5º, II, da LGPD.</p>
+        <h2>5. Bases Legais do Tratamento</h2>
+        <p>O tratamento dos dados pessoais pela Afeto é fundamentado nas seguintes bases legais previstas no Art. 7º e no Art. 11 da LGPD:</p>
+
+        <table class="tabela-dados">
+            <thead>
+                <tr>
+                    <th>Base Legal</th>
+                    <th>Aplicação</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Execução de Contrato</strong><br><span style="font-size: 12px; color: var(--cinza-azulado);">(Art. 7º, V)</span></td>
+                    <td>Para viabilizar o cadastro, a exibição do perfil, o processamento das assinaturas e a prestação dos serviços contratados</td>
+                </tr>
+                <tr>
+                    <td><strong>Cumprimento de Obrigação Legal</strong><br><span style="font-size: 12px; color: var(--cinza-azulado);">(Art. 7º, II)</span></td>
+                    <td>Para atendimento a exigências fiscais, contábeis, regulatórias e requisições de autoridades competentes</td>
+                </tr>
+                <tr>
+                    <td><strong>Legítimo Interesse</strong><br><span style="font-size: 12px; color: var(--cinza-azulado);">(Art. 7º, IX)</span></td>
+                    <td>Para prevenção a fraudes, segurança da plataforma, melhoria contínua dos serviços e comunicação com usuários</td>
+                </tr>
+                <tr>
+                    <td><strong>Consentimento</strong><br><span style="font-size: 12px; color: var(--cinza-azulado);">(Art. 7º, I)</span></td>
+                    <td>Para envio de comunicações promocionais e tratamento de dados sensíveis quando não houver outra base legal específica</td>
+                </tr>
+                <tr>
+                    <td><strong>Exercício Regular de Direitos</strong><br><span style="font-size: 12px; color: var(--cinza-azulado);">(Art. 7º, VI)</span></td>
+                    <td>Para defesa em processos administrativos, judiciais ou arbitrais</td>
+                </tr>
+                <tr>
+                    <td><strong>Tutela da Saúde</strong><br><span style="font-size: 12px; color: var(--cinza-azulado);">(Art. 11, II, f)</span></td>
+                    <td>Para tratamento de dados sensíveis de saúde, quando aplicável, exclusivamente com a finalidade de viabilizar o cuidado</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>6. Tratamento de Dados Pessoais Sensíveis</h2>
+        <p>A Afeto reconhece que algumas informações fornecidas pelas Famílias Contratantes sobre os pacientes podem ser classificadas como <strong>dados pessoais sensíveis</strong>, especialmente as relacionadas à saúde, nos termos do Art. 5º, II, da LGPD.</p>
 
         <div class="alerta">
-            <p><strong>Atenção:</strong> O tratamento dessas informações é realizado exclusivamente com a finalidade de permitir que as Profissionais Parceiras avaliem a adequação de seu perfil ao caso concreto e para personalizar a busca por profissionais. Esses dados <strong>nunca são utilizados para fins publicitários, comerciais ou compartilhados com terceiros não essenciais à prestação do serviço</strong>.</p>
+            <p><strong>Atenção:</strong> o tratamento dessas informações é realizado exclusivamente com a finalidade de permitir que a Cuidadora Parceira avalie a adequação de seu perfil ao caso concreto e para personalizar a busca por profissionais. Esses dados <strong>nunca são utilizados para fins publicitários, comerciais ou compartilhados com terceiros não essenciais à prestação do serviço</strong>.</p>
         </div>
 
         <p>As bases legais aplicáveis ao tratamento de dados sensíveis são, conforme o caso:</p>
@@ -124,45 +317,56 @@
             <li><strong>Exercício regular de direitos (Art. 11, II, d):</strong> quando necessário para defesa em processos administrativos, judiciais ou arbitrais.</li>
         </ul>
 
-        <h2>6. Uso e Exposição das Informações</h2>
-        <p>Para cumprir o objetivo da plataforma, os <strong>Dados de Perfil Público</strong> das Profissionais Parceiras (nome de exibição, foto, região, especialidade, biografia, categoria e avaliações) serão publicados e visualizados por Famílias Contratantes que navegam no site. Ao se cadastrar, a Profissional Parceira consente expressamente com a exposição destes dados específicos para fins de marketing e prospecção de clientes.</p>
-        <p>Os <strong>dados sensíveis e financeiros</strong> (CPF, RG, dados bancários, informações de saúde dos pacientes) <strong>nunca são expostos publicamente</strong> e são acessados apenas por pessoas autorizadas, internamente, para as finalidades operacionais descritas nesta Política.</p>
-
         <h2>7. Compartilhamento de Dados com Terceiros</h2>
-        <p>A Afeto Homecare <strong>não comercializa dados pessoais</strong> sob nenhuma hipótese. O compartilhamento restringe-se a operadores tecnológicos e parceiros que viabilizam o funcionamento da plataforma:</p>
-        <ul>
-            <li><strong>Hospedagem em nuvem e bancos de dados:</strong> Cloudflare, Airtable e outros provedores de infraestrutura;</li>
-            <li><strong>Gateways de pagamento credenciados:</strong> pelo Banco Central, para o processamento do repasse financeiro;</li>
-            <li><strong>Ferramentas de análise e comunicação:</strong> utilizadas para métricas de uso e envio de mensagens transacionais;</li>
-            <li><strong>Autoridades competentes:</strong> mediante ordem judicial, requisição de autoridade administrativa ou obrigação legal.</li>
-        </ul>
-        <p>Todos os operadores contratados estão obrigados contratualmente a manter o sigilo e a segurança dos dados tratados, em conformidade com a LGPD.</p>
+        <p>A Afeto <strong>não comercializa, aluga ou vende dados pessoais</strong> sob nenhuma hipótese. O compartilhamento restringe-se a operadores tecnológicos e parceiros essenciais ao funcionamento da plataforma:</p>
+
+        <table class="tabela-dados">
+            <thead>
+                <tr>
+                    <th>Operador</th>
+                    <th>Finalidade</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Cloudflare Pages</strong></td>
+                    <td>Hospedagem da plataforma, distribuição de conteúdo e segurança</td>
+                </tr>
+                <tr>
+                    <td><strong>Airtable</strong></td>
+                    <td>Banco de dados para armazenamento de perfis, cadastros e informações operacionais</td>
+                </tr>
+                <tr>
+                    <td><strong>Google Sheets</strong></td>
+                    <td>Registro de pré-cadastros e organização operacional interna</td>
+                </tr>
+                <tr>
+                    <td><strong>Telegram</strong></td>
+                    <td>Notificações operacionais internas de contatos recebidos (sem exposição de dados sensíveis)</td>
+                </tr>
+                <tr>
+                    <td><strong>Gateway de Pagamento (Asaas ou equivalente)</strong></td>
+                    <td>Processamento das assinaturas e cobranças recorrentes. Todos os dados financeiros sensíveis são processados diretamente pelo gateway, com criptografia de ponta a ponta, não sendo armazenados pela Afeto</td>
+                </tr>
+                <tr>
+                    <td><strong>Autoridades Competentes</strong></td>
+                    <td>Mediante ordem judicial, requisição de autoridade administrativa ou cumprimento de obrigação legal</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>Todos os operadores contratados estão obrigados contratualmente a manter o sigilo e a segurança dos dados tratados, em conformidade com a LGPD, e somente recebem os dados estritamente necessários à execução de suas atividades.</p>
 
         <h2>8. Transferência Internacional de Dados</h2>
-        <p>Alguns dos provedores de infraestrutura utilizados pela Afeto (como serviços de nuvem e hospedagem) podem armazenar dados em servidores localizados fora do território brasileiro. Nesses casos, a Afeto adota as garantias contratuais e técnicas necessárias para assegurar que a transferência ocorra em conformidade com os Artigos 33 a 36 da LGPD, exigindo de tais operadores padrões adequados de proteção de dados.</p>
-
-        <h2>9. Retenção e Eliminação de Dados</h2>
-        <p>Os dados pessoais serão mantidos pelo tempo necessário ao cumprimento das finalidades para as quais foram coletados, observando-se os seguintes prazos:</p>
+        <p>Alguns dos provedores de infraestrutura utilizados pela Afeto (como serviços de nuvem, hospedagem e ferramentas de comunicação) podem armazenar dados em servidores localizados fora do território brasileiro.</p>
+        <p>Nesses casos, a Afeto adota as garantias contratuais e técnicas necessárias para assegurar que a transferência ocorra em conformidade com os Artigos 33 a 36 da LGPD, exigindo de tais operadores padrões adequados de proteção de dados, incluindo:</p>
         <ul>
-            <li><strong>Dados de cadastro ativo:</strong> enquanto o Usuário mantiver sua conta ativa na plataforma;</li>
-            <li><strong>Dados financeiros e fiscais:</strong> pelo prazo mínimo de 5 (cinco) anos, conforme exigido pela legislação fiscal e tributária brasileira;</li>
-            <li><strong>Dados de navegação e cookies:</strong> conforme os prazos específicos de cada cookie ou ferramenta analítica utilizada;</li>
-            <li><strong>Dados para defesa em processos:</strong> enquanto perdurar a necessidade de defesa em processos administrativos, judiciais ou arbitrais.</li>
+            <li>Cláusulas contratuais específicas de proteção de dados;</li>
+            <li>Certificações e conformidades internacionais reconhecidas;</li>
+            <li>Garantia de que o tratamento observará os princípios e direitos previstos na LGPD.</li>
         </ul>
-        <p>Após os prazos aplicáveis, os dados serão eliminados ou anonimizados de forma segura, ressalvadas as hipóteses legais de conservação previstas no Art. 16 da LGPD.</p>
 
-        <h2>10. Segurança da Informação</h2>
-        <p>A Afeto adota medidas técnicas e administrativas razoáveis para proteger os dados pessoais contra acessos não autorizados, perda, destruição, alteração, comunicação ou difusão indevida, incluindo:</p>
-        <ul>
-            <li>Criptografia em trânsito (HTTPS/TLS) para todas as comunicações;</li>
-            <li>Controle de acesso restrito aos dados sensíveis, limitado a pessoas autorizadas;</li>
-            <li>Monitoramento de acessos e registros de auditoria;</li>
-            <li>Backups periódicos e planos de recuperação;</li>
-            <li>Treinamento de colaboradores quanto às boas práticas de proteção de dados.</li>
-        </ul>
-        <p>Em caso de incidente de segurança que possa acarretar risco ou dano relevante aos titulares, a Afeto comunicará os titulares afetados e a Autoridade Nacional de Proteção de Dados (ANPD), nos termos do Art. 48 da LGPD.</p>
-
-        <h2>11. Cookies e Tecnologias Similares</h2>
+        <h2>9. Cookies e Tecnologias Similares</h2>
         <p>A plataforma utiliza cookies e tecnologias similares (como pixels e armazenamento local) para:</p>
         <ul>
             <li><strong>Cookies essenciais:</strong> necessários para o funcionamento básico do site (navegação, segurança, autenticação);</li>
@@ -172,8 +376,31 @@
         </ul>
         <p>O Usuário pode gerenciar ou desabilitar cookies não essenciais a qualquer momento por meio das configurações de seu navegador. A desativação de cookies essenciais, no entanto, pode comprometer o funcionamento adequado da plataforma.</p>
 
-        <h2>12. Direitos do Titular (Art. 18 da LGPD)</h2>
-        <p>O Titular dos dados pessoais detém, a qualquer momento e sem custo, os seguintes direitos:</p>
+        <h2>10. Retenção e Eliminação de Dados</h2>
+        <p>Os dados pessoais serão mantidos pelo tempo necessário ao cumprimento das finalidades para as quais foram coletados, observando-se os seguintes prazos:</p>
+        <ul>
+            <li><strong>Dados de cadastro ativo:</strong> enquanto o Usuário mantiver sua conta ativa na plataforma;</li>
+            <li><strong>Dados de perfil público:</strong> enquanto a Cuidadora Parceira mantiver o perfil ativo;</li>
+            <li><strong>Dados de navegação e cookies:</strong> conforme os prazos específicos de cada cookie ou ferramenta analítica utilizada;</li>
+            <li><strong>Dados financeiros e fiscais:</strong> pelo prazo mínimo de 5 (cinco) anos, conforme exigido pela legislação fiscal e tributária brasileira;</li>
+            <li><strong>Dados para defesa em processos:</strong> enquanto perdurar a necessidade de defesa em processos administrativos, judiciais ou arbitrais.</li>
+        </ul>
+        <p>Após os prazos aplicáveis, os dados serão eliminados ou anonimizados de forma segura, ressalvadas as hipóteses legais de conservação previstas no Art. 16 da LGPD.</p>
+
+        <h2>11. Segurança da Informação</h2>
+        <p>A Afeto adota medidas técnicas e administrativas razoáveis para proteger os dados pessoais contra acessos não autorizados, perda, destruição, alteração, comunicação ou difusão indevida, incluindo:</p>
+        <ul>
+            <li>Criptografia em trânsito (HTTPS/TLS) para todas as comunicações;</li>
+            <li>Controle de acesso restrito aos dados sensíveis, limitado a pessoas autorizadas;</li>
+            <li>Monitoramento de acessos e registros de auditoria;</li>
+            <li>Backups periódicos e planos de recuperação;</li>
+            <li>Treinamento de colaboradores quanto às boas práticas de proteção de dados;</li>
+            <li>Adoção de práticas de segurança por todos os operadores contratados.</li>
+        </ul>
+        <p>Em caso de incidente de segurança que possa acarretar risco ou dano relevante aos titulares, a Afeto comunicará os titulares afetados e a Autoridade Nacional de Proteção de Dados (ANPD), nos termos do Art. 48 da LGPD, em prazo razoável.</p>
+
+        <h2>12. Direitos do Titular</h2>
+        <p>O Titular dos dados pessoais detém, a qualquer momento e sem custo, os seguintes direitos previstos no Art. 18 da LGPD:</p>
         <ul>
             <li><strong>Confirmação e Acesso:</strong> confirmar a existência de tratamento e acessar os dados pessoais mantidos pela Afeto;</li>
             <li><strong>Correção:</strong> solicitar a correção de dados incompletos, inexatos ou desatualizados;</li>
@@ -186,26 +413,38 @@
             <li><strong>Petição à ANPD:</strong> peticionar em relação aos seus dados perante a Autoridade Nacional de Proteção de Dados.</li>
         </ul>
 
-        <h2>13. Encarregado de Proteção de Dados (DPO)</h2>
-        <p>Para exercer qualquer um dos direitos acima ou esclarecer dúvidas sobre o tratamento de seus dados pessoais, o Titular pode entrar em contato com o Encarregado de Proteção de Dados (DPO) da Afeto pelo e-mail:</p>
-
-        <div class="destaque">
-            <p><strong>Encarregado (DPO):</strong> afetohomecareoficial@gmail.com</p>
-        </div>
-
-        <p>A Afeto responderá às solicitações em prazo razoável, respeitando os prazos estabelecidos pela ANPD.</p>
+        <h2>13. Como Exercer seus Direitos</h2>
+        <p>Para exercer qualquer um dos direitos acima, o Titular pode entrar em contato com o Encarregado de Proteção de Dados (DPO) da Afeto pelos canais oficiais:</p>
+        <ul>
+            <li><strong>E-mail:</strong> afetohomecareoficial@gmail.com</li>
+            <li><strong>WhatsApp:</strong> (41) 99767-4866</li>
+        </ul>
+        <p>A Afeto responderá às solicitações em prazo razoável, respeitando os prazos estabelecidos pela ANPD, podendo solicitar informações adicionais para confirmar a identidade do solicitante, como medida de segurança.</p>
 
         <h2>14. Menores de Idade</h2>
-        <p>A plataforma não é destinada a menores de 18 (dezoito) anos. Caso sejam fornecidos dados de menores de idade (por exemplo, de pacientes idosos ou crianças sob cuidado), esses dados deverão ser fornecidos por seus responsáveis legais, que assumirão a responsabilidade pela veracidade das informações e pela obtenção dos consentimentos necessários.</p>
+        <p>A plataforma <strong>não é destinada a menores de 18 (dezoito) anos</strong>, tanto no que se refere ao cadastro de Cuidadoras Parceiras quanto ao cadastro de Famílias Contratantes.</p>
+        <p>Eventuais dados de menores de idade fornecidos no contexto do cuidado (por exemplo, quando o paciente for menor) deverão ser informados exclusivamente por seus responsáveis legais, que assumirão integral responsabilidade pela veracidade das informações e pela obtenção dos consentimentos necessários, nos termos do Art. 14 da LGPD.</p>
 
         <h2>15. Alterações desta Política</h2>
-        <p>A Afeto Homecare poderá atualizar esta Política de Privacidade a qualquer momento, visando refletir melhorias, mudanças legislativas ou novas práticas de mercado. A versão mais recente estará sempre disponível nesta página, com a data da última atualização indicada no topo. Recomendamos a leitura periódica.</p>
+        <p>A Afeto poderá atualizar esta Política de Privacidade a qualquer momento, visando refletir melhorias, mudanças legislativas, alterações no modelo de negócio ou novas práticas de mercado.</p>
+        <p>A versão mais recente estará sempre disponível nesta página, com a data da última atualização indicada no topo. Alterações relevantes serão comunicadas com antecedência mínima de <strong>30 (trinta) dias</strong> aos Usuários ativos, por e-mail, WhatsApp ou notificação na plataforma.</p>
+        <p>Recomendamos a leitura periódica desta Política.</p>
 
         <h2>16. Legislação Aplicável e Foro</h2>
-        <p>Esta Política é regida pelas leis da República Federativa do Brasil, em especial pela Lei nº 13.709/2018 (LGPD) e pelo Código de Defesa do Consumidor (Lei nº 8.078/1990), quando aplicável. Fica eleito o Foro da Comarca de Curitiba, Estado do Paraná, para dirimir eventuais controvérsias.</p>
+        <p>Esta Política é regida pelas leis da República Federativa do Brasil, em especial pela <strong>Lei nº 13.709/2018 (LGPD)</strong>, pelo <strong>Marco Civil da Internet (Lei nº 12.965/2014)</strong> e, quando aplicável, pelo Código de Defesa do Consumidor (Lei nº 8.078/1990).</p>
+        <p>Fica eleito o Foro da Comarca de <strong>Curitiba, Estado do Paraná</strong>, para dirimir eventuais controvérsias decorrentes desta Política, com renúncia a qualquer outro, por mais privilegiado que seja.</p>
+        <p>Para Titulares que se enquadrem na condição legal de consumidores, será respeitado o foro de seu domicílio, nos termos do Código de Defesa do Consumidor.</p>
 
         <h2>17. Contato</h2>
-        <p>Para dúvidas, sugestões ou reclamações relacionadas a esta Política ou ao tratamento de dados pessoais, o Titular pode entrar em contato pelo e-mail <strong>afetohomecareoficial@gmail.com</strong>.</p>
+        <p>Para dúvidas, sugestões, reclamações ou comunicações relacionadas a esta Política ou ao tratamento de dados pessoais, o Titular pode entrar em contato pelos canais oficiais:</p>
+        <ul>
+            <li><strong>E-mail geral:</strong> afetohomecareoficial@gmail.com</li>
+            <li><strong>Encarregado (DPO):</strong> afetohomecareoficial@gmail.com</li>
+            <li><strong>WhatsApp:</strong> (41) 99767-4866</li>
+            <li><strong>Instagram:</strong> @afetohomecareoficial</li>
+        </ul>
+
+        <p style="margin-top: 40px; font-size: 14px; color: var(--cinza-azulado); font-weight: 700; text-align: center;">— Fim da Política de Privacidade —</p>
     </div>
 
     <footer class="site-footer">
@@ -214,16 +453,16 @@
                 A Afeto atua como plataforma de conexão entre famílias e cuidadoras autônomas. Não executamos serviços de saúde ou cuidado — as informações dos perfis são de responsabilidade das profissionais cadastradas.
             </p>
             <p>
-                A Afeto é uma plataforma digital que aproxima famílias de cuidadores com boa reputação, em um ambiente seguro e transparente. Nosso papel é fornecer a melhor tecnologia em apresentação de perfis, marketing e segurança de pagamentos para profissionais autônomos. Cada cuidador parceiro atua de forma independente, utilizando nossa vitrine para expandir sua base de clientes, definindo seus próprios horários e repasses com 100% de autonomia.
+                A Afeto é uma plataforma digital que aproxima famílias de cuidadores com boa reputação, em um ambiente seguro e transparente. Nosso papel é fornecer a melhor tecnologia em apresentação de perfis e marketing para profissionais autônomos. Cada cuidador parceiro atua de forma independente, utilizando nossa vitrine para expandir sua base de clientes, definindo seus próprios horários e ganhos com 100% de autonomia.
             </p>
             <div class="footer-social">
-                <a href="https://www.instagram.com/afetohomecareoficial" target="_blank" aria-label="Instagram Afeto Homecare">
+                <a href="https://www.instagram.com/afetohomecareoficial" target="_blank" aria-label="Instagram Afeto">
                     <i class="fa-brands fa-instagram"></i>
                 </a>
-                <a href="https://wa.me/5541997674866?text=Ol%C3%A1!%20Gostaria%20de%20saber%20mais%20sobre%20a%20Afeto." target="_blank" aria-label="WhatsApp Afeto Homecare">
+                <a href="https://wa.me/5541997674866?text=Ol%C3%A1!%20Gostaria%20de%20saber%20mais%20sobre%20a%20Afeto." target="_blank" aria-label="WhatsApp Afeto">
                     <i class="fa-brands fa-whatsapp"></i>
                 </a>
-                <a href="mailto:afetohomecareoficial@gmail.com" aria-label="E-mail Afeto Homecare">
+                <a href="mailto:afetohomecareoficial@gmail.com" aria-label="E-mail Afeto">
                     <i class="fa-solid fa-envelope"></i>
                 </a>
             </div>
@@ -235,7 +474,7 @@
                 <a href="privacidade.html">Política de Privacidade</a>
             </div>
             <div class="footer-legal">
-                Afeto Homecare &copy; 2026. Todos os direitos reservados. CNPJ: 64.215.069/0001-15.
+                Afeto &copy; 2026. Todos os direitos reservados. CNPJ: 64.215.069/0001-15.
             </div>
         </div>
     </footer>
