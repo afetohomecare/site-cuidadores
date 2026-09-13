@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Admin - Afeto</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root { --lilas: #8b5cf6; --lilas-escuro: #7c3aed; --fundo-site: #f8f9fc; --preto-fonte: #1f1f1f; --cinza-fonte: #666666; --cinza-azulado: #94a3b8; --branco: #ffffff; --verde: #10b981; --vermelho: #ef4444; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); color: var(--preto-fonte); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
+.card { background: white; border-radius: 30px; padding: 45px 40px; max-width: 420px; width: 100%; box-shadow: 0 25px 60px rgba(139,92,246,0.15); border: 1px solid #e2e8f0; }
+.logo { display: inline-flex; align-items: center; gap: 0.16em; font-weight: 900; font-size: 32px; color: var(--lilas); text-decoration: none; margin-bottom: 8px; line-height: 1; }
+.logo svg { width: 1.11em; height: 0.69em; overflow: visible; }
+.logo svg path { fill: none; stroke: currentColor; stroke-width: 13; stroke-linecap: round; }
+.header { text-align: center; margin-bottom: 32px; }
+.header h1 { font-size: 22px; font-weight: 900; color: var(--preto-fonte); margin-top: 18px; letter-spacing: -0.5px; }
+.header p { font-size: 14px; color: var(--cinza-fonte); font-weight: 700; margin-top: 6px; }
+.campo { margin-bottom: 18px; }
+.campo label { display: block; font-weight: 800; margin-bottom: 8px; font-size: 14px; color: var(--preto-fonte); }
+.campo input { width: 100%; padding: 15px 18px; border-radius: 16px; border: 2px solid #e2e8f0; font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 700; background: var(--fundo-site); color: var(--preto-fonte); outline: none; transition: 0.3s; }
+.campo input:focus { border-color: var(--lilas); background: white; box-shadow: 0 0 0 4px rgba(139,92,246,0.12); }
+.btn { width: 100%; padding: 18px; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; border: none; border-radius: 50px; font-size: 16px; font-weight: 900; cursor: pointer; transition: 0.3s; box-shadow: 0 10px 25px rgba(139,92,246,0.3); font-family: 'Nunito', sans-serif; display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 8px; }
+.btn:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 15px 35px rgba(139,92,246,0.45); }
+.btn:disabled { background: #cbd5e1; cursor: not-allowed; box-shadow: none; }
+.erro { display: none; background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 14px 18px; border-radius: 14px; font-size: 14px; font-weight: 700; margin-bottom: 18px; text-align: center; }
+.erro.ativo { display: block; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+.rodape { text-align: center; margin-top: 24px; font-size: 12px; color: var(--cinza-azulado); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="header">
+    <div class="logo">
+      <svg viewBox="9.5 15.5 111 69" aria-hidden="true" focusable="false">
+        <path d="M71.87 52.72 A28 28 0 1 0 50.20 77.30"/>
+        <path d="M79.80 22.70 A28 28 0 1 1 58.13 47.28"/>
+      </svg>
+      <span>Afeto</span>
+    </div>
+    <h1>Painel Admin</h1>
+    <p>Acesso restrito à equipe Afeto</p>
+  </div>
+
+  <div id="erro" class="erro"></div>
+
+  <form id="form-login" novalidate>
+    <div class="campo">
+      <label for="email">E-mail</label>
+      <input type="email" id="email" placeholder="seu@email.com" required autocomplete="email">
+    </div>
+    <div class="campo">
+      <label for="senha">Senha</label>
+      <input type="password" id="senha" placeholder="••••••••" required autocomplete="current-password">
+    </div>
+    <button type="submit" id="btn-entrar" class="btn">
+      Entrar <i class="fa-solid fa-arrow-right"></i>
+    </button>
+  </form>
+
+  <div class="rodape">Afeto © 2026</div>
+</div>
+
+<script>
+(function() {
+  "use strict";
+
+  var form = document.getElementById('form-login');
+  var btn = document.getElementById('btn-entrar');
+  var erroEl = document.getElementById('erro');
+  var enviando = false;
+
+  // Se já tem token salvo, tenta ir direto pro painel
+  var tokenExistente = localStorage.getItem('afeto_admin_token');
+  if (tokenExistente) {
+    window.location.href = 'painel.html';
+    return;
+  }
+
+  function mostrarErro(msg) {
+    erroEl.textContent = msg;
+    erroEl.classList.add('ativo');
+  }
+  function esconderErro() {
+    erroEl.classList.remove('ativo');
+  }
+
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    if (enviando) return;
+
+    esconderErro();
+
+    var email = document.getElementById('email').value.trim();
+    var senha = document.getElementById('senha').value;
+
+    if (!email || !senha) {
+      mostrarErro('Preencha email e senha.');
+      return;
+    }
+
+    enviando = true;
+    btn.disabled = true;
+    btn.innerHTML = 'Entrando... <i class="fa-solid fa-spinner fa-spin"></i>';
+
+    try {
+      var resp = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email, senha: senha })
+      });
+
+      var data = await resp.json();
+
+      if (!resp.ok || !data.ok) {
+        mostrarErro(data.error || 'Email ou senha incorretos.');
+        btn.disabled = false;
+        btn.innerHTML = 'Entrar <i class="fa-solid fa-arrow-right"></i>';
+        enviando = false;
+        return;
+      }
+
+      // Guarda o token e o user
+      localStorage.setItem('afeto_admin_token', data.token);
+      localStorage.setItem('afeto_admin_email', data.user.email);
+      localStorage.setItem('afeto_admin_expira', String(Date.now() + (data.expira_em * 1000)));
+
+      // Vai pro painel
+      window.location.href = 'painel.html';
+
+    } catch (err) {
+      mostrarErro('Erro de rede. Tente novamente.');
+      btn.disabled = false;
+      btn.innerHTML = 'Entrar <i class="fa-solid fa-arrow-right"></i>';
+      enviando = false;
+    }
+  });
+})();
+</script>
+</body>
+</html>
