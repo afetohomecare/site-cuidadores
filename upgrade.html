@@ -436,7 +436,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       dados.append('indicadoPor', document.getElementById('indicadoPor').value.trim());
       dados.append('origem', 'upgrade');
 
-      var envio = fetch('/upgrade', { method: 'POST', body: dados })
+     var envio = fetch('/api/upgrade', { method: 'POST', body: dados })
         .then(function(r) { return r.ok ? 'ok' : 'erro'; })
         .catch(function() { return 'erro'; });
 
