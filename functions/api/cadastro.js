@@ -1,5 +1,5 @@
 // functions/api/cadastro.js
-// Versão: 2026-09-13 — com typecast + checagem de erro + campos corrigidos
+// Versão: 2026-09-13
 
 const AIRTABLE_BASE = 'apphAWeT91l1dMWM5';
 const AIRTABLE_TABLE = 'Cuidadores';
@@ -14,13 +14,12 @@ export async function onRequest(context) {
   try {
     const formData = await context.request.formData();
 
-    // ========== CAMPOS DO FORMULÁRIO ==========
     const nome = (formData.get("nome") || "").trim();
     const whatsapp = (formData.get("whatsapp") || "").trim();
     const cpf = (formData.get("cpf") || "").trim();
     const bio = (formData.get("bio") || "").trim();
     const motivacao = (formData.get("motivacao") || "").trim();
-    const especialidade = (formData.get("profissao") || "").trim(); // form manda "profissao", salvamos em Especialidade
+    const especialidade = (formData.get("profissao") || "").trim();
     const coren = (formData.get("coren") || "").trim();
     const experiencia = (formData.get("experiencia") || "").trim();
     const bairrosStr = (formData.get("bairros") || "").trim();
@@ -32,7 +31,6 @@ export async function onRequest(context) {
     const plano = (formData.get("plano") || "gratis").toLowerCase();
     const foto = formData.get("foto");
 
-    // ========== VALIDAÇÃO BÁSICA ==========
     if (!nome || !whatsapp || !cpf) {
       return jsonResp({ error: "Campos obrigatórios ausentes." }, 400);
     }
@@ -40,7 +38,6 @@ export async function onRequest(context) {
     const cpfLimpo = cpf.replace(/\D/g, '');
     const whatsLimpo = whatsapp.replace(/\D/g, '');
 
-    // ========== DEFINE STATUS CONFORME O PLANO ==========
     let statusPagamento = 'Gratuito';
     let planoProfissional = false;
     let planoDestaque = false;
@@ -53,7 +50,6 @@ export async function onRequest(context) {
       planoDestaque = true;
     }
 
-    // ========== 1. BUSCAR SE JÁ EXISTE (por CPF ou WhatsApp) ==========
     const formula = `OR({CPF}="${escapeFormula(cpfLimpo)}", {WhatsApp}="${escapeFormula(whatsLimpo)}")`;
     const listUrl = `https://api.airtable.com/v0/${AIRTABLE_BASE}/${AIRTABLE_TABLE}?filterByFormula=${encodeURIComponent(formula)}&maxRecords=1`;
 
@@ -67,29 +63,27 @@ export async function onRequest(context) {
       registroExistente = listData.records[0];
     }
 
-    // ========== 2. MONTA OS CAMPOS A SALVAR ==========
-    // Bairros: pega o primeiro como principal (campo Bairro) e todo o joined em Bairros
     const bairrosArray = bairrosStr.split('|').map(function(b) { return b.trim(); }).filter(function(b) { return b; });
     const bairroPrincipal = bairrosArray[0] || '';
 
     const campos = {
       Nome: nome,
       WhatsApp: whatsapp,
-      WhatsAppAgencia: whatsapp,                    // perfil.html lê esse campo
+      WhatsAppAgencia: whatsapp,
       CPF: cpf,
       Apresentacao: bio,
       Motivacao: motivacao,
-      Especialidade: especialidade,                 // frontend lê Especialidade
+      Especialidade: especialidade,
       Experiencia: experiencia,
-      Bairro: bairroPrincipal,                      // frontend lê Bairro (singular, principal)
-      Bairros: bairrosStr,                          // guarda lista completa
-      Preco: parseFloat(valorPlantao) || 0,         // frontend lê Preco
-      ValorPlantao: parseFloat(valorPlantao) || 0,  // compatibilidade legado
+      Bairro: bairroPrincipal,
+      Bairros: bairrosStr,
+      Preco: parseFloat(valorPlantao) || 0,
+      ValorPlantao: parseFloat(valorPlantao) || 0,
       Turno: turno,
       Cursos: cursos,
       StatusPagamento: statusPagamento,
       Aprovada: false,
-      Disponivel: true,                             // controla banner e status
+      Disponivel: true,
       PlanoProfissional: planoProfissional,
       PlanoDestaque: planoDestaque
     };
@@ -101,13 +95,11 @@ export async function onRequest(context) {
 
     if (indicadoPor) campos.IndicadoPor = indicadoPor;
 
-    // ========== 3. CRIA OU ATUALIZA O REGISTRO ==========
     let recordId;
     let foiCriado = false;
     let respostaAirtable;
 
     if (registroExistente) {
-      // ---- UPDATE ----
       recordId = registroExistente.id;
       const updateUrl = `https://api.airtable.com/v0/${AIRTABLE_BASE}/${AIRTABLE_TABLE}/${recordId}`;
 
@@ -117,10 +109,7 @@ export async function onRequest(context) {
           Authorization: `Bearer ${AIRTABLE_API_KEY}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          fields: campos,
-          typecast: true
-        })
+        body: JSON.stringify({ fields: campos, typecast: true })
       });
       respostaAirtable = await updateResp.json();
 
@@ -132,7 +121,6 @@ export async function onRequest(context) {
         }, 502);
       }
     } else {
-      // ---- CREATE ----
       const createUrl = `https://api.airtable.com/v0/${AIRTABLE_BASE}/${AIRTABLE_TABLE}`;
 
       const createResp = await fetch(createUrl, {
@@ -141,10 +129,7 @@ export async function onRequest(context) {
           Authorization: `Bearer ${AIRTABLE_API_KEY}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          fields: campos,
-          typecast: true
-        })
+        body: JSON.stringify({ fields: campos, typecast: true })
       });
       respostaAirtable = await createResp.json();
 
@@ -160,7 +145,6 @@ export async function onRequest(context) {
       foiCriado = true;
     }
 
-    // ========== 4. UPLOAD DA FOTO ==========
     let fotoEnviada = false;
     if (foto && foto.size > 0 && recordId) {
       try {
@@ -171,7 +155,6 @@ export async function onRequest(context) {
       }
     }
 
-    // ========== 5. NOTIFICA TELEGRAM ==========
     await notificarTelegram(context, {
       titulo: foiCriado
         ? (plano === 'gratis' ? "💜 Novo cadastro GRÁTIS" : "🎉 Novo cadastro " + plano.toUpperCase())
@@ -205,7 +188,6 @@ export async function onRequest(context) {
   }
 }
 
-// ========== HELPERS ==========
 function jsonResp(obj, status) {
   return new Response(JSON.stringify(obj), {
     status: status || 200,
@@ -213,12 +195,10 @@ function jsonResp(obj, status) {
   });
 }
 
-// Escapa aspas duplas em valores dentro de filterByFormula
 function escapeFormula(str) {
   return String(str || '').replace(/"/g, '\\"');
 }
 
-// ========== UPLOAD DA FOTO VIA BASE64 ==========
 async function subirFotoAirtable(apiKey, recordId, file) {
   const buffer = await file.arrayBuffer();
   const bytes = new Uint8Array(buffer);
@@ -253,7 +233,6 @@ async function subirFotoAirtable(apiKey, recordId, file) {
   return true;
 }
 
-// ========== NOTIFICAÇÃO NO TELEGRAM ==========
 async function notificarTelegram(context, dados) {
   try {
     const token = context.env.TELEGRAM_BOT_TOKEN;

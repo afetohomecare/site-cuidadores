@@ -875,7 +875,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     scale: 1.0
   };
 
-  // Ao escolher uma foto, abre o modal de ajuste
   inputFoto.addEventListener('change', function() {
     var file = this.files[0];
     if (!file) return;
@@ -891,7 +890,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       return;
     }
 
-    // Limpa o input pra poder escolher a mesma foto depois
     this.value = '';
 
     var reader = new FileReader();
@@ -901,13 +899,10 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
         fotoModal.classList.add('ativo');
         document.body.style.overflow = 'hidden';
 
-        // Atualiza o tamanho do viewport real (mobile x desktop)
         VIEWPORT_SIZE = fotoCropViewport.offsetWidth || 260;
 
-        // Coloca a imagem no DOM
         fotoCropImg.src = e.target.result;
 
-        // Pequeno delay pra garantir que o DOM renderizou o img
         setTimeout(function() {
           abrirCropModal(file, tempImg.naturalWidth, tempImg.naturalHeight);
         }, 30);
@@ -928,7 +923,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     cropState.posY = 0;
     cropState.scale = 1;
 
-    // Fit "cover": a menor dimensão preenche o viewport
     var ratio = nw / nh;
     if (ratio >= 1) {
       cropState.baseH = VIEWPORT_SIZE;
@@ -953,7 +947,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     img.style.transform = 'translate(' + cropState.posX + 'px, ' + cropState.posY + 'px) scale(' + cropState.scale + ')';
   }
 
-  // ===== Arrastar (mouse e toque) =====
   var isDragging = false;
   var dragStartX = 0, dragStartY = 0;
   var dragStartPosX = 0, dragStartPosY = 0;
@@ -979,7 +972,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   fotoCropViewport.addEventListener('pointerup', function() { isDragging = false; });
   fotoCropViewport.addEventListener('pointercancel', function() { isDragging = false; });
 
-  // ===== Zoom =====
   fotoZoom.addEventListener('input', function() {
     cropState.scale = parseInt(this.value) / 100;
     aplicarCropTransform();
@@ -994,7 +986,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     aplicarCropTransform();
   }, { passive: false });
 
-  // ===== Botões =====
   fotoBtnCancel.addEventListener('click', function() {
     fecharCropModal();
   });
@@ -1017,7 +1008,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     var W = cropState.baseW;
     var H = cropState.baseH;
 
-    // Mapeia coordenadas do viewport para pixel natural da imagem
     function viewportToNatural(qx, qy) {
       var px = W / 2 + (qx - VIEWPORT_SIZE / 2 - Tx) / S;
       var py = H / 2 + (qy - VIEWPORT_SIZE / 2 - Ty) / S;
@@ -1289,21 +1279,33 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       dados.append('plano', plano);
       dados.append('origem', 'cadastro');
 
+      // ⚡ CORRIGIDO: mostra o erro real do servidor
       var envio = fetch('/api/cadastro', { method: 'POST', body: dados })
-        .then(function(r) { return r.ok ? 'ok' : 'erro'; })
-        .catch(function() { return 'erro'; });
+        .then(function(r) {
+          return r.text().then(function(txt) {
+            return { ok: r.ok, status: r.status, body: txt };
+          });
+        })
+        .catch(function(err) {
+          return { ok: false, status: 0, body: 'Erro de rede: ' + err.message };
+        });
 
-      var timeout = new Promise(function(resolve) { setTimeout(resolve, 25000, 'timeout'); });
+      var timeout = new Promise(function(resolve) {
+        setTimeout(resolve, 25000, { ok: false, status: 0, body: 'Timeout 25s — Airtable/Foto demorou demais' });
+      });
+
       var resultado = await Promise.race([envio, timeout]);
 
-      if (resultado === 'erro') throw new Error('Falha');
+      if (!resultado.ok) {
+        alert('ERRO REAL:\n\nHTTP ' + resultado.status + '\n\n' + String(resultado.body).substring(0, 800));
+        throw new Error('Falha');
+      }
 
       formArea.style.display = 'none';
       telaSucesso.classList.add('ativo');
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
     } catch (err) {
-      alert('Não foi possível enviar. Verifique sua conexão e tente novamente.');
       btnEnviar.disabled = false;
       btnEnviar.innerHTML = textoOriginal;
     } finally {
