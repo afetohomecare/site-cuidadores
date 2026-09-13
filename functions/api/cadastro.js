@@ -1,8 +1,9 @@
 // functions/api/cadastro.js
-// Versão: 2026-09-13 — endpoint novo da Airtable
+// Versão: 2026-09-13 — link no Telegram + notificação única
 
 const AIRTABLE_BASE = 'apphAWeT91l1dMWM5';
 const AIRTABLE_TABLE = 'Cuidadores';
+const SITE_CUIDADORAS = 'https://afetocuidadores.pages.dev';
 
 export async function onRequest(context) {
   const AIRTABLE_API_KEY = context.env.AIRTABLE_API_KEY;
@@ -148,7 +149,10 @@ export async function onRequest(context) {
       foiCriado = true;
     }
 
-    // ========== 4. NOTIFICA TELEGRAM (ANTES DA FOTO) ==========
+    // 🎯 Monta o link do perfil
+    const linkPerfil = `${SITE_CUIDADORAS}/perfil.html?id=${recordId}`;
+
+    // ========== 4. NOTIFICA TELEGRAM (ÚNICA MENSAGEM) ==========
     await notificarTelegram(context, {
       titulo: foiCriado
         ? (plano === 'gratis' ? "💜 Novo cadastro GRÁTIS" : "🎉 Novo cadastro " + plano.toUpperCase())
@@ -162,8 +166,7 @@ export async function onRequest(context) {
       subespecialidades: subespecialidades,
       indicadoPor: indicadoPor,
       recordId: recordId,
-      fotoEnviada: undefined,
-      fotoErro: null
+      linkPerfil: linkPerfil
     });
 
     // ========== 5. UPLOAD DA FOTO (com timeout) ==========
@@ -179,26 +182,12 @@ export async function onRequest(context) {
 
         await Promise.race([uploadPromise, timeoutPromise]);
         fotoEnviada = true;
-
-        // Avisa sucesso por Telegram também (opcional)
-        await notificarTelegram(context, {
-          titulo: "📸 Foto enviada com sucesso",
-          nome: nome,
-          whatsapp: whatsapp,
-          cpf: cpf,
-          profissao: especialidade,
-          plano: plano,
-          bio: '',
-          subespecialidades: '',
-          indicadoPor: '',
-          recordId: recordId,
-          fotoEnviada: true,
-          fotoErro: null
-        });
+        console.log('📸 Foto enviada com sucesso');
       } catch (err) {
         fotoErro = String(err && err.message ? err.message : err);
         console.error("Erro ao subir foto:", fotoErro);
 
+        // ⚠️ Só notifica se a foto FALHAR (raro)
         await notificarTelegram(context, {
           titulo: "⚠️ Foto falhou no cadastro",
           nome: nome,
@@ -224,6 +213,7 @@ export async function onRequest(context) {
       ok: true,
       recordId: recordId,
       criado: foiCriado,
+      linkPerfil: linkPerfil,
       fotoEnviada: fotoEnviada,
       fotoErro: fotoErro,
       precisaPagar: (plano === 'profissional' || plano === 'destaque')
@@ -251,7 +241,7 @@ function escapeFormula(str) {
   return String(str || '').replace(/"/g, '\\"');
 }
 
-// ========== UPLOAD DA FOTO — ENDPOINT NOVO ==========
+// ========== UPLOAD DA FOTO ==========
 async function subirFotoAirtable(apiKey, recordId, file) {
   const buffer = await file.arrayBuffer();
   const bytes = new Uint8Array(buffer);
@@ -259,7 +249,6 @@ async function subirFotoAirtable(apiKey, recordId, file) {
 
   console.log('📸 Foto:', tamanhoKB + 'KB, tipo:', file.type);
 
-  // Base64
   let binary = '';
   const chunkSize = 4096;
   for (let i = 0; i < bytes.length; i += chunkSize) {
@@ -267,9 +256,6 @@ async function subirFotoAirtable(apiKey, recordId, file) {
   }
   const base64 = btoa(binary);
 
-  console.log('📸 Base64:', Math.round(base64.length / 1024) + 'KB');
-
-  // ⚡ ENDPOINT NOVO: content.airtable.com (sem a tabela no path)
   const uploadUrl = `https://content.airtable.com/v0/${AIRTABLE_BASE}/${recordId}/Foto/uploadAttachment`;
 
   const resp = await fetch(uploadUrl, {
@@ -287,12 +273,10 @@ async function subirFotoAirtable(apiKey, recordId, file) {
 
   if (!resp.ok) {
     const erro = await resp.text();
-    console.error('📸 Falhou:', resp.status, erro.substring(0, 500));
+    console.error('📸 Upload falhou:', resp.status, erro.substring(0, 500));
     throw new Error(`[${resp.status}] ${erro.substring(0, 200)}`);
   }
 
-  const respData = await resp.json();
-  console.log('📸 Foto enviada:', JSON.stringify(respData).substring(0, 200));
   return true;
 }
 
@@ -326,11 +310,15 @@ async function notificarTelegram(context, dados) {
     if (dados.subespecialidades) msg += `\n🏷️ *Especialidades:* ${dados.subespecialidades}\n`;
     if (dados.indicadoPor) msg += `\n🎁 *Indicada por:* ${dados.indicadoPor}\n`;
 
-    if (dados.fotoEnviada !== undefined) {
-      msg += `\n📸 *Foto:* ${dados.fotoEnviada ? '✅ enviada' : '❌ não enviada'}\n`;
-      if (!dados.fotoEnviada && dados.fotoErro) {
-        msg += `⚠️ *Erro:* ${String(dados.fotoErro).substring(0, 200)}\n`;
-      }
+    // 🔗 Link do perfil
+    if (dados.linkPerfil) {
+      msg += `\n🔗 *Link do perfil:*\n${dados.linkPerfil}\n`;
+    }
+
+    // ⚠️ Só mostra se for erro de foto
+    if (dados.fotoEnviada === false && dados.fotoErro) {
+      msg += `\n📸 *Foto:* ❌ falhou\n`;
+      msg += `⚠️ *Erro:* ${String(dados.fotoErro).substring(0, 200)}\n`;
     }
 
     msg += `\n🕒 ${agora}`;

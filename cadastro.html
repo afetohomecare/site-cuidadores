@@ -82,7 +82,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 .input-prefix span { position: absolute; left: 18px; font-weight: 800; color: var(--lilas-escuro); font-size: 15px; pointer-events: none; z-index: 2; }
 .input-prefix input { padding-left: 48px !important; }
 
-/* CARD INSTRUÇÕES DE FOTO */
 .foto-instrucoes {
   background: linear-gradient(135deg, #f5f3ff, #ede9fe);
   border: 1px solid #c4b5fd;
@@ -93,7 +92,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 .foto-instrucoes h4 { font-size: 15px; font-weight: 900; color: var(--lilas-escuro); margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
 .foto-instrucoes p { font-size: 13px; font-weight: 700; color: var(--cinza-fonte); line-height: 1.55; margin: 0; }
 
-/* UPLOAD DE FOTO */
 .foto-upload {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: 12px; border: 2px dashed #cbd5e1; border-radius: 20px; padding: 32px 20px;
@@ -120,7 +118,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 .foto-upload .trocar-foto { display: none; font-size: 13px; font-weight: 800; color: #059669; }
 .foto-upload.tem-foto .trocar-foto { display: block; }
 
-/* CHECKBOXES */
 .checkbox-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; }
 .checkbox-item {
   display: flex; align-items: center; gap: 10px;
@@ -157,7 +154,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 }
 .contador-subs.completo { background: linear-gradient(135deg, #ecfdf5, #d1fae5); color: #059669; border-color: #a7f3d0; }
 
-/* BAIRROS */
 .wrap-bairros { position: relative; margin-top: 6px; }
 .caixa-bairros {
   display: flex; flex-wrap: wrap; gap: 6px; padding: 10px;
@@ -189,7 +185,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 .opcao-bairro:hover { background: #f5f3ff; color: var(--lilas-escuro); }
 .opcao-bairro.sem-resultado { color: #999; cursor: default; font-style: italic; font-weight: 600; }
 
-/* CAMPOS CONDICIONAIS */
 .campo-oculto { display: none; }
 .campo-oculto.ativo { display: block; animation: fadeIn 0.3s ease; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
@@ -199,7 +194,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 .aviso-noturno { display: flex; gap: 12px; font-size: 13.5px; color: #6d28d9; background: linear-gradient(135deg, #f5f3ff, #ede9fe); padding: 16px 18px; border-radius: 12px; margin-top: 12px; border-left: 4px solid var(--lilas); line-height: 1.55; font-weight: 600; }
 .aviso-noturno .emoji { font-size: 22px; line-height: 1; }
 
-/* TERMOS */
 .termos { margin-top: 28px; padding: 20px; background: #f5f3ff; border-radius: 16px; border-left: 4px solid var(--lilas); }
 .termos-titulo { font-size: 15px; font-weight: 900; color: var(--lilas-escuro); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
 .termo-item { display: flex; align-items: flex-start; gap: 12px; margin-top: 12px; font-size: 13.5px; line-height: 1.55; font-weight: 600; }
@@ -218,7 +212,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 .termo-item label { font-weight: 600 !important; margin: 0 !important; font-size: 13.5px !important; cursor: pointer; font-family: 'Nunito', sans-serif; color: var(--preto-fonte); }
 .termo-item a { color: var(--lilas-escuro); text-decoration: underline; font-weight: 800; }
 
-/* BOTÃO */
 .btn-enviar {
   width: 100%; padding: 20px;
   background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro));
@@ -234,7 +227,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 .btn-enviar.pago { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 10px 25px rgba(16,185,129,0.3); }
 .btn-enviar.pago:hover:not(:disabled) { box-shadow: 0 15px 35px rgba(16,185,129,0.45); }
 
-/* SUCESSO */
 .tela-sucesso {
   display: none; text-align: center; padding: 55px 35px;
   background: white; border-radius: 30px;
@@ -271,12 +263,96 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   border: none; cursor: pointer; font-family: 'Nunito', sans-serif;
 }
 .btn-pagamento:hover { transform: translateY(-3px); box-shadow: 0 18px 40px rgba(139,92,246,0.45); }
+
+/* ============ BLOCO DE LINK EXCLUSIVO ============ */
+.bloco-link {
+  background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+  border: 2px solid #c4b5fd;
+  border-radius: 22px;
+  padding: 26px 24px;
+  margin-bottom: 24px;
+  text-align: center;
+}
+.bloco-link .link-titulo {
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--lilas-escuro);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.bloco-link .link-sub {
+  font-size: 13px;
+  color: var(--cinza-fonte);
+  font-weight: 600;
+  margin-bottom: 16px;
+  line-height: 1.55;
+}
+.bloco-link .link-caixa {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+  margin-bottom: 14px;
+}
+.bloco-link input {
+  flex: 1;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 2px solid #ddd6fe;
+  background: white;
+  font-family: 'Nunito', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--preto-fonte);
+  outline: none;
+  min-width: 0;
+}
+.bloco-link input:focus {
+  border-color: var(--lilas);
+  box-shadow: 0 0 0 4px rgba(139,92,246,0.12);
+}
+.bloco-link .btn-copiar {
+  background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro));
+  color: white;
+  border: none;
+  padding: 14px 22px;
+  border-radius: 14px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  box-shadow: 0 8px 20px rgba(139,92,246,0.3);
+}
+.bloco-link .btn-copiar:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 25px rgba(139,92,246,0.45);
+}
+.bloco-link .btn-copiar.copiado {
+  background: linear-gradient(135deg, #10b981, #059669);
+}
+.bloco-link .link-aviso {
+  font-size: 12.5px;
+  color: var(--lilas-escuro);
+  font-weight: 700;
+  line-height: 1.55;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
 .rodape-sucesso { margin-top: 32px; padding-top: 24px; border-top: 1px solid #f1f5f9; display: flex; flex-direction: column; align-items: center; gap: 10px; }
 .rodape-sucesso .afeto-frase { font-size: 13px; font-weight: 800; color: var(--lilas-escuro); font-style: italic; max-width: 400px; line-height: 1.55; }
 .rodape-sucesso a { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 800; color: var(--cinza-azulado); text-decoration: none; transition: 0.3s; }
 .rodape-sucesso a:hover { color: var(--lilas); }
 
-/* RODAPÉ MINIMALISTA */
 .rodape-minimal {
   margin-top: 50px;
   padding: 30px 20px 40px;
@@ -440,6 +516,8 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   .secao-titulo { font-size: 12px; }
   .rodape-minimal { padding: 25px 15px 35px; }
   .foto-crop-viewport { width: 220px; height: 220px; }
+  .bloco-link .link-caixa { flex-direction: column; }
+  .bloco-link .btn-copiar { justify-content: center; }
 }
 </style>
 </head>
@@ -683,6 +761,25 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       Recebemos seu cadastro com muito carinho.
     </p>
 
+    <div id="bloco-link" class="bloco-link" style="display: none;">
+      <div class="link-titulo">
+        <i class="fa-solid fa-link"></i> Seu link exclusivo Afeto
+      </div>
+      <div class="link-sub">
+        Guarde com carinho! É o seu cartão de visita digital.
+      </div>
+      <div class="link-caixa">
+        <input type="text" id="link-perfil-input" readonly value="">
+        <button type="button" class="btn-copiar" id="btn-copiar-link">
+          <i class="fa-solid fa-copy"></i> Copiar
+        </button>
+      </div>
+      <div class="link-aviso">
+        <i class="fa-solid fa-hourglass-half"></i>
+        Seu perfil está em <strong>análise</strong> — em breve nossa equipe libera 💜
+      </div>
+    </div>
+
     <div id="bloco-gratis" class="bloco-info">
       <span class="emoji">💜</span>
       <div class="txt">
@@ -788,6 +885,39 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     textoSucesso.textContent = 'Recebemos seu cadastro com muito carinho. Em breve, famílias poderão conhecer o seu trabalho.';
     blocoGratis.style.display = 'flex';
     blocoPago.style.display = 'none';
+  }
+
+  // ============ BOTÃO COPIAR LINK ============
+  var btnCopiar = document.getElementById('btn-copiar-link');
+  if (btnCopiar) {
+    btnCopiar.addEventListener('click', function() {
+      var input = document.getElementById('link-perfil-input');
+      if (!input) return;
+      var texto = input.value;
+      
+      function copiarComFallback(str) {
+        if (navigator.clipboard && window.isSecureContext) {
+          return navigator.clipboard.writeText(str);
+        }
+        input.select();
+        input.setSelectionRange(0, 99999);
+        try { document.execCommand('copy'); } catch (e) {}
+        return Promise.resolve();
+      }
+
+      copiarComFallback(texto).then(function() {
+        var htmlOriginal = btnCopiar.innerHTML;
+        btnCopiar.innerHTML = '<i class="fa-solid fa-check"></i> Copiado!';
+        btnCopiar.classList.add('copiado');
+        setTimeout(function() {
+          btnCopiar.innerHTML = htmlOriginal;
+          btnCopiar.classList.remove('copiado');
+        }, 2200);
+      }).catch(function() {
+        input.select();
+        alert('Não conseguimos copiar automaticamente. Selecione o link e copie manualmente 💜');
+      });
+    });
   }
 
   var form = document.getElementById('form-cadastro');
@@ -1282,15 +1412,17 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       var envio = fetch('/api/cadastro', { method: 'POST', body: dados })
         .then(function(r) {
           return r.text().then(function(txt) {
-            return { ok: r.ok, status: r.status, body: txt };
+            var parsed = null;
+            try { parsed = JSON.parse(txt); } catch (e) {}
+            return { ok: r.ok, status: r.status, body: txt, data: parsed };
           });
         })
         .catch(function(err) {
-          return { ok: false, status: 0, body: 'Erro de rede: ' + err.message };
+          return { ok: false, status: 0, body: 'Erro de rede: ' + err.message, data: null };
         });
 
       var timeout = new Promise(function(resolve) {
-        setTimeout(resolve, 30000, { ok: false, status: 0, body: 'Timeout 30s — servidor demorou demais' });
+        setTimeout(resolve, 30000, { ok: false, status: 0, body: 'Timeout 30s — servidor demorou demais', data: null });
       });
 
       var resultado = await Promise.race([envio, timeout]);
@@ -1298,6 +1430,16 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       if (!resultado.ok) {
         alert('ERRO REAL:\n\nHTTP ' + resultado.status + '\n\n' + String(resultado.body).substring(0, 800));
         throw new Error('Falha');
+      }
+
+      // 🔗 Preenche o link do perfil
+      if (resultado.data && resultado.data.recordId) {
+        var linkPerfil = resultado.data.linkPerfil 
+          || ('https://afetocuidadores.pages.dev/perfil.html?id=' + resultado.data.recordId);
+        var inputLink = document.getElementById('link-perfil-input');
+        var blocoLink = document.getElementById('bloco-link');
+        if (inputLink) inputLink.value = linkPerfil;
+        if (blocoLink) blocoLink.style.display = 'block';
       }
 
       formArea.style.display = 'none';
