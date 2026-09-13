@@ -1,59 +1,107 @@
-// functions/api/cuidadores.js
-// Proxy de leitura do Airtable — esconde o token no servidor
+// ============================================================
+// AFETO — API: lista de cuidadoras para a vitrine
+// ------------------------------------------------------------
+// Lê do Supabase (PostgreSQL) somente as cuidadoras que estão:
+//   • aprovada = true
+//   • status_pagamento = 'Pago'
+//   • tem plano_profissional OU plano_destaque ativo
+//
+// A filtragem é feita NO BANCO (não no navegador), para não
+// trafegar dados de perfis não aprovados pela rede.
+//
+// Também devolve apenas campos públicos — nunca CPF, e-mail,
+// IDs do Asaas ou qualquer dado que não seja de vitrine.
+// ============================================================
 
-export async function onRequest(context) {
-  const API_KEY = context.env.AIRTABLE_API_KEY;
-  const BASE_ID = 'apphAWeT91l1dMWM5';
-  const TABLE_NAME = 'Cuidadores';
+// Campos que podem ir para o navegador (público)
+const CAMPOS_PUBLICOS = [
+  'id',
+  'nome',
+  'whatsapp',
+  'whatsapp_agencia',
+  'foto_url',
+  'apresentacao',
+  'motivacao',
+  'especialidade',
+  'experiencia',
+  'bairro',
+  'bairros',
+  'preco',
+  'turno',
+  'cursos',
+  'subespecialidades',
+  'categoria',
+  'nota',
+  'horas',
+  'verificada',
+  'disponivel',
+  'plano_profissional',
+  'plano_destaque',
+  'coren',
+  'comentarios',
+  'criado_em'
+];
 
-  if (!API_KEY) {
-    return new Response(JSON.stringify({ error: 'Config ausente' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+// Resposta JSON de erro padronizada
+function respostaErro(mensagem, status) {
+  return new Response(JSON.stringify({ erro: mensagem }), {
+    status: status,
+    headers: { 'Content-Type': 'application/json; charset=utf-8' }
+  });
+}
+
+export async function onRequestGet(context) {
+  const { env } = context;
+
+  // 1) Confere se as variáveis de ambiente existem
+  if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_KEY) {
+    return respostaErro('Configuração do servidor ausente.', 500);
   }
 
+  // 2) Monta a query do Supabase (PostgREST)
+  //    Filtra tudo no banco — não no JavaScript.
+  const parametros = [
+    'aprovada=eq.true',
+    'status_pagamento=eq.Pago',
+    'or=(plano_profissional.eq.true,plano_destaque.eq.true)',
+    'select=' + CAMPOS_PUBLICOS.join(','),
+    'order=criado_em.desc'
+  ].join('&');
+
+  const url = env.SUPABASE_URL + '/rest/v1/cuidadores?' + parametros;
+
+  // 3) Consulta o Supabase
+  let resposta;
   try {
-    const requestUrl = new URL(context.request.url);
-    const id = requestUrl.searchParams.get('id');
-
-    // Se veio ?id=RECxxx → busca só 1 cuidadora
-    if (id) {
-      const url = `https://api.airtable.com/v0/${BASE_ID}/${TABLE_NAME}/${id}`;
-      const resp = await fetch(url, {
-        headers: { Authorization: `Bearer ${API_KEY}` }
-      });
-      const data = await resp.json();
-
-      return new Response(JSON.stringify(data), {
-        status: resp.status,
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'public, max-age=60'
-        }
-      });
-    }
-
-    // Sem id → busca todas
-    const url = `https://api.airtable.com/v0/${BASE_ID}/${TABLE_NAME}?pageSize=100`;
-    const resp = await fetch(url, {
-      headers: { Authorization: `Bearer ${API_KEY}` }
-    });
-    const data = await resp.json();
-
-    return new Response(JSON.stringify(data), {
-      status: resp.status,
+    resposta = await fetch(url, {
       headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'public, max-age=60'
+        'apikey': env.SUPABASE_SERVICE_KEY,
+        'Authorization': 'Bearer ' + env.SUPABASE_SERVICE_KEY,
+        'Accept': 'application/json'
       }
     });
-
-  } catch (err) {
-    console.error("Erro proxy cuidadores:", err);
-    return new Response(JSON.stringify({ error: 'Falha' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+  } catch (erroRede) {
+    console.error('Falha de rede ao consultar Supabase:', erroRede);
+    return respostaErro('Não foi possível conectar ao banco de dados.', 502);
   }
+
+  // 4) Se o Supabase respondeu com erro, loga e devolve erro genérico
+  if (!resposta.ok) {
+    const detalhe = await resposta.text().catch(function () { return ''; });
+    console.error('Supabase respondeu', resposta.status, detalhe);
+    return respostaErro('Erro ao buscar cuidadoras.', 500);
+  }
+
+  // 5) Sucesso
+  const cuidadores = await resposta.json();
+
+  return new Response(JSON.stringify({ cuidadores: cuidadores }), {
+    status: 200,
+    headers: {
+      'Content-Type': 'application/json; charset=utf-8',
+      // Cache curto: 60 segundos. Reduz carga no banco sem deixar
+      // o perfil desatualizado por muito tempo.
+      'Cache-Control': 'public, max-age=60, s-maxage=60'
+    }
+  });
 }

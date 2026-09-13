@@ -14,8 +14,6 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preconnect" href="https://api.airtable.com">
-<link rel="preconnect" href="https://v5.airtableusercontent.com">
 <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -499,8 +497,11 @@ header {
 
 var params = new URLSearchParams(window.location.search);
 var recordId = params.get('id');
-var todosRegistros = [];
+var todosCuidadores = [];
 
+// Gera um nome de exibição curto e único.
+// Ex: "Maria Silva Santos" vira "Maria S." — se houver outra "Maria S.",
+// a segunda vira "Maria Silva S.", e assim por diante.
 function gerarNomeUnico(nome, todosNomes) {
     if (!nome) return '';
     var nomeLimpo = nome.trim();
@@ -544,6 +545,11 @@ function gerarNomeUnico(nome, todosNomes) {
     return nomeLimpo;
 }
 
+// Extrai comentários de um campo que pode vir como:
+//   • array (já separado)
+//   • string com "|||" como separador
+//   • string com parágrafos separados por linha em branco
+//   • string única
 function extrairComentarios(campo) {
     if (!campo) return [];
     if (Array.isArray(campo)) {
@@ -560,10 +566,14 @@ function extrairComentarios(campo) {
     return [texto];
 }
 
-function resizeAirtablePhoto(url, width, height) {
-    if (!url) return '';
-    var sep = url.indexOf('?') !== -1 ? '&' : '?';
-    return url + sep + 'width=' + width + '&height=' + height + '&fit=cover';
+// Converte um preço que pode vir como número, "200" ou "R$ 200,00" para Number.
+// Devolve 0 se não conseguir.
+function parsePreco(valor) {
+    if (valor === null || valor === undefined) return 0;
+    if (typeof valor === 'number') return isFinite(valor) ? valor : 0;
+    var texto = String(valor).replace(/[^\d,\.]/g, '').replace(',', '.');
+    var n = parseFloat(texto);
+    return isNaN(n) ? 0 : n;
 }
 
 async function carregarTudo() {
@@ -578,10 +588,10 @@ async function carregarTudo() {
         var response = await fetch('/api/cuidadores');
         var data = await response.json();
 
-        if (!data.records) throw new Error('Sem dados');
+        if (!data || !data.cuidadores) throw new Error('Sem dados');
 
-        todosRegistros = data.records;
-        var perfilAtual = todosRegistros.find(function(r) { return r.id === recordId; });
+        todosCuidadores = data.cuidadores;
+        var perfilAtual = todosCuidadores.find(function(c) { return c.id === recordId; });
 
         if (!perfilAtual) {
             container.innerHTML = '<div style="padding: 60px; text-align: center;"><h2>Profissional não encontrada</h2></div>';
@@ -589,55 +599,42 @@ async function carregarTudo() {
         }
 
         renderizarPerfil(perfilAtual);
-        renderizarVejaTambem(perfilAtual, todosRegistros);
+        renderizarVejaTambem(perfilAtual, todosCuidadores);
 
     } catch (error) {
         container.innerHTML = '<div style="padding: 60px; text-align: center; color:red;">Erro ao carregar o perfil.</div>';
     }
 }
 
-function renderizarPerfil(record) {
+function renderizarPerfil(cuidadora) {
     var container = document.getElementById('cardPerfil');
-    var f = record.fields;
 
-    // 🚫 BLOQUEIO: perfil não aprovado
-    if (f.Aprovada !== true) {
-        container.innerHTML = 
-            '<div style="padding: 70px 30px; text-align: center;">' +
-                '<div style="font-size: 60px; margin-bottom: 22px; line-height: 1;">🔒</div>' +
-                '<h2 style="color: #1f1f1f; margin-bottom: 14px; font-weight: 900; font-size: 26px;">Perfil em análise</h2>' +
-                '<p style="color: #666; font-weight: 600; max-width: 420px; margin: 0 auto; line-height: 1.6; font-size: 15px;">Esta profissional ainda não foi aprovada pela equipe Afeto. Assim que estiver tudo certinho, o perfil estará disponível. 💜</p>' +
-            '</div>';
-        return;
-    }
+    // A API já devolve apenas cuidadoras aprovadas, com pagamento em dia
+    // e plano ativo. Então aqui confiamos nesses dados — não precisa
+    // refiltrar. Só se a pessoa acessar um id inexistente é que cai no
+    // "não encontrada" acima.
 
-    var wppCuidadora = f.WhatsAppAgencia || '5541997674866';
-    var horasNum = parseInt(f.Horas) || 0;
-    var precoBase = parseFloat(f.Preco) || 0;
+    var wppCuidadora = cuidadora.whatsapp_agencia || cuidadora.whatsapp || '5541997674866';
+    var horasNum = parseInt(cuidadora.horas) || 0;
+    var precoBase = parsePreco(cuidadora.preco);
 
-    // 🎯 3 travas: plano pago + status pago + aprovada (já garantido pelo bloqueio acima)
-    var temPlanoPago = (f.PlanoProfissional === true) || (f.PlanoDestaque === true);
-    var statusPago = f.StatusPagamento === 'Pago';
-    var temAcessoCompleto = temPlanoPago && statusPago;
+    var estaDisponivel = cuidadora.disponivel === true;
 
-    var estaDisponivel = (f.Disponivel === true) && temAcessoCompleto;
-
-    var todosNomes = todosRegistros.map(function(r) { return (r.fields && r.fields.Nome) || ''; });
-    var nomeExibicao = gerarNomeUnico(f.Nome || 'Sem nome', todosNomes);
-    var primeiroNome = (f.Nome || '').trim().split(/\s+/)[0] || 'profissional';
+    var todosNomes = todosCuidadores.map(function(c) { return c.nome || ''; });
+    var nomeExibicao = gerarNomeUnico(cuidadora.nome || 'Sem nome', todosNomes);
+    var primeiroNome = (cuidadora.nome || '').trim().split(/\s+/)[0] || 'profissional';
 
     var fotoHTML = '<i class="fa-solid fa-user"></i>';
-    if (temAcessoCompleto && f.Foto && f.Foto.length > 0) {
-        var fotoOtimizada = resizeAirtablePhoto(f.Foto[0].url, 600, 800);
-        fotoHTML = '<img src="' + fotoOtimizada + '" alt="' + nomeExibicao + '" loading="lazy" decoding="async">';
+    if (cuidadora.foto_url) {
+        fotoHTML = '<img src="' + cuidadora.foto_url + '" alt="' + nomeExibicao + '" loading="lazy" decoding="async">';
     }
 
     var seloCategoria = '';
-    var cardClassAdd = 'card-padrao';
+    var cardClassAdd = 'card-iniciante';
     var anelClassAdd = 'anel-iniciante';
 
-    if (f.Categoria) {
-        var catText = f.Categoria.toLowerCase();
+    if (cuidadora.categoria) {
+        var catText = cuidadora.categoria.toLowerCase();
         if (catText.indexOf('diamante') !== -1) { cardClassAdd = 'card-diamante'; anelClassAdd = 'anel-diamante'; seloCategoria = '<span class="cuidador-badge badge-diamante"><i class="fa-solid fa-award"></i> Diamante</span>'; }
         else if (catText.indexOf('ouro') !== -1) { cardClassAdd = 'card-ouro'; anelClassAdd = 'anel-ouro'; seloCategoria = '<span class="cuidador-badge badge-ouro"><i class="fa-solid fa-award"></i> Ouro</span>'; }
         else if (catText.indexOf('prata') !== -1) { cardClassAdd = 'card-prata'; anelClassAdd = 'anel-prata'; seloCategoria = '<span class="cuidador-badge badge-prata"><i class="fa-solid fa-award"></i> Prata</span>'; }
@@ -649,28 +646,40 @@ function renderizarPerfil(record) {
 
     container.className = 'perfil-card ' + cardClassAdd;
 
-    var seloVerificada = (temAcessoCompleto && f.Verificada) ? '<span class="cuidador-badge badge-verificada"><i class="fa-solid fa-check"></i> Verificada</span>' : '';
-    var seloCoren = f.COREN ? '<span class="cuidador-badge badge-coren"><i class="fa-solid fa-id-card"></i> COREN</span>' : '';
+    var seloVerificada = cuidadora.verificada ? '<span class="cuidador-badge badge-verificada"><i class="fa-solid fa-check"></i> Verificada</span>' : '';
+    var seloCoren = cuidadora.coren ? '<span class="cuidador-badge badge-coren"><i class="fa-solid fa-id-card"></i> COREN</span>' : '';
 
-    var apresentacaoHTML = (temAcessoCompleto && f.Apresentacao) ? 
-        '<div class="bio-box reveal-item"><h4><i class="fa-solid fa-user-doctor"></i> Sobre a profissional</h4><p>' + f.Apresentacao + '</p></div>' : '';
+    var apresentacaoHTML = cuidadora.apresentacao ? 
+        '<div class="bio-box reveal-item"><h4><i class="fa-solid fa-user-doctor"></i> Sobre a profissional</h4><p>' + cuidadora.apresentacao + '</p></div>' : '';
 
+    // Subespecialidades: no Supabase é TEXT[] (array). No Airtable era multi-select.
+    // Aqui aceitamos qualquer um dos dois formatos.
     var tagsHTML = '';
-    if (temAcessoCompleto && f.Subespecialidades && Array.isArray(f.Subespecialidades)) {
-        var badgesExp = f.Subespecialidades.map(function(sub) { return '<span class="tag-exp">✓ ' + sub + '</span>'; }).join('');
-        tagsHTML = '<div class="experiencia-container reveal-item"><div class="experiencia-titulo">Especialidades:</div><div class="tags-exp">' + badgesExp + '</div></div>';
+    if (cuidadora.subespecialidades) {
+        var listaSubs = Array.isArray(cuidadora.subespecialidades)
+            ? cuidadora.subespecialidades
+            : String(cuidadora.subespecialidades).split('|').map(function(s) { return s.trim(); }).filter(function(s) { return s; });
+        if (listaSubs.length > 0) {
+            var badgesExp = listaSubs.map(function(sub) { return '<span class="tag-exp">✓ ' + sub + '</span>'; }).join('');
+            tagsHTML = '<div class="experiencia-container reveal-item"><div class="experiencia-titulo">Especialidades:</div><div class="tags-exp">' + badgesExp + '</div></div>';
+        }
     }
 
+    // Cursos: no Supabase é TEXT[]. Também aceitamos string com \n, ; ou •.
     var cursosHTML = '';
-    if (temAcessoCompleto && f.Cursos) {
-        var listaCursos = String(f.Cursos).split(/\n|;|•/).map(function(c) { return c.trim(); }).filter(function(c) { return c; });
-        var cursosTags = listaCursos.map(function(c) { return '<span class="tag-exp">🎓 ' + c + '</span>'; }).join('');
-        cursosHTML = '<div class="experiencia-container reveal-item"><div class="experiencia-titulo">Formação e Certificações:</div><div class="tags-exp">' + cursosTags + '</div></div>';
+    if (cuidadora.cursos) {
+        var listaCursos = Array.isArray(cuidadora.cursos)
+            ? cuidadora.cursos
+            : String(cuidadora.cursos).split(/\n|;|•/).map(function(c) { return c.trim(); }).filter(function(c) { return c; });
+        if (listaCursos.length > 0) {
+            var cursosTags = listaCursos.map(function(c) { return '<span class="tag-exp">🎓 ' + c + '</span>'; }).join('');
+            cursosHTML = '<div class="experiencia-container reveal-item"><div class="experiencia-titulo">Formação e Certificações:</div><div class="tags-exp">' + cursosTags + '</div></div>';
+        }
     }
 
     var turnoHTML = '';
-    if (f.Turno) {
-        var t = f.Turno.toLowerCase();
+    if (cuidadora.turno) {
+        var t = cuidadora.turno.toLowerCase();
         if (t.indexOf('diurno e noturno') !== -1 || t.indexOf('integral') !== -1 || t.indexOf('24') !== -1) {
             turnoHTML = '<span class="turno-pill turno-integral"><i class="fa-solid fa-sun"></i> <i class="fa-solid fa-moon"></i> Diurno e Noturno</span>';
         } else if (t.indexOf('noturno') !== -1) {
@@ -680,7 +689,7 @@ function renderizarPerfil(record) {
         }
     }
 
-    var notaTexto = f.Nota || '5.0';
+    var notaTexto = cuidadora.nota || '5.0';
 
     var precoHTML = '';
     if (precoBase > 0) {
@@ -708,7 +717,7 @@ function renderizarPerfil(record) {
         linhaStatusHTML = '<div class="info-linha"><span>Status</span><strong class="tag-consultar"><span class="luz-offline"></span>Consultar disponibilidade</strong></div>';
     }
 
-    var comentarios = temAcessoCompleto ? extrairComentarios(f.Comentarios) : [];
+    var comentarios = extrairComentarios(cuidadora.comentarios);
     var comentariosHTML = '';
     if (comentarios.length > 0) {
         var cardsHTML = comentarios.map(function(c) {
@@ -717,11 +726,11 @@ function renderizarPerfil(record) {
         comentariosHTML = '<div class="comentarios-secao reveal-item"><div class="comentarios-titulo"><i class="fa-solid fa-star" style="color: var(--lilas);"></i> O que as famílias dizem:</div>' + cardsHTML + '</div>';
     }
 
-    var iniciais = (f.Nome || 'XX').split(' ').filter(function(p) { return p.length > 0; }).map(function(p) { return p[0]; }).slice(0, 2).join('').toUpperCase();
+    var iniciais = (cuidadora.nome || 'XX').split(' ').filter(function(p) { return p.length > 0; }).map(function(p) { return p[0]; }).slice(0, 2).join('').toUpperCase();
     var codigoRef = iniciais;
     var linkAtual = encodeURIComponent(window.location.href);
 
-    var mensagemWpp = 'Olá, ' + primeiroNome + '! Vi seu perfil na Afeto e gostaria de conversar sobre uma contratação.%0A%0A🔖 Ref: %23' + codigoRef + '%0A📍 ' + (f.Bairro || 'Curitiba') + '%0A%0A📌 Perfil: ' + linkAtual;
+    var mensagemWpp = 'Olá, ' + primeiroNome + '! Vi seu perfil na Afeto e gostaria de conversar sobre uma contratação.%0A%0A🔖 Ref: %23' + codigoRef + '%0A📍 ' + (cuidadora.bairro || 'Curitiba') + '%0A%0A📌 Perfil: ' + linkAtual;
 
     var estrelasHTML = '<span class="estrela-anim" data-delay="0">★</span><span class="estrela-anim" data-delay="200">★</span><span class="estrela-anim" data-delay="400">★</span><span class="estrela-anim" data-delay="600">★</span><span class="estrela-anim" data-delay="800">★</span><span class="nota-numero-anim" id="notaNumero">' + notaTexto + '</span>';
 
@@ -732,9 +741,9 @@ function renderizarPerfil(record) {
             '<div class="badges-container">' + seloCategoria + seloVerificada + seloCoren + '</div>' +
             '<h1 class="nome-profissional">' + nomeExibicao + '</h1>' +
             '<div class="tag-profissional">' +
-                '<span>' + (f.Especialidade || 'Cuidador(a)') + '</span>' +
+                '<span>' + (cuidadora.especialidade || 'Cuidador(a)') + '</span>' +
                 '<span style="color: var(--cinza-azulado);">•</span>' +
-                '<span class="tag-bairro"><i class="fa-solid fa-location-dot"></i> ' + (f.Bairro || 'Curitiba') + '</span>' +
+                '<span class="tag-bairro"><i class="fa-solid fa-location-dot"></i> ' + (cuidadora.bairro || 'Curitiba') + '</span>' +
             '</div>' +
             '<div style="text-align: center;">' + turnoHTML + '</div>' +
             apresentacaoHTML +
@@ -768,32 +777,28 @@ function renderizarPerfil(record) {
 }
 
 function renderizarVejaTambem(atual, todos) {
-    var f = atual.fields;
-    var bairroAtual = f.Bairro || '';
-    var especAtual = f.Especialidade || '';
+    var bairroAtual = atual.bairro || '';
+    var especAtual = atual.especialidade || '';
 
-    var outros = todos.filter(function(r) {
-        var temPlano = r.fields.PlanoProfissional === true || r.fields.PlanoDestaque === true;
-        var aprovada = r.fields.Aprovada === true;
-        var pago = r.fields.StatusPagamento === 'Pago';
-        return r.id !== atual.id && temPlano && aprovada && pago;
+    var outros = todos.filter(function(c) {
+        return c.id !== atual.id;
     });
 
-    var match1 = outros.filter(function(r) {
-        return r.fields.Bairro === bairroAtual && r.fields.Especialidade === especAtual;
+    var match1 = outros.filter(function(c) {
+        return c.bairro === bairroAtual && c.especialidade === especAtual;
     });
     var selecionados = match1.slice(0, 3);
 
     if (selecionados.length < 3) {
-        var mesmoBairro = outros.filter(function(r) {
-            return r.fields.Bairro === bairroAtual && selecionados.indexOf(r) === -1;
+        var mesmoBairro = outros.filter(function(c) {
+            return c.bairro === bairroAtual && selecionados.indexOf(c) === -1;
         });
         for (var i = 0; i < mesmoBairro.length && selecionados.length < 3; i++) selecionados.push(mesmoBairro[i]);
     }
 
     if (selecionados.length < 3) {
-        var mesmaEspec = outros.filter(function(r) {
-            return r.fields.Especialidade === especAtual && selecionados.indexOf(r) === -1;
+        var mesmaEspec = outros.filter(function(c) {
+            return c.especialidade === especAtual && selecionados.indexOf(c) === -1;
         });
         for (var j = 0; j < mesmaEspec.length && selecionados.length < 3; j++) selecionados.push(mesmaEspec[j]);
     }
@@ -806,26 +811,24 @@ function renderizarVejaTambem(atual, todos) {
 
     if (selecionados.length === 0) return;
 
-    var todosNomes = todos.map(function(r) { return (r.fields && r.fields.Nome) || ''; });
+    var todosNomes = todos.map(function(c) { return c.nome || ''; });
 
     var grid = document.getElementById('vejaTambemGrid');
     var html = '';
 
-    selecionados.forEach(function(rec) {
-        var rf = rec.fields;
-        var nomeExibicao = gerarNomeUnico(rf.Nome || '', todosNomes);
-        var nota = rf.Nota || '5.0';
-        var bairro = rf.Bairro || 'Curitiba';
-        var espec = rf.Especialidade || 'Cuidador(a)';
+    selecionados.forEach(function(c) {
+        var nomeExibicao = gerarNomeUnico(c.nome || '', todosNomes);
+        var nota = c.nota || '5.0';
+        var bairro = c.bairro || 'Curitiba';
+        var espec = c.especialidade || 'Cuidador(a)';
 
         var fotoHTML = '<i class="fa-solid fa-user"></i>';
-        if (rf.Foto && rf.Foto.length > 0) {
-            var fotoOt = resizeAirtablePhoto(rf.Foto[0].url, 200, 200);
-            fotoHTML = '<img src="' + fotoOt + '" alt="' + nomeExibicao + '" loading="lazy" decoding="async">';
+        if (c.foto_url) {
+            fotoHTML = '<img src="' + c.foto_url + '" alt="' + nomeExibicao + '" loading="lazy" decoding="async">';
         }
 
         html += 
-            '<a href="perfil.html?id=' + rec.id + '" class="mini-card">' +
+            '<a href="perfil.html?id=' + c.id + '" class="mini-card">' +
                 '<div class="mini-card-foto">' + fotoHTML + '</div>' +
                 '<div class="mini-card-nome">' + nomeExibicao + '</div>' +
                 '<div class="mini-card-nota">★ ' + nota + '</div>' +

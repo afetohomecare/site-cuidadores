@@ -14,8 +14,6 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preconnect" href="https://api.airtable.com">
-<link rel="preconnect" href="https://v5.airtableusercontent.com">
 <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -649,24 +647,18 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
     });
   });
 
-  // ============ PROFISSIONAIS ATIVOS ============
-  function resizeAirtablePhoto(url, width, height) {
-    if (!url) return '';
-    var separator = url.indexOf('?') !== -1 ? '&' : '?';
-    return url + separator + 'width=' + width + '&height=' + height + '&fit=cover';
-  }
-
-  function renderizarCard(record) {
-    var f = record.fields;
-    var nome = f.Nome || 'Sem nome';
-    var especialidade = f.Especialidade || 'Cuidador(a)';
-    var bairro = f.Bairro || 'Curitiba';
-    var temPlanoPago = f.PlanoProfissional === true || f.PlanoDestaque === true;
+  // ============ PROFISSIONAIS ATIVAS ============
+  // Renderiza um card a partir dos dados vindos do Supabase.
+  // O formato é plano (sem "fields"), com os nomes já em português
+  // e no padrão do banco (snake_case).
+  function renderizarCard(cuidadora) {
+    var nome = cuidadora.nome || 'Sem nome';
+    var especialidade = cuidadora.especialidade || 'Cuidador(a)';
+    var bairro = cuidadora.bairro || 'Curitiba';
 
     var fotoHTML = '<i class="fa-solid fa-user"></i>';
-    if (temPlanoPago && f.Foto && f.Foto.length > 0) {
-      var fotoOtimizada = resizeAirtablePhoto(f.Foto[0].url, 300, 300);
-      fotoHTML = '<img src="' + fotoOtimizada + '" alt="' + nome + '" loading="lazy" decoding="async" width="130" height="130">';
+    if (cuidadora.foto_url) {
+      fotoHTML = '<img src="' + cuidadora.foto_url + '" alt="' + nome + '" loading="lazy" decoding="async" width="130" height="130">';
     }
 
     var seloCategoria = '';
@@ -674,8 +666,8 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
     var anelClassAdd = '';
     var isDiamante = false;
 
-    if (f.Categoria) {
-      var catText = f.Categoria.toLowerCase();
+    if (cuidadora.categoria) {
+      var catText = cuidadora.categoria.toLowerCase();
       if (catText.indexOf('diamante') !== -1) { cardClassAdd = 'card-diamante'; anelClassAdd = 'anel-diamante'; seloCategoria = '<span class="cuidador-badge badge-diamante"><i class="fa-solid fa-award"></i> Diamante</span>'; isDiamante = true; }
       else if (catText.indexOf('ouro') !== -1) { cardClassAdd = 'card-ouro'; anelClassAdd = 'anel-ouro'; seloCategoria = '<span class="cuidador-badge badge-ouro"><i class="fa-solid fa-award"></i> Ouro</span>'; }
       else if (catText.indexOf('prata') !== -1) { cardClassAdd = 'card-prata'; anelClassAdd = 'anel-prata'; seloCategoria = '<span class="cuidador-badge badge-prata"><i class="fa-solid fa-award"></i> Prata</span>'; }
@@ -685,11 +677,11 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
       seloCategoria = '<span class="cuidador-badge badge-novidade"><i class="fa-solid fa-sparkles"></i> Novidade na Afeto</span>';
     }
 
-    var seloVerificada = (temPlanoPago && f.Verificada) ? '<span class="cuidador-badge badge-verificada"><i class="fa-solid fa-check"></i> Verificada</span>' : '';
-    var seloCoren = f.COREN ? '<span class="cuidador-badge badge-coren"><i class="fa-solid fa-id-card"></i> COREN</span>' : '';
+    var seloVerificada = cuidadora.verificada ? '<span class="cuidador-badge badge-verificada"><i class="fa-solid fa-check"></i> Verificada</span>' : '';
+    var seloCoren = cuidadora.coren ? '<span class="cuidador-badge badge-coren"><i class="fa-solid fa-id-card"></i> COREN</span>' : '';
 
     var estrelasHTML = '';
-    var notaValor = parseFloat(f.Nota);
+    var notaValor = parseFloat(cuidadora.nota);
     if (!isNaN(notaValor) && notaValor > 0) {
       var qtdCheias = Math.round(notaValor);
       if (qtdCheias > 5) qtdCheias = 5;
@@ -698,8 +690,8 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
     }
 
     var turnoHTML = '';
-    if (f.Turno) {
-      var t = f.Turno.toLowerCase();
+    if (cuidadora.turno) {
+      var t = cuidadora.turno.toLowerCase();
       if (t.indexOf('diurno e noturno') !== -1 || t.indexOf('integral') !== -1 || t.indexOf('24') !== -1) {
         turnoHTML = '<span class="turno-pill turno-integral"><i class="fa-solid fa-sun"></i> <i class="fa-solid fa-moon"></i> Diurno e Noturno</span>';
       } else if (t.indexOf('noturno') !== -1) {
@@ -709,8 +701,8 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
       }
     }
 
-    var horasAfeto = parseInt(f.Horas) || 0;
-    var estaDisponivel = (f.Disponivel === true) && temPlanoPago;
+    var horasAfeto = parseInt(cuidadora.horas) || 0;
+    var estaDisponivel = cuidadora.disponivel === true;
     var displayHoras = '';
     if (horasAfeto >= 24) {
       displayHoras = '<span class="cuidador-meta ' + (isDiamante ? 'meta-diamante' : '') + '">' + bairro + ' • ' + horasAfeto + 'h de afeto</span>';
@@ -720,7 +712,7 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
       displayHoras = '<span class="cuidador-meta ' + (isDiamante ? 'meta-diamante' : '') + '">' + bairro + ' • <span class="texto-consultar"><span class="luz-offline"></span>Consultar disponibilidade</span></span>';
     }
 
-    return '<div class="cuidador-card ' + cardClassAdd + '" onclick="window.location.href=\'perfil.html?id=' + record.id + '\'">' +
+    return '<div class="cuidador-card ' + cardClassAdd + '" onclick="window.location.href=\'perfil.html?id=' + cuidadora.id + '\'">' +
       '<div class="card-top">' +
         '<div class="foto-anel ' + anelClassAdd + '">' + fotoHTML + '</div>' +
       '</div>' +
@@ -742,24 +734,18 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
     try {
       var response = await fetch('/api/cuidadores');
       var data = await response.json();
-      if (data.records) {
-        // ⚡ Só mostra quem está APROVADA + PAGA + com plano ativo
-        var apenasPagantes = data.records.filter(function(r) {
-          return r.fields.Aprovada === true 
-            && r.fields.StatusPagamento === 'Pago'
-            && (r.fields.PlanoProfissional === true || r.fields.PlanoDestaque === true);
-        });
-        grid.innerHTML = '';
-        if (apenasPagantes.length === 0) {
-          grid.innerHTML = '<div class="loader">Em breve novas profissionais por aqui 💜</div>';
-          return;
-        }
-        apenasPagantes.forEach(function(record) {
-          grid.innerHTML += renderizarCard(record);
-        });
-      } else {
-        grid.innerHTML = '<div class="loader" style="color:red;">Erro ao carregar profissionais.</div>';
+
+      // A API já devolve apenas quem está aprovada, paga e com plano ativo.
+      var lista = (data && data.cuidadores) ? data.cuidadores : [];
+
+      grid.innerHTML = '';
+      if (lista.length === 0) {
+        grid.innerHTML = '<div class="loader">Em breve novas profissionais por aqui 💜</div>';
+        return;
       }
+      lista.forEach(function(cuidadora) {
+        grid.innerHTML += renderizarCard(cuidadora);
+      });
     } catch (error) {
       console.error('Erro ao carregar profissionais:', error);
       grid.innerHTML = '<div class="loader" style="color:red;">Erro ao carregar profissionais.</div>';
