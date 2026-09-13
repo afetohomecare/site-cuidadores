@@ -1,5 +1,5 @@
 // functions/api/cadastro.js
-// Versão: 2026-09-13 — Telegram antes da foto + timeout no upload
+// Versão: 2026-09-13 — endpoint novo da Airtable
 
 const AIRTABLE_BASE = 'apphAWeT91l1dMWM5';
 const AIRTABLE_TABLE = 'Cuidadores';
@@ -179,6 +179,22 @@ export async function onRequest(context) {
 
         await Promise.race([uploadPromise, timeoutPromise]);
         fotoEnviada = true;
+
+        // Avisa sucesso por Telegram também (opcional)
+        await notificarTelegram(context, {
+          titulo: "📸 Foto enviada com sucesso",
+          nome: nome,
+          whatsapp: whatsapp,
+          cpf: cpf,
+          profissao: especialidade,
+          plano: plano,
+          bio: '',
+          subespecialidades: '',
+          indicadoPor: '',
+          recordId: recordId,
+          fotoEnviada: true,
+          fotoErro: null
+        });
       } catch (err) {
         fotoErro = String(err && err.message ? err.message : err);
         console.error("Erro ao subir foto:", fotoErro);
@@ -235,7 +251,7 @@ function escapeFormula(str) {
   return String(str || '').replace(/"/g, '\\"');
 }
 
-// ========== UPLOAD DA FOTO ==========
+// ========== UPLOAD DA FOTO — ENDPOINT NOVO ==========
 async function subirFotoAirtable(apiKey, recordId, file) {
   const buffer = await file.arrayBuffer();
   const bytes = new Uint8Array(buffer);
@@ -243,6 +259,7 @@ async function subirFotoAirtable(apiKey, recordId, file) {
 
   console.log('📸 Foto:', tamanhoKB + 'KB, tipo:', file.type);
 
+  // Base64
   let binary = '';
   const chunkSize = 4096;
   for (let i = 0; i < bytes.length; i += chunkSize) {
@@ -252,7 +269,8 @@ async function subirFotoAirtable(apiKey, recordId, file) {
 
   console.log('📸 Base64:', Math.round(base64.length / 1024) + 'KB');
 
-  const uploadUrl = `https://api.airtable.com/v0/${AIRTABLE_BASE}/${AIRTABLE_TABLE}/${recordId}/Foto/uploadAttachment`;
+  // ⚡ ENDPOINT NOVO: content.airtable.com (sem a tabela no path)
+  const uploadUrl = `https://content.airtable.com/v0/${AIRTABLE_BASE}/${recordId}/Foto/uploadAttachment`;
 
   const resp = await fetch(uploadUrl, {
     method: 'POST',
@@ -273,6 +291,8 @@ async function subirFotoAirtable(apiKey, recordId, file) {
     throw new Error(`[${resp.status}] ${erro.substring(0, 200)}`);
   }
 
+  const respData = await resp.json();
+  console.log('📸 Foto enviada:', JSON.stringify(respData).substring(0, 200));
   return true;
 }
 
@@ -297,11 +317,11 @@ async function notificarTelegram(context, dados) {
                      : dados.plano === 'destaque' ? 'Destaque' : dados.plano;
 
     let msg = `*${dados.titulo}*\n\n`;
-    msg += `👤 *Nome:* ${dados.nome}\n`;
-    msg += `📱 *WhatsApp:* ${dados.whatsapp}\n`;
+    if (dados.nome) msg += `👤 *Nome:* ${dados.nome}\n`;
+    if (dados.whatsapp) msg += `📱 *WhatsApp:* ${dados.whatsapp}\n`;
     if (dados.cpf) msg += `🆔 *CPF:* ${dados.cpf}\n`;
     if (dados.profissao) msg += `💼 *Atuação:* ${dados.profissao}\n`;
-    msg += `⭐ *Plano:* ${planoTexto}\n`;
+    if (dados.plano) msg += `⭐ *Plano:* ${planoTexto}\n`;
     if (dados.bio) msg += `\n📝 *Bio:* ${dados.bio.substring(0, 180)}${dados.bio.length > 180 ? '...' : ''}\n`;
     if (dados.subespecialidades) msg += `\n🏷️ *Especialidades:* ${dados.subespecialidades}\n`;
     if (dados.indicadoPor) msg += `\n🎁 *Indicada por:* ${dados.indicadoPor}\n`;
