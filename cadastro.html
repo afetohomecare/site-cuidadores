@@ -114,11 +114,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 .btn-enviar:disabled { background: #cbd5e1; cursor: not-allowed; box-shadow: none; }
 .btn-enviar.pago { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 10px 25px rgba(16,185,129,0.3); }
 
-.aviso-pagamento { background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 1px solid #6ee7b7; border-radius: 16px; padding: 16px 20px; margin-top: 20px; display: flex; gap: 12px; align-items: flex-start; }
-.aviso-pagamento .emoji { font-size: 22px; line-height: 1; flex-shrink: 0; }
-.aviso-pagamento .txt { font-size: 13.5px; color: #065f46; font-weight: 700; line-height: 1.55; }
-.aviso-pagamento .txt strong { color: #047857; display: block; margin-bottom: 3px; }
-
 .tela-sucesso { display: none; text-align: center; padding: 55px 35px; background: white; border-radius: 30px; box-shadow: 0 25px 60px rgba(139,92,246,0.1); border: 1px solid #e2e8f0; }
 .tela-sucesso.ativo { display: block; animation: fadeUp 0.6s ease; }
 @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -191,8 +186,10 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 .tab-btn { padding: 12px; border-radius: 12px; border: none; background: transparent; font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 900; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--cinza-fonte); position: relative; }
 .tab-btn.ativo { background: white; color: var(--lilas-escuro); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
 .tab-badge { position: absolute; top: -6px; right: 8px; background: #10b981; color: white; font-size: 9px; font-weight: 900; padding: 2px 6px; border-radius: 20px; letter-spacing: 0.3px; }
-.tab-content { display: none; }
-.tab-content.ativo { display: block; animation: fadeIn 0.3s ease; }
+
+/* ⚡ Tabs — apenas a ativa aparece */
+.tab-content { display: none !important; }
+.tab-content.ativo { display: block !important; animation: fadeIn 0.3s ease; }
 
 .pix-box { text-align: center; }
 .pix-qrcode { background: var(--fundo-site); border-radius: 20px; padding: 24px; margin-bottom: 14px; min-height: 220px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 12px; }
@@ -223,6 +220,24 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 .checkout-erro i { color: #ef4444; }
 .checkout-loading p, .checkout-erro p { font-size: 15px; font-weight: 700; color: var(--cinza-fonte); line-height: 1.5; }
 .btn-tentar { margin-top: 16px; padding: 14px 28px; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; border: none; border-radius: 50px; font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 900; cursor: pointer; }
+
+/* Selo de segurança sutil no rodapé do checkout */
+.checkout-seguranca {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+  font-size: 11.5px;
+  color: var(--cinza-azulado);
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  text-align: center;
+}
+.checkout-seguranca i { color: #10b981; font-size: 13px; }
+.checkout-seguranca strong { color: var(--cinza-fonte); font-weight: 900; }
 
 @media (max-width: 600px) {
   .form-card { padding: 28px 22px; border-radius: 24px; }
@@ -453,14 +468,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       <button type="submit" id="btn-enviar" class="btn-enviar">
         Criar meu cadastro <i class="fa-solid fa-heart"></i>
       </button>
-
-      <div id="aviso-pagamento" class="aviso-pagamento" style="display: none;">
-        <span class="emoji">💜</span>
-        <div class="txt">
-          <strong>Você não paga agora</strong>
-          Ao clicar em "Ir para pagamento", abriremos o ambiente seguro pra você finalizar. Se preferir depois, seus dados ficam guardados e você nos chama no WhatsApp.
-        </div>
-      </div>
     </form>
   </div>
 
@@ -615,6 +622,11 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       <p id="checkout-erro-text"></p>
       <button type="button" onclick="voltarCheckout()" class="btn-tentar">Tentar novamente</button>
     </div>
+
+    <div class="checkout-seguranca">
+      <i class="fa-solid fa-shield-halved"></i>
+      <span>Ambiente 100% seguro · <strong>Criptografia ponta a ponta</strong></span>
+    </div>
   </div>
 </div>
 
@@ -636,7 +648,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   var formArea = document.getElementById('form-area');
   var telaSucesso = document.getElementById('tela-sucesso');
   var headerTop = document.querySelector('.header-top');
-  var avisoPagamento = document.getElementById('aviso-pagamento');
   var linkAvisoTexto = document.getElementById('link-aviso-texto');
 
   if (ehPago) {
@@ -645,16 +656,14 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     subtitulo.textContent = 'Preencha seus dados com calma. Ao final, você vai direto para o pagamento seguro.';
     btnEnviar.classList.add('pago');
     btnEnviar.innerHTML = 'Ir para pagamento <i class="fa-solid fa-arrow-right"></i>';
-    avisoPagamento.style.display = 'flex';
   } else {
     badge.className = 'badge-plano gratis';
     badge.innerHTML = '<i class="fa-solid fa-check"></i> Plano Grátis';
     subtitulo.textContent = 'Preencha os dados abaixo. Seu perfil vai ao ar após a aprovação da nossa equipe.';
     btnEnviar.innerHTML = 'Criar meu cadastro <i class="fa-solid fa-heart"></i>';
-    avisoPagamento.style.display = 'none';
   }
 
-  // Botão copiar link
+  // Botão copiar link do perfil
   var btnCopiar = document.getElementById('btn-copiar-link');
   if (btnCopiar) {
     btnCopiar.addEventListener('click', function() {
@@ -936,39 +945,65 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   });
 
   // ========================================================================
-  // 💳 CHECKOUT ASAAS
+  // 💳 CHECKOUT ASAAS — versão final (sem duplicação)
   // ========================================================================
-  var dadosCheckout = null;
+  var dadosCheckout = { recordId: null, plano: null, nome: null, cobrancaId: null, pixData: null };
 
   window.abrirCheckout = function(recordId, planoParam, nomeParam) {
-    dadosCheckout = { recordId: recordId, plano: planoParam, nome: nomeParam };
+    // 🎯 Se já temos cobrança criada pra ESSE cadastro, só reabre (não duplica)
+    if (dadosCheckout.recordId === recordId && dadosCheckout.cobrancaId) {
+      document.getElementById('tela-checkout').classList.add('ativo');
+      document.body.style.overflow = 'hidden';
+      document.getElementById('checkout-loading').style.display = 'none';
+      document.getElementById('checkout-erro').style.display = 'none';
+      return;
+    }
+
+    // Senão, cria cobrança nova
+    dadosCheckout = { recordId: recordId, plano: planoParam, nome: nomeParam, cobrancaId: null, pixData: null };
+
     document.getElementById('checkout-plano-nome').textContent = 'Plano ' + (planoParam === 'destaque' ? 'Destaque' : 'Profissional') + ' Afeto';
     var valor = planoParam === 'destaque' ? '69,90' : '24,90';
     document.getElementById('checkout-valor').textContent = valor;
     document.getElementById('cartao-valor').textContent = valor;
+
+    // Reset visual — sempre volta pra aba Pix
     document.getElementById('tab-pix').classList.add('ativo');
     document.getElementById('tab-cartao').classList.remove('ativo');
     document.querySelectorAll('.tab-btn').forEach(function(b) {
       b.classList.toggle('ativo', b.getAttribute('data-tab') === 'pix');
     });
+
+    document.getElementById('pix-qrcode').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><p>Gerando QR Code...</p>';
     document.getElementById('checkout-loading').style.display = 'block';
     document.getElementById('checkout-erro').style.display = 'none';
-    document.getElementById('tab-pix').style.display = 'none';
-    document.getElementById('tab-cartao').style.display = 'none';
-    document.getElementById('pix-qrcode').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><p>Gerando QR Code...</p>';
     document.getElementById('tela-checkout').classList.add('ativo');
     document.body.style.overflow = 'hidden';
+
     gerarPix();
   };
 
   window.fecharCheckout = function() {
     document.getElementById('tela-checkout').classList.remove('ativo');
     document.body.style.overflow = '';
+
+    // Libera o form pra revisar
+    var btn = document.getElementById('btn-enviar');
+    if (btn && btn.disabled) {
+      btn.disabled = false;
+      btn.innerHTML = ehPago
+        ? 'Ir para pagamento <i class="fa-solid fa-arrow-right"></i>'
+        : 'Criar meu cadastro <i class="fa-solid fa-heart"></i>';
+    }
+    // Reset flag de envio (usa `enviando` declarado depois via closure)
+    try { if (typeof enviando !== 'undefined') enviando = false; } catch (e) {}
   };
 
   window.voltarCheckout = function() {
     document.getElementById('checkout-erro').style.display = 'none';
     document.getElementById('checkout-loading').style.display = 'block';
+    dadosCheckout.cobrancaId = null;
+    dadosCheckout.pixData = null;
     gerarPix();
   };
 
@@ -993,13 +1028,12 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
         document.getElementById('checkout-erro-text').textContent = (data.error || 'Falha') + (data.detalhe ? ' — ' + JSON.stringify(data.detalhe).substring(0, 150) : '');
         return;
       }
-      document.getElementById('tab-pix').style.display = 'block';
-      document.getElementById('tab-cartao').style.display = 'block';
       if (data.pix && data.pix.qrCodeImage) {
         document.getElementById('pix-qrcode').innerHTML = '<img src="data:image/png;base64,' + data.pix.qrCodeImage + '" alt="QR Code Pix">';
         document.getElementById('pix-codigo').value = data.pix.copiaECola || '';
       }
       dadosCheckout.cobrancaId = data.cobrancaId;
+      dadosCheckout.pixData = data.pix;
     } catch (err) {
       document.getElementById('checkout-loading').style.display = 'none';
       document.getElementById('checkout-erro').style.display = 'block';
@@ -1078,6 +1112,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     }
   };
 
+  // Tabs Pix/Cartão
   document.querySelectorAll('.tab-btn').forEach(function(btn) {
     btn.addEventListener('click', function() {
       var tab = this.getAttribute('data-tab');
@@ -1088,6 +1123,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     });
   });
 
+  // Máscaras do cartão
   var cardNumberInput = document.getElementById('card-number');
   if (cardNumberInput) {
     cardNumberInput.addEventListener('input', function() {
@@ -1129,6 +1165,13 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   form.addEventListener('submit', async function(e) {
     e.preventDefault();
     if (enviando) return;
+
+    // 🎯 Se já temos uma cobrança criada pra esse cadastro, só reabre o checkout
+    if (dadosCheckout.recordId && dadosCheckout.cobrancaId) {
+      document.getElementById('tela-checkout').classList.add('ativo');
+      document.body.style.overflow = 'hidden';
+      return;
+    }
 
     if (bairrosSelecionados.length === 0) { alert('Selecione pelo menos um bairro.'); return; }
     var nome = document.getElementById('nome').value.trim();
@@ -1222,7 +1265,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     } catch (err) {
       btnEnviar.disabled = false;
       btnEnviar.innerHTML = textoOriginal;
-    } finally {
       enviando = false;
     }
   });
