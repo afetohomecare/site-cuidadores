@@ -227,6 +227,21 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 .btn-enviar.pago { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 10px 25px rgba(16,185,129,0.3); }
 .btn-enviar.pago:hover:not(:disabled) { box-shadow: 0 15px 35px rgba(16,185,129,0.45); }
 
+/* BLOCO DE AVISO PRÉ-PAGAMENTO */
+.aviso-pagamento {
+  background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+  border: 1px solid #6ee7b7;
+  border-radius: 16px;
+  padding: 16px 20px;
+  margin-top: 20px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.aviso-pagamento .emoji { font-size: 22px; line-height: 1; flex-shrink: 0; }
+.aviso-pagamento .txt { font-size: 13.5px; color: #065f46; font-weight: 700; line-height: 1.55; }
+.aviso-pagamento .txt strong { color: #047857; display: block; margin-bottom: 3px; }
+
 .tela-sucesso {
   display: none; text-align: center; padding: 55px 35px;
   background: white; border-radius: 30px;
@@ -250,6 +265,9 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 .bloco-info .emoji { font-size: 26px; line-height: 1; flex-shrink: 0; }
 .bloco-info .txt { font-size: 14px; font-weight: 700; color: #78350f; line-height: 1.6; }
 .bloco-info .txt strong { color: #7c2d12; display: block; margin-bottom: 6px; font-size: 15px; font-weight: 900; }
+.bloco-info.lilas { background: linear-gradient(135deg, #f5f3ff, #ede9fe); border-color: #c4b5fd; }
+.bloco-info.lilas .txt { color: var(--lilas-escuro); }
+.bloco-info.lilas .txt strong { color: var(--lilas-escuro); }
 .bloco-pagamento { background: linear-gradient(135deg, #f5f3ff, #ede9fe); border: 2px solid #c4b5fd; border-radius: 22px; padding: 28px 26px; margin-bottom: 24px; text-align: center; }
 .bloco-pagamento .emoji-pag { font-size: 40px; margin-bottom: 12px; display: block; }
 .bloco-pagamento h3 { font-size: 19px; font-weight: 900; color: var(--lilas-escuro); margin-bottom: 10px; }
@@ -751,6 +769,15 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       <button type="submit" id="btn-enviar" class="btn-enviar">
         Criar meu cadastro <i class="fa-solid fa-heart"></i>
       </button>
+
+      <!-- Aviso pré-pagamento (só aparece no plano pago) -->
+      <div id="aviso-pagamento" class="aviso-pagamento" style="display: none;">
+        <span class="emoji">💜</span>
+        <div class="txt">
+          <strong>Você não paga agora</strong>
+          Ao clicar em "Ir para pagamento", abriremos o ambiente seguro do Asaas. Você só paga lá. Se preferir fazer depois, seus dados ficam guardados e você nos chama no WhatsApp.
+        </div>
+      </div>
     </form>
   </div>
 
@@ -774,7 +801,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
           <i class="fa-solid fa-copy"></i> Copiar
         </button>
       </div>
-      <div class="link-aviso">
+      <div class="link-aviso" id="link-aviso-texto">
         <i class="fa-solid fa-hourglass-half"></i>
         Seu perfil está em <strong>análise</strong> — em breve nossa equipe libera 💜
       </div>
@@ -782,7 +809,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 
     <div id="bloco-gratis" class="bloco-info">
       <span class="emoji">💜</span>
-      <div class="txt">
+      <div class="txt" id="bloco-gratis-txt">
         <strong>O próximo passo é com a gente</strong>
         Nossa equipe vai conhecer sua história com calma. Em até 48h úteis, seu perfil estará no ar pra que famílias possam te encontrar. Você continua no <strong>plano Grátis</strong> — e pode migrar pra um plano pago quando quiser.
       </div>
@@ -849,12 +876,17 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 (function() {
   "use strict";
 
+  // ========================================================================
+  // 🔧 LINKS DO ASAAS — SUBSTITUIR QUANDO CRIAR OS LINKS REAIS
+  // ========================================================================
   var LINK_ASAAS_PROFISSIONAL = 'https://www.asaas.com/c/SEU_LINK_PROFISSIONAL';
   var LINK_ASAAS_DESTAQUE = 'https://www.asaas.com/c/SEU_LINK_DESTAQUE';
+  // ========================================================================
 
   var params = new URLSearchParams(window.location.search);
   var plano = (params.get('plano') || 'gratis').toLowerCase();
   var ehPago = (plano === 'profissional' || plano === 'destaque');
+  var pagamentoOk = params.get('pagamento') === 'ok';
 
   var badge = document.getElementById('badge-plano');
   var subtitulo = document.getElementById('subtitulo-dinamico');
@@ -862,29 +894,81 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   var tituloSucesso = document.getElementById('titulo-sucesso');
   var textoSucesso = document.getElementById('texto-sucesso');
   var blocoGratis = document.getElementById('bloco-gratis');
+  var blocoGratisTxt = document.getElementById('bloco-gratis-txt');
   var blocoPago = document.getElementById('bloco-pago');
   var linkPagamento = document.getElementById('link-pagamento');
+  var formArea = document.getElementById('form-area');
+  var telaSucesso = document.getElementById('tela-sucesso');
+  var headerTop = document.querySelector('.header-top');
+  var avisoPagamento = document.getElementById('aviso-pagamento');
+  var linkAvisoTexto = document.getElementById('link-aviso-texto');
+
+  // ========================================================================
+  // 🔄 CENÁRIO ESPECIAL: voltou do Asaas após pagar
+  // ========================================================================
+  if (pagamentoOk) {
+    mostrarSucessoPago();
+    return; // não continua o resto do fluxo
+  }
+
+  // ========================================================================
+  // 🔄 FLUXO NORMAL (do zero)
+  // ========================================================================
 
   if (ehPago) {
     badge.className = 'badge-plano';
     badge.innerHTML = '<i class="fa-solid fa-star"></i> Plano ' + (plano === 'profissional' ? 'Profissional' : 'Destaque');
-    subtitulo.textContent = 'Preencha seus dados com calma. Depois é só finalizar o pagamento pra ativar seu perfil completo.';
+    subtitulo.textContent = 'Preencha seus dados com calma. Ao final, você vai direto para o pagamento seguro.';
     btnEnviar.classList.add('pago');
-    btnEnviar.innerHTML = 'Enviar e ir para pagamento <i class="fa-solid fa-arrow-right"></i>';
-    tituloSucesso.textContent = 'Falta pouco pra começar! 💜';
-    textoSucesso.textContent = 'Seu cadastro foi salvo com sucesso. Agora é só o último passo pra liberar tudo.';
-    blocoGratis.style.display = 'none';
-    blocoPago.style.display = 'block';
-    linkPagamento.href = (plano === 'profissional') ? LINK_ASAAS_PROFISSIONAL : LINK_ASAAS_DESTAQUE;
+    btnEnviar.innerHTML = 'Ir para pagamento <i class="fa-solid fa-arrow-right"></i>';
+    avisoPagamento.style.display = 'flex';
   } else {
     badge.className = 'badge-plano gratis';
     badge.innerHTML = '<i class="fa-solid fa-check"></i> Plano Grátis';
     subtitulo.textContent = 'Preencha os dados abaixo. Seu perfil vai ao ar após a aprovação da nossa equipe.';
     btnEnviar.innerHTML = 'Criar meu cadastro <i class="fa-solid fa-heart"></i>';
-    tituloSucesso.textContent = 'Que alegria ter você aqui! 💜';
-    textoSucesso.textContent = 'Recebemos seu cadastro com muito carinho. Em breve, famílias poderão conhecer o seu trabalho.';
-    blocoGratis.style.display = 'flex';
+    avisoPagamento.style.display = 'none';
+  }
+
+  // ========================================================================
+  // 🔗 FUNÇÃO: mostra tela de sucesso para quem pagou
+  // ========================================================================
+  function mostrarSucessoPago() {
+    // Esconde form e cabeçalho
+    if (formArea) formArea.style.display = 'none';
+    if (headerTop) headerTop.style.display = 'none';
+
+    // Customiza textos
+    tituloSucesso.textContent = 'Pagamento confirmado! 💜';
+    textoSucesso.innerHTML = 'Seu cadastro foi enviado com sucesso. <strong>Em até 48h</strong> você estará no ar com todos os benefícios do seu plano.';
+
+    // Esconde blocos que não se aplicam
     blocoPago.style.display = 'none';
+
+    // Mostra bloco-info customizado pra plano pago
+    blocoGratis.style.display = 'flex';
+    blocoGratis.className = 'bloco-info lilas';
+    blocoGratisTxt.innerHTML = '<strong>O próximo passo é com a gente 💜</strong> Nossa equipe vai revisar seu perfil com carinho. Em até 48h úteis você estará no ar com <strong>todos os benefícios do seu plano</strong>: foto, bio, cursos, selo Verificada, aparecer nas buscas, e mais. Avisamos você pelo WhatsApp assim que estiver liberado.';
+
+    // Mostra bloco do link
+    var blocoLink = document.getElementById('bloco-link');
+    if (blocoLink) blocoLink.style.display = 'block';
+
+    // Atualiza a mensagem de análise
+    if (linkAvisoTexto) {
+      linkAvisoTexto.innerHTML = '<i class="fa-solid fa-check-circle" style="color: #10b981;"></i> Pagamento recebido! Perfil em <strong>análise</strong> — em até 48h liberamos 💜';
+    }
+
+    // Recupera o link do localStorage
+    var linkSalvo = localStorage.getItem('afeto_link_perfil');
+    var inputLink = document.getElementById('link-perfil-input');
+    if (linkSalvo && inputLink) {
+      inputLink.value = linkSalvo;
+    }
+
+    // Mostra a tela de sucesso
+    telaSucesso.classList.add('ativo');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   // ============ BOTÃO COPIAR LINK ============
@@ -894,7 +978,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       var input = document.getElementById('link-perfil-input');
       if (!input) return;
       var texto = input.value;
-      
+
       function copiarComFallback(str) {
         if (navigator.clipboard && window.isSecureContext) {
           return navigator.clipboard.writeText(str);
@@ -921,8 +1005,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   }
 
   var form = document.getElementById('form-cadastro');
-  var formArea = document.getElementById('form-area');
-  var telaSucesso = document.getElementById('tela-sucesso');
 
   // Máscara WhatsApp
   var campoWhats = document.getElementById('whatsapp');
@@ -978,7 +1060,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     });
   }
 
-  // ========== FOTO COM AJUSTADOR (CROP CIRCULAR) ==========
+  // ========== FOTO ==========
   var inputFoto = document.getElementById('foto');
   var preview = document.getElementById('foto-preview');
   var fotoUpload = document.getElementById('foto-upload');
@@ -1028,11 +1110,8 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       tempImg.onload = function() {
         fotoModal.classList.add('ativo');
         document.body.style.overflow = 'hidden';
-
         VIEWPORT_SIZE = fotoCropViewport.offsetWidth || 260;
-
         fotoCropImg.src = e.target.result;
-
         setTimeout(function() {
           abrirCropModal(file, tempImg.naturalWidth, tempImg.naturalHeight);
         }, 30);
@@ -1116,13 +1195,8 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     aplicarCropTransform();
   }, { passive: false });
 
-  fotoBtnCancel.addEventListener('click', function() {
-    fecharCropModal();
-  });
-
-  fotoBtnConfirm.addEventListener('click', function() {
-    gerarFotoRecortada();
-  });
+  fotoBtnCancel.addEventListener('click', function() { fecharCropModal(); });
+  fotoBtnConfirm.addEventListener('click', function() { gerarFotoRecortada(); });
 
   function fecharCropModal() {
     fotoModal.classList.remove('ativo');
@@ -1141,10 +1215,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     function viewportToNatural(qx, qy) {
       var px = W / 2 + (qx - VIEWPORT_SIZE / 2 - Tx) / S;
       var py = H / 2 + (qy - VIEWPORT_SIZE / 2 - Ty) / S;
-      return {
-        x: (px / W) * cropState.naturalW,
-        y: (py / H) * cropState.naturalH
-      };
+      return { x: (px / W) * cropState.naturalW, y: (py / H) * cropState.naturalH };
     }
 
     var p0 = viewportToNatural(0, 0);
@@ -1175,13 +1246,12 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
         alert('Não foi possível processar a foto. Tente outra imagem.');
         return;
       }
-
       var nomeOriginal = (cropState.file && cropState.file.name ? cropState.file.name : 'foto').replace(/\.[^.]+$/, '');
       var arquivoFinal = new File([blob], nomeOriginal + '.jpg', {
         type: 'image/jpeg',
         lastModified: Date.now()
       });
-
+      arquivoFinal = arquivoFinal;
       arquivoFoto = arquivoFinal;
 
       var urlPreview = URL.createObjectURL(blob);
@@ -1193,7 +1263,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     }, 'image/jpeg', 0.75);
   }
 
-  // ========== LIMITE DE 10 ESPECIALIDADES ==========
+  // ========== LIMITE SUBS ==========
   var LIMITE_SUBS = 10;
   var contadorSubs = document.getElementById('contador-subs');
   var checkboxesSubs = document.querySelectorAll('#subespecialidades input[type="checkbox"]');
@@ -1391,7 +1461,9 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     enviando = true;
     btnEnviar.disabled = true;
     var textoOriginal = btnEnviar.innerHTML;
-    btnEnviar.innerHTML = 'Enviando... <span style="display:inline-block;width:16px;height:16px;border:3px solid rgba(255,255,255,0.4);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite;"></span>';
+    btnEnviar.innerHTML = ehPago
+      ? 'Salvando e abrindo pagamento... <span style="display:inline-block;width:16px;height:16px;border:3px solid rgba(255,255,255,0.4);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite;"></span>'
+      : 'Enviando... <span style="display:inline-block;width:16px;height:16px;border:3px solid rgba(255,255,255,0.4);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite;"></span>';
 
     try {
       var dados = new FormData(form);
@@ -1432,15 +1504,41 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
         throw new Error('Falha');
       }
 
-      // 🔗 Preenche o link do perfil
+      // Monta o link do perfil (do servidor ou fallback)
+      var linkPerfil = '';
       if (resultado.data && resultado.data.recordId) {
-        var linkPerfil = resultado.data.linkPerfil 
+        linkPerfil = resultado.data.linkPerfil 
           || ('https://afetocuidadores.pages.dev/perfil.html?id=' + resultado.data.recordId);
-        var inputLink = document.getElementById('link-perfil-input');
-        var blocoLink = document.getElementById('bloco-link');
-        if (inputLink) inputLink.value = linkPerfil;
-        if (blocoLink) blocoLink.style.display = 'block';
       }
+
+      // ============================================================
+      // 💳 PLANO PAGO → salva no localStorage + redireciona pro Asaas
+      // ============================================================
+      if (ehPago) {
+        // Salva link no localStorage pra usar quando voltar do Asaas
+        if (linkPerfil) {
+          try {
+            localStorage.setItem('afeto_link_perfil', linkPerfil);
+            localStorage.setItem('afeto_plano', plano);
+          } catch (e) {
+            console.warn('Não conseguiu salvar no localStorage:', e);
+          }
+        }
+
+        // Redireciona pro Asaas
+        var linkAsaas = (plano === 'profissional') ? LINK_ASAAS_PROFISSIONAL : LINK_ASAAS_DESTAQUE;
+        // Adiciona parâmetro de retorno (se o link Asaas aceitar)
+        window.location.href = linkAsaas;
+        return;
+      }
+
+      // ============================================================
+      // 🆓 PLANO GRÁTIS → mostra tela de sucesso
+      // ============================================================
+      var inputLink = document.getElementById('link-perfil-input');
+      var blocoLink = document.getElementById('bloco-link');
+      if (inputLink && linkPerfil) inputLink.value = linkPerfil;
+      if (blocoLink) blocoLink.style.display = 'block';
 
       formArea.style.display = 'none';
       telaSucesso.classList.add('ativo');
