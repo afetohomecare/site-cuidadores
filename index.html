@@ -110,7 +110,6 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
 .resultado-detalhe { background: rgba(255,255,255,0.15); padding: 20px; border-radius: 20px; font-size: 15px; font-weight: 700; display: inline-block; text-align: left; line-height: 1.7; margin-top: 15px; }
 .resultado-detalhe .check-icon { color: var(--ouro); margin-right: 6px; }
 
-/* SEÇÃO AUMENTE SEUS GANHOS */
 .ganhos-section { background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); border-radius: 35px; padding: 60px 45px; margin-bottom: 40px; border: 1px solid #ddd6fe; position: relative; overflow: hidden; }
 .ganhos-section::before { content: ""; position: absolute; top: -80px; right: -80px; width: 260px; height: 260px; background: radial-gradient(circle, rgba(139,92,246,0.15), transparent 70%); border-radius: 50%; pointer-events: none; }
 .ganhos-section::after { content: ""; position: absolute; bottom: -100px; left: -100px; width: 300px; height: 300px; background: radial-gradient(circle, rgba(251,191,36,0.12), transparent 70%); border-radius: 50%; pointer-events: none; }
@@ -442,7 +441,6 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
     </div>
   </div>
 
-  <!-- ==================== SEÇÃO AUMENTE SEUS GANHOS ==================== -->
   <section class="ganhos-section">
     <div class="ganhos-header">
       <span class="tag">💜 Como crescer na Afeto</span>
@@ -1118,10 +1116,8 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
     }
   });
 
-  // ============ PROFISSIONAIS ATIVOS (AIRTABLE) ============
-  var API_KEY = 'patFDuAaqFlFnjaMF.f80f2bd35057d5478e39ed735e58315338b9d1a4ef9cdbe267254bcd51ead169';
-  var BASE_ID = 'apphAWeT91l1dMWM5';
-  var TABLE_NAME = 'Cuidadores';
+  // ============ PROFISSIONAIS ATIVOS (VIA PROXY) ============
+  // Sem token aqui — o /api/cuidadores pega do cofre da Cloudflare
 
   function resizeAirtablePhoto(url, width, height) {
     if (!url) return '';
@@ -1135,7 +1131,6 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
     var especialidade = f.Especialidade || 'Cuidador(a)';
     var bairro = f.Bairro || 'Curitiba';
 
-    // ⚡ Foto só aparece se tiver plano pago
     var temPlanoPago = f.PlanoProfissional === true || f.PlanoDestaque === true;
 
     var fotoHTML = '<i class="fa-solid fa-user"></i>';
@@ -1184,7 +1179,6 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
       }
     }
 
-    // ⚡ Disponível só conta se tiver plano pago
     var horasAfeto = parseInt(f.Horas) || 0;
     var estaDisponivel = (f.Disponivel === true) && temPlanoPago;
     var displayHoras = '';
@@ -1215,11 +1209,12 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
   async function carregarCuidadores() {
     var grid = document.getElementById('cuidadores-grid');
     if (!grid) return;
-    var response = await fetch('/api/cuidadores');
-var data = await response.json();
+
+    try {
+      var response = await fetch('/api/cuidadores');
+      var data = await response.json();
 
       if (data.records) {
-        // ⚡ Só mostra na vitrine quem tem plano pago ativo
         var apenasPagantes = data.records.filter(function(r) {
           return r.fields.PlanoProfissional === true || r.fields.PlanoDestaque === true;
         });
@@ -1237,6 +1232,7 @@ var data = await response.json();
         grid.innerHTML = '<div class="loader" style="color:red;">Erro ao carregar profissionais.</div>';
       }
     } catch (error) {
+      console.error('Erro ao carregar profissionais:', error);
       grid.innerHTML = '<div class="loader" style="color:red;">Erro ao carregar profissionais.</div>';
     }
   }
