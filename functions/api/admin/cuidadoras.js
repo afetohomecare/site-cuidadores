@@ -1,45 +1,35 @@
 // ============================================================
 // AFETO — API Admin: gerenciar cuidadoras
 // ------------------------------------------------------------
-// Requer token de admin (JWT do Supabase Auth no header Authorization)
-//
-// GET  /api/admin/cuidadoras         → lista todas
-// GET  /api/admin/cuidadoras?id=xxx  → busca uma
-// PATCH /api/admin/cuidadoras?id=xxx → atualiza campos
-//
-// Campos atualizáveis via PATCH:
-//   aprovada, status_pagamento, disponivel, verificada,
-//   categoria, nota, horas, comentarios
+// GET  /api/admin/cuidadoras                    → lista tudo
+// GET  /api/admin/cuidadoras?filtro=pendentes   → filtra
+// GET  /api/admin/cuidadoras?busca=maria        → busca
+// GET  /api/admin/cuidadoras?bairro=Centro      → filtra bairro
+// GET  /api/admin/cuidadoras?plano=profissional → filtra plano
+// PATCH /api/admin/cuidadoras?id=xxx            → 1 update
+// POST  /api/admin/cuidadoras                   → bulk update
+//        body: { ids: [...], campos: {...} }
 // ============================================================
 
 const CAMPOS_PERMITIDOS = [
-  'aprovada',
-  'status_pagamento',
-  'disponivel',
-  'verificada',
-  'categoria',
-  'nota',
-  'horas',
-  'comentarios',
-  'plano_profissional',
-  'plano_destaque'
+  'aprovada', 'status_pagamento', 'disponivel', 'verificada',
+  'categoria', 'nota', 'horas', 'comentarios',
+  'plano_profissional', 'plano_destaque',
+  'plano_inicio', 'plano_valido_ate'
 ];
 
-// Campos que devolvemos na listagem (pro painel)
 const CAMPOS_LISTA = [
   'id', 'nome', 'whatsapp', 'whatsapp_agencia', 'email', 'cpf', 'coren',
   'foto_url', 'apresentacao', 'especialidade', 'experiencia',
   'bairro', 'bairros', 'preco', 'turno', 'cursos', 'subespecialidades',
   'categoria', 'nota', 'horas', 'verificada', 'disponivel',
   'plano_profissional', 'plano_destaque', 'plano_cadastro',
+  'plano_inicio', 'plano_valido_ate',
   'status_pagamento', 'aprovada', 'comentarios', 'indicado_por',
   'asaas_customer_id', 'asaas_cobranca_id', 'cupom_usado',
   'criado_em', 'atualizado_em'
 ];
 
-// ============================================================
-// HELPERS
-// ============================================================
 function jsonResp(obj, status) {
   return new Response(JSON.stringify(obj), {
     status: status || 200,
@@ -50,10 +40,8 @@ function jsonResp(obj, status) {
 async function validarToken(env, request) {
   const auth = request.headers.get('Authorization') || '';
   const token = auth.replace('Bearer ', '').trim();
-
   if (!token) return { ok: false, motivo: 'Token ausente' };
 
-  // Valida chamando o endpoint /auth/v1/user do Supabase
   const resp = await fetch(env.SUPABASE_URL + '/auth/v1/user', {
     headers: {
       'apikey': env.SUPABASE_SERVICE_KEY,
@@ -62,13 +50,23 @@ async function validarToken(env, request) {
   });
 
   if (!resp.ok) return { ok: false, motivo: 'Token inválido ou expirado' };
-
   const user = await resp.json();
   return { ok: true, user: user };
 }
 
+function headersSupabase(env, temBody, querRetorno) {
+  const h = {
+    'apikey': env.SUPABASE_SERVICE_KEY,
+    'Authorization': 'Bearer ' + env.SUPABASE_SERVICE_KEY,
+    'Accept': 'application/json'
+  };
+  if (temBody) h['Content-Type'] = 'application/json';
+  if (querRetorno) h['Prefer'] = 'return=representation';
+  return h;
+}
+
 // ============================================================
-// GET — LISTAR
+// GET — LISTAR COM FILTROS
 // ============================================================
 export async function onRequestGet(context) {
   const { request, env } = context;
@@ -78,10 +76,14 @@ export async function onRequestGet(context) {
 
   try {
     const url = new URL(request.url);
-    const id = url.searchParams.get('id');
+    const id     = url.searchParams.get('id');
+    const filtro = url.searchParams.get('filtro');
+    const busca  = url.searchParams.get('busca');
+    const bairro = url.searchParams.get('bairro');
+    const plano  = url.searchParams.get('plano');
 
+    // Buscar uma específica
     if (id) {
-      // Busca uma
       const resp = await fetch(
         env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + id + '&select=' + CAMPOS_LISTA.join(','),
         { headers: headersSupabase(env) }
@@ -92,9 +94,40 @@ export async function onRequestGet(context) {
       return jsonResp({ cuidadora: linhas[0] }, 200);
     }
 
-    // Lista todas
+    // Monta filtros
+    const params = ['select=' + CAMPOS_LISTA.join(','), 'order=criado_em.desc'];
+
+    if (filtro === 'pendentes') {
+      params.push('aprovada=eq.false');
+    } else if (filtro === 'aprovadas') {
+      params.push('aprovada=eq.true');
+    } else if (filtro === 'vencidas') {
+      params.push('plano_valido_ate=lt.' + new Date().toISOString());
+      params.push('plano_profissional=eq.true');
+    } else if (filtro === 'pagas') {
+      params.push('status_pagamento=eq.Pago');
+    }
+
+    if (busca) {
+      // Busca no nome OU whatsapp
+      params.push('or=(nome.ilike.*' + encodeURIComponent(busca) + '*,whatsapp.ilike.*' + encodeURIComponent(busca) + '*)');
+    }
+
+    if (bairro) {
+      params.push('bairro=eq.' + encodeURIComponent(bairro));
+    }
+
+    if (plano === 'profissional') {
+      params.push('plano_profissional=eq.true');
+    } else if (plano === 'destaque') {
+      params.push('plano_destaque=eq.true');
+    } else if (plano === 'gratis') {
+      params.push('plano_profissional=eq.false');
+      params.push('plano_destaque=eq.false');
+    }
+
     const resp = await fetch(
-      env.SUPABASE_URL + '/rest/v1/cuidadores?select=' + CAMPOS_LISTA.join(',') + '&order=criado_em.desc',
+      env.SUPABASE_URL + '/rest/v1/cuidadores?' + params.join('&'),
       { headers: headersSupabase(env) }
     );
 
@@ -114,7 +147,7 @@ export async function onRequestGet(context) {
 }
 
 // ============================================================
-// PATCH — ATUALIZAR
+// PATCH — ATUALIZAR UMA
 // ============================================================
 export async function onRequestPatch(context) {
   const { request, env } = context;
@@ -125,12 +158,9 @@ export async function onRequestPatch(context) {
   try {
     const url = new URL(request.url);
     const id = url.searchParams.get('id');
-
     if (!id) return jsonResp({ error: 'Parâmetro ?id= obrigatório' }, 400);
 
     const body = await request.json();
-
-    // Filtra só campos permitidos
     const campos = {};
     for (const chave of CAMPOS_PERMITIDOS) {
       if (chave in body) campos[chave] = body[chave];
@@ -138,6 +168,15 @@ export async function onRequestPatch(context) {
 
     if (Object.keys(campos).length === 0) {
       return jsonResp({ error: 'Nenhum campo válido pra atualizar' }, 400);
+    }
+
+    // Se tá marcando como pago, preenche vencimento automaticamente
+    if (campos.status_pagamento === 'Pago' && !campos.plano_valido_ate) {
+      const hoje = new Date();
+      const vence = new Date(hoje);
+      vence.setDate(vence.getDate() + 30);
+      campos.plano_inicio = hoje.toISOString();
+      campos.plano_valido_ate = vence.toISOString();
     }
 
     const patchUrl = env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + id;
@@ -150,7 +189,7 @@ export async function onRequestPatch(context) {
     if (!resp.ok) {
       const txt = await resp.text();
       console.error('Erro PATCH:', txt);
-      return jsonResp({ error: 'Falha ao atualizar', detalhe: txt.substring(0, 300) }, 502);
+      return jsonResp({ error: 'Falha ao atualizar' }, 502);
     }
 
     const atualizados = await resp.json();
@@ -163,26 +202,73 @@ export async function onRequestPatch(context) {
 }
 
 // ============================================================
-// SUPORTE A OPTIONS (CORS)
+// POST — ATUALIZAÇÃO EM MASSA
 // ============================================================
+export async function onRequestPost(context) {
+  const { request, env } = context;
+
+  const auth = await validarToken(env, request);
+  if (!auth.ok) return jsonResp({ error: auth.motivo }, 401);
+
+  try {
+    const body = await request.json();
+    const ids = body.ids || [];
+    const camposBrutos = body.campos || {};
+
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return jsonResp({ error: 'Nenhum id informado' }, 400);
+    }
+
+    const campos = {};
+    for (const chave of CAMPOS_PERMITIDOS) {
+      if (chave in camposBrutos) campos[chave] = camposBrutos[chave];
+    }
+
+    if (Object.keys(campos).length === 0) {
+      return jsonResp({ error: 'Nenhum campo válido' }, 400);
+    }
+
+    // Aplica vencimento automático se marcando como pago em lote
+    if (campos.status_pagamento === 'Pago' && !campos.plano_valido_ate) {
+      const hoje = new Date();
+      const vence = new Date(hoje);
+      vence.setDate(vence.getDate() + 30);
+      campos.plano_inicio = hoje.toISOString();
+      campos.plano_valido_ate = vence.toISOString();
+    }
+
+    // in.(id1,id2,id3)
+    const idList = ids.map(function(i) { return '"' + i + '"'; }).join(',');
+    const patchUrl = env.SUPABASE_URL + '/rest/v1/cuidadores?id=in.(' + idList + ')';
+
+    const resp = await fetch(patchUrl, {
+      method: 'PATCH',
+      headers: headersSupabase(env, true, false),
+      body: JSON.stringify(campos)
+    });
+
+    if (!resp.ok) {
+      const txt = await resp.text();
+      console.error('Erro bulk PATCH:', txt);
+      return jsonResp({ error: 'Falha na atualização em lote' }, 502);
+    }
+
+    return jsonResp({ ok: true, atualizadas: ids.length }, 200);
+
+  } catch (err) {
+    console.error('Erro POST admin:', err);
+    return jsonResp({ error: 'Falha no processamento' }, 500);
+  }
+}
+
+// CORS
 export async function onRequestOptions() {
   return new Response(null, {
     status: 204,
     headers: {
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, PATCH, OPTIONS',
+      'Access-Control-Allow-Methods': 'GET, POST, PATCH, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization'
     }
   });
-}
-
-function headersSupabase(env, temBody, querRetorno) {
-  const h = {
-    'apikey': env.SUPABASE_SERVICE_KEY,
-    'Authorization': 'Bearer ' + env.SUPABASE_SERVICE_KEY,
-    'Accept': 'application/json'
-  };
-  if (temBody) h['Content-Type'] = 'application/json';
-  if (querRetorno) h['Prefer'] = 'return=representation';
-  return h;
 }
