@@ -1,6 +1,6 @@
 // functions/upgrade.js
 
-const AIRTABLE_API_KEY = 'patl042fqFhzdECNS.31172479b55fffd9c3b5c7d7e7b5dee4a19b0b5600eb2273aa02d0ec427b35ae';
+const AIRTABLE_API_KEY = 'pat9DPAIGPNLK6W54.810b54b99727ab66a02185f3c06f9aeda708363c4ba0348201c8efe15e3d5674';
 const AIRTABLE_BASE = 'apphAWeT91l1dMWM5';
 const AIRTABLE_TABLE = 'Cuidadores';
 
