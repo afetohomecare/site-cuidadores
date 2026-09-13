@@ -498,9 +498,6 @@ header {
 <a href="https://afetohomecare.pages.dev" class="voltar-link"><i class="fa-solid fa-arrow-left"></i> Voltar</a>
 
 <script>
-const API_KEY = 'patFDuAaqFlFnjaMF.f80f2bd35057d5478e39ed735e58315338b9d1a4ef9cdbe267254bcd51ead169';
-const BASE_ID = 'apphAWeT91l1dMWM5';
-const TABLE_NAME = 'Cuidadores';
 
 var params = new URLSearchParams(window.location.search);
 var recordId = params.get('id');
@@ -596,10 +593,8 @@ async function carregarTudo() {
         return;
     }
 
-    var url = 'https://api.airtable.com/v0/' + BASE_ID + '/' + TABLE_NAME;
-
-    try {
-        var response = await fetch(url, { headers: { Authorization: 'Bearer ' + API_KEY } });
+        try {
+        var response = await fetch('/api/cuidadores');
         var data = await response.json();
 
         if (!data.records) throw new Error('Sem dados');
