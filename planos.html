@@ -16,7 +16,6 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
 
 .header { text-align: center; margin-bottom: 30px; }
 
-/* ============ LOGO NOVA ============ */
 .header .logo {
   display: inline-flex;
   align-items: center;
@@ -81,7 +80,8 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
 .card-lista li strong { color: var(--preto-fonte); }
 
 .card-btn { display: flex; align-items: center; justify-content: center; width: 100%; padding: 13px; border-radius: 12px; font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 900; cursor: pointer; text-decoration: none; transition: 0.3s; border: none; }
-.card-btn.gratis-btn { background: var(--verde-claro); color: #059669; border: 1px solid #6ee7b7; cursor: default; }
+.card-btn.gratis-btn { background: var(--verde-claro); color: #059669; border: 1px solid #6ee7b7; }
+.card-btn.gratis-btn:hover { background: #d1fae5; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(16,185,129,0.2); }
 .card-btn.profissional-btn { background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; box-shadow: 0 8px 20px rgba(139,92,246,0.3); }
 .card-btn.profissional-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(139,92,246,0.4); }
 .card-btn.destaque-btn { background: transparent; color: var(--preto-fonte); border: 2px solid var(--ouro); }
@@ -194,7 +194,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
                     <span class="cifra">R$</span>
                     <span class="valor">0</span>
                 </div>
-                <div class="nota">Para sempre · ativo ✅</div>
+                <div class="nota">Para sempre</div>
             </div>
 
             <div class="card-divisor"></div>
@@ -207,8 +207,8 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
                 <li><i class="fa-solid fa-check"></i> Você divulga, você recebe</li>
             </ul>
 
-            <a href="#" class="card-btn gratis-btn">
-                <i class="fa-solid fa-check" style="margin-right: 8px;"></i> Plano ativo
+            <a href="cadastro.html?plano=gratis" class="card-btn gratis-btn">
+                <i class="fa-solid fa-heart" style="margin-right: 8px;"></i> Começar Grátis
             </a>
             <div class="card-nota">Seu cartão de visita digital</div>
         </div>
@@ -240,7 +240,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
                 <li><i class="fa-solid fa-check"></i> <strong>Nós te divulgamos</strong></li>
             </ul>
 
-            <a href="https://wa.me/5541997674866?text=Ol%C3%A1!%20Quero%20assinar%20o%20Plano%20Profissional%20da%20Afeto.%20Pode%20me%20passar%20os%20pr%C3%B3ximos%20passos%3F" target="_blank" class="card-btn profissional-btn">Quero ser Profissional</a>
+            <a href="cadastro.html?plano=profissional" class="card-btn profissional-btn">Quero ser Profissional</a>
             <div class="card-nota">Mais famílias te encontram</div>
         </div>
 
@@ -269,7 +269,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
                 <li class="item-extra"><i class="fa-solid fa-plus"></i> <strong>Oportunidades exclusivas</strong></li>
             </ul>
 
-            <a href="https://wa.me/5541997674866?text=Ol%C3%A1!%20Quero%20assinar%20o%20Plano%20Destaque%20da%20Afeto.%20Pode%20me%20passar%20os%20pr%C3%B3ximos%20passos%3F" target="_blank" class="card-btn destaque-btn">Quero Destaque</a>
+            <a href="cadastro.html?plano=destaque" class="card-btn destaque-btn">Quero Destaque</a>
             <div class="card-nota">Máxima visibilidade</div>
         </div>
 
