@@ -1,4 +1,5 @@
 // functions/api/cadastro.js
+// Versão: 2026-09-13 — com typecast + checagem de erro + campos corrigidos
 
 const AIRTABLE_BASE = 'apphAWeT91l1dMWM5';
 const AIRTABLE_TABLE = 'Cuidadores';
@@ -19,7 +20,7 @@ export async function onRequest(context) {
     const cpf = (formData.get("cpf") || "").trim();
     const bio = (formData.get("bio") || "").trim();
     const motivacao = (formData.get("motivacao") || "").trim();
-    const especialidade = (formData.get("profissao") || "").trim(); // form manda como "profissao", salvamos em Especialidade
+    const especialidade = (formData.get("profissao") || "").trim(); // form manda "profissao", salvamos em Especialidade
     const coren = (formData.get("coren") || "").trim();
     const experiencia = (formData.get("experiencia") || "").trim();
     const bairrosStr = (formData.get("bairros") || "").trim();
@@ -53,7 +54,6 @@ export async function onRequest(context) {
     }
 
     // ========== 1. BUSCAR SE JÁ EXISTE (por CPF ou WhatsApp) ==========
-    // Usa filterByFormula — não carrega a base inteira
     const formula = `OR({CPF}="${escapeFormula(cpfLimpo)}", {WhatsApp}="${escapeFormula(whatsLimpo)}")`;
     const listUrl = `https://api.airtable.com/v0/${AIRTABLE_BASE}/${AIRTABLE_TABLE}?filterByFormula=${encodeURIComponent(formula)}&maxRecords=1`;
 
@@ -75,20 +75,21 @@ export async function onRequest(context) {
     const campos = {
       Nome: nome,
       WhatsApp: whatsapp,
+      WhatsAppAgencia: whatsapp,                    // perfil.html lê esse campo
       CPF: cpf,
       Apresentacao: bio,
       Motivacao: motivacao,
-      Especialidade: especialidade,           // ← CORRIGIDO (antes era "Profissão")
+      Especialidade: especialidade,                 // frontend lê Especialidade
       Experiencia: experiencia,
-      Bairro: bairroPrincipal,                // ← CORRIGIDO (frontend lê Bairro singular)
-      Bairros: bairrosStr,                    // mantém o completo também
-      Preco: parseFloat(valorPlantao) || 0,   // ← CORRIGIDO (frontend lê Preco)
-      ValorPlantao: parseFloat(valorPlantao) || 0, // mantém compatibilidade
+      Bairro: bairroPrincipal,                      // frontend lê Bairro (singular, principal)
+      Bairros: bairrosStr,                          // guarda lista completa
+      Preco: parseFloat(valorPlantao) || 0,         // frontend lê Preco
+      ValorPlantao: parseFloat(valorPlantao) || 0,  // compatibilidade legado
       Turno: turno,
       Cursos: cursos,
       StatusPagamento: statusPagamento,
       Aprovada: false,
-      Disponivel: true,                       // ← NOVO (controla banner e status)
+      Disponivel: true,                             // controla banner e status
       PlanoProfissional: planoProfissional,
       PlanoDestaque: planoDestaque
     };
@@ -96,7 +97,7 @@ export async function onRequest(context) {
     if (coren) campos.COREN = coren;
 
     const subsArray = subespecialidades.split(' | ').filter(function(s) { return s; });
-    if (subsArray.length > 0) campos.Subespecialidades = subsArray; // ← confirme no Airtable que é com "e"
+    if (subsArray.length > 0) campos.Subespecialidades = subsArray;
 
     if (indicadoPor) campos.IndicadoPor = indicadoPor;
 
@@ -106,6 +107,7 @@ export async function onRequest(context) {
     let respostaAirtable;
 
     if (registroExistente) {
+      // ---- UPDATE ----
       recordId = registroExistente.id;
       const updateUrl = `https://api.airtable.com/v0/${AIRTABLE_BASE}/${AIRTABLE_TABLE}/${recordId}`;
 
@@ -115,15 +117,22 @@ export async function onRequest(context) {
           Authorization: `Bearer ${AIRTABLE_API_KEY}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ fields: campos })
+        body: JSON.stringify({
+          fields: campos,
+          typecast: true
+        })
       });
       respostaAirtable = await updateResp.json();
 
       if (!updateResp.ok) {
-        console.error('Airtable PATCH erro:', respostaAirtable);
-        return jsonResp({ error: 'Falha ao atualizar no Airtable', detalhe: respostaAirtable }, 502);
+        console.error('Airtable PATCH erro:', JSON.stringify(respostaAirtable));
+        return jsonResp({
+          error: 'Falha ao atualizar no Airtable',
+          detalhe: respostaAirtable
+        }, 502);
       }
     } else {
+      // ---- CREATE ----
       const createUrl = `https://api.airtable.com/v0/${AIRTABLE_BASE}/${AIRTABLE_TABLE}`;
 
       const createResp = await fetch(createUrl, {
@@ -132,13 +141,19 @@ export async function onRequest(context) {
           Authorization: `Bearer ${AIRTABLE_API_KEY}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ fields: campos })
+        body: JSON.stringify({
+          fields: campos,
+          typecast: true
+        })
       });
       respostaAirtable = await createResp.json();
 
       if (!createResp.ok) {
-        console.error('Airtable POST erro:', respostaAirtable);
-        return jsonResp({ error: 'Falha ao criar no Airtable', detalhe: respostaAirtable }, 502);
+        console.error('Airtable POST erro:', JSON.stringify(respostaAirtable));
+        return jsonResp({
+          error: 'Falha ao criar no Airtable',
+          detalhe: respostaAirtable
+        }, 502);
       }
 
       recordId = respostaAirtable.id;
@@ -243,7 +258,10 @@ async function notificarTelegram(context, dados) {
   try {
     const token = context.env.TELEGRAM_BOT_TOKEN;
     const chatId = context.env.TELEGRAM_CHAT_ID;
-    if (!token || !chatId) return;
+    if (!token || !chatId) {
+      console.log("Telegram não configurado");
+      return;
+    }
 
     const agora = new Date().toLocaleString("pt-BR", {
       timeZone: "America/Sao_Paulo",
