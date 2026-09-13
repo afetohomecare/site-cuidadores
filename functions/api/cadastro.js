@@ -19,10 +19,10 @@ export async function onRequest(context) {
     const cpf = (formData.get("cpf") || "").trim();
     const bio = (formData.get("bio") || "").trim();
     const motivacao = (formData.get("motivacao") || "").trim();
-    const profissao = (formData.get("profissao") || "").trim();
+    const especialidade = (formData.get("profissao") || "").trim(); // form manda como "profissao", salvamos em Especialidade
     const coren = (formData.get("coren") || "").trim();
     const experiencia = (formData.get("experiencia") || "").trim();
-    const bairros = (formData.get("bairros") || "").trim();
+    const bairrosStr = (formData.get("bairros") || "").trim();
     const valorPlantao = (formData.get("valor_plantao") || "").trim();
     const turno = (formData.get("turno") || "").trim();
     const subespecialidades = (formData.get("subespecialidades") || "").trim();
@@ -33,10 +33,7 @@ export async function onRequest(context) {
 
     // ========== VALIDAÇÃO BÁSICA ==========
     if (!nome || !whatsapp || !cpf) {
-      return new Response(JSON.stringify({ error: "Campos obrigatórios ausentes." }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" }
-      });
+      return jsonResp({ error: "Campos obrigatórios ausentes." }, 400);
     }
 
     const cpfLimpo = cpf.replace(/\D/g, '');
@@ -55,45 +52,43 @@ export async function onRequest(context) {
       planoDestaque = true;
     }
 
-    // ========== 1. BUSCAR SE JÁ EXISTE (por CPF, depois WhatsApp) ==========
-    const listUrl = `https://api.airtable.com/v0/${AIRTABLE_BASE}/${AIRTABLE_TABLE}?pageSize=100`;
+    // ========== 1. BUSCAR SE JÁ EXISTE (por CPF ou WhatsApp) ==========
+    // Usa filterByFormula — não carrega a base inteira
+    const formula = `OR({CPF}="${escapeFormula(cpfLimpo)}", {WhatsApp}="${escapeFormula(whatsLimpo)}")`;
+    const listUrl = `https://api.airtable.com/v0/${AIRTABLE_BASE}/${AIRTABLE_TABLE}?filterByFormula=${encodeURIComponent(formula)}&maxRecords=1`;
+
     const listResp = await fetch(listUrl, {
       headers: { Authorization: `Bearer ${AIRTABLE_API_KEY}` }
     });
     const listData = await listResp.json();
 
     let registroExistente = null;
-
     if (listData.records && listData.records.length > 0) {
-      if (cpfLimpo) {
-        registroExistente = listData.records.find(function(r) {
-          const cpfAirtable = (r.fields.CPF || '').replace(/\D/g, '');
-          return cpfAirtable && cpfAirtable === cpfLimpo;
-        });
-      }
-      if (!registroExistente && whatsLimpo) {
-        registroExistente = listData.records.find(function(r) {
-          const wAirtable = (r.fields.WhatsApp || r.fields.WhatsAppAgencia || '').replace(/\D/g, '');
-          return wAirtable && wAirtable === whatsLimpo;
-        });
-      }
+      registroExistente = listData.records[0];
     }
 
     // ========== 2. MONTA OS CAMPOS A SALVAR ==========
+    // Bairros: pega o primeiro como principal (campo Bairro) e todo o joined em Bairros
+    const bairrosArray = bairrosStr.split('|').map(function(b) { return b.trim(); }).filter(function(b) { return b; });
+    const bairroPrincipal = bairrosArray[0] || '';
+
     const campos = {
       Nome: nome,
       WhatsApp: whatsapp,
       CPF: cpf,
       Apresentacao: bio,
       Motivacao: motivacao,
-      "Profissão": profissao,
+      Especialidade: especialidade,           // ← CORRIGIDO (antes era "Profissão")
       Experiencia: experiencia,
-      Bairros: bairros,
-      ValorPlantao: parseFloat(valorPlantao) || 0,
+      Bairro: bairroPrincipal,                // ← CORRIGIDO (frontend lê Bairro singular)
+      Bairros: bairrosStr,                    // mantém o completo também
+      Preco: parseFloat(valorPlantao) || 0,   // ← CORRIGIDO (frontend lê Preco)
+      ValorPlantao: parseFloat(valorPlantao) || 0, // mantém compatibilidade
       Turno: turno,
       Cursos: cursos,
       StatusPagamento: statusPagamento,
       Aprovada: false,
+      Disponivel: true,                       // ← NOVO (controla banner e status)
       PlanoProfissional: planoProfissional,
       PlanoDestaque: planoDestaque
     };
@@ -101,19 +96,20 @@ export async function onRequest(context) {
     if (coren) campos.COREN = coren;
 
     const subsArray = subespecialidades.split(' | ').filter(function(s) { return s; });
-    if (subsArray.length > 0) campos.Subespecialidades = subsArray;
+    if (subsArray.length > 0) campos.Subespecialidades = subsArray; // ← confirme no Airtable que é com "e"
 
     if (indicadoPor) campos.IndicadoPor = indicadoPor;
 
     // ========== 3. CRIA OU ATUALIZA O REGISTRO ==========
     let recordId;
     let foiCriado = false;
+    let respostaAirtable;
 
     if (registroExistente) {
       recordId = registroExistente.id;
       const updateUrl = `https://api.airtable.com/v0/${AIRTABLE_BASE}/${AIRTABLE_TABLE}/${recordId}`;
 
-      await fetch(updateUrl, {
+      const updateResp = await fetch(updateUrl, {
         method: 'PATCH',
         headers: {
           Authorization: `Bearer ${AIRTABLE_API_KEY}`,
@@ -121,6 +117,12 @@ export async function onRequest(context) {
         },
         body: JSON.stringify({ fields: campos })
       });
+      respostaAirtable = await updateResp.json();
+
+      if (!updateResp.ok) {
+        console.error('Airtable PATCH erro:', respostaAirtable);
+        return jsonResp({ error: 'Falha ao atualizar no Airtable', detalhe: respostaAirtable }, 502);
+      }
     } else {
       const createUrl = `https://api.airtable.com/v0/${AIRTABLE_BASE}/${AIRTABLE_TABLE}`;
 
@@ -132,9 +134,14 @@ export async function onRequest(context) {
         },
         body: JSON.stringify({ fields: campos })
       });
+      respostaAirtable = await createResp.json();
 
-      const createData = await createResp.json();
-      recordId = createData.id;
+      if (!createResp.ok) {
+        console.error('Airtable POST erro:', respostaAirtable);
+        return jsonResp({ error: 'Falha ao criar no Airtable', detalhe: respostaAirtable }, 502);
+      }
+
+      recordId = respostaAirtable.id;
       foiCriado = true;
     }
 
@@ -152,12 +159,12 @@ export async function onRequest(context) {
     // ========== 5. NOTIFICA TELEGRAM ==========
     await notificarTelegram(context, {
       titulo: foiCriado
-        ? (plano === 'gratis' ? "💜 Novo cadastro GRÁTIS" : "🎉 Novo cadastro PAGO")
-        : (plano === 'gratis' ? "💜 Cadastro GRÁTIS atualizado" : "🎉 Cadastro PAGO atualizado"),
+        ? (plano === 'gratis' ? "💜 Novo cadastro GRÁTIS" : "🎉 Novo cadastro " + plano.toUpperCase())
+        : (plano === 'gratis' ? "💜 Cadastro GRÁTIS atualizado" : "🎉 Cadastro " + plano.toUpperCase() + " atualizado"),
       nome: nome,
       whatsapp: whatsapp,
       cpf: cpf,
-      profissao: profissao,
+      profissao: especialidade,
       plano: plano,
       bio: bio,
       subespecialidades: subespecialidades,
@@ -166,30 +173,37 @@ export async function onRequest(context) {
       fotoEnviada: fotoEnviada
     });
 
-    return new Response(JSON.stringify({
+    return jsonResp({
       ok: true,
       recordId: recordId,
-      criado: foiCriado
-    }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" }
-    });
+      criado: foiCriado,
+      precisaPagar: (plano === 'profissional' || plano === 'destaque')
+    }, 200);
 
   } catch (err) {
     console.error("Erro cadastro:", err);
-    return new Response(JSON.stringify({
+    return jsonResp({
       ok: false,
       error: 'Falha no processamento',
       detalhe: String(err && err.message ? err.message : err)
-    }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" }
-    });
+    }, 500);
   }
 }
 
+// ========== HELPERS ==========
+function jsonResp(obj, status) {
+  return new Response(JSON.stringify(obj), {
+    status: status || 200,
+    headers: { "Content-Type": "application/json" }
+  });
+}
+
+// Escapa aspas duplas em valores dentro de filterByFormula
+function escapeFormula(str) {
+  return String(str || '').replace(/"/g, '\\"');
+}
+
 // ========== UPLOAD DA FOTO VIA BASE64 ==========
-// ⚡ Recebe o token como parâmetro
 async function subirFotoAirtable(apiKey, recordId, file) {
   const buffer = await file.arrayBuffer();
   const bytes = new Uint8Array(buffer);
@@ -229,10 +243,7 @@ async function notificarTelegram(context, dados) {
   try {
     const token = context.env.TELEGRAM_BOT_TOKEN;
     const chatId = context.env.TELEGRAM_CHAT_ID;
-    if (!token || !chatId) {
-      console.log("Telegram não configurado");
-      return;
-    }
+    if (!token || !chatId) return;
 
     const agora = new Date().toLocaleString("pt-BR", {
       timeZone: "America/Sao_Paulo",
