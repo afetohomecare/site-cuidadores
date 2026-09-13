@@ -187,7 +187,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 .tab-btn.ativo { background: white; color: var(--lilas-escuro); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
 .tab-badge { position: absolute; top: -6px; right: 8px; background: #10b981; color: white; font-size: 9px; font-weight: 900; padding: 2px 6px; border-radius: 20px; letter-spacing: 0.3px; }
 
-/* ⚡ Tabs — apenas a ativa aparece */
 .tab-content { display: none !important; }
 .tab-content.ativo { display: block !important; animation: fadeIn 0.3s ease; }
 
@@ -203,6 +202,48 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 .btn-copiar-pix:hover { transform: translateY(-2px); }
 .btn-copiar-pix.copiado { background: linear-gradient(135deg, #10b981, #059669); }
 .pix-aviso { font-size: 12px; color: var(--lilas-escuro); font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px; line-height: 1.5; }
+
+/* BLOCO AGUARDANDO PAGAMENTO */
+.pix-aguardando {
+  display: none;
+  background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+  border: 2px solid #c4b5fd;
+  border-radius: 16px;
+  padding: 18px 20px;
+  margin-top: 16px;
+  text-align: center;
+}
+.pix-aguardando.ativo { display: block; animation: fadeIn 0.4s ease; }
+.pix-aguardando .icone {
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro));
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+  margin: 0 auto 12px;
+  box-shadow: 0 8px 20px rgba(139,92,246,0.3);
+  animation: pulsar-check 1.5s ease-in-out infinite;
+}
+@keyframes pulsar-check {
+  0%, 100% { transform: scale(1); box-shadow: 0 8px 20px rgba(139,92,246,0.3); }
+  50% { transform: scale(1.08); box-shadow: 0 12px 25px rgba(139,92,246,0.5); }
+}
+.pix-aguardando .titulo {
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--lilas-escuro);
+  margin-bottom: 4px;
+}
+.pix-aguardando .sub {
+  font-size: 12.5px;
+  color: var(--cinza-fonte);
+  font-weight: 600;
+  line-height: 1.55;
+}
 
 .cartao-form { display: flex; flex-direction: column; gap: 12px; }
 .campo-cartao { display: flex; flex-direction: column; gap: 6px; }
@@ -221,7 +262,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 .checkout-loading p, .checkout-erro p { font-size: 15px; font-weight: 700; color: var(--cinza-fonte); line-height: 1.5; }
 .btn-tentar { margin-top: 16px; padding: 14px 28px; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; border: none; border-radius: 50px; font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 900; cursor: pointer; }
 
-/* Selo de segurança sutil no rodapé do checkout */
 .checkout-seguranca {
   display: flex;
   align-items: center;
@@ -582,6 +622,12 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
           </button>
         </div>
         <p class="pix-aviso"><i class="fa-solid fa-info-circle"></i> Após o pagamento, a confirmação é automática.</p>
+
+        <div class="pix-aguardando" id="pix-aguardando">
+          <div class="icone"><i class="fa-solid fa-spinner fa-spin"></i></div>
+          <div class="titulo">Aguardando confirmação...</div>
+          <div class="sub">Não feche esta tela. Assim que o banco confirmar, seu acesso será liberado automaticamente.</div>
+        </div>
       </div>
     </div>
 
@@ -663,7 +709,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     btnEnviar.innerHTML = 'Criar meu cadastro <i class="fa-solid fa-heart"></i>';
   }
 
-  // Botão copiar link do perfil
+  // Botão copiar link
   var btnCopiar = document.getElementById('btn-copiar-link');
   if (btnCopiar) {
     btnCopiar.addEventListener('click', function() {
@@ -687,7 +733,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 
   var form = document.getElementById('form-cadastro');
 
-  // Máscaras
   document.getElementById('whatsapp').addEventListener('input', function() {
     var x = this.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
     this.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
@@ -716,7 +761,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     return true;
   }
 
-  // COREN
   var campoCoren = document.getElementById('coren');
   if (campoCoren) {
     campoCoren.addEventListener('input', function() {
@@ -945,29 +989,94 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   });
 
   // ========================================================================
-  // 💳 CHECKOUT ASAAS — versão final (sem duplicação)
+  // 💳 CHECKOUT ASAAS — versão final
   // ========================================================================
-  var dadosCheckout = { recordId: null, plano: null, nome: null, cobrancaId: null, pixData: null };
+  var dadosCheckout = { recordId: null, plano: null, nome: null, cobrancaId: null, pixData: null, pago: false };
+  var enviando = false;
 
+  // ========================================================================
+  // 🔄 POLLING — verifica status a cada 3s
+  // ========================================================================
+  var pollingTimer = null;
+  var pollingTentativas = 0;
+  var MAX_TENTATIVAS = 200; // 200 * 3s = 10 minutos
+
+  function iniciarPollingPagamento() {
+    pararPollingPagamento();
+    pollingTentativas = 0;
+
+    // Mostra o bloco "Aguardando confirmação" na aba Pix
+    var bloco = document.getElementById('pix-aguardando');
+    if (bloco) bloco.classList.add('ativo');
+
+    pollingTimer = setInterval(verificarStatusPagamento, 3000);
+  }
+
+  function pararPollingPagamento() {
+    if (pollingTimer) {
+      clearInterval(pollingTimer);
+      pollingTimer = null;
+    }
+    var bloco = document.getElementById('pix-aguardando');
+    if (bloco) bloco.classList.remove('ativo');
+  }
+
+  async function verificarStatusPagamento() {
+    if (!dadosCheckout.cobrancaId) return;
+    if (dadosCheckout.pago) { pararPollingPagamento(); return; }
+    if (pollingTentativas >= MAX_TENTATIVAS) {
+      pararPollingPagamento();
+      console.warn('Polling timeout — parando de verificar');
+      return;
+    }
+
+    pollingTentativas++;
+
+    try {
+      var resp = await fetch('/api/asaas/status?id=' + encodeURIComponent(dadosCheckout.cobrancaId));
+      var data = await resp.json();
+
+      if (data.ok && data.pago) {
+        // 🎉 PAGAMENTO CONFIRMADO!
+        dadosCheckout.pago = true;
+        pararPollingPagamento();
+
+        // Fecha o checkout direto (sem mexer no botão)
+        document.getElementById('tela-checkout').classList.remove('ativo');
+        document.body.style.overflow = '';
+
+        // Mostra a tela de sucesso
+        mostrarSucessoPago();
+      }
+    } catch (err) {
+      // Erros de rede silenciosos — tenta de novo no próximo tick
+      console.warn('Erro ao verificar status:', err);
+    }
+  }
+
+  // ========================================================================
+  // 🔓 ABRIR / FECHAR CHECKOUT
+  // ========================================================================
   window.abrirCheckout = function(recordId, planoParam, nomeParam) {
-    // 🎯 Se já temos cobrança criada pra ESSE cadastro, só reabre (não duplica)
+    // 🎯 Se já temos cobrança criada pra ESSE cadastro, só reabre
     if (dadosCheckout.recordId === recordId && dadosCheckout.cobrancaId) {
       document.getElementById('tela-checkout').classList.add('ativo');
       document.body.style.overflow = 'hidden';
       document.getElementById('checkout-loading').style.display = 'none';
       document.getElementById('checkout-erro').style.display = 'none';
+      // Reinicia polling se não estiver rodando
+      if (!pollingTimer && !dadosCheckout.pago) iniciarPollingPagamento();
       return;
     }
 
-    // Senão, cria cobrança nova
-    dadosCheckout = { recordId: recordId, plano: planoParam, nome: nomeParam, cobrancaId: null, pixData: null };
+    // Cria cobrança nova
+    dadosCheckout = { recordId: recordId, plano: planoParam, nome: nomeParam, cobrancaId: null, pixData: null, pago: false };
 
     document.getElementById('checkout-plano-nome').textContent = 'Plano ' + (planoParam === 'destaque' ? 'Destaque' : 'Profissional') + ' Afeto';
     var valor = planoParam === 'destaque' ? '69,90' : '24,90';
     document.getElementById('checkout-valor').textContent = valor;
     document.getElementById('cartao-valor').textContent = valor;
 
-    // Reset visual — sempre volta pra aba Pix
     document.getElementById('tab-pix').classList.add('ativo');
     document.getElementById('tab-cartao').classList.remove('ativo');
     document.querySelectorAll('.tab-btn').forEach(function(b) {
@@ -980,14 +1089,23 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     document.getElementById('tela-checkout').classList.add('ativo');
     document.body.style.overflow = 'hidden';
 
-    gerarPix();
+    gerarPix().then(function() {
+      iniciarPollingPagamento();
+    });
   };
 
   window.fecharCheckout = function() {
     document.getElementById('tela-checkout').classList.remove('ativo');
     document.body.style.overflow = '';
 
-    // Libera o form pra revisar
+    // 🛑 Para o polling ao fechar (mas mantém cobrancaId em cache)
+    // Só para se NÃO pagou ainda
+    if (!dadosCheckout.pago) {
+      // Não para o polling — deixa rodando em background pra detectar pagamento
+      // (o usuário pode ter fechado sem perceber)
+    }
+
+    // Libera o form
     var btn = document.getElementById('btn-enviar');
     if (btn && btn.disabled) {
       btn.disabled = false;
@@ -995,8 +1113,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
         ? 'Ir para pagamento <i class="fa-solid fa-arrow-right"></i>'
         : 'Criar meu cadastro <i class="fa-solid fa-heart"></i>';
     }
-    // Reset flag de envio (usa `enviando` declarado depois via closure)
-    try { if (typeof enviando !== 'undefined') enviando = false; } catch (e) {}
+    enviando = false;
   };
 
   window.voltarCheckout = function() {
@@ -1004,7 +1121,9 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     document.getElementById('checkout-loading').style.display = 'block';
     dadosCheckout.cobrancaId = null;
     dadosCheckout.pixData = null;
-    gerarPix();
+    gerarPix().then(function() {
+      iniciarPollingPagamento();
+    });
   };
 
   async function gerarPix() {
@@ -1103,7 +1222,11 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
         btn.innerHTML = '<i class="fa-solid fa-lock"></i> Pagar R$ ' + (dadosCheckout.plano === 'destaque' ? '69,90' : '24,90');
         return;
       }
-      fecharCheckout();
+      // Pagamento com cartão → já aprovado na hora
+      dadosCheckout.pago = true;
+      pararPollingPagamento();
+      document.getElementById('tela-checkout').classList.remove('ativo');
+      document.body.style.overflow = '';
       mostrarSucessoPago();
     } catch (err) {
       alert('Erro: ' + err.message);
@@ -1112,7 +1235,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     }
   };
 
-  // Tabs Pix/Cartão
   document.querySelectorAll('.tab-btn').forEach(function(btn) {
     btn.addEventListener('click', function() {
       var tab = this.getAttribute('data-tab');
@@ -1123,7 +1245,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     });
   });
 
-  // Máscaras do cartão
   var cardNumberInput = document.getElementById('card-number');
   if (cardNumberInput) {
     cardNumberInput.addEventListener('input', function() {
@@ -1160,16 +1281,15 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   }
 
   // ========== ENVIO ==========
-  var enviando = false;
-
   form.addEventListener('submit', async function(e) {
     e.preventDefault();
     if (enviando) return;
 
-    // 🎯 Se já temos uma cobrança criada pra esse cadastro, só reabre o checkout
-    if (dadosCheckout.recordId && dadosCheckout.cobrancaId) {
+    // Se já temos cobrança criada, só reabre o checkout (não refaz nada)
+    if (dadosCheckout.recordId && dadosCheckout.cobrancaId && !dadosCheckout.pago) {
       document.getElementById('tela-checkout').classList.add('ativo');
       document.body.style.overflow = 'hidden';
+      if (!pollingTimer) iniciarPollingPagamento();
       return;
     }
 
