@@ -1,10 +1,11 @@
-// functions/upgrade.js
+// functions/api/upgrade.js
 
-const AIRTABLE_API_KEY = 'pat9DPAIGPNLK6W54.810b54b99727ab66a02185f3c06f9aeda708363c4ba0348201c8efe15e3d5674';
 const AIRTABLE_BASE = 'apphAWeT91l1dMWM5';
 const AIRTABLE_TABLE = 'Cuidadores';
 
 export async function onRequest(context) {
+  const AIRTABLE_API_KEY = context.env.AIRTABLE_API_KEY;
+
   if (context.request.method !== "POST") {
     return new Response("Método não permitido", { status: 405 });
   }
@@ -27,11 +28,10 @@ export async function onRequest(context) {
       });
     }
 
-    // ⚡ Limpa o WhatsApp (só dígitos) para comparar
+    // Limpa o WhatsApp (só dígitos) para comparar
     const whatsLimpo = whatsapp.replace(/\D/g, '');
 
     // 1. Baixar TODOS os registros e filtrar em JS
-    // (mais confiável que filterByFormula, porque compara sem formatação)
     const listUrl = `https://api.airtable.com/v0/${AIRTABLE_BASE}/${AIRTABLE_TABLE}?pageSize=100`;
     const listResp = await fetch(listUrl, {
       headers: { Authorization: `Bearer ${AIRTABLE_API_KEY}` }
@@ -72,7 +72,7 @@ export async function onRequest(context) {
 
     const recordId = registroDela.id;
 
-    // 2. Atualizar campos de texto (IndicadoPor só se preenchido)
+    // 2. Atualizar campos de texto
     const camposAtualizar = {
       Apresentacao: bio,
       Cursos: cursos,
@@ -93,11 +93,11 @@ export async function onRequest(context) {
       body: JSON.stringify({ fields: camposAtualizar })
     });
 
-    // 3. Upload da foto
+    // 3. Upload da foto (passa o token como parâmetro)
     let fotoEnviada = false;
     if (foto && foto.size > 0) {
       try {
-        await subirFotoAirtable(recordId, foto);
+        await subirFotoAirtable(AIRTABLE_API_KEY, recordId, foto);
         fotoEnviada = true;
       } catch (err) {
         console.error("Erro ao subir foto:", err);
@@ -123,15 +123,20 @@ export async function onRequest(context) {
 
   } catch (err) {
     console.error("Erro upgrade:", err);
-    return new Response(JSON.stringify({ ok: false }), {
-      status: 200,
+    return new Response(JSON.stringify({
+      ok: false,
+      error: 'Falha no processamento',
+      detalhe: String(err && err.message ? err.message : err)
+    }), {
+      status: 500,
       headers: { "Content-Type": "application/json" }
     });
   }
 }
 
 // Upload da foto pro Airtable via base64
-async function subirFotoAirtable(recordId, file) {
+// ⚡ Recebe o token como parâmetro
+async function subirFotoAirtable(apiKey, recordId, file) {
   const buffer = await file.arrayBuffer();
   const bytes = new Uint8Array(buffer);
 
@@ -147,11 +152,11 @@ async function subirFotoAirtable(recordId, file) {
   const resp = await fetch(uploadUrl, {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${AIRTABLE_API_KEY}`,
+      Authorization: `Bearer ${apiKey}`,
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      contentType: file.type,
+      contentType: file.type || 'image/jpeg',
       filename: file.name || 'foto.jpg',
       file: base64
     })
