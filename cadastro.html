@@ -18,168 +18,75 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 .wrap { max-width: 640px; margin: 0 auto; width: 100%; flex: 1; }
 
 .header-top { text-align: center; margin-bottom: 35px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
-.header-top .logo {
-  display: inline-flex; align-items: center; gap: 0.16em;
-  font-weight: 900; font-size: 32px; color: var(--lilas);
-  text-decoration: none; line-height: 1;
-}
+.header-top .logo { display: inline-flex; align-items: center; gap: 0.16em; font-weight: 900; font-size: 32px; color: var(--lilas); text-decoration: none; line-height: 1; }
 .header-top .logo svg { width: 1.11em; height: 0.69em; overflow: visible; }
 .header-top .logo svg path { fill: none; stroke: currentColor; stroke-width: 13; stroke-linecap: round; }
 .header-top h1 { font-size: 26px; font-weight: 900; letter-spacing: -0.5px; margin-top: 8px; max-width: 500px; line-height: 1.25; }
 .header-top h1 span { color: var(--lilas-escuro); }
 .header-top .subtitulo { font-size: 15px; color: var(--cinza-fonte); font-weight: 700; max-width: 480px; line-height: 1.55; }
 
-.badge-plano {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro));
-  color: white; padding: 9px 22px; border-radius: 50px;
-  font-size: 13px; font-weight: 900; letter-spacing: 0.5px;
-  box-shadow: 0 10px 25px rgba(139,92,246,0.25);
-  animation: fadeInBadge 0.5s ease;
-}
+.badge-plano { display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; padding: 9px 22px; border-radius: 50px; font-size: 13px; font-weight: 900; letter-spacing: 0.5px; box-shadow: 0 10px 25px rgba(139,92,246,0.25); animation: fadeInBadge 0.5s ease; }
 @keyframes fadeInBadge { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
 .badge-plano.gratis { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 10px 25px rgba(16,185,129,0.25); }
 
 .form-card { background: white; border-radius: 30px; padding: 40px; box-shadow: 0 25px 60px rgba(139,92,246,0.1); border: 1px solid #e2e8f0; }
 
-.secao-titulo {
-  font-size: 13px; font-weight: 900; text-transform: uppercase;
-  letter-spacing: 1.2px; color: var(--lilas-escuro);
-  padding-top: 28px; margin-top: 24px; margin-bottom: 6px;
-  border-top: 1px solid #f1f5f9;
-  display: flex; align-items: center; gap: 8px;
-}
+.secao-titulo { font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: 1.2px; color: var(--lilas-escuro); padding-top: 28px; margin-top: 24px; margin-bottom: 6px; border-top: 1px solid #f1f5f9; display: flex; align-items: center; gap: 8px; }
 .secao-titulo:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
 .secao-titulo i { font-size: 14px; }
 
 .campo { margin-bottom: 22px; }
 .campo label { display: block; font-weight: 800; margin-bottom: 8px; font-size: 14px; color: var(--preto-fonte); }
 .campo .ajuda { display: block; font-size: 12px; color: var(--cinza-fonte); font-weight: 600; margin-bottom: 8px; line-height: 1.5; }
-.campo input[type="text"],
-.campo input[type="tel"],
-.campo input[type="number"],
-.campo textarea,
-.campo select {
-  width: 100%; padding: 15px 18px; border-radius: 16px; border: 2px solid #e2e8f0;
-  font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 700;
-  background: var(--fundo-site); color: var(--preto-fonte); outline: none; transition: 0.3s;
-}
-.campo input:focus, .campo textarea:focus, .campo select:focus {
-  border-color: var(--lilas); background: white; box-shadow: 0 0 0 4px rgba(139,92,246,0.12);
-}
+.campo input[type="text"], .campo input[type="tel"], .campo input[type="number"], .campo textarea, .campo select { width: 100%; padding: 15px 18px; border-radius: 16px; border: 2px solid #e2e8f0; font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 700; background: var(--fundo-site); color: var(--preto-fonte); outline: none; transition: 0.3s; }
+.campo input:focus, .campo textarea:focus, .campo select:focus { border-color: var(--lilas); background: white; box-shadow: 0 0 0 4px rgba(139,92,246,0.12); }
 .campo textarea { resize: vertical; min-height: 90px; }
-.campo select {
-  cursor: pointer; appearance: none; -webkit-appearance: none; -moz-appearance: none;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238b5cf6' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-  background-repeat: no-repeat; background-position: right 18px center; background-size: 16px; padding-right: 45px;
-}
-.campo select:hover { border-color: #c4b5fd; background-color: white; }
-.campo select option { background-color: white; color: var(--preto-fonte); font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 700; padding: 14px 18px; line-height: 1.5; }
+.campo select { cursor: pointer; appearance: none; -webkit-appearance: none; -moz-appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238b5cf6' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 18px center; background-size: 16px; padding-right: 45px; }
+.campo select option { background-color: white; color: var(--preto-fonte); font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 700; }
 .campo select option:first-child { color: var(--cinza-azulado); }
-.campo select option:checked { background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)) !important; color: white !important; font-weight: 900; }
 
 .input-prefix { position: relative; display: flex; align-items: center; }
 .input-prefix span { position: absolute; left: 18px; font-weight: 800; color: var(--lilas-escuro); font-size: 15px; pointer-events: none; z-index: 2; }
 .input-prefix input { padding-left: 48px !important; }
 
-.foto-instrucoes {
-  background: linear-gradient(135deg, #f5f3ff, #ede9fe);
-  border: 1px solid #c4b5fd;
-  border-radius: 20px;
-  padding: 22px 24px;
-  margin-bottom: 14px;
-}
+.foto-instrucoes { background: linear-gradient(135deg, #f5f3ff, #ede9fe); border: 1px solid #c4b5fd; border-radius: 20px; padding: 22px 24px; margin-bottom: 14px; }
 .foto-instrucoes h4 { font-size: 15px; font-weight: 900; color: var(--lilas-escuro); margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
 .foto-instrucoes p { font-size: 13px; font-weight: 700; color: var(--cinza-fonte); line-height: 1.55; margin: 0; }
 
-.foto-upload {
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 12px; border: 2px dashed #cbd5e1; border-radius: 20px; padding: 32px 20px;
-  background: var(--fundo-site); cursor: pointer; transition: 0.3s; text-align: center;
-  position: relative; overflow: hidden;
-}
+.foto-upload { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; border: 2px dashed #cbd5e1; border-radius: 20px; padding: 32px 20px; background: var(--fundo-site); cursor: pointer; transition: 0.3s; text-align: center; position: relative; overflow: hidden; }
 .foto-upload:hover { border-color: var(--lilas); background: linear-gradient(135deg, #f5f3ff, #ede9fe); }
 .foto-upload input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
-.foto-upload .icone {
-  width: 58px; height: 58px;
-  background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro));
-  color: white; border-radius: 50%;
-  display: flex; justify-content: center; align-items: center;
-  font-size: 24px; box-shadow: 0 10px 25px rgba(139,92,246,0.3);
-}
+.foto-upload .icone { width: 58px; height: 58px; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 24px; box-shadow: 0 10px 25px rgba(139,92,246,0.3); }
 .foto-upload .titulo { font-size: 15px; font-weight: 900; color: var(--preto-fonte); }
 .foto-upload .subtitulo-foto { font-size: 12.5px; font-weight: 600; color: var(--cinza-fonte); }
 .foto-upload.tem-foto { border-style: solid; border-color: var(--verde); background: linear-gradient(135deg, #ecfdf5, #d1fae5); }
 .foto-preview { display: none; width: 140px; height: 140px; border-radius: 50%; object-fit: cover; border: 4px solid white; box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
 .foto-preview.ativo { display: block; }
-.foto-upload.tem-foto .icone,
-.foto-upload.tem-foto .titulo,
-.foto-upload.tem-foto .subtitulo-foto { display: none; }
+.foto-upload.tem-foto .icone, .foto-upload.tem-foto .titulo, .foto-upload.tem-foto .subtitulo-foto { display: none; }
 .foto-upload .trocar-foto { display: none; font-size: 13px; font-weight: 800; color: #059669; }
 .foto-upload.tem-foto .trocar-foto { display: block; }
 
 .checkbox-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; }
-.checkbox-item {
-  display: flex; align-items: center; gap: 10px;
-  background: var(--fundo-site); padding: 11px 14px; border-radius: 12px;
-  border: 2px solid #e2e8f0; cursor: pointer; transition: all 0.2s ease;
-  font-size: 13px; font-weight: 700; font-family: 'Nunito', sans-serif;
-  color: var(--preto-fonte); outline: none; user-select: none;
-}
+.checkbox-item { display: flex; align-items: center; gap: 10px; background: var(--fundo-site); padding: 11px 14px; border-radius: 12px; border: 2px solid #e2e8f0; cursor: pointer; transition: all 0.2s ease; font-size: 13px; font-weight: 700; font-family: 'Nunito', sans-serif; color: var(--preto-fonte); outline: none; user-select: none; }
 .checkbox-item:hover { border-color: #c4b5fd; background: #faf5ff; }
-.checkbox-item input[type="checkbox"] {
-  appearance: none; -webkit-appearance: none; -moz-appearance: none;
-  width: 20px; height: 20px; border: 2px solid #cbd5e1; border-radius: 6px;
-  background: white; cursor: pointer; flex-shrink: 0; margin: 0;
-  position: relative; transition: all 0.2s ease; outline: none;
-}
-.checkbox-item input[type="checkbox"]:focus-visible { box-shadow: 0 0 0 3px rgba(139,92,246,0.25); }
+.checkbox-item input[type="checkbox"] { appearance: none; -webkit-appearance: none; width: 20px; height: 20px; border: 2px solid #cbd5e1; border-radius: 6px; background: white; cursor: pointer; flex-shrink: 0; margin: 0; position: relative; transition: all 0.2s ease; outline: none; }
 .checkbox-item input[type="checkbox"]:checked { background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); border-color: var(--lilas); }
-.checkbox-item input[type="checkbox"]:checked::after {
-  content: ""; position: absolute; left: 6px; top: 2px;
-  width: 5px; height: 10px; border: solid white; border-width: 0 2.5px 2.5px 0;
-  transform: rotate(45deg);
-}
+.checkbox-item input[type="checkbox"]:checked::after { content: ""; position: absolute; left: 6px; top: 2px; width: 5px; height: 10px; border: solid white; border-width: 0 2.5px 2.5px 0; transform: rotate(45deg); }
 .checkbox-item.ativo { background: linear-gradient(135deg, #f5f3ff, #ede9fe); border-color: var(--lilas); color: var(--lilas-escuro); }
-.checkbox-item.ativo input[type="checkbox"] { border-color: var(--lilas); }
 .checkbox-item.desabilitado { opacity: 0.35; cursor: not-allowed; background: #f1f5f9; border-color: #e2e8f0; }
-.checkbox-item.desabilitado:hover { border-color: #e2e8f0; background: #f1f5f9; }
 .checkbox-item.desabilitado input[type="checkbox"] { cursor: not-allowed; }
 
-.contador-subs {
-  display: inline-block; font-size: 12px; font-weight: 900;
-  padding: 4px 12px; border-radius: 50px; margin-left: 8px;
-  background: #f5f3ff; color: var(--lilas-escuro);
-  border: 1px solid #ddd6fe; transition: 0.3s;
-}
+.contador-subs { display: inline-block; font-size: 12px; font-weight: 900; padding: 4px 12px; border-radius: 50px; margin-left: 8px; background: #f5f3ff; color: var(--lilas-escuro); border: 1px solid #ddd6fe; transition: 0.3s; }
 .contador-subs.completo { background: linear-gradient(135deg, #ecfdf5, #d1fae5); color: #059669; border-color: #a7f3d0; }
 
 .wrap-bairros { position: relative; margin-top: 6px; }
-.caixa-bairros {
-  display: flex; flex-wrap: wrap; gap: 6px; padding: 10px;
-  border: 2px solid #e2e8f0; border-radius: 16px; min-height: 52px;
-  background: var(--fundo-site); align-items: center; transition: 0.3s;
-}
+.caixa-bairros { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px; border: 2px solid #e2e8f0; border-radius: 16px; min-height: 52px; background: var(--fundo-site); align-items: center; transition: 0.3s; }
 .caixa-bairros:focus-within { border-color: var(--lilas); background: white; box-shadow: 0 0 0 4px rgba(139,92,246,0.12); }
-.caixa-bairros input {
-  border: none !important; outline: none !important; flex: 1; min-width: 120px;
-  padding: 4px !important; font-size: 15px !important; font-weight: 700 !important;
-  background: transparent !important; box-shadow: none !important;
-}
-.tag-bairro {
-  display: inline-flex; align-items: center; gap: 6px;
-  background: #ede9fe; color: #6d28d9;
-  padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 800;
-}
+.caixa-bairros input { border: none !important; outline: none !important; flex: 1; min-width: 120px; padding: 4px !important; font-size: 15px !important; font-weight: 700 !important; background: transparent !important; box-shadow: none !important; }
+.tag-bairro { display: inline-flex; align-items: center; gap: 6px; background: #ede9fe; color: #6d28d9; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 800; }
 .tag-bairro.principal { background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; box-shadow: 0 3px 10px rgba(139,92,246,0.35); }
 .tag-bairro button { background: none; border: none; color: inherit; cursor: pointer; font-size: 16px; padding: 0; line-height: 1; opacity: 0.7; font-weight: 900; }
-.tag-bairro button:hover { opacity: 1; }
-.lista-bairros {
-  position: absolute; top: 100%; left: 0; right: 0;
-  background: white; border: 2px solid #e2e8f0; border-top: none;
-  border-radius: 0 0 16px 16px; max-height: 220px; overflow-y: auto;
-  z-index: 10; display: none; box-shadow: 0 15px 30px rgba(0,0,0,0.08);
-}
+.lista-bairros { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 2px solid #e2e8f0; border-top: none; border-radius: 0 0 16px 16px; max-height: 220px; overflow-y: auto; z-index: 10; display: none; box-shadow: 0 15px 30px rgba(0,0,0,0.08); }
 .lista-bairros.ativo { display: block; }
 .opcao-bairro { padding: 12px 18px; cursor: pointer; font-size: 15px; font-weight: 700; transition: 0.15s; }
 .opcao-bairro:hover { background: #f5f3ff; color: var(--lilas-escuro); }
@@ -190,74 +97,32 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 @keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
 
 .aviso-coren { display: flex; gap: 10px; font-size: 13px; color: var(--lilas-escuro); background: #f5f3ff; padding: 14px 16px; border-radius: 12px; margin-top: 12px; border-left: 4px solid var(--lilas); line-height: 1.55; font-weight: 600; }
-.aviso-coren strong { font-weight: 900; }
 .aviso-noturno { display: flex; gap: 12px; font-size: 13.5px; color: #6d28d9; background: linear-gradient(135deg, #f5f3ff, #ede9fe); padding: 16px 18px; border-radius: 12px; margin-top: 12px; border-left: 4px solid var(--lilas); line-height: 1.55; font-weight: 600; }
 .aviso-noturno .emoji { font-size: 22px; line-height: 1; }
 
 .termos { margin-top: 28px; padding: 20px; background: #f5f3ff; border-radius: 16px; border-left: 4px solid var(--lilas); }
 .termos-titulo { font-size: 15px; font-weight: 900; color: var(--lilas-escuro); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
 .termo-item { display: flex; align-items: flex-start; gap: 12px; margin-top: 12px; font-size: 13.5px; line-height: 1.55; font-weight: 600; }
-.termo-item input[type="checkbox"] {
-  appearance: none; -webkit-appearance: none; width: 22px; height: 22px;
-  border: 2px solid #c4b5fd; border-radius: 6px; background: white;
-  margin-top: 1px; flex-shrink: 0; cursor: pointer; position: relative;
-  transition: 0.2s; outline: none;
-}
+.termo-item input[type="checkbox"] { appearance: none; -webkit-appearance: none; width: 22px; height: 22px; border: 2px solid #c4b5fd; border-radius: 6px; background: white; margin-top: 1px; flex-shrink: 0; cursor: pointer; position: relative; transition: 0.2s; outline: none; }
 .termo-item input[type="checkbox"]:checked { background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); border-color: var(--lilas); }
-.termo-item input[type="checkbox"]:checked::after {
-  content: ""; position: absolute; left: 7px; top: 2px;
-  width: 5px; height: 11px; border: solid white;
-  border-width: 0 2.5px 2.5px 0; transform: rotate(45deg);
-}
+.termo-item input[type="checkbox"]:checked::after { content: ""; position: absolute; left: 7px; top: 2px; width: 5px; height: 11px; border: solid white; border-width: 0 2.5px 2.5px 0; transform: rotate(45deg); }
 .termo-item label { font-weight: 600 !important; margin: 0 !important; font-size: 13.5px !important; cursor: pointer; font-family: 'Nunito', sans-serif; color: var(--preto-fonte); }
 .termo-item a { color: var(--lilas-escuro); text-decoration: underline; font-weight: 800; }
 
-.btn-enviar {
-  width: 100%; padding: 20px;
-  background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro));
-  color: white; border: none; border-radius: 50px;
-  font-size: 17px; font-weight: 900; cursor: pointer; transition: 0.3s;
-  box-shadow: 0 10px 25px rgba(139,92,246,0.3);
-  font-family: 'Nunito', sans-serif;
-  display: flex; justify-content: center; align-items: center; gap: 10px;
-  margin-top: 30px;
-}
+.btn-enviar { width: 100%; padding: 20px; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; border: none; border-radius: 50px; font-size: 17px; font-weight: 900; cursor: pointer; transition: 0.3s; box-shadow: 0 10px 25px rgba(139,92,246,0.3); font-family: 'Nunito', sans-serif; display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 30px; }
 .btn-enviar:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 15px 35px rgba(139,92,246,0.45); }
 .btn-enviar:disabled { background: #cbd5e1; cursor: not-allowed; box-shadow: none; }
 .btn-enviar.pago { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 10px 25px rgba(16,185,129,0.3); }
-.btn-enviar.pago:hover:not(:disabled) { box-shadow: 0 15px 35px rgba(16,185,129,0.45); }
 
-/* BLOCO DE AVISO PRÉ-PAGAMENTO */
-.aviso-pagamento {
-  background: linear-gradient(135deg, #ecfdf5, #d1fae5);
-  border: 1px solid #6ee7b7;
-  border-radius: 16px;
-  padding: 16px 20px;
-  margin-top: 20px;
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-}
+.aviso-pagamento { background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 1px solid #6ee7b7; border-radius: 16px; padding: 16px 20px; margin-top: 20px; display: flex; gap: 12px; align-items: flex-start; }
 .aviso-pagamento .emoji { font-size: 22px; line-height: 1; flex-shrink: 0; }
 .aviso-pagamento .txt { font-size: 13.5px; color: #065f46; font-weight: 700; line-height: 1.55; }
 .aviso-pagamento .txt strong { color: #047857; display: block; margin-bottom: 3px; }
 
-.tela-sucesso {
-  display: none; text-align: center; padding: 55px 35px;
-  background: white; border-radius: 30px;
-  box-shadow: 0 25px 60px rgba(139,92,246,0.1);
-  border: 1px solid #e2e8f0;
-}
+.tela-sucesso { display: none; text-align: center; padding: 55px 35px; background: white; border-radius: 30px; box-shadow: 0 25px 60px rgba(139,92,246,0.1); border: 1px solid #e2e8f0; }
 .tela-sucesso.ativo { display: block; animation: fadeUp 0.6s ease; }
 @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-.tela-sucesso .icone {
-  width: 100px; height: 100px;
-  background: linear-gradient(135deg, #10b981, #059669);
-  border-radius: 50%; display: flex; justify-content: center; align-items: center;
-  font-size: 50px; color: white; margin: 0 auto 28px;
-  box-shadow: 0 20px 45px rgba(16,185,129,0.35);
-  animation: pulseIcon 2s ease-in-out infinite;
-}
+.tela-sucesso .icone { width: 100px; height: 100px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 50px; color: white; margin: 0 auto 28px; box-shadow: 0 20px 45px rgba(16,185,129,0.35); animation: pulseIcon 2s ease-in-out infinite; }
 @keyframes pulseIcon { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
 .tela-sucesso h2 { font-size: 26px; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 14px; line-height: 1.2; }
 .tela-sucesso .texto-principal { font-size: 16px; color: var(--cinza-fonte); font-weight: 700; line-height: 1.65; margin-bottom: 28px; max-width: 460px; margin-left: auto; margin-right: auto; }
@@ -268,274 +133,109 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 .bloco-info.lilas { background: linear-gradient(135deg, #f5f3ff, #ede9fe); border-color: #c4b5fd; }
 .bloco-info.lilas .txt { color: var(--lilas-escuro); }
 .bloco-info.lilas .txt strong { color: var(--lilas-escuro); }
-.bloco-pagamento { background: linear-gradient(135deg, #f5f3ff, #ede9fe); border: 2px solid #c4b5fd; border-radius: 22px; padding: 28px 26px; margin-bottom: 24px; text-align: center; }
-.bloco-pagamento .emoji-pag { font-size: 40px; margin-bottom: 12px; display: block; }
-.bloco-pagamento h3 { font-size: 19px; font-weight: 900; color: var(--lilas-escuro); margin-bottom: 10px; }
-.bloco-pagamento p { font-size: 14px; color: var(--cinza-fonte); font-weight: 700; margin-bottom: 20px; line-height: 1.6; }
-.btn-pagamento {
-  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-  background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro));
-  color: white; padding: 18px 40px; border-radius: 50px;
-  font-size: 16px; font-weight: 900; text-decoration: none;
-  box-shadow: 0 12px 30px rgba(139,92,246,0.35); transition: 0.3s;
-  border: none; cursor: pointer; font-family: 'Nunito', sans-serif;
-}
-.btn-pagamento:hover { transform: translateY(-3px); box-shadow: 0 18px 40px rgba(139,92,246,0.45); }
 
-/* ============ BLOCO DE LINK EXCLUSIVO ============ */
-.bloco-link {
-  background: linear-gradient(135deg, #f5f3ff, #ede9fe);
-  border: 2px solid #c4b5fd;
-  border-radius: 22px;
-  padding: 26px 24px;
-  margin-bottom: 24px;
-  text-align: center;
-}
-.bloco-link .link-titulo {
-  font-size: 15px;
-  font-weight: 900;
-  color: var(--lilas-escuro);
-  margin-bottom: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-.bloco-link .link-sub {
-  font-size: 13px;
-  color: var(--cinza-fonte);
-  font-weight: 600;
-  margin-bottom: 16px;
-  line-height: 1.55;
-}
-.bloco-link .link-caixa {
-  display: flex;
-  gap: 8px;
-  align-items: stretch;
-  margin-bottom: 14px;
-}
-.bloco-link input {
-  flex: 1;
-  padding: 14px 16px;
-  border-radius: 14px;
-  border: 2px solid #ddd6fe;
-  background: white;
-  font-family: 'Nunito', sans-serif;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--preto-fonte);
-  outline: none;
-  min-width: 0;
-}
-.bloco-link input:focus {
-  border-color: var(--lilas);
-  box-shadow: 0 0 0 4px rgba(139,92,246,0.12);
-}
-.bloco-link .btn-copiar {
-  background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro));
-  color: white;
-  border: none;
-  padding: 14px 22px;
-  border-radius: 14px;
-  font-family: 'Nunito', sans-serif;
-  font-size: 14px;
-  font-weight: 900;
-  cursor: pointer;
-  transition: 0.3s;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  white-space: nowrap;
-  box-shadow: 0 8px 20px rgba(139,92,246,0.3);
-}
-.bloco-link .btn-copiar:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 25px rgba(139,92,246,0.45);
-}
-.bloco-link .btn-copiar.copiado {
-  background: linear-gradient(135deg, #10b981, #059669);
-}
-.bloco-link .link-aviso {
-  font-size: 12.5px;
-  color: var(--lilas-escuro);
-  font-weight: 700;
-  line-height: 1.55;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
+.bloco-link { background: linear-gradient(135deg, #f5f3ff, #ede9fe); border: 2px solid #c4b5fd; border-radius: 22px; padding: 26px 24px; margin-bottom: 24px; text-align: center; }
+.bloco-link .link-titulo { font-size: 15px; font-weight: 900; color: var(--lilas-escuro); margin-bottom: 6px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.bloco-link .link-sub { font-size: 13px; color: var(--cinza-fonte); font-weight: 600; margin-bottom: 16px; line-height: 1.55; }
+.bloco-link .link-caixa { display: flex; gap: 8px; align-items: stretch; margin-bottom: 14px; }
+.bloco-link input { flex: 1; padding: 14px 16px; border-radius: 14px; border: 2px solid #ddd6fe; background: white; font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 700; color: var(--preto-fonte); outline: none; min-width: 0; }
+.bloco-link .btn-copiar { background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; border: none; padding: 14px 22px; border-radius: 14px; font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 900; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 6px; white-space: nowrap; box-shadow: 0 8px 20px rgba(139,92,246,0.3); }
+.bloco-link .btn-copiar:hover { transform: translateY(-2px); }
+.bloco-link .btn-copiar.copiado { background: linear-gradient(135deg, #10b981, #059669); }
+.bloco-link .link-aviso { font-size: 12.5px; color: var(--lilas-escuro); font-weight: 700; line-height: 1.55; display: flex; align-items: center; justify-content: center; gap: 6px; }
 
 .rodape-sucesso { margin-top: 32px; padding-top: 24px; border-top: 1px solid #f1f5f9; display: flex; flex-direction: column; align-items: center; gap: 10px; }
 .rodape-sucesso .afeto-frase { font-size: 13px; font-weight: 800; color: var(--lilas-escuro); font-style: italic; max-width: 400px; line-height: 1.55; }
-.rodape-sucesso a { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 800; color: var(--cinza-azulado); text-decoration: none; transition: 0.3s; }
+.rodape-sucesso a { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 800; color: var(--cinza-azulado); text-decoration: none; }
 .rodape-sucesso a:hover { color: var(--lilas); }
 
-.rodape-minimal {
-  margin-top: 50px;
-  padding: 30px 20px 40px;
-  text-align: center;
-  border-top: 1px solid rgba(139, 92, 246, 0.15);
-  max-width: 640px;
-  margin-left: auto;
-  margin-right: auto;
-  width: 100%;
-}
-.rodape-minimal .afeto-logo-peq {
-  display: inline-flex; align-items: center; gap: 0.16em;
-  font-weight: 900; font-size: 20px; color: var(--lilas);
-  text-decoration: none; margin-bottom: 14px; opacity: 0.8;
-}
+.rodape-minimal { margin-top: 50px; padding: 30px 20px 40px; text-align: center; border-top: 1px solid rgba(139, 92, 246, 0.15); max-width: 640px; margin-left: auto; margin-right: auto; width: 100%; }
+.rodape-minimal .afeto-logo-peq { display: inline-flex; align-items: center; gap: 0.16em; font-weight: 900; font-size: 20px; color: var(--lilas); text-decoration: none; margin-bottom: 14px; opacity: 0.8; }
 .rodape-minimal .afeto-logo-peq svg { width: 1.11em; height: 0.69em; overflow: visible; }
 .rodape-minimal .afeto-logo-peq svg path { fill: none; stroke: currentColor; stroke-width: 13; stroke-linecap: round; }
 .rodape-minimal .links-rodape { display: flex; justify-content: center; gap: 18px; flex-wrap: wrap; margin-bottom: 14px; }
-.rodape-minimal .links-rodape a { font-size: 12px; font-weight: 800; color: var(--lilas-escuro); text-decoration: none; transition: 0.3s; }
-.rodape-minimal .links-rodape a:hover { color: var(--lilas); text-decoration: underline; }
+.rodape-minimal .links-rodape a { font-size: 12px; font-weight: 800; color: var(--lilas-escuro); text-decoration: none; }
 .rodape-minimal .copy-rodape { font-size: 11px; color: var(--cinza-azulado); font-weight: 700; }
 
-/* ============ MODAL DE AJUSTE DE FOTO ============ */
-.foto-modal {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.78);
-  z-index: 9999;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-}
+.foto-modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.78); z-index: 9999; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(6px); }
 .foto-modal.ativo { display: flex; }
-.foto-modal-box {
-  background: white;
-  border-radius: 26px;
-  padding: 26px 24px;
-  max-width: 380px;
-  width: 100%;
-  text-align: center;
-  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.35);
-  animation: modalIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-@keyframes modalIn {
-  from { opacity: 0; transform: scale(0.9); }
-  to { opacity: 1; transform: scale(1); }
-}
-.foto-modal-box h3 {
-  font-size: 18px;
-  font-weight: 900;
-  color: var(--preto-fonte);
-  margin-bottom: 6px;
-}
-.foto-modal-box .sub {
-  font-size: 13px;
-  color: var(--cinza-fonte);
-  font-weight: 600;
-  margin-bottom: 18px;
-  line-height: 1.5;
-}
-.foto-crop-viewport {
-  position: relative;
-  width: 260px;
-  height: 260px;
-  margin: 0 auto 18px;
-  border-radius: 50%;
-  overflow: hidden;
-  background: #e2e8f0;
-  cursor: grab;
-  touch-action: none;
-  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.25), 0 10px 30px rgba(0, 0, 0, 0.2);
-  user-select: none;
-  -webkit-user-select: none;
-}
+.foto-modal-box { background: white; border-radius: 26px; padding: 26px 24px; max-width: 380px; width: 100%; text-align: center; box-shadow: 0 30px 70px rgba(0, 0, 0, 0.35); animation: modalIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+@keyframes modalIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+.foto-modal-box h3 { font-size: 18px; font-weight: 900; color: var(--preto-fonte); margin-bottom: 6px; }
+.foto-modal-box .sub { font-size: 13px; color: var(--cinza-fonte); font-weight: 600; margin-bottom: 18px; line-height: 1.5; }
+.foto-crop-viewport { position: relative; width: 260px; height: 260px; margin: 0 auto 18px; border-radius: 50%; overflow: hidden; background: #e2e8f0; cursor: grab; touch-action: none; box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.25), 0 10px 30px rgba(0, 0, 0, 0.2); user-select: none; }
 .foto-crop-viewport:active { cursor: grabbing; }
-.foto-crop-viewport img {
-  position: absolute;
-  top: 0;
-  left: 0;
-  pointer-events: none;
-  user-select: none;
-  -webkit-user-drag: none;
-  max-width: none !important;
-  will-change: transform;
-}
-.foto-zoom-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 20px;
-  color: var(--cinza-fonte);
-  padding: 0 2px;
-}
+.foto-crop-viewport img { position: absolute; top: 0; left: 0; pointer-events: none; user-select: none; max-width: none !important; will-change: transform; }
+.foto-zoom-row { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; color: var(--cinza-fonte); padding: 0 2px; }
 .foto-zoom-row i { font-size: 14px; flex-shrink: 0; }
-.foto-zoom-row input[type="range"] {
-  flex: 1;
-  -webkit-appearance: none;
-  appearance: none;
-  height: 6px;
-  background: #e2e8f0;
-  border-radius: 10px;
-  outline: none;
-}
-.foto-zoom-row input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: var(--lilas);
-  cursor: pointer;
-  box-shadow: 0 3px 10px rgba(139, 92, 246, 0.4);
-  border: 3px solid white;
-}
-.foto-zoom-row input[type="range"]::-moz-range-thumb {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: var(--lilas);
-  cursor: pointer;
-  box-shadow: 0 3px 10px rgba(139, 92, 246, 0.4);
-  border: 3px solid white;
-}
+.foto-zoom-row input[type="range"] { flex: 1; -webkit-appearance: none; appearance: none; height: 6px; background: #e2e8f0; border-radius: 10px; outline: none; }
+.foto-zoom-row input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 22px; height: 22px; border-radius: 50%; background: var(--lilas); cursor: pointer; border: 3px solid white; }
 .foto-modal-acoes { display: flex; gap: 10px; }
-.foto-modal-btn {
-  flex: 1;
-  padding: 14px;
-  border-radius: 50px;
-  font-family: 'Nunito', sans-serif;
-  font-size: 14px;
-  font-weight: 900;
-  cursor: pointer;
-  border: none;
-  transition: 0.2s;
-}
-.foto-modal-btn-cancel {
-  background: transparent;
-  color: var(--cinza-fonte);
-  border: 2px solid #e2e8f0;
-}
-.foto-modal-btn-cancel:hover { background: #f1f5f9; color: var(--preto-fonte); }
-.foto-modal-btn-confirm {
-  background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro));
-  color: white;
-  box-shadow: 0 8px 20px rgba(139, 92, 246, 0.35);
-}
-.foto-modal-btn-confirm:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(139, 92, 246, 0.45); }
+.foto-modal-btn { flex: 1; padding: 14px; border-radius: 50px; font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 900; cursor: pointer; border: none; transition: 0.2s; }
+.foto-modal-btn-cancel { background: transparent; color: var(--cinza-fonte); border: 2px solid #e2e8f0; }
+.foto-modal-btn-confirm { background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; box-shadow: 0 8px 20px rgba(139, 92, 246, 0.35); }
+
+/* ============ TELA DE CHECKOUT ============ */
+.tela-checkout { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 9998; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
+.tela-checkout.ativo { display: flex; }
+.checkout-card { background: white; border-radius: 28px; max-width: 460px; width: 100%; padding: 32px 28px; box-shadow: 0 30px 80px rgba(0,0,0,0.4); position: relative; animation: modalIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); max-height: 92vh; overflow-y: auto; margin: auto; }
+.checkout-voltar { position: absolute; top: 20px; left: 20px; background: transparent; border: none; color: var(--cinza-fonte); font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 50px; transition: 0.2s; }
+.checkout-voltar:hover { background: #f1f5f9; color: var(--preto-fonte); }
+.checkout-header { text-align: center; margin-bottom: 22px; margin-top: 10px; }
+.checkout-icone { width: 60px; height: 60px; background: linear-gradient(135deg, #10b981, #059669); color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 24px; margin: 0 auto 14px; box-shadow: 0 12px 30px rgba(16,185,129,0.35); }
+.checkout-header h2 { font-size: 21px; font-weight: 900; margin-bottom: 4px; color: var(--preto-fonte); }
+#checkout-plano-nome { font-size: 13px; color: var(--cinza-fonte); font-weight: 700; margin-bottom: 12px; }
+.checkout-valor { font-size: 32px; font-weight: 900; color: var(--lilas-escuro); letter-spacing: -1.5px; }
+.checkout-valor small { font-size: 13px; color: var(--cinza-fonte); font-weight: 700; letter-spacing: 0; }
+.checkout-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: var(--fundo-site); padding: 6px; border-radius: 16px; margin-bottom: 20px; }
+.tab-btn { padding: 12px; border-radius: 12px; border: none; background: transparent; font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 900; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--cinza-fonte); position: relative; }
+.tab-btn.ativo { background: white; color: var(--lilas-escuro); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+.tab-badge { position: absolute; top: -6px; right: 8px; background: #10b981; color: white; font-size: 9px; font-weight: 900; padding: 2px 6px; border-radius: 20px; letter-spacing: 0.3px; }
+.tab-content { display: none; }
+.tab-content.ativo { display: block; animation: fadeIn 0.3s ease; }
+
+.pix-box { text-align: center; }
+.pix-qrcode { background: var(--fundo-site); border-radius: 20px; padding: 24px; margin-bottom: 14px; min-height: 220px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 12px; }
+.pix-qrcode img { max-width: 200px; width: 100%; height: auto; border-radius: 12px; }
+.pix-qrcode i { font-size: 32px; color: var(--lilas); }
+.pix-qrcode p { font-size: 13px; color: var(--cinza-fonte); font-weight: 700; margin: 0; }
+.pix-instrucao { font-size: 13px; color: var(--cinza-fonte); font-weight: 700; margin-bottom: 14px; }
+.pix-copiacola { display: flex; gap: 8px; margin-bottom: 14px; }
+.pix-copiacola input { flex: 1; padding: 14px 16px; border-radius: 12px; border: 2px solid #e2e8f0; background: var(--fundo-site); font-family: 'Nunito', sans-serif; font-size: 12px; font-weight: 700; color: var(--preto-fonte); outline: none; min-width: 0; }
+.btn-copiar-pix { background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; border: none; padding: 14px 20px; border-radius: 12px; font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 900; cursor: pointer; white-space: nowrap; transition: 0.3s; display: flex; align-items: center; gap: 6px; }
+.btn-copiar-pix:hover { transform: translateY(-2px); }
+.btn-copiar-pix.copiado { background: linear-gradient(135deg, #10b981, #059669); }
+.pix-aviso { font-size: 12px; color: var(--lilas-escuro); font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px; line-height: 1.5; }
+
+.cartao-form { display: flex; flex-direction: column; gap: 12px; }
+.campo-cartao { display: flex; flex-direction: column; gap: 6px; }
+.campo-cartao label { font-size: 13px; font-weight: 800; color: var(--preto-fonte); }
+.campo-cartao input { padding: 14px 16px; border-radius: 12px; border: 2px solid #e2e8f0; background: var(--fundo-site); font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 700; color: var(--preto-fonte); outline: none; transition: 0.3s; }
+.campo-cartao input:focus { border-color: var(--lilas); background: white; box-shadow: 0 0 0 4px rgba(139,92,246,0.12); }
+.cartao-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.btn-pagar-cartao { width: 100%; padding: 18px; background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; border-radius: 50px; font-family: 'Nunito', sans-serif; font-size: 16px; font-weight: 900; cursor: pointer; transition: 0.3s; margin-top: 6px; box-shadow: 0 10px 25px rgba(16,185,129,0.3); display: flex; align-items: center; justify-content: center; gap: 10px; }
+.btn-pagar-cartao:hover:not(:disabled) { transform: translateY(-3px); }
+.btn-pagar-cartao:disabled { background: #cbd5e1; cursor: not-allowed; }
+.cartao-aviso { font-size: 12px; color: var(--cinza-fonte); font-weight: 700; text-align: center; display: flex; align-items: center; justify-content: center; gap: 6px; line-height: 1.5; }
+
+.checkout-loading, .checkout-erro { text-align: center; padding: 40px 20px; }
+.checkout-loading i, .checkout-erro i { font-size: 40px; color: var(--lilas); margin-bottom: 16px; }
+.checkout-erro i { color: #ef4444; }
+.checkout-loading p, .checkout-erro p { font-size: 15px; font-weight: 700; color: var(--cinza-fonte); line-height: 1.5; }
+.btn-tentar { margin-top: 16px; padding: 14px 28px; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; border: none; border-radius: 50px; font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 900; cursor: pointer; }
 
 @media (max-width: 600px) {
   .form-card { padding: 28px 22px; border-radius: 24px; }
   .header-top h1 { font-size: 22px; }
   .header-top .logo { font-size: 28px; }
   .checkbox-grid { grid-template-columns: repeat(2, 1fr); }
-  .foto-upload { padding: 28px 16px; }
   .tela-sucesso { padding: 40px 24px; border-radius: 24px; }
   .tela-sucesso h2 { font-size: 22px; }
   .tela-sucesso .icone { width: 85px; height: 85px; font-size: 42px; }
-  .secao-titulo { font-size: 12px; }
-  .rodape-minimal { padding: 25px 15px 35px; }
   .foto-crop-viewport { width: 220px; height: 220px; }
   .bloco-link .link-caixa { flex-direction: column; }
-  .bloco-link .btn-copiar { justify-content: center; }
+  .checkout-card { padding: 26px 20px; border-radius: 24px; }
+  .pix-copiacola { flex-direction: column; }
 }
 </style>
 </head>
@@ -585,13 +285,8 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
         <label>Foto profissional:</label>
         <div class="foto-instrucoes">
           <h4><i class="fa-solid fa-camera-retro"></i> Sua foto é o primeiro olhar das famílias</h4>
-          <p>
-            É através dela que a família vai sentir quem você é antes mesmo do primeiro contato.
-            Escolha com carinho — uma foto nítida, bem iluminada e com o rosto visível transmite
-            <strong>confiança e profissionalismo</strong>. 💜
-          </p>
+          <p>É através dela que a família vai sentir quem você é antes mesmo do primeiro contato. Escolha com carinho — uma foto nítida, bem iluminada e com o rosto visível transmite <strong>confiança e profissionalismo</strong>. 💜</p>
         </div>
-
         <label class="foto-upload" id="foto-upload">
           <input type="file" id="foto" name="foto" accept="image/*">
           <div class="icone"><i class="fa-solid fa-camera"></i></div>
@@ -604,19 +299,14 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 
       <div class="campo">
         <label for="bio">Sua apresentação:</label>
-        <span class="ajuda">
-          💜 Esse texto vai aparecer <strong>no seu perfil</strong>, visível para as famílias que buscam um cuidado.
-          Capriche! Conte sua experiência, o que te faz uma boa profissional e o carinho que você coloca no que faz.
-        </span>
-        <textarea id="bio" name="bio" placeholder="Ex: Sou cuidadora há 8 anos, especializada em idosos com Alzheimer. Tenho paciência, carinho e atenção aos detalhes. Acredito que o cuidado vai muito além da técnica — é sobre estar presente e dar dignidade a quem cuidamos." required></textarea>
+        <span class="ajuda">💜 Esse texto vai aparecer <strong>no seu perfil</strong>, visível para as famílias que buscam um cuidado. Capriche! Conte sua experiência, o que te faz uma boa profissional e o carinho que você coloca no que faz.</span>
+        <textarea id="bio" name="bio" placeholder="Ex: Sou cuidadora há 8 anos, especializada em idosos com Alzheimer. Tenho paciência, carinho e atenção aos detalhes." required></textarea>
       </div>
 
       <div class="campo">
         <label for="motivacao">Conte um pouco sobre você:</label>
-        <span class="ajuda">
-          💜 Queremos conhecer você de verdade. O que te moveu para o cuidado? Qual sua história com essa profissão tão bonita?
-        </span>
-        <textarea id="motivacao" name="motivacao" placeholder="Ex: Sempre tive uma ligação muito forte com meus avós e o cuidado veio naturalmente na minha vida. Ver o bem-estar de quem eu cuido é a minha maior recompensa..."></textarea>
+        <span class="ajuda">💜 Queremos conhecer você de verdade. O que te moveu para o cuidado?</span>
+        <textarea id="motivacao" name="motivacao" placeholder="Ex: Sempre tive uma ligação muito forte com meus avós..."></textarea>
       </div>
 
       <div class="secao-titulo"><i class="fa-solid fa-briefcase"></i> Sua atuação</div>
@@ -640,10 +330,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
           <input type="text" id="coren" name="coren" placeholder="Ex: 123456-PR" maxlength="10" autocomplete="off">
           <div class="aviso-coren">
             <span style="font-size: 18px;">💜</span>
-            <span>
-              Enfermeiras e Técnicas de Enfermagem precisam ter <strong>COREN ativo</strong> para atuar.<br><br>
-              <strong>Ainda não tem o COREN?</strong> Volte e escolha outra opção, como <em>"Cuidadora de Idosos"</em>, <em>"Acompanhante Hospitalar"</em> ou <em>"Estudante da área da saúde"</em>. Todas são muito bem-vindas na Afeto.
-            </span>
+            <span>Enfermeiras e Técnicas de Enfermagem precisam ter <strong>COREN ativo</strong> para atuar.</span>
           </div>
         </div>
       </div>
@@ -693,10 +380,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       <div class="campo-oculto" id="aviso-noturno">
         <div class="aviso-noturno">
           <span class="emoji">💜</span>
-          <div>
-            <strong>Plantões noturnos exigem mais.</strong><br>
-            Você define se quer cobrar um valor adicional pelos plantões noturnos — a decisão é sempre sua. A Afeto não interfere na sua negociação com a família.
-          </div>
+          <div><strong>Plantões noturnos exigem mais.</strong><br>Você define se quer cobrar um valor adicional pelos plantões noturnos — a decisão é sempre sua.</div>
         </div>
       </div>
 
@@ -770,12 +454,11 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
         Criar meu cadastro <i class="fa-solid fa-heart"></i>
       </button>
 
-      <!-- Aviso pré-pagamento (só aparece no plano pago) -->
       <div id="aviso-pagamento" class="aviso-pagamento" style="display: none;">
         <span class="emoji">💜</span>
         <div class="txt">
           <strong>Você não paga agora</strong>
-          Ao clicar em "Ir para pagamento", abriremos o ambiente seguro do Asaas. Você só paga lá. Se preferir fazer depois, seus dados ficam guardados e você nos chama no WhatsApp.
+          Ao clicar em "Ir para pagamento", abriremos o ambiente seguro pra você finalizar. Se preferir depois, seus dados ficam guardados e você nos chama no WhatsApp.
         </div>
       </div>
     </form>
@@ -784,17 +467,11 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   <div id="tela-sucesso" class="tela-sucesso">
     <div class="icone"><i class="fa-solid fa-check"></i></div>
     <h2 id="titulo-sucesso">Que alegria ter você aqui! 💜</h2>
-    <p class="texto-principal" id="texto-sucesso">
-      Recebemos seu cadastro com muito carinho.
-    </p>
+    <p class="texto-principal" id="texto-sucesso">Recebemos seu cadastro com muito carinho.</p>
 
     <div id="bloco-link" class="bloco-link" style="display: none;">
-      <div class="link-titulo">
-        <i class="fa-solid fa-link"></i> Seu link exclusivo Afeto
-      </div>
-      <div class="link-sub">
-        Guarde com carinho! É o seu cartão de visita digital.
-      </div>
+      <div class="link-titulo"><i class="fa-solid fa-link"></i> Seu link exclusivo Afeto</div>
+      <div class="link-sub">Guarde com carinho! É o seu cartão de visita digital.</div>
       <div class="link-caixa">
         <input type="text" id="link-perfil-input" readonly value="">
         <button type="button" class="btn-copiar" id="btn-copiar-link">
@@ -813,15 +490,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
         <strong>O próximo passo é com a gente</strong>
         Nossa equipe vai conhecer sua história com calma. Em até 48h úteis, seu perfil estará no ar pra que famílias possam te encontrar. Você continua no <strong>plano Grátis</strong> — e pode migrar pra um plano pago quando quiser.
       </div>
-    </div>
-
-    <div id="bloco-pago" class="bloco-pagamento" style="display:none;">
-      <span class="emoji-pag">💜</span>
-      <h3>Falta pouco pra começar!</h3>
-      <p>Seu cadastro foi salvo. Agora só falta confirmar o pagamento pra liberar todos os recursos do seu plano e colocar seu perfil completo no ar.</p>
-      <a id="link-pagamento" href="#" target="_blank" class="btn-pagamento">
-        <i class="fa-solid fa-lock"></i> Ir para o pagamento
-      </a>
     </div>
 
     <div class="rodape-sucesso">
@@ -854,20 +522,98 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   <div class="foto-modal-box">
     <h3>Ajuste sua foto 💜</h3>
     <p class="sub">Arraste a imagem e use o zoom pra centralizar seu rosto.</p>
-
     <div class="foto-crop-viewport" id="foto-crop-viewport">
       <img id="foto-crop-img" alt="">
     </div>
-
     <div class="foto-zoom-row">
       <i class="fa-solid fa-magnifying-glass-minus"></i>
       <input type="range" id="foto-zoom" min="100" max="300" value="100">
       <i class="fa-solid fa-magnifying-glass-plus"></i>
     </div>
-
     <div class="foto-modal-acoes">
       <button type="button" class="foto-modal-btn foto-modal-btn-cancel" id="foto-btn-cancel">Cancelar</button>
       <button type="button" class="foto-modal-btn foto-modal-btn-confirm" id="foto-btn-confirm">Usar esta foto</button>
+    </div>
+  </div>
+</div>
+
+<!-- TELA DE CHECKOUT -->
+<div id="tela-checkout" class="tela-checkout">
+  <div class="checkout-card">
+    <button type="button" class="checkout-voltar" onclick="fecharCheckout()">
+      <i class="fa-solid fa-arrow-left"></i> Voltar
+    </button>
+
+    <div class="checkout-header">
+      <div class="checkout-icone"><i class="fa-solid fa-lock"></i></div>
+      <h2>Pagamento seguro</h2>
+      <p id="checkout-plano-nome">Plano Profissional Afeto</p>
+      <div class="checkout-valor">R$ <span id="checkout-valor">24,90</span><small>/mês</small></div>
+    </div>
+
+    <div class="checkout-tabs">
+      <button type="button" class="tab-btn ativo" data-tab="pix">
+        <i class="fa-solid fa-qrcode"></i> Pix
+        <span class="tab-badge">Rápido</span>
+      </button>
+      <button type="button" class="tab-btn" data-tab="cartao">
+        <i class="fa-solid fa-credit-card"></i> Cartão
+      </button>
+    </div>
+
+    <div id="tab-pix" class="tab-content ativo">
+      <div class="pix-box">
+        <div class="pix-qrcode" id="pix-qrcode">
+          <i class="fa-solid fa-spinner fa-spin"></i>
+          <p>Gerando QR Code...</p>
+        </div>
+        <p class="pix-instrucao">Escaneie o QR Code com o app do seu banco</p>
+        <div class="pix-copiacola">
+          <input type="text" id="pix-codigo" readonly value="">
+          <button type="button" class="btn-copiar-pix" onclick="copiarPix()">
+            <i class="fa-solid fa-copy"></i> Copiar
+          </button>
+        </div>
+        <p class="pix-aviso"><i class="fa-solid fa-info-circle"></i> Após o pagamento, a confirmação é automática.</p>
+      </div>
+    </div>
+
+    <div id="tab-cartao" class="tab-content">
+      <div class="cartao-form">
+        <div class="campo-cartao">
+          <label>Número do cartão</label>
+          <input type="text" id="card-number" placeholder="0000 0000 0000 0000" maxlength="19">
+        </div>
+        <div class="campo-cartao">
+          <label>Nome impresso no cartão</label>
+          <input type="text" id="card-name" placeholder="Como está no cartão">
+        </div>
+        <div class="cartao-row">
+          <div class="campo-cartao">
+            <label>Validade</label>
+            <input type="text" id="card-expiry" placeholder="MM/AA" maxlength="5">
+          </div>
+          <div class="campo-cartao">
+            <label>CVV</label>
+            <input type="text" id="card-cvv" placeholder="123" maxlength="4">
+          </div>
+        </div>
+        <button type="button" class="btn-pagar-cartao" onclick="pagarCartao()">
+          <i class="fa-solid fa-lock"></i> Pagar R$ <span id="cartao-valor">24,90</span>
+        </button>
+        <p class="cartao-aviso"><i class="fa-solid fa-shield-halved"></i> Seus dados são criptografados e processados pelo Asaas.</p>
+      </div>
+    </div>
+
+    <div id="checkout-loading" class="checkout-loading" style="display: none;">
+      <i class="fa-solid fa-spinner fa-spin"></i>
+      <p id="checkout-loading-text">Processando...</p>
+    </div>
+
+    <div id="checkout-erro" class="checkout-erro" style="display: none;">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <p id="checkout-erro-text"></p>
+      <button type="button" onclick="voltarCheckout()" class="btn-tentar">Tentar novamente</button>
     </div>
   </div>
 </div>
@@ -876,17 +622,9 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 (function() {
   "use strict";
 
-  // ========================================================================
-  // 🔧 LINKS DO ASAAS — SUBSTITUIR QUANDO CRIAR OS LINKS REAIS
-  // ========================================================================
-  var LINK_ASAAS_PROFISSIONAL = 'https://www.asaas.com/c/SEU_LINK_PROFISSIONAL';
-  var LINK_ASAAS_DESTAQUE = 'https://www.asaas.com/c/SEU_LINK_DESTAQUE';
-  // ========================================================================
-
   var params = new URLSearchParams(window.location.search);
   var plano = (params.get('plano') || 'gratis').toLowerCase();
   var ehPago = (plano === 'profissional' || plano === 'destaque');
-  var pagamentoOk = params.get('pagamento') === 'ok';
 
   var badge = document.getElementById('badge-plano');
   var subtitulo = document.getElementById('subtitulo-dinamico');
@@ -895,25 +633,11 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   var textoSucesso = document.getElementById('texto-sucesso');
   var blocoGratis = document.getElementById('bloco-gratis');
   var blocoGratisTxt = document.getElementById('bloco-gratis-txt');
-  var blocoPago = document.getElementById('bloco-pago');
-  var linkPagamento = document.getElementById('link-pagamento');
   var formArea = document.getElementById('form-area');
   var telaSucesso = document.getElementById('tela-sucesso');
   var headerTop = document.querySelector('.header-top');
   var avisoPagamento = document.getElementById('aviso-pagamento');
   var linkAvisoTexto = document.getElementById('link-aviso-texto');
-
-  // ========================================================================
-  // 🔄 CENÁRIO ESPECIAL: voltou do Asaas após pagar
-  // ========================================================================
-  if (pagamentoOk) {
-    mostrarSucessoPago();
-    return; // não continua o resto do fluxo
-  }
-
-  // ========================================================================
-  // 🔄 FLUXO NORMAL (do zero)
-  // ========================================================================
 
   if (ehPago) {
     badge.className = 'badge-plano';
@@ -930,180 +654,93 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     avisoPagamento.style.display = 'none';
   }
 
-  // ========================================================================
-  // 🔗 FUNÇÃO: mostra tela de sucesso para quem pagou
-  // ========================================================================
-  function mostrarSucessoPago() {
-    // Esconde form e cabeçalho
-    if (formArea) formArea.style.display = 'none';
-    if (headerTop) headerTop.style.display = 'none';
-
-    // Customiza textos
-    tituloSucesso.textContent = 'Pagamento confirmado! 💜';
-    textoSucesso.innerHTML = 'Seu cadastro foi enviado com sucesso. <strong>Em até 48h</strong> você estará no ar com todos os benefícios do seu plano.';
-
-    // Esconde blocos que não se aplicam
-    blocoPago.style.display = 'none';
-
-    // Mostra bloco-info customizado pra plano pago
-    blocoGratis.style.display = 'flex';
-    blocoGratis.className = 'bloco-info lilas';
-    blocoGratisTxt.innerHTML = '<strong>O próximo passo é com a gente 💜</strong> Nossa equipe vai revisar seu perfil com carinho. Em até 48h úteis você estará no ar com <strong>todos os benefícios do seu plano</strong>: foto, bio, cursos, selo Verificada, aparecer nas buscas, e mais. Avisamos você pelo WhatsApp assim que estiver liberado.';
-
-    // Mostra bloco do link
-    var blocoLink = document.getElementById('bloco-link');
-    if (blocoLink) blocoLink.style.display = 'block';
-
-    // Atualiza a mensagem de análise
-    if (linkAvisoTexto) {
-      linkAvisoTexto.innerHTML = '<i class="fa-solid fa-check-circle" style="color: #10b981;"></i> Pagamento recebido! Perfil em <strong>análise</strong> — em até 48h liberamos 💜';
-    }
-
-    // Recupera o link do localStorage
-    var linkSalvo = localStorage.getItem('afeto_link_perfil');
-    var inputLink = document.getElementById('link-perfil-input');
-    if (linkSalvo && inputLink) {
-      inputLink.value = linkSalvo;
-    }
-
-    // Mostra a tela de sucesso
-    telaSucesso.classList.add('ativo');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  // ============ BOTÃO COPIAR LINK ============
+  // Botão copiar link
   var btnCopiar = document.getElementById('btn-copiar-link');
   if (btnCopiar) {
     btnCopiar.addEventListener('click', function() {
       var input = document.getElementById('link-perfil-input');
       if (!input) return;
       var texto = input.value;
-
-      function copiarComFallback(str) {
-        if (navigator.clipboard && window.isSecureContext) {
-          return navigator.clipboard.writeText(str);
-        }
-        input.select();
-        input.setSelectionRange(0, 99999);
+      function copiar(str) {
+        if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(str);
+        input.select(); input.setSelectionRange(0, 99999);
         try { document.execCommand('copy'); } catch (e) {}
         return Promise.resolve();
       }
-
-      copiarComFallback(texto).then(function() {
-        var htmlOriginal = btnCopiar.innerHTML;
+      copiar(texto).then(function() {
+        var html = btnCopiar.innerHTML;
         btnCopiar.innerHTML = '<i class="fa-solid fa-check"></i> Copiado!';
         btnCopiar.classList.add('copiado');
-        setTimeout(function() {
-          btnCopiar.innerHTML = htmlOriginal;
-          btnCopiar.classList.remove('copiado');
-        }, 2200);
-      }).catch(function() {
-        input.select();
-        alert('Não conseguimos copiar automaticamente. Selecione o link e copie manualmente 💜');
+        setTimeout(function() { btnCopiar.innerHTML = html; btnCopiar.classList.remove('copiado'); }, 2200);
       });
     });
   }
 
   var form = document.getElementById('form-cadastro');
 
-  // Máscara WhatsApp
-  var campoWhats = document.getElementById('whatsapp');
-  campoWhats.addEventListener('input', function() {
+  // Máscaras
+  document.getElementById('whatsapp').addEventListener('input', function() {
     var x = this.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
     this.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
   });
 
-  // Máscara CPF
-  var campoCPF = document.getElementById('cpf');
-  campoCPF.addEventListener('input', function() {
+  document.getElementById('cpf').addEventListener('input', function() {
     var v = this.value.replace(/\D/g, '').substring(0, 11);
-    var formatado = v;
-    if (v.length > 3) formatado = v.substring(0, 3) + '.' + v.substring(3);
-    if (v.length > 6) formatado = formatado.substring(0, 7) + '.' + v.substring(6);
-    if (v.length > 9) formatado = formatado.substring(0, 11) + '-' + v.substring(9);
-    this.value = formatado;
+    var f = v;
+    if (v.length > 3) f = v.substring(0, 3) + '.' + v.substring(3);
+    if (v.length > 6) f = f.substring(0, 7) + '.' + v.substring(6);
+    if (v.length > 9) f = f.substring(0, 11) + '-' + v.substring(9);
+    this.value = f;
   });
 
   function validarCPF(cpf) {
     cpf = cpf.replace(/\D/g, '');
-    if (cpf.length !== 11) return false;
-    if (/^(\d)\1{10}$/.test(cpf)) return false;
-    var soma = 0;
-    for (var i = 0; i < 9; i++) soma += parseInt(cpf.charAt(i)) * (10 - i);
-    var resto = (soma * 10) % 11;
-    if (resto === 10 || resto === 11) resto = 0;
-    if (resto !== parseInt(cpf.charAt(9))) return false;
-    soma = 0;
-    for (var i = 0; i < 10; i++) soma += parseInt(cpf.charAt(i)) * (11 - i);
-    resto = (soma * 10) % 11;
-    if (resto === 10 || resto === 11) resto = 0;
-    if (resto !== parseInt(cpf.charAt(10))) return false;
+    if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+    var s = 0, r;
+    for (var i = 0; i < 9; i++) s += parseInt(cpf.charAt(i)) * (10 - i);
+    r = (s * 10) % 11; if (r === 10 || r === 11) r = 0;
+    if (r !== parseInt(cpf.charAt(9))) return false;
+    s = 0;
+    for (var i = 0; i < 10; i++) s += parseInt(cpf.charAt(i)) * (11 - i);
+    r = (s * 10) % 11; if (r === 10 || r === 11) r = 0;
+    if (r !== parseInt(cpf.charAt(10))) return false;
     return true;
   }
 
-  // Máscara COREN
+  // COREN
   var campoCoren = document.getElementById('coren');
   if (campoCoren) {
     campoCoren.addEventListener('input', function() {
       var valor = this.value.toUpperCase();
-      var numeros = '', letras = '', achouLetra = false;
+      var n = '', l = '', achou = false;
       for (var i = 0; i < valor.length; i++) {
         var c = valor[i];
-        if (/\d/.test(c)) {
-          if (!achouLetra && numeros.length < 7) numeros += c;
-        } else if (/[A-Z]/.test(c) && numeros.length > 0) {
-          achouLetra = true;
-          if (letras.length < 2) letras += c;
-        }
+        if (/\d/.test(c)) { if (!achou && n.length < 7) n += c; }
+        else if (/[A-Z]/.test(c) && n.length > 0) { achou = true; if (l.length < 2) l += c; }
       }
-      this.value = letras ? (numeros + '-' + letras) : numeros;
+      this.value = l ? (n + '-' + l) : n;
     });
   }
 
-  // ========== FOTO ==========
+  // FOTO
   var inputFoto = document.getElementById('foto');
   var preview = document.getElementById('foto-preview');
   var fotoUpload = document.getElementById('foto-upload');
   var arquivoFoto = null;
-
   var fotoModal = document.getElementById('foto-modal');
   var fotoCropViewport = document.getElementById('foto-crop-viewport');
   var fotoCropImg = document.getElementById('foto-crop-img');
   var fotoZoom = document.getElementById('foto-zoom');
-  var fotoBtnCancel = document.getElementById('foto-btn-cancel');
-  var fotoBtnConfirm = document.getElementById('foto-btn-confirm');
-
   var VIEWPORT_SIZE = 260;
   var OUTPUT_SIZE = 600;
-
-  var cropState = {
-    file: null,
-    naturalW: 0,
-    naturalH: 0,
-    baseW: 0,
-    baseH: 0,
-    posX: 0,
-    posY: 0,
-    scale: 1.0
-  };
+  var cropState = { file: null, naturalW: 0, naturalH: 0, baseW: 0, baseH: 0, posX: 0, posY: 0, scale: 1 };
 
   inputFoto.addEventListener('change', function() {
     var file = this.files[0];
     if (!file) return;
-
-    if (file.size > 25 * 1024 * 1024) {
-      alert('A foto está muito grande (máx 25MB). Escolha uma imagem menor ou tire outra.');
-      this.value = '';
-      return;
-    }
-    if (!file.type.startsWith('image/')) {
-      alert('Por favor, escolha um arquivo de imagem.');
-      this.value = '';
-      return;
-    }
-
+    if (file.size > 25 * 1024 * 1024) { alert('Foto muito grande (máx 25MB).'); this.value = ''; return; }
+    if (!file.type.startsWith('image/')) { alert('Escolha uma imagem.'); this.value = ''; return; }
     this.value = '';
-
     var reader = new FileReader();
     reader.onload = function(e) {
       var tempImg = new Image();
@@ -1112,12 +749,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
         document.body.style.overflow = 'hidden';
         VIEWPORT_SIZE = fotoCropViewport.offsetWidth || 260;
         fotoCropImg.src = e.target.result;
-        setTimeout(function() {
-          abrirCropModal(file, tempImg.naturalWidth, tempImg.naturalHeight);
-        }, 30);
-      };
-      tempImg.onerror = function() {
-        alert('Não conseguimos processar esta imagem. Tente outra.');
+        setTimeout(function() { abrirCropModal(file, tempImg.naturalWidth, tempImg.naturalHeight); }, 30);
       };
       tempImg.src = e.target.result;
     };
@@ -1125,22 +757,11 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   });
 
   function abrirCropModal(file, nw, nh) {
-    cropState.file = file;
-    cropState.naturalW = nw;
-    cropState.naturalH = nh;
-    cropState.posX = 0;
-    cropState.posY = 0;
-    cropState.scale = 1;
-
+    cropState.file = file; cropState.naturalW = nw; cropState.naturalH = nh;
+    cropState.posX = 0; cropState.posY = 0; cropState.scale = 1;
     var ratio = nw / nh;
-    if (ratio >= 1) {
-      cropState.baseH = VIEWPORT_SIZE;
-      cropState.baseW = VIEWPORT_SIZE * ratio;
-    } else {
-      cropState.baseW = VIEWPORT_SIZE;
-      cropState.baseH = VIEWPORT_SIZE / ratio;
-    }
-
+    if (ratio >= 1) { cropState.baseH = VIEWPORT_SIZE; cropState.baseW = VIEWPORT_SIZE * ratio; }
+    else { cropState.baseW = VIEWPORT_SIZE; cropState.baseH = VIEWPORT_SIZE / ratio; }
     aplicarCropTransform();
     fotoZoom.value = 100;
   }
@@ -1156,135 +777,65 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     img.style.transform = 'translate(' + cropState.posX + 'px, ' + cropState.posY + 'px) scale(' + cropState.scale + ')';
   }
 
-  var isDragging = false;
-  var dragStartX = 0, dragStartY = 0;
-  var dragStartPosX = 0, dragStartPosY = 0;
-
+  var isDragging = false, dragStartX = 0, dragStartY = 0, dragStartPosX = 0, dragStartPosY = 0;
   fotoCropViewport.addEventListener('pointerdown', function(e) {
-    isDragging = true;
-    dragStartX = e.clientX;
-    dragStartY = e.clientY;
-    dragStartPosX = cropState.posX;
-    dragStartPosY = cropState.posY;
+    isDragging = true; dragStartX = e.clientX; dragStartY = e.clientY;
+    dragStartPosX = cropState.posX; dragStartPosY = cropState.posY;
     try { fotoCropViewport.setPointerCapture(e.pointerId); } catch (err) {}
   });
-
   fotoCropViewport.addEventListener('pointermove', function(e) {
     if (!isDragging) return;
-    var dx = e.clientX - dragStartX;
-    var dy = e.clientY - dragStartY;
-    cropState.posX = dragStartPosX + dx;
-    cropState.posY = dragStartPosY + dy;
+    cropState.posX = dragStartPosX + (e.clientX - dragStartX);
+    cropState.posY = dragStartPosY + (e.clientY - dragStartY);
     aplicarCropTransform();
   });
-
   fotoCropViewport.addEventListener('pointerup', function() { isDragging = false; });
-  fotoCropViewport.addEventListener('pointercancel', function() { isDragging = false; });
+  fotoZoom.addEventListener('input', function() { cropState.scale = parseInt(this.value) / 100; aplicarCropTransform(); });
 
-  fotoZoom.addEventListener('input', function() {
-    cropState.scale = parseInt(this.value) / 100;
-    aplicarCropTransform();
+  document.getElementById('foto-btn-cancel').addEventListener('click', function() {
+    fotoModal.classList.remove('ativo'); document.body.style.overflow = '';
   });
-
-  fotoCropViewport.addEventListener('wheel', function(e) {
-    e.preventDefault();
-    var delta = e.deltaY < 0 ? 10 : -10;
-    var novoZoom = Math.max(100, Math.min(300, parseInt(fotoZoom.value) + delta));
-    fotoZoom.value = novoZoom;
-    cropState.scale = novoZoom / 100;
-    aplicarCropTransform();
-  }, { passive: false });
-
-  fotoBtnCancel.addEventListener('click', function() { fecharCropModal(); });
-  fotoBtnConfirm.addEventListener('click', function() { gerarFotoRecortada(); });
-
-  function fecharCropModal() {
-    fotoModal.classList.remove('ativo');
-    document.body.style.overflow = '';
-    cropState.file = null;
-    fotoCropImg.removeAttribute('src');
-  }
+  document.getElementById('foto-btn-confirm').addEventListener('click', gerarFotoRecortada);
 
   function gerarFotoRecortada() {
-    var S = cropState.scale;
-    var Tx = cropState.posX;
-    var Ty = cropState.posY;
-    var W = cropState.baseW;
-    var H = cropState.baseH;
-
-    function viewportToNatural(qx, qy) {
+    var S = cropState.scale, Tx = cropState.posX, Ty = cropState.posY;
+    var W = cropState.baseW, H = cropState.baseH;
+    function v2n(qx, qy) {
       var px = W / 2 + (qx - VIEWPORT_SIZE / 2 - Tx) / S;
       var py = H / 2 + (qy - VIEWPORT_SIZE / 2 - Ty) / S;
       return { x: (px / W) * cropState.naturalW, y: (py / H) * cropState.naturalH };
     }
-
-    var p0 = viewportToNatural(0, 0);
-    var p3 = viewportToNatural(VIEWPORT_SIZE, VIEWPORT_SIZE);
-
-    var sx = p0.x;
-    var sy = p0.y;
-    var sw = p3.x - p0.x;
-    var sh = p3.y - p0.y;
-
+    var p0 = v2n(0, 0), p3 = v2n(VIEWPORT_SIZE, VIEWPORT_SIZE);
     var canvas = document.createElement('canvas');
-    canvas.width = OUTPUT_SIZE;
-    canvas.height = OUTPUT_SIZE;
+    canvas.width = OUTPUT_SIZE; canvas.height = OUTPUT_SIZE;
     var ctx = canvas.getContext('2d');
-
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, OUTPUT_SIZE, OUTPUT_SIZE);
-
-    try {
-      ctx.drawImage(fotoCropImg, sx, sy, sw, sh, 0, 0, OUTPUT_SIZE, OUTPUT_SIZE);
-    } catch (err) {
-      alert('Não foi possível processar a foto. Tente outra imagem.');
-      return;
-    }
-
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, OUTPUT_SIZE, OUTPUT_SIZE);
+    try { ctx.drawImage(fotoCropImg, p0.x, p0.y, p3.x - p0.x, p3.y - p0.y, 0, 0, OUTPUT_SIZE, OUTPUT_SIZE); }
+    catch (err) { alert('Erro ao processar imagem.'); return; }
     canvas.toBlob(function(blob) {
-      if (!blob) {
-        alert('Não foi possível processar a foto. Tente outra imagem.');
-        return;
-      }
-      var nomeOriginal = (cropState.file && cropState.file.name ? cropState.file.name : 'foto').replace(/\.[^.]+$/, '');
-      var arquivoFinal = new File([blob], nomeOriginal + '.jpg', {
-        type: 'image/jpeg',
-        lastModified: Date.now()
-      });
-      arquivoFinal = arquivoFinal;
-      arquivoFoto = arquivoFinal;
-
-      var urlPreview = URL.createObjectURL(blob);
-      preview.src = urlPreview;
-      preview.classList.add('ativo');
-      fotoUpload.classList.add('tem-foto');
-
-      fecharCropModal();
+      if (!blob) { alert('Erro ao processar imagem.'); return; }
+      var nome = (cropState.file && cropState.file.name ? cropState.file.name : 'foto').replace(/\.[^.]+$/, '');
+      arquivoFoto = new File([blob], nome + '.jpg', { type: 'image/jpeg', lastModified: Date.now() });
+      var url = URL.createObjectURL(blob);
+      preview.src = url; preview.classList.add('ativo'); fotoUpload.classList.add('tem-foto');
+      fotoModal.classList.remove('ativo'); document.body.style.overflow = '';
     }, 'image/jpeg', 0.75);
   }
 
-  // ========== LIMITE SUBS ==========
+  // SUBS
   var LIMITE_SUBS = 10;
   var contadorSubs = document.getElementById('contador-subs');
   var checkboxesSubs = document.querySelectorAll('#subespecialidades input[type="checkbox"]');
-
   function atualizarContadorSubs() {
     var marcados = document.querySelectorAll('#subespecialidades input:checked').length;
     contadorSubs.textContent = marcados + '/' + LIMITE_SUBS + ' selecionadas';
     contadorSubs.classList.toggle('completo', marcados === LIMITE_SUBS);
-
     checkboxesSubs.forEach(function(cb) {
       var item = cb.closest('.checkbox-item');
-      if (!cb.checked && marcados >= LIMITE_SUBS) {
-        cb.disabled = true;
-        item.classList.add('desabilitado');
-      } else {
-        cb.disabled = false;
-        item.classList.remove('desabilitado');
-      }
+      if (!cb.checked && marcados >= LIMITE_SUBS) { cb.disabled = true; item.classList.add('desabilitado'); }
+      else { cb.disabled = false; item.classList.remove('desabilitado'); }
     });
   }
-
   checkboxesSubs.forEach(function(cb) {
     cb.addEventListener('change', function() {
       this.closest('.checkbox-item').classList.toggle('ativo', this.checked);
@@ -1293,41 +844,18 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   });
   atualizarContadorSubs();
 
-  // ========== BAIRROS ==========
-  var BAIRROS = [
-    "Abranches","Água Verde","Ahú","Alto Boqueirão","Alto da Glória","Alto da Rua XV",
-    "Atuba","Augusta","Bacacheri","Bairro Alto","Barreirinha","Batatzinho","Batel",
-    "Bigorrilho","Boa Vista","Bom Retiro","Boqueirão","Butiatuvinha","Cabral","Cachoeira",
-    "Cajuru","Campina do Siqueira","Campo Comprido","Campo de Santana","Capão Raso",
-    "Capão da Imbuia","Cascatinha","Caximba","Centro","Centro Cívico","Cidade Industrial",
-    "Cristo Rei","Fanny","Fazendinha","Ganchinho","Guabirotuba","Guaíra","Hauer",
-    "Hugo Lange","Jardim Botânico","Jardim Social","Jardim das Américas","Jardim dos Estados",
-    "Juvevê","Lamenha Pequena","Lindóia","Mercês","Mossunguê","Novo Mundo","Orleans",
-    "Padre Andrade","Parolin","Pilarzinho","Pinheirinho","Portão","Prado Velho","Rebouças",
-    "Riviera","Santa Cândida","Santa Felicidade","Santa Quitéria","Santo Inácio","São Braz",
-    "São Francisco","São João","São Lourenço","São Marcos","Sítio Cercado","Taboão",
-    "Tarumã","Tatuquara","Tingui","Uberaba","Umbará","Vila Isabel","Vista Alegre","Xaxim",
-    "Adrianópolis (RMC)","Agudos do Sul (RMC)","Almirante Tamandaré (RMC)","Araucária (RMC)",
-    "Balsa Nova (RMC)","Bocaiúva do Sul (RMC)","Campina Grande do Sul (RMC)",
-    "Campo do Tenente (RMC)","Campo Largo (RMC)","Campo Magro (RMC)","Cerro Azul (RMC)",
-    "Colombo (RMC)","Contenda (RMC)","Doutor Ulysses (RMC)","Fazenda Rio Grande (RMC)",
-    "Itaperuçu (RMC)","Lapa (RMC)","Mandirituba (RMC)","Piên (RMC)","Pinhais (RMC)",
-    "Piraquara (RMC)","Quatro Barras (RMC)","Quitandinha (RMC)","Rio Branco do Sul (RMC)",
-    "São José dos Pinhais (RMC)","Tijucas do Sul (RMC)","Tunas do Paraná (RMC)"
-  ];
+  // BAIRROS
+  var BAIRROS = ["Abranches","Água Verde","Ahú","Alto Boqueirão","Alto da Glória","Alto da Rua XV","Atuba","Augusta","Bacacheri","Bairro Alto","Barreirinha","Batatzinho","Batel","Bigorrilho","Boa Vista","Bom Retiro","Boqueirão","Butiatuvinha","Cabral","Cachoeira","Cajuru","Campina do Siqueira","Campo Comprido","Campo de Santana","Capão Raso","Capão da Imbuia","Cascatinha","Caximba","Centro","Centro Cívico","Cidade Industrial","Cristo Rei","Fanny","Fazendinha","Ganchinho","Guabirotuba","Guaíra","Hauer","Hugo Lange","Jardim Botânico","Jardim Social","Jardim das Américas","Jardim dos Estados","Juvevê","Lamenha Pequena","Lindóia","Mercês","Mossunguê","Novo Mundo","Orleans","Padre Andrade","Parolin","Pilarzinho","Pinheirinho","Portão","Prado Velho","Rebouças","Riviera","Santa Cândida","Santa Felicidade","Santa Quitéria","Santo Inácio","São Braz","São Francisco","São João","São Lourenço","São Marcos","Sítio Cercado","Taboão","Tarumã","Tatuquara","Tingui","Uberaba","Umbará","Vila Isabel","Vista Alegre","Xaxim","Adrianópolis (RMC)","Agudos do Sul (RMC)","Almirante Tamandaré (RMC)","Araucária (RMC)","Balsa Nova (RMC)","Bocaiúva do Sul (RMC)","Campina Grande do Sul (RMC)","Campo do Tenente (RMC)","Campo Largo (RMC)","Campo Magro (RMC)","Cerro Azul (RMC)","Colombo (RMC)","Contenda (RMC)","Doutor Ulysses (RMC)","Fazenda Rio Grande (RMC)","Itaperuçu (RMC)","Lapa (RMC)","Mandirituba (RMC)","Piên (RMC)","Pinhais (RMC)","Piraquara (RMC)","Quatro Barras (RMC)","Quitandinha (RMC)","Rio Branco do Sul (RMC)","São José dos Pinhais (RMC)","Tijucas do Sul (RMC)","Tunas do Paraná (RMC)"];
   var LIMITE_BAIRROS = 10;
   var bairrosSelecionados = [];
-
   var caixaBairros = document.getElementById('caixa-bairros');
   var inputBairros = document.getElementById('input-bairros');
   var listaBairros = document.getElementById('lista-bairros');
   var bairrosValor = document.getElementById('bairros-valor');
 
   function atualizarValorBairros() { bairrosValor.value = bairrosSelecionados.join(' | '); }
-
   function desenharTags() {
-    var tags = caixaBairros.querySelectorAll('.tag-bairro');
-    for (var i = 0; i < tags.length; i++) tags[i].remove();
+    caixaBairros.querySelectorAll('.tag-bairro').forEach(function(t) { t.remove(); });
     bairrosSelecionados.forEach(function(b, idx) {
       var tag = document.createElement('span');
       tag.className = idx === 0 ? 'tag-bairro principal' : 'tag-bairro';
@@ -1343,22 +871,18 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     });
     atualizarValorBairros();
   }
-
   function mostrarLista(filtro) {
     if (bairrosSelecionados.length >= LIMITE_BAIRROS) {
       listaBairros.innerHTML = '<div class="opcao-bairro sem-resultado">Limite de ' + LIMITE_BAIRROS + ' bairros atingido</div>';
       listaBairros.classList.add('ativo'); return;
     }
     var termo = filtro.trim().toLowerCase();
-    var disponiveis = BAIRROS.filter(function(b) {
+    var disp = BAIRROS.filter(function(b) {
       return bairrosSelecionados.indexOf(b) === -1 && b.toLowerCase().indexOf(termo) !== -1;
     }).slice(0, 10);
-    if (disponiveis.length === 0) {
-      listaBairros.innerHTML = '<div class="opcao-bairro sem-resultado">Nenhum bairro encontrado</div>';
-    } else {
-      listaBairros.innerHTML = disponiveis.map(function(b) {
-        return '<div class="opcao-bairro" data-b="' + b + '">' + b + '</div>';
-      }).join('');
+    if (disp.length === 0) listaBairros.innerHTML = '<div class="opcao-bairro sem-resultado">Nenhum bairro encontrado</div>';
+    else {
+      listaBairros.innerHTML = disp.map(function(b) { return '<div class="opcao-bairro" data-b="' + b + '">' + b + '</div>'; }).join('');
       listaBairros.querySelectorAll('.opcao-bairro').forEach(function(opt) {
         opt.addEventListener('click', function() {
           if (bairrosSelecionados.length >= LIMITE_BAIRROS) return;
@@ -1375,7 +899,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     }
     listaBairros.classList.add('ativo');
   }
-
   inputBairros.addEventListener('input', function() {
     if (this.value.length >= 1) mostrarLista(this.value);
     else listaBairros.classList.remove('ativo');
@@ -1391,10 +914,9 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     if (!e.target.closest('.wrap-bairros')) listaBairros.classList.remove('ativo');
   });
 
-  // ========== CONDIÇÕES DINÂMICAS ==========
+  // CONDIÇÕES
   var campoProfissao = document.getElementById('profissao');
   var blocoCoren = document.getElementById('bloco-coren');
-
   campoProfissao.addEventListener('change', function() {
     var v = this.value;
     if (v === 'Técnica de Enfermagem' || v === 'Enfermeira') {
@@ -1402,22 +924,204 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       if (campoCoren) campoCoren.required = true;
     } else {
       blocoCoren.classList.remove('ativo');
-      if (campoCoren) {
-        campoCoren.required = false;
-        campoCoren.value = '';
-      }
+      if (campoCoren) { campoCoren.required = false; campoCoren.value = ''; }
     }
   });
 
   var campoTurno = document.getElementById('turno');
   var avisoNoturno = document.getElementById('aviso-noturno');
   campoTurno.addEventListener('change', function() {
-    if (this.value === 'Noturno' || this.value === 'Diurno e Noturno') {
-      avisoNoturno.classList.add('ativo');
-    } else {
-      avisoNoturno.classList.remove('ativo');
-    }
+    if (this.value === 'Noturno' || this.value === 'Diurno e Noturno') avisoNoturno.classList.add('ativo');
+    else avisoNoturno.classList.remove('ativo');
   });
+
+  // ========================================================================
+  // 💳 CHECKOUT ASAAS
+  // ========================================================================
+  var dadosCheckout = null;
+
+  window.abrirCheckout = function(recordId, planoParam, nomeParam) {
+    dadosCheckout = { recordId: recordId, plano: planoParam, nome: nomeParam };
+    document.getElementById('checkout-plano-nome').textContent = 'Plano ' + (planoParam === 'destaque' ? 'Destaque' : 'Profissional') + ' Afeto';
+    var valor = planoParam === 'destaque' ? '69,90' : '24,90';
+    document.getElementById('checkout-valor').textContent = valor;
+    document.getElementById('cartao-valor').textContent = valor;
+    document.getElementById('tab-pix').classList.add('ativo');
+    document.getElementById('tab-cartao').classList.remove('ativo');
+    document.querySelectorAll('.tab-btn').forEach(function(b) {
+      b.classList.toggle('ativo', b.getAttribute('data-tab') === 'pix');
+    });
+    document.getElementById('checkout-loading').style.display = 'block';
+    document.getElementById('checkout-erro').style.display = 'none';
+    document.getElementById('tab-pix').style.display = 'none';
+    document.getElementById('tab-cartao').style.display = 'none';
+    document.getElementById('pix-qrcode').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><p>Gerando QR Code...</p>';
+    document.getElementById('tela-checkout').classList.add('ativo');
+    document.body.style.overflow = 'hidden';
+    gerarPix();
+  };
+
+  window.fecharCheckout = function() {
+    document.getElementById('tela-checkout').classList.remove('ativo');
+    document.body.style.overflow = '';
+  };
+
+  window.voltarCheckout = function() {
+    document.getElementById('checkout-erro').style.display = 'none';
+    document.getElementById('checkout-loading').style.display = 'block';
+    gerarPix();
+  };
+
+  async function gerarPix() {
+    try {
+      var resp = await fetch('/api/asaas/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nome: dadosCheckout.nome,
+          cpf: document.getElementById('cpf').value.trim(),
+          whatsapp: document.getElementById('whatsapp').value.trim(),
+          plano: dadosCheckout.plano,
+          recordIdAirtable: dadosCheckout.recordId,
+          formaPagamento: 'PIX'
+        })
+      });
+      var data = await resp.json();
+      document.getElementById('checkout-loading').style.display = 'none';
+      if (!resp.ok || !data.ok) {
+        document.getElementById('checkout-erro').style.display = 'block';
+        document.getElementById('checkout-erro-text').textContent = (data.error || 'Falha') + (data.detalhe ? ' — ' + JSON.stringify(data.detalhe).substring(0, 150) : '');
+        return;
+      }
+      document.getElementById('tab-pix').style.display = 'block';
+      document.getElementById('tab-cartao').style.display = 'block';
+      if (data.pix && data.pix.qrCodeImage) {
+        document.getElementById('pix-qrcode').innerHTML = '<img src="data:image/png;base64,' + data.pix.qrCodeImage + '" alt="QR Code Pix">';
+        document.getElementById('pix-codigo').value = data.pix.copiaECola || '';
+      }
+      dadosCheckout.cobrancaId = data.cobrancaId;
+    } catch (err) {
+      document.getElementById('checkout-loading').style.display = 'none';
+      document.getElementById('checkout-erro').style.display = 'block';
+      document.getElementById('checkout-erro-text').textContent = 'Erro: ' + err.message;
+    }
+  }
+
+  window.copiarPix = function() {
+    var input = document.getElementById('pix-codigo');
+    input.select();
+    input.setSelectionRange(0, 99999);
+    try {
+      document.execCommand('copy');
+      var btn = document.querySelector('.btn-copiar-pix');
+      var html = btn.innerHTML;
+      btn.innerHTML = '<i class="fa-solid fa-check"></i> Copiado!';
+      btn.classList.add('copiado');
+      setTimeout(function() { btn.innerHTML = html; btn.classList.remove('copiado'); }, 2000);
+    } catch (e) {}
+  };
+
+  window.pagarCartao = async function() {
+    var cardNumber = document.getElementById('card-number').value.replace(/\s/g, '');
+    var cardName = document.getElementById('card-name').value.trim();
+    var cardExpiry = document.getElementById('card-expiry').value;
+    var cardCvv = document.getElementById('card-cvv').value;
+    if (!cardNumber || cardNumber.length < 13) { alert('Número do cartão inválido.'); return; }
+    if (!cardName) { alert('Digite o nome no cartão.'); return; }
+    if (!cardExpiry || cardExpiry.length < 5) { alert('Validade inválida.'); return; }
+    if (!cardCvv || cardCvv.length < 3) { alert('CVV inválido.'); return; }
+    var ma = cardExpiry.split('/');
+    var btn = document.querySelector('.btn-pagar-cartao');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processando...';
+    try {
+      var resp = await fetch('/api/asaas/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nome: dadosCheckout.nome,
+          cpf: document.getElementById('cpf').value.trim(),
+          whatsapp: document.getElementById('whatsapp').value.trim(),
+          plano: dadosCheckout.plano,
+          recordIdAirtable: dadosCheckout.recordId,
+          formaPagamento: 'CREDIT_CARD',
+          creditCard: {
+            holderName: cardName,
+            number: cardNumber,
+            expiryMonth: ma[0],
+            expiryYear: '20' + ma[1],
+            ccv: cardCvv
+          },
+          creditCardHolderInfo: {
+            name: cardName,
+            email: 'afetohomecareoficial@gmail.com',
+            cpfCnpj: document.getElementById('cpf').value.replace(/\D/g, ''),
+            postalCode: '80000000',
+            addressNumber: '0',
+            phone: document.getElementById('whatsapp').value.replace(/\D/g, '')
+          }
+        })
+      });
+      var data = await resp.json();
+      if (!resp.ok || !data.ok) {
+        alert('Erro no pagamento: ' + (data.error || 'Falha') + '\n' + (data.detalhe ? JSON.stringify(data.detalhe).substring(0, 200) : ''));
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-lock"></i> Pagar R$ ' + (dadosCheckout.plano === 'destaque' ? '69,90' : '24,90');
+        return;
+      }
+      fecharCheckout();
+      mostrarSucessoPago();
+    } catch (err) {
+      alert('Erro: ' + err.message);
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-lock"></i> Pagar';
+    }
+  };
+
+  document.querySelectorAll('.tab-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var tab = this.getAttribute('data-tab');
+      document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('ativo'); });
+      this.classList.add('ativo');
+      document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('ativo'); });
+      document.getElementById('tab-' + tab).classList.add('ativo');
+    });
+  });
+
+  var cardNumberInput = document.getElementById('card-number');
+  if (cardNumberInput) {
+    cardNumberInput.addEventListener('input', function() {
+      this.value = this.value.replace(/\D/g, '').replace(/(\d{4})(?=\d)/g, '$1 ').substring(0, 19);
+    });
+  }
+  var cardExpiryInput = document.getElementById('card-expiry');
+  if (cardExpiryInput) {
+    cardExpiryInput.addEventListener('input', function() {
+      var v = this.value.replace(/\D/g, '');
+      if (v.length >= 2) v = v.substring(0, 2) + '/' + v.substring(2, 4);
+      this.value = v;
+    });
+  }
+
+  function mostrarSucessoPago() {
+    if (formArea) formArea.style.display = 'none';
+    if (headerTop) headerTop.style.display = 'none';
+    tituloSucesso.textContent = 'Pagamento confirmado! 💜';
+    textoSucesso.innerHTML = 'Seu cadastro foi enviado com sucesso. <strong>Em até 48h</strong> você estará no ar com todos os benefícios do seu plano.';
+    blocoGratis.style.display = 'flex';
+    blocoGratis.className = 'bloco-info lilas';
+    blocoGratisTxt.innerHTML = '<strong>O próximo passo é com a gente 💜</strong> Nossa equipe vai revisar seu perfil com carinho. Em até 48h úteis você estará no ar com <strong>todos os benefícios do seu plano</strong>: foto, bio, cursos, selo Verificada, aparecer nas buscas, e mais. Avisamos você pelo WhatsApp assim que estiver liberado.';
+    var blocoLink = document.getElementById('bloco-link');
+    if (blocoLink) blocoLink.style.display = 'block';
+    if (linkAvisoTexto) {
+      linkAvisoTexto.innerHTML = '<i class="fa-solid fa-circle-check" style="color: #10b981;"></i> Pagamento recebido! Perfil em <strong>análise</strong> — em até 48h liberamos 💜';
+    }
+    var linkSalvo = localStorage.getItem('afeto_link_perfil');
+    var inputLink = document.getElementById('link-perfil-input');
+    if (linkSalvo && inputLink) inputLink.value = linkSalvo;
+    telaSucesso.classList.add('ativo');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 
   // ========== ENVIO ==========
   var enviando = false;
@@ -1426,37 +1130,28 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     e.preventDefault();
     if (enviando) return;
 
-    if (bairrosSelecionados.length === 0) { alert('Por favor, selecione pelo menos um bairro de atuação.'); return; }
-
+    if (bairrosSelecionados.length === 0) { alert('Selecione pelo menos um bairro.'); return; }
     var nome = document.getElementById('nome').value.trim();
-    if (!nome) { alert('Por favor, preencha seu nome completo.'); return; }
-
+    if (!nome) { alert('Preencha seu nome completo.'); return; }
     var whats = document.getElementById('whatsapp').value.trim();
-    if (!whats || whats.replace(/\D/g, '').length < 10) { alert('Por favor, preencha seu WhatsApp com DDD.'); return; }
-
+    if (!whats || whats.replace(/\D/g, '').length < 10) { alert('WhatsApp inválido.'); return; }
     var cpf = document.getElementById('cpf').value.trim();
-    if (!cpf || !validarCPF(cpf)) { alert('Por favor, preencha um CPF válido.'); return; }
-
+    if (!cpf || !validarCPF(cpf)) { alert('CPF inválido.'); return; }
     var bio = document.getElementById('bio').value.trim();
-    if (!bio) { alert('Por favor, escreva uma breve apresentação.'); return; }
-
+    if (!bio) { alert('Escreva uma breve apresentação.'); return; }
     var prof = document.getElementById('profissao').value;
-    if (!prof) { alert('Por favor, selecione como você atua.'); return; }
-
+    if (!prof) { alert('Selecione como você atua.'); return; }
     if ((prof === 'Técnica de Enfermagem' || prof === 'Enfermeira') && (!campoCoren || !campoCoren.value.trim())) {
-      alert('Por favor, informe seu número de COREN.'); return;
+      alert('Informe seu COREN.'); return;
     }
-
     var valor = document.getElementById('valor-plantao').value;
-    if (!valor || parseFloat(valor) < 50) { alert('Por favor, informe quanto você gostaria de receber por plantão.'); return; }
-
+    if (!valor || parseFloat(valor) < 50) { alert('Informe o valor do plantão.'); return; }
     var turno = document.getElementById('turno').value;
-    if (!turno) { alert('Por favor, selecione o tipo de plantão que você faz.'); return; }
-
-    if (!document.getElementById('termo1').checked) { alert('Você precisa aceitar os Termos de Uso e a Política de Privacidade.'); return; }
-    if (!document.getElementById('termo2').checked) { alert('Você precisa autorizar o tratamento dos seus dados (LGPD).'); return; }
-    if (!document.getElementById('termo3').checked) { alert('Você precisa declarar que as informações são verdadeiras.'); return; }
-    if (!document.getElementById('termo4').checked) { alert('Você precisa declarar que não possui antecedentes criminais.'); return; }
+    if (!turno) { alert('Selecione o tipo de plantão.'); return; }
+    if (!document.getElementById('termo1').checked) { alert('Aceite os Termos de Uso.'); return; }
+    if (!document.getElementById('termo2').checked) { alert('Autorize o tratamento dos dados (LGPD).'); return; }
+    if (!document.getElementById('termo3').checked) { alert('Declare que as informações são verdadeiras.'); return; }
+    if (!document.getElementById('termo4').checked) { alert('Declare que não possui antecedentes criminais.'); return; }
 
     enviando = true;
     btnEnviar.disabled = true;
@@ -1467,16 +1162,9 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 
     try {
       var dados = new FormData(form);
-
-      if (arquivoFoto) {
-        dados.delete('foto');
-        dados.append('foto', arquivoFoto);
-      }
-
+      if (arquivoFoto) { dados.delete('foto'); dados.append('foto', arquivoFoto); }
       var subs = [];
-      document.querySelectorAll('#subespecialidades input:checked').forEach(function(cb) {
-        subs.push(cb.value);
-      });
+      document.querySelectorAll('#subespecialidades input:checked').forEach(function(cb) { subs.push(cb.value); });
       dados.append('subespecialidades', subs.join(' | '));
       dados.append('plano', plano);
       dados.append('origem', 'cadastro');
@@ -1490,11 +1178,11 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
           });
         })
         .catch(function(err) {
-          return { ok: false, status: 0, body: 'Erro de rede: ' + err.message, data: null };
+          return { ok: false, status: 0, body: 'Erro: ' + err.message, data: null };
         });
 
       var timeout = new Promise(function(resolve) {
-        setTimeout(resolve, 30000, { ok: false, status: 0, body: 'Timeout 30s — servidor demorou demais', data: null });
+        setTimeout(resolve, 30000, { ok: false, status: 0, body: 'Timeout 30s', data: null });
       });
 
       var resultado = await Promise.race([envio, timeout]);
@@ -1504,42 +1192,29 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
         throw new Error('Falha');
       }
 
-      // Monta o link do perfil (do servidor ou fallback)
       var linkPerfil = '';
       if (resultado.data && resultado.data.recordId) {
-        linkPerfil = resultado.data.linkPerfil 
-          || ('https://afetocuidadores.pages.dev/perfil.html?id=' + resultado.data.recordId);
+        linkPerfil = resultado.data.linkPerfil || ('https://afetocuidadores.pages.dev/perfil.html?id=' + resultado.data.recordId);
       }
 
-      // ============================================================
-      // 💳 PLANO PAGO → salva no localStorage + redireciona pro Asaas
-      // ============================================================
+      // PLANO PAGO → abre checkout transparente
       if (ehPago) {
-        // Salva link no localStorage pra usar quando voltar do Asaas
         if (linkPerfil) {
           try {
             localStorage.setItem('afeto_link_perfil', linkPerfil);
             localStorage.setItem('afeto_plano', plano);
-          } catch (e) {
-            console.warn('Não conseguiu salvar no localStorage:', e);
-          }
+          } catch (e) {}
         }
-
-        // Redireciona pro Asaas
-        var linkAsaas = (plano === 'profissional') ? LINK_ASAAS_PROFISSIONAL : LINK_ASAAS_DESTAQUE;
-        // Adiciona parâmetro de retorno (se o link Asaas aceitar)
-        window.location.href = linkAsaas;
+        var nomeCuidadora = document.getElementById('nome').value.trim();
+        abrirCheckout(resultado.data.recordId, plano, nomeCuidadora);
         return;
       }
 
-      // ============================================================
-      // 🆓 PLANO GRÁTIS → mostra tela de sucesso
-      // ============================================================
+      // PLANO GRÁTIS → tela de sucesso
       var inputLink = document.getElementById('link-perfil-input');
       var blocoLink = document.getElementById('bloco-link');
       if (inputLink && linkPerfil) inputLink.value = linkPerfil;
       if (blocoLink) blocoLink.style.display = 'block';
-
       formArea.style.display = 'none';
       telaSucesso.classList.add('ativo');
       window.scrollTo({ top: 0, behavior: 'smooth' });
