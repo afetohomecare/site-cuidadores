@@ -1,5 +1,5 @@
 // functions/api/cadastro.js
-// Versão: 2026-09-13 — com log detalhado de erro da foto
+// Versão: 2026-09-13 — Telegram antes da foto + timeout no upload
 
 const AIRTABLE_BASE = 'apphAWeT91l1dMWM5';
 const AIRTABLE_TABLE = 'Cuidadores';
@@ -148,25 +148,7 @@ export async function onRequest(context) {
       foiCriado = true;
     }
 
-    // ========== 4. UPLOAD DA FOTO (com log detalhado) ==========
-    let fotoEnviada = false;
-    let fotoErro = null;
-
-    if (foto && foto.size > 0 && recordId) {
-      try {
-        await subirFotoAirtable(AIRTABLE_API_KEY, recordId, foto);
-        fotoEnviada = true;
-      } catch (err) {
-        fotoErro = String(err && err.message ? err.message : err);
-        console.error("Erro ao subir foto:", fotoErro);
-      }
-    } else {
-      fotoErro = !foto ? 'Campo foto vazio'
-               : !recordId ? 'recordId não foi criado'
-               : 'Arquivo com tamanho 0';
-    }
-
-    // ========== 5. NOTIFICA TELEGRAM ==========
+    // ========== 4. NOTIFICA TELEGRAM (ANTES DA FOTO) ==========
     await notificarTelegram(context, {
       titulo: foiCriado
         ? (plano === 'gratis' ? "💜 Novo cadastro GRÁTIS" : "🎉 Novo cadastro " + plano.toUpperCase())
@@ -180,9 +162,47 @@ export async function onRequest(context) {
       subespecialidades: subespecialidades,
       indicadoPor: indicadoPor,
       recordId: recordId,
-      fotoEnviada: fotoEnviada,
-      fotoErro: fotoErro
+      fotoEnviada: undefined,
+      fotoErro: null
     });
+
+    // ========== 5. UPLOAD DA FOTO (com timeout) ==========
+    let fotoEnviada = false;
+    let fotoErro = null;
+
+    if (foto && foto.size > 0 && recordId) {
+      try {
+        const uploadPromise = subirFotoAirtable(AIRTABLE_API_KEY, recordId, foto);
+        const timeoutPromise = new Promise(function(_, reject) {
+          setTimeout(function() { reject(new Error('Timeout 15s no upload')); }, 15000);
+        });
+
+        await Promise.race([uploadPromise, timeoutPromise]);
+        fotoEnviada = true;
+      } catch (err) {
+        fotoErro = String(err && err.message ? err.message : err);
+        console.error("Erro ao subir foto:", fotoErro);
+
+        await notificarTelegram(context, {
+          titulo: "⚠️ Foto falhou no cadastro",
+          nome: nome,
+          whatsapp: whatsapp,
+          cpf: cpf,
+          profissao: especialidade,
+          plano: plano,
+          bio: '',
+          subespecialidades: '',
+          indicadoPor: '',
+          recordId: recordId,
+          fotoEnviada: false,
+          fotoErro: fotoErro
+        });
+      }
+    } else {
+      fotoErro = !foto ? 'Campo foto vazio'
+               : !recordId ? 'recordId não foi criado'
+               : 'Arquivo com tamanho 0';
+    }
 
     return jsonResp({
       ok: true,
@@ -215,15 +235,14 @@ function escapeFormula(str) {
   return String(str || '').replace(/"/g, '\\"');
 }
 
-// ========== UPLOAD DA FOTO (COM LOG) ==========
+// ========== UPLOAD DA FOTO ==========
 async function subirFotoAirtable(apiKey, recordId, file) {
   const buffer = await file.arrayBuffer();
   const bytes = new Uint8Array(buffer);
   const tamanhoKB = Math.round(bytes.length / 1024);
 
-  console.log('📸 Tentando subir foto:', tamanhoKB + 'KB, tipo:', file.type, 'nome:', file.name);
+  console.log('📸 Foto:', tamanhoKB + 'KB, tipo:', file.type);
 
-  // Codificação base64 robusta
   let binary = '';
   const chunkSize = 4096;
   for (let i = 0; i < bytes.length; i += chunkSize) {
@@ -231,7 +250,7 @@ async function subirFotoAirtable(apiKey, recordId, file) {
   }
   const base64 = btoa(binary);
 
-  console.log('📸 Base64 gerado:', Math.round(base64.length / 1024) + 'KB');
+  console.log('📸 Base64:', Math.round(base64.length / 1024) + 'KB');
 
   const uploadUrl = `https://api.airtable.com/v0/${AIRTABLE_BASE}/${AIRTABLE_TABLE}/${recordId}/Foto/uploadAttachment`;
 
@@ -250,12 +269,10 @@ async function subirFotoAirtable(apiKey, recordId, file) {
 
   if (!resp.ok) {
     const erro = await resp.text();
-    console.error('📸 Upload falhou:', resp.status, erro.substring(0, 500));
-    throw new Error(`[${resp.status}] ${erro.substring(0, 250)}`);
+    console.error('📸 Falhou:', resp.status, erro.substring(0, 500));
+    throw new Error(`[${resp.status}] ${erro.substring(0, 200)}`);
   }
 
-  const respData = await resp.json();
-  console.log('📸 Foto enviada:', JSON.stringify(respData).substring(0, 200));
   return true;
 }
 
@@ -289,7 +306,6 @@ async function notificarTelegram(context, dados) {
     if (dados.subespecialidades) msg += `\n🏷️ *Especialidades:* ${dados.subespecialidades}\n`;
     if (dados.indicadoPor) msg += `\n🎁 *Indicada por:* ${dados.indicadoPor}\n`;
 
-    // Foto com detalhe de erro
     if (dados.fotoEnviada !== undefined) {
       msg += `\n📸 *Foto:* ${dados.fotoEnviada ? '✅ enviada' : '❌ não enviada'}\n`;
       if (!dados.fotoEnviada && dados.fotoErro) {

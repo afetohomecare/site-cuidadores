@@ -862,7 +862,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   var fotoBtnConfirm = document.getElementById('foto-btn-confirm');
 
   var VIEWPORT_SIZE = 260;
-  var OUTPUT_SIZE = 800;
+  var OUTPUT_SIZE = 600;
 
   var cropState = {
     file: null,
@@ -1060,7 +1060,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       fotoUpload.classList.add('tem-foto');
 
       fecharCropModal();
-    }, 'image/jpeg', 0.9);
+    }, 'image/jpeg', 0.75);
   }
 
   // ========== LIMITE DE 10 ESPECIALIDADES ==========
@@ -1279,7 +1279,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       dados.append('plano', plano);
       dados.append('origem', 'cadastro');
 
-      // ⚡ CORRIGIDO: mostra o erro real do servidor
       var envio = fetch('/api/cadastro', { method: 'POST', body: dados })
         .then(function(r) {
           return r.text().then(function(txt) {
@@ -1291,7 +1290,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
         });
 
       var timeout = new Promise(function(resolve) {
-        setTimeout(resolve, 25000, { ok: false, status: 0, body: 'Timeout 25s — Airtable/Foto demorou demais' });
+        setTimeout(resolve, 30000, { ok: false, status: 0, body: 'Timeout 30s — servidor demorou demais' });
       });
 
       var resultado = await Promise.race([envio, timeout]);
