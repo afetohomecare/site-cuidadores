@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cupons - Afeto Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root { --lilas: #8b5cf6; --lilas-escuro: #7c3aed; --fundo: #f8f9fc; --preto: #1f1f1f; --cinza: #666666; --cinza-az: #94a3b8; --branco: #ffffff; --verde: #10b981; --vermelho: #ef4444; --sidebar-bg: #1a1a2e; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(--preto); min-height: 100vh; display: flex; }
+.sidebar { width: 240px; background: var(--sidebar-bg); color: white; padding: 24px 0; display: flex; flex-direction: column; position: fixed; top: 0; bottom: 0; left: 0; overflow-y: auto; }
+.sidebar-logo { display: flex; align-items: center; gap: 0.16em; font-weight: 900; font-size: 22px; color: white; padding: 0 24px 24px; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 20px; }
+.sidebar-logo svg { width: 1.11em; height: 0.69em; overflow: visible; }
+.sidebar-logo svg path { fill: none; stroke: #a78bfa; stroke-width: 13; stroke-linecap: round; }
+.sidebar-sub { font-size: 11px; color: rgba(255,255,255,0.4); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 0 24px; margin-bottom: 10px; }
+.menu { list-style: none; }
+.menu-item { padding: 12px 24px; display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 800; cursor: pointer; transition: 0.2s; color: rgba(255,255,255,0.7); border-left: 3px solid transparent; }
+.menu-item:hover { background: rgba(255,255,255,0.05); color: white; }
+.menu-item.ativo { background: rgba(139,92,246,0.15); color: white; border-left-color: var(--lilas); }
+.menu-item i { width: 20px; text-align: center; font-size: 16px; }
+.sidebar-user { margin-top: auto; padding: 20px 24px 0; border-top: 1px solid rgba(255,255,255,0.08); }
+.sidebar-user .email { font-size: 12px; color: rgba(255,255,255,0.5); font-weight: 700; word-break: break-all; margin-bottom: 10px; }
+.sidebar-user .btn-sair { width: 100%; background: rgba(255,255,255,0.08); color: white; border: none; padding: 10px; border-radius: 10px; font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.sidebar-user .btn-sair:hover { background: var(--vermelho); }
+.main { flex: 1; margin-left: 240px; padding: 32px 40px; max-width: 1400px; }
+.page-header { margin-bottom: 28px; display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap; }
+.page-header h1 { font-size: 30px; font-weight: 900; letter-spacing: -0.5px; }
+.page-header p { font-size: 15px; color: var(--cinza); font-weight: 700; margin-top: 4px; }
+.btn-primario { padding: 13px 22px; border-radius: 50px; border: none; font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 900; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; box-shadow: 0 8px 20px rgba(139,92,246,0.3); }
+.btn-primario:hover { transform: translateY(-2px); }
+.lista { display: flex; flex-direction: column; gap: 12px; }
+.cupom-card { background: white; border-radius: 20px; padding: 22px 24px; border: 1px solid #e2e8f0; display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: center; }
+.cupom-card:hover { border-color: #c4b5fd; box-shadow: 0 8px 25px rgba(139,92,246,0.08); }
+.cupom-card.inativo { opacity: 0.55; background: #fafafa; }
+.cupom-codigo { font-size: 22px; font-weight: 900; letter-spacing: 1px; color: var(--preto); margin-bottom: 8px; font-family: 'Courier New', monospace; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.cupom-info { display: flex; flex-wrap: wrap; gap: 20px; font-size: 13.5px; font-weight: 700; color: var(--cinza); }
+.cupom-info span { display: inline-flex; align-items: center; gap: 5px; }
+.cupom-info .destaque { color: var(--lilas-escuro); font-weight: 900; }
+.badge-status { padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.4px; }
+.badge-ativo { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+.badge-bloqueado { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+.badge-expirado { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+.cupom-acoes { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.btn-icon { width: 38px; height: 38px; border-radius: 50%; border: 2px solid #e2e8f0; background: white; cursor: pointer; display: inline-flex; justify-content: center; align-items: center; color: var(--cinza); font-size: 14px; }
+.btn-icon:hover { border-color: var(--lilas); color: var(--lilas); }
+.btn-icon.perigo:hover { border-color: var(--vermelho); color: var(--vermelho); }
+.btn-icon.ativo { background: #ecfdf5; border-color: var(--verde); color: var(--verde); }
+.btn-icon.bloquear { background: #fef2f2; border-color: var(--vermelho); color: var(--vermelho); }
+.loader { text-align: center; padding: 60px 20px; color: var(--lilas); font-size: 16px; font-weight: 700; }
+.vazio { text-align: center; padding: 80px 20px; color: var(--cinza); font-weight: 700; background: white; border-radius: 20px; border: 1px solid #e2e8f0; }
+.vazio i { font-size: 54px; color: #cbd5e1; margin-bottom: 16px; display: block; }
+.vazio h3 { font-size: 20px; font-weight: 900; margin-bottom: 8px; color: var(--preto); }
+.vazio p { font-size: 14px; margin-bottom: 24px; }
+.modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.65); backdrop-filter: blur(4px); z-index: 9999; align-items: center; justify-content: center; padding: 20px; }
+.modal.ativo { display: flex; }
+.modal-box { background: white; border-radius: 24px; max-width: 520px; width: 100%; padding: 30px; box-shadow: 0 30px 70px rgba(0,0,0,0.35); max-height: 90vh; overflow-y: auto; }
+.modal-box h2 { font-size: 20px; font-weight: 900; margin-bottom: 6px; }
+.modal-box .sub { font-size: 14px; color: var(--cinza); font-weight: 700; margin-bottom: 22px; }
+.campo { margin-bottom: 16px; }
+.campo label { display: block; font-weight: 800; margin-bottom: 8px; font-size: 13.5px; }
+.campo .ajuda { font-size: 12px; color: var(--cinza-az); font-weight: 600; margin-top: 4px; }
+.campo input, .campo select { width: 100%; padding: 14px 16px; border-radius: 14px; border: 2px solid #e2e8f0; font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 700; outline: none; background: var(--fundo); }
+.campo input:focus, .campo select:focus { border-color: var(--lilas); background: white; box-shadow: 0 0 0 4px rgba(139,92,246,0.1); }
+.campo-linha { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.modal-acoes { display: flex; gap: 10px; margin-top: 24px; }
+.modal-acoes button { flex: 1; padding: 15px; border-radius: 50px; border: none; font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 900; cursor: pointer; }
+.btn-cancelar { background: #f1f5f9; color: var(--cinza); }
+.btn-salvar { background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; }
+.toast { position: fixed; bottom: 25px; right: 25px; padding: 16px 22px; background: white; border-radius: 16px; box-shadow: 0 15px 40px rgba(0,0,0,0.15); border-left: 5px solid var(--verde); font-weight: 800; font-size: 14px; z-index: 9999; opacity: 0; transform: translateY(20px); transition: 0.3s; pointer-events: none; max-width: 340px; }
+.toast.ativo { opacity: 1; transform: translateY(0); }
+.toast.erro { border-left-color: var(--vermelho); }
+@media (max-width: 900px) {
+  .sidebar { width: 70px; }
+  .sidebar-logo span, .sidebar-sub, .menu-item span, .sidebar-user .email { display: none; }
+  .sidebar-logo { justify-content: center; padding: 0 0 20px; }
+  .menu-item { justify-content: center; padding: 14px; }
+  .main { margin-left: 70px; padding: 20px 16px; }
+  .cupom-card { grid-template-columns: 1fr; }
+  .campo-linha { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <svg viewBox="9.5 15.5 111 69"><path d="M71.87 52.72 A28 28 0 1 0 50.20 77.30"/><path d="M79.80 22.70 A28 28 0 1 1 58.13 47.28"/></svg>
+    <span>Afeto · Admin</span>
+  </div>
+  <div class="sidebar-sub">Gerenciar</div>
+  <ul class="menu">
+    <li class="menu-item" onclick="window.location.href='painel.html'"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></li>
+    <li class="menu-item" onclick="window.location.href='painel.html'"><i class="fa-solid fa-users"></i><span>Cuidadoras</span></li>
+    <li class="menu-item" onclick="window.location.href='painel.html'"><i class="fa-solid fa-comments"></i><span>Mensagens</span></li>
+    <li class="menu-item ativo"><i class="fa-solid fa-ticket"></i><span>Cupons</span></li>
+    <li class="menu-item" onclick="window.location.href='config.html'"><i class="fa-solid fa-gear"></i><span>Configurações</span></li>
+  </ul>
+  <div class="sidebar-user">
+    <div class="email" id="user-email">—</div>
+    <button class="btn-sair" onclick="sair()"><i class="fa-solid fa-arrow-right-from-bracket"></i><span>Sair</span></button>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="page-header">
+    <div>
+      <h1>Cupons de desconto</h1>
+      <p>Crie códigos para influenciadoras, indicações e campanhas</p>
+    </div>
+    <button class="btn-primario" onclick="abrirModalCupom()"><i class="fa-solid fa-plus"></i> Novo cupom</button>
+  </div>
+  <div id="lista-cupons" class="lista">
+    <div class="loader"><i class="fa-solid fa-spinner fa-spin"></i> Carregando...</div>
+  </div>
+</main>
+
+<div class="modal" id="modal-cupom">
+  <div class="modal-box">
+    <h2 id="modal-titulo">Novo cupom</h2>
+    <p class="sub">Preencha os dados abaixo</p>
+    <div class="campo">
+      <label>Código *</label>
+      <input type="text" id="c-codigo" placeholder="Ex: BIA20" maxlength="20" style="text-transform: uppercase;">
+      <div class="ajuda">Sem espaços. Vai sempre em maiúsculo.</div>
+    </div>
+    <div class="campo-linha">
+      <div class="campo">
+        <label>Tipo *</label>
+        <select id="c-tipo">
+          <option value="percentual">Percentual (%)</option>
+          <option value="valor_fixo">Valor fixo (R$)</option>
+        </select>
+      </div>
+      <div class="campo">
+        <label>Valor *</label>
+        <input type="number" id="c-valor" placeholder="20" min="0.01" step="0.01">
+      </div>
+    </div>
+    <div class="campo">
+      <label>Plano aplicável</label>
+      <select id="c-plano">
+        <option value="">Todos os planos</option>
+        <option value="cadastro">Só cadastro (ativação)</option>
+        <option value="profissional">Só Profissional</option>
+        <option value="destaque">Só Destaque</option>
+      </select>
+    </div>
+    <div class="campo-linha">
+      <div class="campo">
+        <label>Máximo de usos</label>
+        <input type="number" id="c-usos" placeholder="Vazio = ilimitado" min="1">
+      </div>
+      <div class="campo">
+        <label>Válido até</label>
+        <input type="date" id="c-validade">
+      </div>
+    </div>
+    <div class="modal-acoes">
+      <button class="btn-cancelar" onclick="fecharModalCupom()">Cancelar</button>
+      <button class="btn-salvar" onclick="salvarCupom()"><i class="fa-solid fa-check"></i> Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function() {
+  "use strict";
+  var TOKEN = localStorage.getItem('afeto_admin_token');
+  var EXPIRA = parseInt(localStorage.getItem('afeto_admin_expira') || '0');
+  var EMAIL = localStorage.getItem('afeto_admin_email') || '';
+  if (!TOKEN || Date.now() > EXPIRA) {
+    localStorage.removeItem('afeto_admin_token');
+    localStorage.removeItem('afeto_admin_email');
+    localStorage.removeItem('afeto_admin_expira');
+    window.location.href = 'login.html';
+    return;
+  }
+  document.getElementById('user-email').textContent = EMAIL;
+  window.sair = function() {
+    localStorage.removeItem('afeto_admin_token');
+    localStorage.removeItem('afeto_admin_email');
+    localStorage.removeItem('afeto_admin_expira');
+    window.location.href = 'login.html';
+  };
+  var cupons = [];
+  var editandoId = null;
+  var toastEl = document.getElementById('toast');
+  var toastTimer = null;
+  window.mostrarToast = function(msg, erro) {
+    toastEl.textContent = msg;
+    toastEl.classList.toggle('erro', !!erro);
+    toastEl.classList.add('ativo');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function() { toastEl.classList.remove('ativo'); }, 3000);
+  };
+  async function api(url, opts) {
+    opts = opts || {};
+    opts.headers = opts.headers || {};
+    opts.headers['Authorization'] = 'Bearer ' + TOKEN;
+    if (opts.body) opts.headers['Content-Type'] = 'application/json';
+    var resp = await fetch(url, opts);
+    if (resp.status === 401) {
+      mostrarToast('Sessão expirada', true);
+      setTimeout(function() { window.location.href = 'login.html'; }, 1200);
+      throw new Error('401');
+    }
+    return resp;
+  }
+  function esc(s) {
+    if (s === null || s === undefined) return '';
+    return String(s).replace(/[&<>"']/g, function(c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  async function carregarCupons() {
+    var el = document.getElementById('lista-cupons');
+    el.innerHTML = '<div class="loader"><i class="fa-solid fa-spinner fa-spin"></i> Carregando...</div>';
+    try {
+      var resp = await api('/api/admin/cupons');
+      var data = await resp.json();
+      if (!data.cupons) throw new Error();
+      cupons = data.cupons;
+      if (cupons.length === 0) {
+        el.innerHTML = '<div class="vazio"><i class="fa-solid fa-ticket"></i><h3>Nenhum cupom ainda</h3><p>Crie o primeiro pra começar a rastrear indicações.</p><button class="btn-primario" onclick="abrirModalCupom()"><i class="fa-solid fa-plus"></i> Criar cupom</button></div>';
+        return;
+      }
+      var agora = new Date();
+      el.innerHTML = cupons.map(function(c) {
+        var valorTexto = c.tipo === 'percentual' ? c.valor + '% OFF' : 'R$ ' + parseFloat(c.valor).toFixed(2).replace('.', ',') + ' OFF';
+        var planoTexto = 'Todos os planos';
+        if (c.plano_aplicavel === 'cadastro') planoTexto = 'Só ativação';
+        else if (c.plano_aplicavel === 'profissional') planoTexto = 'Só Profissional';
+        else if (c.plano_aplicavel === 'destaque') planoTexto = 'Só Destaque';
+        var usosTexto = c.usos_maximos ? c.usos_atuais + ' / ' + c.usos_maximos : c.usos_atuais + ' (sem limite)';
+        var validadeTexto = 'Sem validade';
+        if (c.valido_ate) validadeTexto = new Date(c.valido_ate).toLocaleDateString('pt-BR');
+        var expirado = c.valido_ate && new Date(c.valido_ate) < agora;
+        var esgotado = c.usos_maximos && c.usos_atuais >= c.usos_maximos;
+        var badgeClasse = 'badge-ativo', badgeTexto = 'Ativo';
+        if (!c.ativo) { badgeClasse = 'badge-bloqueado'; badgeTexto = 'Bloqueado'; }
+        else if (expirado) { badgeClasse = 'badge-expirado'; badgeTexto = 'Expirado'; }
+        else if (esgotado) { badgeClasse = 'badge-expirado'; badgeTexto = 'Esgotado'; }
+        var botaoAtivo = c.ativo
+          ? '<button class="btn-icon bloquear" onclick="toggleAtivo(\'' + c.id + '\', false)" title="Bloquear"><i class="fa-solid fa-ban"></i></button>'
+          : '<button class="btn-icon ativo" onclick="toggleAtivo(\'' + c.id + '\', true)" title="Reativar"><i class="fa-solid fa-check"></i></button>';
+        return '<div class="cupom-card ' + (c.ativo && !expirado ? '' : 'inativo') + '">' +
+          '<div><div class="cupom-codigo">' + esc(c.codigo) + ' <span class="badge-status ' + badgeClasse + '">' + badgeTexto + '</span></div>' +
+          '<div class="cupom-info">' +
+            '<span><i class="fa-solid fa-tag"></i> <span class="destaque">' + valorTexto + '</span></span>' +
+            '<span><i class="fa-solid fa-box"></i> ' + planoTexto + '</span>' +
+            '<span><i class="fa-solid fa-chart-simple"></i> ' + usosTexto + '</span>' +
+            '<span><i class="fa-solid fa-calendar"></i> ' + validadeTexto + '</span>' +
+          '</div></div>' +
+          '<div class="cupom-acoes">' + botaoAtivo +
+            '<button class="btn-icon" onclick="abrirModalCupom(\'' + c.id + '\')" title="Editar"><i class="fa-solid fa-pen"></i></button>' +
+            '<button class="btn-icon perigo" onclick="apagarCupom(\'' + c.id + '\')" title="Apagar"><i class="fa-solid fa-trash"></i></button>' +
+          '</div></div>';
+      }).join('');
+    } catch (err) {
+      el.innerHTML = '<div class="vazio">Erro ao carregar.</div>';
+    }
+  }
+  window.abrirModalCupom = function(id) {
+    editandoId = id || null;
+    if (editandoId) {
+      var c = cupons.find(function(x) { return x.id === id; });
+      if (!c) return;
+      document.getElementById('modal-titulo').textContent = 'Editar cupom';
+      document.getElementById('c-codigo').value = c.codigo;
+      document.getElementById('c-tipo').value = c.tipo;
+      document.getElementById('c-valor').value = c.valor;
+      document.getElementById('c-plano').value = c.plano_aplicavel || '';
+      document.getElementById('c-usos').value = c.usos_maximos || '';
+      document.getElementById('c-validade').value = c.valido_ate ? c.valido_ate.substring(0, 10) : '';
+    } else {
+      document.getElementById('modal-titulo').textContent = 'Novo cupom';
+      document.getElementById('c-codigo').value = '';
+      document.getElementById('c-tipo').value = 'percentual';
+      document.getElementById('c-valor').value = '';
+      document.getElementById('c-plano').value = '';
+      document.getElementById('c-usos').value = '';
+      document.getElementById('c-validade').value = '';
+    }
+    document.getElementById('modal-cupom').classList.add('ativo');
+  };
+  window.fecharModalCupom = function() {
+    document.getElementById('modal-cupom').classList.remove('ativo');
+    editandoId = null;
+  };
+  window.salvarCupom = async function() {
+    var codigo = document.getElementById('c-codigo').value.trim().toUpperCase();
+    var tipo = document.getElementById('c-tipo').value;
+    var valor = parseFloat(document.getElementById('c-valor').value);
+    var plano = document.getElementById('c-plano').value || null;
+    var usos = document.getElementById('c-usos').value ? parseInt(document.getElementById('c-usos').value) : null;
+    var validade = document.getElementById('c-validade').value || null;
+    if (!codigo) { mostrarToast('Informe o código', true); return; }
+    if (isNaN(valor) || valor <= 0) { mostrarToast('Valor inválido', true); return; }
+    var payload = { codigo: codigo, tipo: tipo, valor: valor, plano_aplicavel: plano, usos_maximos: usos, valido_ate: validade ? validade + 'T23:59:59Z' : null };
+    var url = '/api/admin/cupons' + (editandoId ? '?id=' + editandoId : '');
+    var method = editandoId ? 'PATCH' : 'POST';
+    var resp = await api(url, { method: method, body: JSON.stringify(payload) });
+    if (!resp.ok) {
+      var err = await resp.json().catch(function() { return {}; });
+      mostrarToast(err.error || 'Erro ao salvar', true);
+      return;
+    }
+    mostrarToast(editandoId ? 'Cupom atualizado!' : 'Cupom criado!');
+    fecharModalCupom();
+    carregarCupons();
+  };
+  window.toggleAtivo = async function(id, valor) {
+    var resp = await api('/api/admin/cupons?id=' + id, { method: 'PATCH', body: JSON.stringify({ ativo: valor }) });
+    if (!resp.ok) { mostrarToast('Erro', true); return; }
+    mostrarToast(valor ? 'Cupom reativado!' : 'Cupom bloqueado!');
+    carregarCupons();
+  };
+  window.apagarCupom = async function(id) {
+    if (!confirm('Apagar esse cupom de vez?')) return;
+    var resp = await api('/api/admin/cupons?id=' + id, { method: 'DELETE' });
+    if (!resp.ok) { mostrarToast('Erro', true); return; }
+    mostrarToast('Cupom apagado!');
+    carregarCupons();
+  };
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') fecharModalCupom(); });
+  carregarCupons();
+})();
+</script>
+</body>
+</html>

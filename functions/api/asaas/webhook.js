@@ -1,61 +1,40 @@
 // ============================================================
 // AFETO — Webhook do Asaas
-// ------------------------------------------------------------
-// O Asaas chama essa URL quando o pagamento é confirmado.
-// Aqui a gente:
-//   1. Valida o token (header asaas-access-token)
-//   2. Lê o evento (PAYMENT_RECEIVED / PAYMENT_CONFIRMED)
-//   3. Atualiza status_pagamento = 'Pago' no Supabase
-//   4. Notifica no Telegram
-//
-// O campo `externalReference` do Asaas carrega o UUID da
-// cuidadora no Supabase (passado lá no checkout.js).
+// Ao confirmar pagamento: status_pagamento='Pago' + vencimento +30d
 // ============================================================
 
 export async function onRequestPost(context) {
   const { request, env } = context;
 
   try {
-    // ---------- 1. VALIDA TOKEN ----------
     const tokenEsperado = env.ASAAS_WEBHOOK_TOKEN;
     const tokenRecebido = request.headers.get('asaas-access-token');
 
     if (tokenEsperado && tokenRecebido !== tokenEsperado) {
-      console.warn('❌ Token inválido recebido:', tokenRecebido);
       return new Response(JSON.stringify({ error: 'Token inválido' }), {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' }
+        status: 401, headers: { 'Content-Type': 'application/json' }
       });
     }
 
-    // ---------- 2. LÊ O PAYLOAD ----------
     const body = await request.json();
     const evento = body.event;
     const payment = body.payment;
 
     console.log('📩 Webhook Asaas:', evento, payment && payment.id);
 
-    // ---------- 3. PROCESSA PAGAMENTO CONFIRMADO ----------
     if (evento === 'PAYMENT_RECEIVED' || evento === 'PAYMENT_CONFIRMED') {
       const cuidadorId = payment.externalReference;
 
-      if (!cuidadorId) {
-        console.warn('⚠️ Webhook sem externalReference');
+      if (!cuidadorId || !env.SUPABASE_URL || !env.SUPABASE_SERVICE_KEY) {
         return new Response(JSON.stringify({ received: true }), {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' }
+          status: 200, headers: { 'Content-Type': 'application/json' }
         });
       }
 
-      if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_KEY) {
-        console.error('❌ Configuração do Supabase ausente');
-        return new Response(JSON.stringify({ received: true }), {
-          status: 200,
-          headers: { 'Content-Type': 'application/json' }
-        });
-      }
+      const agora = new Date();
+      const vence = new Date(agora);
+      vence.setDate(vence.getDate() + 30);
 
-      // ---------- 3a. ATUALIZA SUPABASE ----------
       const updateUrl = env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadorId;
 
       const updateResp = await fetch(updateUrl, {
@@ -67,27 +46,27 @@ export async function onRequestPost(context) {
           'Prefer': 'return=minimal'
         },
         body: JSON.stringify({
-          status_pagamento: 'Pago'
+          status_pagamento: 'Pago',
+          plano_inicio: agora.toISOString(),
+          plano_valido_ate: vence.toISOString()
         })
       });
 
       if (updateResp.ok) {
-        console.log('✅ Supabase ' + cuidadorId + ' → status_pagamento: Pago');
+        console.log('✅ Supabase ' + cuidadorId + ' → Pago até ' + vence.toISOString());
       } else {
-        const erro = await updateResp.text();
-        console.error('❌ Erro Supabase:', erro);
+        console.error('❌ Erro Supabase:', await updateResp.text());
       }
 
-      // ---------- 4. NOTIFICA TELEGRAM ----------
       if (env.TELEGRAM_BOT_TOKEN && env.TELEGRAM_CHAT_ID) {
         const forma = payment.billingType === 'PIX' ? '💠 Pix' : '💳 Cartão';
         const valor = payment.value ? 'R$ ' + payment.value.toFixed(2).replace('.', ',') : '';
 
-        const mensagem = '💰 *Pagamento recebido!*\n\n' +
-          forma + ' — ' + valor + '\n\n' +
+        const mensagem = '💰 *Pagamento recebido!*\n\n' + forma + ' — ' + valor + '\n\n' +
           'ID Supabase: `' + cuidadorId + '`\n\n' +
-          '✅ status_pagamento atualizado automaticamente.\n\n' +
-          '👉 Falta marcar *aprovada = true* pra liberar o perfil.';
+          '✅ status_pagamento = Pago\n' +
+          '✅ Plano válido até ' + vence.toLocaleDateString('pt-BR') + '\n\n' +
+          '👉 Falta marcar *aprovada = true* no painel.';
 
         try {
           await fetch('https://api.telegram.org/bot' + env.TELEGRAM_BOT_TOKEN + '/sendMessage', {
@@ -99,34 +78,24 @@ export async function onRequestPost(context) {
               parse_mode: 'Markdown'
             })
           });
-        } catch (errTelegram) {
-          console.error('⚠️ Erro Telegram:', errTelegram);
-        }
+        } catch (errTelegram) { console.error('Telegram:', errTelegram); }
       }
     }
 
-    // ---------- 5. RETORNA OK (sempre 200 pro Asaas não reenviar) ----------
     return new Response(JSON.stringify({ received: true }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
+      status: 200, headers: { 'Content-Type': 'application/json' }
     });
 
   } catch (err) {
     console.error('❌ Erro webhook:', err);
     return new Response(JSON.stringify({ error: String(err.message) }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
+      status: 500, headers: { 'Content-Type': 'application/json' }
     });
   }
 }
 
-// Responde GET pra teste manual
 export async function onRequestGet() {
-  return new Response(JSON.stringify({
-    ok: true,
-    message: 'Webhook Asaas ativo. Use POST pra receber eventos.'
-  }), {
-    status: 200,
-    headers: { 'Content-Type': 'application/json' }
+  return new Response(JSON.stringify({ ok: true, message: 'Webhook ativo.' }), {
+    status: 200, headers: { 'Content-Type': 'application/json' }
   });
 }

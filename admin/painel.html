@@ -57,14 +57,14 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
 .painel-section h2 { font-size: 17px; font-weight: 900; margin-bottom: 18px; display: flex; align-items: center; gap: 10px; }
 .painel-section h2 i { color: var(--lilas); }
 
-/* LISTA SIMPLES (bairros/cupons top) */
+/* LISTA SIMPLES */
 .mini-lista { list-style: none; }
 .mini-lista li { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; font-weight: 700; }
 .mini-lista li:last-child { border-bottom: none; }
 .mini-lista .valor { color: var(--lilas-escuro); font-weight: 900; }
 .mini-vazio { color: var(--cinza-az); font-size: 13px; text-align: center; padding: 20px; }
 
-/* FILTROS CUIDADORAS */
+/* FILTROS */
 .barra-filtros { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; align-items: center; }
 .busca-box { flex: 1; min-width: 200px; position: relative; }
 .busca-box i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--cinza-az); }
@@ -80,7 +80,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
 .chip .contador { background: rgba(0,0,0,0.08); padding: 2px 8px; border-radius: 50px; font-size: 11px; }
 .chip.ativo .contador { background: rgba(255,255,255,0.25); }
 
-/* BARRA DE AÇÕES EM MASSA */
+/* BULK */
 .bulk-bar { display: none; background: linear-gradient(135deg, #f5f3ff, #ede9fe); border: 2px solid #c4b5fd; border-radius: 16px; padding: 12px 20px; margin-bottom: 16px; align-items: center; gap: 14px; flex-wrap: wrap; }
 .bulk-bar.ativo { display: flex; }
 .bulk-bar .info { font-weight: 900; font-size: 14px; color: var(--lilas-escuro); }
@@ -131,7 +131,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
 .vazio { text-align: center; padding: 60px 20px; color: var(--cinza); font-weight: 700; }
 .vazio i { font-size: 44px; color: #cbd5e1; margin-bottom: 14px; display: block; }
 
-/* MODAL WHATSAPP */
+/* MODAL */
 .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.65); backdrop-filter: blur(4px); z-index: 9999; align-items: center; justify-content: center; padding: 20px; }
 .modal.ativo { display: flex; }
 .modal-box { background: white; border-radius: 24px; max-width: 520px; width: 100%; padding: 30px; box-shadow: 0 30px 70px rgba(0,0,0,0.35); max-height: 90vh; overflow-y: auto; }
@@ -154,7 +154,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
 .toast.ativo { opacity: 1; transform: translateY(0); }
 .toast.erro { border-left-color: var(--vermelho); }
 
-/* TEMPLATES LIST */
+/* TEMPLATES */
 .template-card { background: white; border-radius: 16px; padding: 18px 20px; border: 1px solid #e2e8f0; margin-bottom: 12px; display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; }
 .template-info { flex: 1; min-width: 0; }
 .template-titulo { font-size: 15px; font-weight: 900; margin-bottom: 6px; }
@@ -164,7 +164,6 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
 .btn-icon:hover { border-color: var(--lilas); color: var(--lilas); }
 .btn-icon.perigo:hover { border-color: var(--vermelho); color: var(--vermelho); }
 
-/* RESPONSIVO */
 @media (max-width: 900px) {
   .sidebar { width: 70px; }
   .sidebar-logo span, .sidebar-sub, .menu-item span:not(.soon), .sidebar-user .email { display: none; }
@@ -182,7 +181,6 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
 </head>
 <body>
 
-<!-- SIDEBAR -->
 <aside class="sidebar">
   <div class="sidebar-logo">
     <svg viewBox="9.5 15.5 111 69"><path d="M71.87 52.72 A28 28 0 1 0 50.20 77.30"/><path d="M79.80 22.70 A28 28 0 1 1 58.13 47.28"/></svg>
@@ -194,8 +192,8 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
     <li class="menu-item ativo" data-tab="dashboard"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></li>
     <li class="menu-item" data-tab="cuidadoras"><i class="fa-solid fa-users"></i><span>Cuidadoras</span></li>
     <li class="menu-item" data-tab="mensagens"><i class="fa-solid fa-comments"></i><span>Mensagens</span></li>
-    <li class="menu-item" onclick="mostrarToast('Em breve!')"><i class="fa-solid fa-ticket"></i><span>Cupons</span><span class="soon">EM BREVE</span></li>
-    <li class="menu-item" onclick="mostrarToast('Em breve!')"><i class="fa-solid fa-gear"></i><span>Configurações</span><span class="soon">EM BREVE</span></li>
+    <li class="menu-item" onclick="window.location.href='cupons.html'"><i class="fa-solid fa-ticket"></i><span>Cupons</span></li>
+    <li class="menu-item" onclick="window.location.href='config.html'"><i class="fa-solid fa-gear"></i><span>Configurações</span></li>
   </ul>
 
   <div class="sidebar-user">
@@ -204,10 +202,8 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
   </div>
 </aside>
 
-<!-- MAIN -->
 <main class="main">
 
-  <!-- DASHBOARD -->
   <div id="tab-dashboard" class="tab-content ativo">
     <div class="page-header">
       <div>
@@ -239,7 +235,6 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
     </div>
   </div>
 
-  <!-- CUIDADORAS -->
   <div id="tab-cuidadoras" class="tab-content">
     <div class="page-header">
       <div>
@@ -282,14 +277,13 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
     </div>
   </div>
 
-  <!-- MENSAGENS -->
   <div id="tab-mensagens" class="tab-content">
     <div class="page-header">
       <div>
         <h1>Mensagens prontas</h1>
         <p>Crie templates para enviar pelo WhatsApp em 1 clique</p>
       </div>
-      <button class="btn-acao btn-aprovar" onclick="abrirModalTemplate()"><i class="fa-solid fa-plus"></i> Novo template</button>
+      <button class="btn-acao btn-aprovar" onclick="abrirModalTemplate()" style="padding:13px 22px; font-size:14px;"><i class="fa-solid fa-plus"></i> Novo template</button>
     </div>
 
     <div class="painel-section" style="background:#f5f3ff; border-color:#c4b5fd;">
@@ -307,7 +301,6 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
 
 </main>
 
-<!-- MODAL WHATSAPP -->
 <div class="modal" id="modal-wpp">
   <div class="modal-box">
     <h2><i class="fa-brands fa-whatsapp" style="color:#25D366;"></i> Enviar mensagem</h2>
@@ -330,7 +323,6 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
   </div>
 </div>
 
-<!-- MODAL TEMPLATE -->
 <div class="modal" id="modal-template">
   <div class="modal-box">
     <h2 id="tpl-titulo-modal">Novo template</h2>
@@ -359,7 +351,6 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
 (function() {
   "use strict";
 
-  // ==================== AUTH ====================
   var TOKEN = localStorage.getItem('afeto_admin_token');
   var EXPIRA = parseInt(localStorage.getItem('afeto_admin_expira') || '0');
   var EMAIL = localStorage.getItem('afeto_admin_email') || '';
@@ -381,7 +372,6 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
     window.location.href = 'login.html';
   };
 
-  // ==================== ESTADO ====================
   var cuidadoras = [];
   var templates = [];
   var selecionadas = new Set();
@@ -392,7 +382,6 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
   var wppCuidadoraId = null;
   var tplEditando = null;
 
-  // ==================== HELPERS ====================
   function esc(s) {
     if (s === null || s === undefined) return '';
     return String(s).replace(/[&<>"']/g, function(c) {
@@ -438,7 +427,6 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
     return resp;
   }
 
-  // ==================== STATUS DE VENCIMENTO ====================
   function infoVencimento(c) {
     if (!c.plano_valido_ate) return null;
     if (!c.plano_profissional && !c.plano_destaque) return null;
@@ -452,7 +440,6 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
     return { classe: 'badge-vence-ok', texto: 'Vence em ' + diff + ' dia(s)', icone: 'fa-check' };
   }
 
-  // ==================== NAVEGAÇÃO ====================
   document.querySelectorAll('.menu-item[data-tab]').forEach(function(item) {
     item.addEventListener('click', function() {
       var tab = this.getAttribute('data-tab');
@@ -467,7 +454,6 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
     });
   });
 
-  // ==================== DASHBOARD ====================
   async function carregarDashboard() {
     try {
       var resp = await api('/api/admin/stats');
@@ -498,7 +484,6 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
     } catch (err) { console.error(err); }
   }
 
-  // ==================== CUIDADORAS ====================
   async function carregarCuidadoras() {
     var listaEl = document.getElementById('lista-cuidadoras');
     listaEl.innerHTML = '<div class="loader"><i class="fa-solid fa-spinner fa-spin"></i> Carregando...</div>';
@@ -618,7 +603,6 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
     listaEl.innerHTML = html;
   }
 
-  // ==================== SELEÇÃO ====================
   window.toggleSelecionada = function(id, marcada) {
     if (marcada) selecionadas.add(id);
     else selecionadas.delete(id);
@@ -633,7 +617,6 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
     bar.classList.toggle('ativo', selecionadas.size > 0);
   }
 
-  // ==================== AÇÕES ====================
   window.mudarAprovacao = async function(id, valor) {
     var resp = await api('/api/admin/cuidadoras?id=' + id, {
       method: 'PATCH',
@@ -686,7 +669,6 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
     carregarCuidadoras();
   };
 
-  // ==================== FILTROS ====================
   document.querySelectorAll('.chip[data-filtro]').forEach(function(btn) {
     btn.addEventListener('click', function() {
       document.querySelectorAll('.chip[data-filtro]').forEach(function(b) { b.classList.remove('ativo'); });
@@ -715,7 +697,6 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
     carregarCuidadoras();
   });
 
-  // ==================== WHATSAPP ====================
   window.abrirWpp = function(id) {
     var c = cuidadoras.find(function(x) { return x.id === id; });
     if (!c) return;
@@ -777,7 +758,6 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
     fecharModalWpp();
   };
 
-  // ==================== TEMPLATES ====================
   async function carregarTemplates() {
     var el = document.getElementById('lista-templates');
     el.innerHTML = '<div class="loader"><i class="fa-solid fa-spinner fa-spin"></i> Carregando...</div>';
@@ -857,10 +837,8 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
     carregarTemplates();
   };
 
-  // ==================== INIT ====================
   carregarDashboard();
 
-  // Fecha modais com ESC
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
       fecharModalWpp();

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Configurações - Afeto Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root { --lilas: #8b5cf6; --lilas-escuro: #7c3aed; --fundo: #f8f9fc; --preto: #1f1f1f; --cinza: #666666; --cinza-az: #94a3b8; --branco: #ffffff; --verde: #10b981; --vermelho: #ef4444; --sidebar-bg: #1a1a2e; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(--preto); min-height: 100vh; display: flex; }
+.sidebar { width: 240px; background: var(--sidebar-bg); color: white; padding: 24px 0; display: flex; flex-direction: column; position: fixed; top: 0; bottom: 0; left: 0; overflow-y: auto; }
+.sidebar-logo { display: flex; align-items: center; gap: 0.16em; font-weight: 900; font-size: 22px; color: white; padding: 0 24px 24px; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 20px; }
+.sidebar-logo svg { width: 1.11em; height: 0.69em; overflow: visible; }
+.sidebar-logo svg path { fill: none; stroke: #a78bfa; stroke-width: 13; stroke-linecap: round; }
+.sidebar-sub { font-size: 11px; color: rgba(255,255,255,0.4); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 0 24px; margin-bottom: 10px; }
+.menu { list-style: none; }
+.menu-item { padding: 12px 24px; display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 800; cursor: pointer; transition: 0.2s; color: rgba(255,255,255,0.7); border-left: 3px solid transparent; }
+.menu-item:hover { background: rgba(255,255,255,0.05); color: white; }
+.menu-item.ativo { background: rgba(139,92,246,0.15); color: white; border-left-color: var(--lilas); }
+.menu-item i { width: 20px; text-align: center; font-size: 16px; }
+.sidebar-user { margin-top: auto; padding: 20px 24px 0; border-top: 1px solid rgba(255,255,255,0.08); }
+.sidebar-user .email { font-size: 12px; color: rgba(255,255,255,0.5); font-weight: 700; word-break: break-all; margin-bottom: 10px; }
+.sidebar-user .btn-sair { width: 100%; background: rgba(255,255,255,0.08); color: white; border: none; padding: 10px; border-radius: 10px; font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.sidebar-user .btn-sair:hover { background: var(--vermelho); }
+.main { flex: 1; margin-left: 240px; padding: 32px 40px; max-width: 1000px; }
+.page-header { margin-bottom: 28px; }
+.page-header h1 { font-size: 30px; font-weight: 900; letter-spacing: -0.5px; }
+.page-header p { font-size: 15px; color: var(--cinza); font-weight: 700; margin-top: 4px; }
+.painel-section { background: white; border-radius: 20px; padding: 28px 30px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
+.painel-section h2 { font-size: 17px; font-weight: 900; margin-bottom: 6px; display: flex; align-items: center; gap: 10px; }
+.painel-section h2 i { color: var(--lilas); }
+.painel-section .desc { font-size: 13.5px; color: var(--cinza); font-weight: 600; margin-bottom: 22px; line-height: 1.5; }
+.campo { margin-bottom: 18px; }
+.campo label { display: block; font-weight: 800; margin-bottom: 8px; font-size: 14px; }
+.campo .ajuda { font-size: 12.5px; color: var(--cinza-az); font-weight: 600; margin-top: 6px; line-height: 1.4; }
+.campo input { width: 100%; padding: 14px 16px; border-radius: 14px; border: 2px solid #e2e8f0; font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 700; outline: none; background: var(--fundo); }
+.campo input:focus { border-color: var(--lilas); background: white; box-shadow: 0 0 0 4px rgba(139,92,246,0.1); }
+.campo .prefixo { position: relative; }
+.campo .prefixo span { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); font-weight: 800; color: var(--lilas-escuro); font-size: 14px; pointer-events: none; }
+.campo .prefixo input { padding-left: 48px; }
+.campo-linha { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.btn-salvar { padding: 15px 28px; border-radius: 50px; border: none; font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 900; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; box-shadow: 0 8px 20px rgba(139,92,246,0.3); }
+.btn-salvar:hover:not(:disabled) { transform: translateY(-2px); }
+.btn-salvar:disabled { background: #cbd5e1; box-shadow: none; cursor: not-allowed; }
+.info-box { background: #f5f3ff; border: 1px solid #c4b5fd; border-radius: 14px; padding: 16px 20px; font-size: 13.5px; font-weight: 700; color: var(--lilas-escuro); line-height: 1.6; margin-bottom: 22px; display: flex; gap: 12px; align-items: flex-start; }
+.info-box i { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.loader { text-align: center; padding: 60px 20px; color: var(--lilas); font-size: 16px; font-weight: 700; }
+.toast { position: fixed; bottom: 25px; right: 25px; padding: 16px 22px; background: white; border-radius: 16px; box-shadow: 0 15px 40px rgba(0,0,0,0.15); border-left: 5px solid var(--verde); font-weight: 800; font-size: 14px; z-index: 9999; opacity: 0; transform: translateY(20px); transition: 0.3s; pointer-events: none; max-width: 340px; }
+.toast.ativo { opacity: 1; transform: translateY(0); }
+.toast.erro { border-left-color: var(--vermelho); }
+@media (max-width: 900px) {
+  .sidebar { width: 70px; }
+  .sidebar-logo span, .sidebar-sub, .menu-item span, .sidebar-user .email { display: none; }
+  .sidebar-logo { justify-content: center; padding: 0 0 20px; }
+  .menu-item { justify-content: center; padding: 14px; }
+  .main { margin-left: 70px; padding: 20px 16px; }
+  .campo-linha { grid-template-columns: 1fr; }
+  .painel-section { padding: 22px 20px; }
+}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <svg viewBox="9.5 15.5 111 69"><path d="M71.87 52.72 A28 28 0 1 0 50.20 77.30"/><path d="M79.80 22.70 A28 28 0 1 1 58.13 47.28"/></svg>
+    <span>Afeto · Admin</span>
+  </div>
+  <div class="sidebar-sub">Gerenciar</div>
+  <ul class="menu">
+    <li class="menu-item" onclick="window.location.href='painel.html'"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></li>
+    <li class="menu-item" onclick="window.location.href='painel.html'"><i class="fa-solid fa-users"></i><span>Cuidadoras</span></li>
+    <li class="menu-item" onclick="window.location.href='painel.html'"><i class="fa-solid fa-comments"></i><span>Mensagens</span></li>
+    <li class="menu-item" onclick="window.location.href='cupons.html'"><i class="fa-solid fa-ticket"></i><span>Cupons</span></li>
+    <li class="menu-item ativo"><i class="fa-solid fa-gear"></i><span>Configurações</span></li>
+  </ul>
+  <div class="sidebar-user">
+    <div class="email" id="user-email">—</div>
+    <button class="btn-sair" onclick="sair()"><i class="fa-solid fa-arrow-right-from-bracket"></i><span>Sair</span></button>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="page-header">
+    <h1>Configurações</h1>
+    <p>Edite preços e informações que aparecem no site</p>
+  </div>
+  <div id="area-config">
+    <div class="loader"><i class="fa-solid fa-spinner fa-spin"></i> Carregando...</div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function() {
+  "use strict";
+  var TOKEN = localStorage.getItem('afeto_admin_token');
+  var EXPIRA = parseInt(localStorage.getItem('afeto_admin_expira') || '0');
+  var EMAIL = localStorage.getItem('afeto_admin_email') || '';
+  if (!TOKEN || Date.now() > EXPIRA) {
+    localStorage.removeItem('afeto_admin_token');
+    localStorage.removeItem('afeto_admin_email');
+    localStorage.removeItem('afeto_admin_expira');
+    window.location.href = 'login.html';
+    return;
+  }
+  document.getElementById('user-email').textContent = EMAIL;
+  window.sair = function() {
+    localStorage.removeItem('afeto_admin_token');
+    localStorage.removeItem('afeto_admin_email');
+    localStorage.removeItem('afeto_admin_expira');
+    window.location.href = 'login.html';
+  };
+  var toastEl = document.getElementById('toast');
+  var toastTimer = null;
+  window.mostrarToast = function(msg, erro) {
+    toastEl.textContent = msg;
+    toastEl.classList.toggle('erro', !!erro);
+    toastEl.classList.add('ativo');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function() { toastEl.classList.remove('ativo'); }, 3000);
+  };
+  async function api(url, opts) {
+    opts = opts || {};
+    opts.headers = opts.headers || {};
+    opts.headers['Authorization'] = 'Bearer ' + TOKEN;
+    if (opts.body) opts.headers['Content-Type'] = 'application/json';
+    var resp = await fetch(url, opts);
+    if (resp.status === 401) {
+      mostrarToast('Sessão expirada', true);
+      setTimeout(function() { window.location.href = 'login.html'; }, 1200);
+      throw new Error('401');
+    }
+    return resp;
+  }
+  async function carregar() {
+    var area = document.getElementById('area-config');
+    try {
+      var resp = await api('/api/admin/config');
+      var data = await resp.json();
+      if (!data.config) throw new Error();
+      var mapa = {};
+      data.config.forEach(function(item) { mapa[item.chave] = item.valor; });
+      area.innerHTML = montarFormulario(mapa);
+    } catch (err) {
+      area.innerHTML = '<div class="loader" style="color:red;">Erro ao carregar.</div>';
+    }
+  }
+  function montarFormulario(v) {
+    function val(chave) { return (v[chave] || '').replace(/"/g, '&quot;'); }
+    return (
+      '<div class="info-box"><i class="fa-solid fa-circle-info"></i>' +
+        '<div>Ao salvar, os valores são atualizados <strong>na hora</strong>. O próximo cadastro já usa os preços novos. Nenhum arquivo precisa ser alterado.</div>' +
+      '</div>' +
+      '<div class="painel-section">' +
+        '<h2><i class="fa-solid fa-dollar-sign"></i> Preços atuais (Fundadora)</h2>' +
+        '<p class="desc">Válidos para as primeiras ' + val('vagas_fundadora') + ' cuidadoras.</p>' +
+        '<div class="campo-linha">' +
+          '<div class="campo"><label>Taxa de ativação</label><div class="prefixo"><span>R$</span><input type="number" id="preco_cadastro" step="0.01" min="0" value="' + val('preco_cadastro') + '"></div></div>' +
+          '<div class="campo"><label>Plano Profissional</label><div class="prefixo"><span>R$</span><input type="number" id="preco_profissional" step="0.01" min="0" value="' + val('preco_profissional') + '"></div><div class="ajuda">Cobrado mensalmente</div></div>' +
+        '</div>' +
+        '<div class="campo"><label>Plano Destaque</label><div class="prefixo"><span>R$</span><input type="number" id="preco_destaque" step="0.01" min="0" value="' + val('preco_destaque') + '"></div><div class="ajuda">Cobrado mensalmente</div></div>' +
+      '</div>' +
+      '<div class="painel-section">' +
+        '<h2><i class="fa-solid fa-arrow-up"></i> Preços pós-fundadora</h2>' +
+        '<p class="desc">Aplicados após as ' + val('vagas_fundadora') + ' primeiras vagas.</p>' +
+        '<div class="campo-linha">' +
+          '<div class="campo"><label>Taxa de ativação</label><div class="prefixo"><span>R$</span><input type="number" id="preco_cadastro_pos" step="0.01" min="0" value="' + val('preco_cadastro_pos') + '"></div></div>' +
+          '<div class="campo"><label>Plano Profissional</label><div class="prefixo"><span>R$</span><input type="number" id="preco_prof_pos" step="0.01" min="0" value="' + val('preco_prof_pos') + '"></div></div>' +
+        '</div>' +
+        '<div class="campo"><label>Plano Destaque</label><div class="prefixo"><span>R$</span><input type="number" id="preco_destaque_pos" step="0.01" min="0" value="' + val('preco_destaque_pos') + '"></div></div>' +
+      '</div>' +
+      '<div class="painel-section">' +
+        '<h2><i class="fa-solid fa-bullhorn"></i> Informações do site</h2>' +
+        '<div class="campo"><label>Vagas fundadora</label><input type="number" id="vagas_fundadora" min="1" value="' + val('vagas_fundadora') + '"><div class="ajuda">Depois de preencher, o site passa a usar os preços pós-fundadora.</div></div>' +
+        '<div class="campo"><label>Texto do banner da home</label><input type="text" id="texto_banner_home" maxlength="100" value="' + val('texto_banner_home') + '"></div>' +
+        '<div class="campo"><label>WhatsApp da Afeto</label><input type="text" id="whatsapp_afeto" placeholder="5541997674866" value="' + val('whatsapp_afeto') + '"><div class="ajuda">Só números, com código do país.</div></div>' +
+      '</div>' +
+      '<button class="btn-salvar" id="btn-salvar" onclick="salvar()"><i class="fa-solid fa-check"></i> Salvar alterações</button>'
+    );
+  }
+  window.salvar = async function() {
+    var btn = document.getElementById('btn-salvar');
+    btn.disabled = true;
+    btn.innerHTML = 'Salvando... <i class="fa-solid fa-spinner fa-spin"></i>';
+    var valores = {};
+    ['preco_cadastro', 'preco_profissional', 'preco_destaque', 'preco_cadastro_pos', 'preco_prof_pos', 'preco_destaque_pos', 'vagas_fundadora', 'texto_banner_home', 'whatsapp_afeto'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) valores[id] = el.value.trim();
+    });
+    try {
+      var resp = await api('/api/admin/config', { method: 'PATCH', body: JSON.stringify({ valores: valores }) });
+      if (!resp.ok) { mostrarToast('Erro ao salvar', true); btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-check"></i> Salvar alterações'; return; }
+      mostrarToast('Salvo! Site já usando os valores novos.');
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-check"></i> Salvar alterações';
+    } catch (err) {
+      mostrarToast('Erro de rede', true);
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-check"></i> Salvar alterações';
+    }
+  };
+  carregar();
+})();
+</script>
+</body>
+</html>
