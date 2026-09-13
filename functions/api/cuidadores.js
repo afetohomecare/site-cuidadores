@@ -1,43 +1,65 @@
 // ============================================================
 // AFETO — API: lista de cuidadoras para a vitrine
-// ⚠️ VERSÃO DE DEBUG — substituir pela versão final depois
+// ------------------------------------------------------------
+// Lê do Supabase (PostgreSQL) somente as cuidadoras que estão:
+//   • aprovada = true
+//   • status_pagamento = 'Pago'
+//   • tem plano_profissional OU plano_destaque ativo
+//
+// A filtragem é feita NO BANCO (não no navegador), para não
+// trafegar dados de perfis não aprovados pela rede.
+//
+// Também devolve apenas campos públicos — nunca CPF, e-mail,
+// IDs do Asaas ou qualquer dado que não seja de vitrine.
 // ============================================================
 
+// Campos que podem ir para o navegador (público)
 const CAMPOS_PUBLICOS = [
-  'id', 'nome', 'whatsapp', 'whatsapp_agencia', 'foto_url',
-  'apresentacao', 'motivacao', 'especialidade', 'experiencia',
-  'bairro', 'bairros', 'preco', 'turno', 'cursos',
-  'subespecialidades', 'categoria', 'nota', 'horas', 'verificada',
-  'disponivel', 'plano_profissional', 'plano_destaque', 'coren',
-  'comentarios', 'criado_em'
+  'id',
+  'nome',
+  'whatsapp',
+  'whatsapp_agencia',
+  'foto_url',
+  'apresentacao',
+  'motivacao',
+  'especialidade',
+  'experiencia',
+  'bairro',
+  'bairros',
+  'preco',
+  'turno',
+  'cursos',
+  'subespecialidades',
+  'categoria',
+  'nota',
+  'horas',
+  'verificada',
+  'disponivel',
+  'plano_profissional',
+  'plano_destaque',
+  'coren',
+  'comentarios',
+  'criado_em'
 ];
+
+// Resposta JSON de erro padronizada
+function respostaErro(mensagem, status) {
+  return new Response(JSON.stringify({ erro: mensagem }), {
+    status: status,
+    headers: { 'Content-Type': 'application/json; charset=utf-8' }
+  });
+}
 
 export async function onRequestGet(context) {
   const { env } = context;
 
-  // Diagnóstico 1: as variáveis chegaram?
-  const diagnostico = {
-    tem_url: !!env.SUPABASE_URL,
-    tem_key: !!env.SUPABASE_SERVICE_KEY,
-    url_primeiros_chars: env.SUPABASE_URL ? env.SUPABASE_URL.substring(0, 40) : null,
-    url_ultimos_chars: env.SUPABASE_URL ? env.SUPABASE_URL.substring(env.SUPABASE_URL.length - 20) : null,
-    url_tem_espaco: env.SUPABASE_URL ? (env.SUPABASE_URL.trim() !== env.SUPABASE_URL) : null,
-    key_primeiros_chars: env.SUPABASE_SERVICE_KEY ? env.SUPABASE_SERVICE_KEY.substring(0, 20) : null,
-    key_tem_espaco: env.SUPABASE_SERVICE_KEY ? (env.SUPABASE_SERVICE_KEY.trim() !== env.SUPABASE_SERVICE_KEY) : null,
-    key_tamanho: env.SUPABASE_SERVICE_KEY ? env.SUPABASE_SERVICE_KEY.length : 0
-  };
-
+  // 1) Confere se as variáveis de ambiente existem
   if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_KEY) {
-    return new Response(JSON.stringify({
-      erro: 'Variável faltando',
-      diagnostico: diagnostico
-    }, null, 2), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json; charset=utf-8' }
-    });
+    return respostaErro('Configuração do servidor ausente.', 500);
   }
 
-  // Diagnóstico 2: montar a URL
+  // 2) Monta a query do Supabase (PostgREST)
+  //    Filtra tudo no banco — não no JavaScript.
   const parametros = [
     'aprovada=eq.true',
     'status_pagamento=eq.Pago',
@@ -48,11 +70,8 @@ export async function onRequestGet(context) {
 
   const url = env.SUPABASE_URL + '/rest/v1/cuidadores?' + parametros;
 
-  // Diagnóstico 3: chamar o Supabase e mostrar a resposta REAL
+  // 3) Consulta o Supabase
   let resposta;
-  let corpoResposta = '';
-  let erroRede = null;
-
   try {
     resposta = await fetch(url, {
       headers: {
@@ -61,23 +80,28 @@ export async function onRequestGet(context) {
         'Accept': 'application/json'
       }
     });
-
-    corpoResposta = await resposta.text();
-
-  } catch (e) {
-    erroRede = e.message;
+  } catch (erroRede) {
+    console.error('Falha de rede ao consultar Supabase:', erroRede);
+    return respostaErro('Não foi possível conectar ao banco de dados.', 502);
   }
 
-  // Monta o retorno de diagnóstico completo
-  return new Response(JSON.stringify({
-    diagnostico: diagnostico,
-    url_chamada: url.replace(env.SUPABASE_SERVICE_KEY, '***'),
-    resposta_status: resposta ? resposta.status : null,
-    resposta_status_texto: resposta ? resposta.statusText : null,
-    resposta_corpo: corpoResposta.substring(0, 500),
-    erro_rede: erroRede
-  }, null, 2), {
+  // 4) Se o Supabase respondeu com erro, loga e devolve erro genérico
+  if (!resposta.ok) {
+    const detalhe = await resposta.text().catch(function () { return ''; });
+    console.error('Supabase respondeu', resposta.status, detalhe);
+    return respostaErro('Erro ao buscar cuidadoras.', 500);
+  }
+
+  // 5) Sucesso
+  const cuidadores = await resposta.json();
+
+  return new Response(JSON.stringify({ cuidadores: cuidadores }), {
     status: 200,
-    headers: { 'Content-Type': 'application/json; charset=utf-8' }
+    headers: {
+      'Content-Type': 'application/json; charset=utf-8',
+      // Cache curto: 60 segundos. Reduz carga no banco sem deixar
+      // o perfil desatualizado por muito tempo.
+      'Cache-Control': 'public, max-age=60, s-maxage=60'
+    }
   });
 }
