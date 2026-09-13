@@ -1,8 +1,16 @@
-// functions/api/asaas/checkout.js
-// Cria cliente no Asaas + cobrança Pix ou Cartão
+// ============================================================
+// AFETO — API: cria cliente + cobrança no Asaas
+// ------------------------------------------------------------
+// Fluxo:
+//   1. Lê preços da tabela config do Supabase (editável sem código)
+//   2. Cria (ou reaproveita) cliente no Asaas
+//   3. Cria a cobrança (Pix ou Cartão)
+//   4. Grava asaas_customer_id e asaas_cobranca_id no Supabase
+//   5. Se for Pix, busca o QR Code
+// ============================================================
 
-const ASAAS_URL = 'https://api-sandbox.asaas.com/v3'; // ⚠️ SANDBOX (teste)
-// const ASAAS_URL = 'https://api.asaas.com/v3';      // PRODUÇÃO (trocar depois)
+const ASAAS_URL = 'https://api-sandbox.asaas.com/v3'; // ⚠️ SANDBOX
+// const ASAAS_URL = 'https://api.asaas.com/v3';       // PRODUÇÃO
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -11,15 +19,19 @@ export async function onRequestPost(context) {
   if (!ASAAS_API_KEY) {
     return jsonResp({ error: 'ASAAS_API_KEY não configurada no Cloudflare' }, 500);
   }
+  if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_KEY) {
+    return jsonResp({ error: 'Configuração do Supabase ausente' }, 500);
+  }
 
   try {
     const body = await request.json();
     const {
       nome, cpf, whatsapp, email,
-      plano, recordIdAirtable,
-      formaPagamento,
+      plano, formaPagamento,
       creditCard, creditCardHolderInfo
     } = body;
+
+    const cuidadorId = body.cuidadorId || body.recordIdAirtable;
 
     if (!nome || !cpf || !plano || !formaPagamento) {
       return jsonResp({ error: 'Campos obrigatórios: nome, cpf, plano, formaPagamento' }, 400);
@@ -28,22 +40,27 @@ export async function onRequestPost(context) {
     const cpfLimpo = cpf.replace(/\D/g, '');
     const whatsLimpo = whatsapp ? whatsapp.replace(/\D/g, '') : '';
 
-    const valor = plano === 'destaque' ? 69.90 : 24.90;
+    // ---------- 0. LÊ PREÇOS DA TABELA CONFIG ----------
+    const valor = await lerPrecoPlano(env, plano);
 
-    // ========== 1. CRIA CLIENTE NO ASAAS ==========
+    if (!valor || valor <= 0) {
+      return jsonResp({ error: 'Preço do plano não configurado' }, 500);
+    }
+
+    // ---------- 1. CRIA CLIENTE NO ASAAS ----------
     const customerId = await criarOuBuscarCliente(ASAAS_API_KEY, {
       name: nome,
       cpfCnpj: cpfLimpo,
       mobilePhone: whatsLimpo,
       email: email || undefined,
-      externalReference: recordIdAirtable || undefined
+      externalReference: cuidadorId || undefined
     });
 
     if (!customerId) {
       return jsonResp({ error: 'Falha ao criar cliente no Asaas' }, 502);
     }
 
-    // ========== 2. CRIA COBRANÇA ==========
+    // ---------- 2. CRIA COBRANÇA ----------
     const vencimento = new Date();
     vencimento.setDate(vencimento.getDate() + 1);
     const dataVencimento = vencimento.toISOString().split('T')[0];
@@ -53,8 +70,8 @@ export async function onRequestPost(context) {
       billingType: formaPagamento,
       value: valor,
       dueDate: dataVencimento,
-      description: `Plano ${plano === 'destaque' ? 'Destaque' : 'Profissional'} Afeto`,
-      externalReference: recordIdAirtable || undefined
+      description: 'Plano ' + (plano === 'destaque' ? 'Destaque' : 'Profissional') + ' Afeto',
+      externalReference: cuidadorId || undefined
     };
 
     if (formaPagamento === 'CREDIT_CARD') {
@@ -65,7 +82,7 @@ export async function onRequestPost(context) {
       cobrancaBody.creditCardHolderInfo = creditCardHolderInfo;
     }
 
-    const cobrancaResp = await fetch(`${ASAAS_URL}/payments`, {
+    const cobrancaResp = await fetch(ASAAS_URL + '/payments', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -85,10 +102,37 @@ export async function onRequestPost(context) {
       }, 502);
     }
 
-    // ========== 3. SE FOR PIX, BUSCA O QR CODE ==========
+    // ---------- 3. GRAVA IDs DO ASAAS NO SUPABASE ----------
+    if (cuidadorId) {
+      try {
+        const patchUrl = env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadorId;
+        const patchResp = await fetch(patchUrl, {
+          method: 'PATCH',
+          headers: {
+            'apikey': env.SUPABASE_SERVICE_KEY,
+            'Authorization': 'Bearer ' + env.SUPABASE_SERVICE_KEY,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({
+            asaas_customer_id: customerId,
+            asaas_cobranca_id: cobrancaData.id
+          })
+        });
+
+        if (!patchResp.ok) {
+          const txt = await patchResp.text();
+          console.warn('Erro ao gravar IDs Asaas no Supabase:', patchResp.status, txt);
+        }
+      } catch (err) {
+        console.warn('Erro PATCH Supabase:', err);
+      }
+    }
+
+    // ---------- 4. SE FOR PIX, BUSCA O QR CODE ----------
     let pixData = null;
     if (formaPagamento === 'PIX') {
-      const pixResp = await fetch(`${ASAAS_URL}/payments/${cobrancaData.id}/pixQrCode`, {
+      const pixResp = await fetch(ASAAS_URL + '/payments/' + cobrancaData.id + '/pixQrCode', {
         headers: {
           'User-Agent': 'Afeto/1.0',
           'access_token': ASAAS_API_KEY
@@ -120,8 +164,50 @@ export async function onRequestPost(context) {
   }
 }
 
+// ============================================================
+// LÊ PREÇO DA TABELA CONFIG
+// ============================================================
+async function lerPrecoPlano(env, plano) {
+  // Mapeia o nome do plano pro nome da chave na tabela config
+  const chave = plano === 'destaque' ? 'preco_destaque'
+              : plano === 'profissional' ? 'preco_profissional'
+              : plano === 'cadastro' ? 'preco_cadastro'
+              : null;
+
+  if (!chave) return null;
+
+  try {
+    const url = env.SUPABASE_URL + '/rest/v1/config?chave=eq.' + chave + '&select=valor&limit=1';
+    const resp = await fetch(url, {
+      headers: {
+        'apikey': env.SUPABASE_SERVICE_KEY,
+        'Authorization': 'Bearer ' + env.SUPABASE_SERVICE_KEY,
+        'Accept': 'application/json'
+      }
+    });
+
+    if (!resp.ok) {
+      console.error('Erro ao ler config:', resp.status);
+      return null;
+    }
+
+    const linhas = await resp.json();
+    if (!linhas || linhas.length === 0) return null;
+
+    const valor = parseFloat(linhas[0].valor);
+    return isNaN(valor) ? null : valor;
+
+  } catch (err) {
+    console.error('Erro ao buscar preço:', err);
+    return null;
+  }
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
 async function criarOuBuscarCliente(apiKey, dados) {
-  const buscaResp = await fetch(`${ASAAS_URL}/customers?cpfCnpj=${dados.cpfCnpj}`, {
+  const buscaResp = await fetch(ASAAS_URL + '/customers?cpfCnpj=' + dados.cpfCnpj, {
     headers: {
       'User-Agent': 'Afeto/1.0',
       'access_token': apiKey
@@ -143,7 +229,7 @@ async function criarOuBuscarCliente(apiKey, dados) {
   if (dados.email) criarBody.email = dados.email;
   if (dados.externalReference) criarBody.externalReference = dados.externalReference;
 
-  const criarResp = await fetch(`${ASAAS_URL}/customers`, {
+  const criarResp = await fetch(ASAAS_URL + '/customers', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
