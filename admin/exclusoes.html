@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solicitações de Exclusão — Admin Afeto</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root { --lilas: #8b5cf6; --lilas-escuro: #7c3aed; --fundo-site: #f8f9fc; --preto-fonte: #1f1f1f; --cinza-fonte: #666666; --cinza-azulado: #94a3b8; --branco: #ffffff; --ouro: #fbbf24; --verde: #10b981; --vermelho: #ef4444; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: var(--preto-fonte); min-height: 100vh; }
+.topbar { background: white; border-bottom: 1px solid #e2e8f0; padding: 16px 24px; display: flex; align-items: center; gap: 20px; position: sticky; top: 0; z-index: 10; }
+.topbar h1 { font-size: 20px; font-weight: 900; letter-spacing: -0.5px; display: flex; align-items: center; gap: 10px; }
+.topbar a { color: var(--lilas-escuro); font-weight: 800; font-size: 14px; text-decoration: none; display: flex; align-items: center; gap: 6px; }
+.topbar a:hover { text-decoration: underline; }
+.wrap { max-width: 1000px; margin: 0 auto; padding: 30px 20px 60px; }
+.filtros { display: flex; gap: 10px; margin-bottom: 24px; }
+.filtros button { padding: 10px 18px; border-radius: 50px; border: 2px solid #e2e8f0; background: white; font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 800; cursor: pointer; color: var(--cinza-fonte); transition: 0.2s; }
+.filtros button.ativo { background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; border-color: transparent; }
+.card { background: white; border-radius: 20px; padding: 22px 24px; margin-bottom: 16px; border: 1px solid #e2e8f0; display: flex; gap: 18px; align-items: flex-start; }
+.card.pendente { border-color: #fca5a5; background: linear-gradient(135deg, #fff, #fef2f2); }
+.card.resolvida { opacity: 0.65; }
+.card .avatar { width: 60px; height: 60px; border-radius: 50%; background: #f1f5f9; flex-shrink: 0; overflow: hidden; display: flex; justify-content: center; align-items: center; font-size: 24px; color: #cbd5e1; font-weight: 900; }
+.card .avatar img { width: 100%; height: 100%; object-fit: cover; }
+.card .info { flex: 1; }
+.card .info h3 { font-size: 16px; font-weight: 900; margin-bottom: 4px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.card .info .meta { font-size: 13px; color: var(--cinza-fonte); font-weight: 700; margin-bottom: 8px; display: flex; gap: 14px; flex-wrap: wrap; }
+.card .info .motivo { background: #f8f9fc; border-left: 3px solid var(--lilas); padding: 10px 14px; border-radius: 8px; font-size: 13px; color: var(--cinza-fonte); font-weight: 600; line-height: 1.55; margin-top: 10px; }
+.card .acoes { display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
+.card .acoes button { padding: 10px 18px; border-radius: 50px; border: none; font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 900; cursor: pointer; white-space: nowrap; transition: 0.2s; }
+.btn-aprovar { background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; box-shadow: 0 4px 12px rgba(239,68,68,0.25); }
+.btn-aprovar:hover { transform: translateY(-2px); }
+.btn-rejeitar { background: white; border: 2px solid #e2e8f0; color: var(--cinza-fonte); }
+.btn-rejeitar:hover { background: #f8f9fc; }
+.badge-status { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; }
+.badge-pendente { background: #fef3c7; color: #78350f; }
+.badge-aprovada { background: #ecfdf5; color: #065f46; }
+.badge-rejeitada { background: #f1f5f9; color: var(--cinza-fonte); }
+.loader { text-align: center; padding: 60px 20px; color: var(--lilas); font-weight: 800; font-size: 16px; }
+.vazio { text-align: center; padding: 60px 20px; color: var(--cinza-fonte); font-weight: 700; }
+.vazio i { font-size: 48px; color: #cbd5e1; margin-bottom: 16px; display: block; }
+.modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center; padding: 20px; }
+.modal.ativo { display: flex; }
+.modal-box { background: white; border-radius: 24px; max-width: 480px; width: 100%; padding: 32px 28px; box-shadow: 0 30px 80px rgba(0,0,0,0.4); }
+.modal-box h2 { font-size: 20px; font-weight: 900; margin-bottom: 8px; }
+.modal-box p { font-size: 14px; color: var(--cinza-fonte); font-weight: 700; margin-bottom: 20px; line-height: 1.55; }
+.modal-box textarea { width: 100%; padding: 14px; border-radius: 12px; border: 2px solid #e2e8f0; font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 600; outline: none; resize: vertical; min-height: 90px; }
+.modal-box textarea:focus { border-color: var(--lilas); }
+.modal-acoes { display: flex; gap: 10px; margin-top: 20px; }
+.modal-acoes button { flex: 1; padding: 14px; border-radius: 50px; border: none; font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 900; cursor: pointer; }
+.btn-cancelar { background: transparent; color: var(--cinza-fonte); border: 2px solid #e2e8f0; }
+.btn-confirmar { background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; }
+.btn-confirmar.perigo { background: linear-gradient(135deg, #ef4444, #b91c1c); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="index.html"><i class="fa-solid fa-arrow-left"></i> Voltar ao painel</a>
+  <h1><i class="fa-solid fa-trash" style="color: var(--vermelho);"></i> Solicitações de Exclusão</h1>
+</div>
+
+<div class="wrap">
+
+  <div class="filtros">
+    <button class="ativo" data-filtro="pendentes">Pendentes</button>
+    <button data-filtro="todas">Todas</button>
+  </div>
+
+  <div id="lista-container">
+    <div class="loader"><i class="fa-solid fa-spinner fa-spin"></i><br>Carregando...</div>
+  </div>
+
+</div>
+
+<div class="modal" id="modal-acao">
+  <div class="modal-box">
+    <h2 id="modal-titulo">Confirmar</h2>
+    <p id="modal-descricao">—</p>
+    <textarea id="modal-observacao" placeholder="Observação (opcional)"></textarea>
+    <div class="modal-acoes">
+      <button class="btn-cancelar" id="modal-cancelar">Cancelar</button>
+      <button class="btn-confirmar" id="modal-confirmar">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  "use strict";
+
+  var TOKEN_KEY = 'afeto_admin_token';
+  var token = null;
+
+  try { token = localStorage.getItem(TOKEN_KEY); } catch (e) {}
+
+  if (!token) {
+    try { token = localStorage.getItem('admin_token') || localStorage.getItem('token'); } catch (e) {}
+  }
+
+  if (!token) {
+    alert('Você não está logado como admin. Faça login novamente.');
+    window.location.href = 'index.html';
+    return;
+  }
+
+  var filtroAtual = 'pendentes';
+
+  function escapeHTML(txt) {
+    if (!txt) return '';
+    var div = document.createElement('div');
+    div.textContent = String(txt);
+    return div.innerHTML;
+  }
+
+  function formatarData(iso) {
+    if (!iso) return '—';
+    try {
+      var d = new Date(iso);
+      return d.toLocaleDateString('pt-BR') + ' às ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    } catch (e) { return '—'; }
+  }
+
+  async function carregar() {
+    var container = document.getElementById('lista-container');
+    container.innerHTML = '<div class="loader"><i class="fa-solid fa-spinner fa-spin"></i><br>Carregando...</div>';
+
+    try {
+      var resp = await fetch('/api/admin/exclusoes?filtro=' + filtroAtual, {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+
+      if (resp.status === 401) {
+        alert('Sessão expirada. Faça login novamente.');
+        window.location.href = 'index.html';
+        return;
+      }
+
+      var data = await resp.json();
+
+      if (!resp.ok) {
+        container.innerHTML = '<div class="vazio"><i class="fa-solid fa-triangle-exclamation"></i>Erro ao carregar: ' + escapeHTML(data.error || 'desconhecido') + '</div>';
+        return;
+      }
+
+      var lista = data.solicitacoes || [];
+
+      if (lista.length === 0) {
+        container.innerHTML = '<div class="vazio"><i class="fa-solid fa-circle-check"></i>Nenhuma solicitação ' + (filtroAtual === 'pendentes' ? 'pendente' : 'encontrada') + ' 💜</div>';
+        return;
+      }
+
+      var html = '';
+      lista.forEach(function(s) {
+        var c = s.cuidador || {};
+        var nome = c.nome || 'Cuidadora desconhecida';
+        var inicial = nome.charAt(0).toUpperCase();
+        var fotoHTML = c.foto_url
+          ? '<img src="' + c.foto_url + '" alt="' + escapeHTML(nome) + '">'
+          : inicial;
+
+        var classeCard = s.status === 'pendente' ? 'pendente' : 'resolvida';
+        var badgeHTML = '<span class="badge-status badge-' + s.status + '">' + s.status + '</span>';
+
+        var acoesHTML = '';
+        if (s.status === 'pendente') {
+          acoesHTML = '' +
+            '<div class="acoes">' +
+              '<button class="btn-aprovar" data-id="' + s.id + '" data-acao="aprovar">🗑️ Aprovar</button>' +
+              '<button class="btn-rejeitar" data-id="' + s.id + '" data-acao="rejeitar">Rejeitar</button>' +
+            '</div>';
+        }
+
+        var motivoHTML = s.motivo
+          ? '<div class="motivo"><strong>Motivo:</strong> ' + escapeHTML(s.motivo) + '</div>'
+          : '';
+
+        var obsHTML = s.observacao
+          ? '<div class="motivo"><strong>Sua observação:</strong> ' + escapeHTML(s.observacao) + '</div>'
+          : '';
+
+        html += '' +
+          '<div class="card ' + classeCard + '">' +
+            '<div class="avatar">' + fotoHTML + '</div>' +
+            '<div class="info">' +
+              '<h3>' + escapeHTML(nome) + ' ' + badgeHTML + '</h3>' +
+              '<div class="meta">' +
+                '<span>🆔 ' + escapeHTML((s.cuidador_id || '').substring(0, 8)) + '...</span>' +
+                '<span>📱 ' + escapeHTML(c.whatsapp || '—') + '</span>' +
+                '<span>🕒 ' + formatarData(s.criado_em) + '</span>' +
+              '</div>' +
+              motivoHTML +
+              obsHTML +
+            '</div>' +
+            acoesHTML +
+          '</div>';
+      });
+
+      container.innerHTML = html;
+
+      container.querySelectorAll('.btn-aprovar').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          abrirModalAcao(this.getAttribute('data-id'), 'aprovar');
+        });
+      });
+      container.querySelectorAll('.btn-rejeitar').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          abrirModalAcao(this.getAttribute('data-id'), 'rejeitar');
+        });
+      });
+
+    } catch (err) {
+      console.error('Erro:', err);
+      container.innerHTML = '<div class="vazio"><i class="fa-solid fa-triangle-exclamation"></i>Erro de conexão.</div>';
+    }
+  }
+
+  var idPendente = null;
+  var acaoPendente = null;
+
+  function abrirModalAcao(id, acao) {
+    idPendente = id;
+    acaoPendente = acao;
+
+    var titulo = document.getElementById('modal-titulo');
+    var desc = document.getElementById('modal-descricao');
+    var btnConfirmar = document.getElementById('modal-confirmar');
+
+    if (acao === 'aprovar') {
+      titulo.textContent = '⚠️ Confirmar exclusão?';
+      desc.textContent = 'Todos os dados pessoais serão apagados. O plano ativo será cancelado. Essa ação não pode ser desfeita.';
+      btnConfirmar.textContent = 'Aprovar exclusão';
+      btnConfirmar.classList.add('perigo');
+    } else {
+      titulo.textContent = 'Rejeitar solicitação?';
+      desc.textContent = 'A cuidadora não terá os dados apagados. Você pode adicionar uma observação.';
+      btnConfirmar.textContent = 'Rejeitar';
+      btnConfirmar.classList.remove('perigo');
+    }
+
+    document.getElementById('modal-observacao').value = '';
+    document.getElementById('modal-acao').classList.add('ativo');
+  }
+
+  document.getElementById('modal-cancelar').addEventListener('click', function() {
+    document.getElementById('modal-acao').classList.remove('ativo');
+  });
+
+  document.getElementById('modal-acao').addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('ativo');
+  });
+
+  document.getElementById('modal-confirmar').addEventListener('click', async function() {
+    if (!idPendente || !acaoPendente) return;
+
+    var btn = this;
+    btn.disabled = true;
+    btn.textContent = 'Processando...';
+
+    var observacao = document.getElementById('modal-observacao').value.trim();
+
+    try {
+      var resp = await fetch('/api/admin/exclusoes?id=' + encodeURIComponent(idPendente), {
+        method: 'PATCH',
+        headers: {
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ acao: acaoPendente, observacao: observacao })
+      });
+
+      var data = await resp.json();
+
+      if (!resp.ok) {
+        alert('Erro: ' + (data.error || 'Falha'));
+        btn.disabled = false;
+        btn.textContent = 'Confirmar';
+        return;
+      }
+
+      document.getElementById('modal-acao').classList.remove('ativo');
+      carregar();
+
+    } catch (err) {
+      alert('Erro de conexão.');
+      btn.disabled = false;
+      btn.textContent = 'Confirmar';
+    }
+  });
+
+  document.querySelectorAll('.filtros button').forEach(function(b) {
+    b.addEventListener('click', function() {
+      document.querySelectorAll('.filtros button').forEach(function(x) { x.classList.remove('ativo'); });
+      this.classList.add('ativo');
+      filtroAtual = this.getAttribute('data-filtro');
+      carregar();
+    });
+  });
+
+  carregar();
+
+})();
+</script>
+</body>
+</html>

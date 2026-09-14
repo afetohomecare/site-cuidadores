@@ -23,6 +23,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
 .menu-item.ativo { background: rgba(139,92,246,0.15); color: white; border-left-color: var(--lilas); }
 .menu-item i { width: 20px; text-align: center; font-size: 16px; }
 .menu-item .soon { margin-left: auto; font-size: 9px; background: rgba(255,255,255,0.15); padding: 2px 6px; border-radius: 20px; font-weight: 900; letter-spacing: 0.5px; }
+.menu-item .badge-alerta { margin-left: auto; font-size: 10px; background: var(--vermelho); color: white; padding: 2px 8px; border-radius: 20px; font-weight: 900; min-width: 20px; text-align: center; }
 .sidebar-user { margin-top: auto; padding: 20px 24px 0; border-top: 1px solid rgba(255,255,255,0.08); }
 .sidebar-user .email { font-size: 12px; color: rgba(255,255,255,0.5); font-weight: 700; word-break: break-all; margin-bottom: 10px; }
 .sidebar-user .btn-sair { width: 100%; background: rgba(255,255,255,0.08); color: white; border: none; padding: 10px; border-radius: 10px; font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 13px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
@@ -85,6 +86,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
 .bulk-bar.ativo { display: flex; }
 .bulk-bar .info { font-weight: 900; font-size: 14px; color: var(--lilas-escuro); }
 .bulk-bar .btn-acao { padding: 9px 18px; font-size: 13px; }
+.bulk-bar .btn-limpar { background: transparent; color: var(--cinza); border: 2px solid #e2e8f0; }
 
 /* CARD CUIDADORA */
 .card { background: white; border-radius: 20px; padding: 20px 22px; border: 1px solid #e2e8f0; display: grid; grid-template-columns: 24px 64px 1fr auto; gap: 16px; align-items: center; transition: 0.2s; }
@@ -166,10 +168,11 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
 
 @media (max-width: 900px) {
   .sidebar { width: 70px; }
-  .sidebar-logo span, .sidebar-sub, .menu-item span:not(.soon), .sidebar-user .email { display: none; }
+  .sidebar-logo span, .sidebar-sub, .menu-item span:not(.soon):not(.badge-alerta), .sidebar-user .email { display: none; }
   .sidebar-logo { justify-content: center; padding: 0 0 20px; }
   .menu-item { justify-content: center; padding: 14px; }
   .menu-item .soon { display: none; }
+  .menu-item .badge-alerta { position: absolute; top: 8px; right: 8px; }
   .main { margin-left: 70px; padding: 20px 16px; }
   .card { grid-template-columns: 24px 52px 1fr; }
   .card-foto { width: 52px; height: 52px; }
@@ -192,6 +195,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
     <li class="menu-item ativo" data-tab="dashboard"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></li>
     <li class="menu-item" data-tab="cuidadoras"><i class="fa-solid fa-users"></i><span>Cuidadoras</span></li>
     <li class="menu-item" data-tab="mensagens"><i class="fa-solid fa-comments"></i><span>Mensagens</span></li>
+    <li class="menu-item" onclick="window.location.href='exclusoes.html'"><i class="fa-solid fa-trash"></i><span>Exclusões</span><span class="badge-alerta" id="badge-exclusoes" style="display:none;">0</span></li>
     <li class="menu-item" onclick="window.location.href='cupons.html'"><i class="fa-solid fa-ticket"></i><span>Cupons</span></li>
     <li class="menu-item" onclick="window.location.href='config.html'"><i class="fa-solid fa-gear"></i><span>Configurações</span></li>
   </ul>
@@ -270,6 +274,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
       <button class="btn-acao btn-aprovar" onclick="bulkAprovar(true)"><i class="fa-solid fa-check"></i> Aprovar todas</button>
       <button class="btn-acao btn-reprovar" onclick="bulkAprovar(false)"><i class="fa-solid fa-xmark"></i> Reprovar todas</button>
       <button class="btn-acao btn-pago" onclick="bulkPago()"><i class="fa-solid fa-dollar-sign"></i> Marcar pagas</button>
+      <button class="btn-acao btn-limpar" onclick="limparSelecao()"><i class="fa-solid fa-xmark"></i> Limpar</button>
     </div>
 
     <div class="lista" id="lista-cuidadoras">
@@ -469,7 +474,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
       document.getElementById('s-vencidas').textContent = n.vencidas;
       document.getElementById('s-vencendo').textContent = n.vencendoEm7Dias;
       document.getElementById('s-novas').textContent = n.novasUltimos7Dias;
-      document.getElementById('s-conversao').textContent = n.taxaConversao + '%';
+      document.getElementById('s-conversao').textContent = (n.taxaConversao || 0) + '%';
 
       var topBairros = document.getElementById('top-bairros');
       topBairros.innerHTML = data.topBairros.length === 0
@@ -482,6 +487,25 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
         : data.topCupons.map(function(c) { return '<li><span>' + esc(c.cupom) + '</span><span class="valor">' + c.total + ' usos</span></li>'; }).join('');
 
     } catch (err) { console.error(err); }
+  }
+
+  async function carregarBadgeExclusoes() {
+    try {
+      var resp = await api('/api/admin/exclusoes?filtro=pendentes');
+      if (!resp.ok) return;
+      var data = await resp.json();
+      var pendentes = (data.solicitacoes || []).length;
+
+      var badge = document.getElementById('badge-exclusoes');
+      if (pendentes > 0) {
+        badge.textContent = pendentes;
+        badge.style.display = 'inline-block';
+      } else {
+        badge.style.display = 'none';
+      }
+    } catch (err) {
+      console.warn('Erro ao carregar badge exclusões:', err);
+    }
   }
 
   async function carregarCuidadoras() {
@@ -611,6 +635,12 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
     atualizarBulkBar();
   };
 
+  window.limparSelecao = function() {
+    selecionadas.clear();
+    atualizarBulkBar();
+    renderizarLista();
+  };
+
   function atualizarBulkBar() {
     var bar = document.getElementById('bulk-bar');
     document.getElementById('bulk-count').textContent = selecionadas.size;
@@ -720,7 +750,8 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
   };
 
   document.getElementById('wpp-template').addEventListener('change', function() {
-    var t = templates.find(function(x) { return x.id === this.value; }.bind(this));
+    var idSelecionado = this.value;
+    var t = templates.find(function(x) { return x.id === idSelecionado; });
     if (!t) { document.getElementById('wpp-mensagem').value = ''; return; }
 
     var c = cuidadoras.find(function(x) { return x.id === wppCuidadoraId; });
@@ -838,6 +869,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
   };
 
   carregarDashboard();
+  carregarBadgeExclusoes();
 
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {

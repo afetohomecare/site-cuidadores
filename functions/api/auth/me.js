@@ -1,19 +1,16 @@
 // ============================================================
 // AFETO — API: dados da cuidadora logada
-// ------------------------------------------------------------
-// Valida o JWT do header Authorization e devolve
-// todos os dados do perfil dela (sem CPF nem dados sensíveis
-// desnecessários).
 // ============================================================
 
 const CAMPOS_RETORNO = [
-  'id', 'nome', 'whatsapp', 'foto_url', 'apresentacao', 'motivacao',
+  'id', 'nome', 'whatsapp', 'foto_url', 'foto_url_pendente', 'foto_pendente',
+  'apresentacao', 'motivacao',
   'especialidade', 'experiencia', 'bairro', 'bairros', 'preco', 'turno',
   'cursos', 'subespecialidades', 'coren', 'categoria', 'nota', 'horas',
   'verificada', 'disponivel', 'disponivel_atualizado_em',
   'plano_cadastro', 'plano_profissional', 'plano_destaque',
   'plano_inicio', 'plano_valido_ate', 'status_pagamento', 'aprovada',
-  'criado_em', 'atualizado_em',
+  'excluido', 'criado_em', 'atualizado_em',
   'mostrar_bio', 'mostrar_habilidades', 'mostrar_cursos', 'mostrar_bairros',
   'mostrar_preco', 'mostrar_selo_identidade', 'mostrar_selo_coren',
   'mostrar_selo_verificada', 'mostrar_selo_horas', 'mostrar_selo_top'
@@ -27,7 +24,6 @@ export async function onRequestGet(context) {
   }
 
   try {
-    // ---------- VALIDA JWT ----------
     const auth = request.headers.get('Authorization') || '';
     const token = auth.replace('Bearer ', '').trim();
 
@@ -49,7 +45,6 @@ export async function onRequestGet(context) {
     const userData = await userResp.json();
     const authUserId = userData.id;
 
-    // ---------- BUSCA CUIDADORA PELO auth_user_id ----------
     const buscaUrl = env.SUPABASE_URL + '/rest/v1/cuidadores?auth_user_id=eq.' +
                      encodeURIComponent(authUserId) +
                      '&select=' + CAMPOS_RETORNO.join(',') +
