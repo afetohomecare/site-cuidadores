@@ -1,8 +1,7 @@
 // functions/api/asaas/status.js
 // Consulta o status de uma cobrança no Asaas (usado no polling da tela de checkout)
 
-const ASAAS_URL = 'https://api-sandbox.asaas.com/v3'; // ⚠️ SANDBOX
-// const ASAAS_URL = 'https://api.asaas.com/v3';      // PRODUÇÃO (trocar depois)
+const ASAAS_URL = 'https://api.asaas.com/v3';  // ✅ PRODUÇÃO
 
 export async function onRequestGet(context) {
   const { request, env } = context;

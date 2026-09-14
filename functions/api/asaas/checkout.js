@@ -10,8 +10,7 @@
 //   destaque     → mensal (30 dias)
 // ============================================================
 
-const ASAAS_URL = 'https://api-sandbox.asaas.com/v3'; // ⚠️ SANDBOX
-// const ASAAS_URL = 'https://api.asaas.com/v3';       // PRODUÇÃO
+const ASAAS_URL = 'https://api.asaas.com/v3';  // ✅ PRODUÇÃO
 
 // Quantos dias o plano fica válido após pagamento
 function diasDoPlano(plano) {
@@ -310,7 +309,7 @@ async function validarCupom(env, codigo, plano, valorBase) {
   } else {
     desconto = parseFloat(cupom.valor);
   }
-  // 🔒 Limita o desconto ao valor do plano — nunca gera dívida
+  // Limita o desconto ao valor do plano — nunca gera dívida
   desconto = Math.min(desconto, valorBase);
   desconto = Math.round(desconto * 100) / 100;
 

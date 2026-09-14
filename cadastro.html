@@ -475,14 +475,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
         <textarea id="cursos" name="cursos" placeholder="Ex:&#10;Curso de Cuidador de Idosos (120h) — SENAC&#10;Primeiros Socorros (40h) — Cruz Vermelha"></textarea>
       </div>
 
-      <div class="secao-titulo"><i class="fa-solid fa-heart"></i> Indicação</div>
-
-      <div class="campo">
-        <label for="indicadoPor">Código de quem te indicou (opcional):</label>
-        <span class="ajuda">Se alguém te indicou a Afeto, digite o código dela aqui. Isso ajuda ela a ganhar benefícios 💜</span>
-        <input type="text" id="indicadoPor" name="indicadoPor" placeholder="Ex: 12345" maxlength="20">
-      </div>
-
       <div class="termos">
         <div class="termos-titulo">⚖️ Antes de enviar, precisamos do seu consentimento</div>
 
@@ -733,7 +725,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     btnEnviar.classList.add('pago');
     btnEnviar.innerHTML = 'Ir para pagamento <i class="fa-solid fa-arrow-right"></i>';
   } else {
-    // Fallback improvável
     badge.className = 'badge-plano basico';
     badge.innerHTML = '<i class="fa-solid fa-link"></i> Cadastro Básico';
     subtitulo.textContent = 'Preencha os dados abaixo. Seu perfil vai ao ar após a aprovação da nossa equipe.';
