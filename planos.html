@@ -219,11 +219,11 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
             <div class="card-preco">
                 <div class="linha-preco">
                     <span class="cifra">R$</span>
-                    <span class="valor">24</span>
-                    <span class="centavos">,90</span>
+                    <span class="valor" id="preco-prof-valor">24</span>
+                    <span class="centavos" id="preco-prof-cent">,90</span>
                     <span class="periodo">/mês</span>
                 </div>
-                <div class="por-dia">R$ 0,83 por dia</div>
+                <div class="por-dia" id="por-dia-prof">R$ 0,83 por dia</div>
                 <div class="nota">Cancele quando quiser</div>
             </div>
 
@@ -250,11 +250,11 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
             <div class="card-preco">
                 <div class="linha-preco">
                     <span class="cifra">R$</span>
-                    <span class="valor">69</span>
-                    <span class="centavos">,90</span>
+                    <span class="valor" id="preco-dest-valor">69</span>
+                    <span class="centavos" id="preco-dest-cent">,90</span>
                     <span class="periodo">/mês</span>
                 </div>
-                <div class="por-dia">R$ 2,33 por dia</div>
+                <div class="por-dia" id="por-dia-dest">R$ 2,33 por dia</div>
                 <div class="nota">Cancele quando quiser</div>
             </div>
 
@@ -425,6 +425,52 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
 
     </div>
 </footer>
+
+<script>
+(function() {
+  "use strict";
+
+  // ============================================================
+  // PREÇOS DINÂMICOS — busca da tabela config do Supabase
+  // Se falhar, mantém os valores hardcoded do HTML como fallback.
+  // ============================================================
+  function formatarPreco(valor) {
+    var n = parseFloat(valor);
+    if (isNaN(n)) return null;
+    var inteiro = Math.floor(n);
+    var centavos = Math.round((n - inteiro) * 100);
+    if (centavos === 100) { inteiro += 1; centavos = 0; }
+    return {
+      inteiro: String(inteiro),
+      centavos: ',' + (centavos < 10 ? '0' + centavos : String(centavos)),
+      porDia: 'R$ ' + (n / 30).toFixed(2).replace('.', ',') + ' por dia'
+    };
+  }
+
+  function aplicarPreco(sufixo, valor) {
+    var f = formatarPreco(valor);
+    if (!f) return;
+    var elValor = document.getElementById('preco-' + sufixo + '-valor');
+    var elCent = document.getElementById('preco-' + sufixo + '-cent');
+    var elDia = document.getElementById('por-dia-' + sufixo);
+    if (elValor) elValor.textContent = f.inteiro;
+    if (elCent) elCent.textContent = f.centavos;
+    if (elDia) elDia.textContent = f.porDia;
+  }
+
+  fetch('/api/config-publica')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (!data || !data.ok || !data.precos) return;
+      if (data.precos.preco_profissional) aplicarPreco('prof', data.precos.preco_profissional);
+      if (data.precos.preco_destaque) aplicarPreco('dest', data.precos.preco_destaque);
+    })
+    .catch(function(err) {
+      console.warn('Preços dinâmicos indisponíveis, usando fallback:', err);
+    });
+
+})();
+</script>
 
 </body>
 </html>

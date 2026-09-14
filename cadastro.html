@@ -1007,9 +1007,9 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   });
 
   // ========================================================================
-  // 💳 CHECKOUT ASAAS — versão final
+  // 💳 CHECKOUT ASAAS
   // ========================================================================
-  var dadosCheckout = { recordId: null, plano: null, nome: null, cobrancaId: null, pixData: null, pago: false };
+  var dadosCheckout = { recordId: null, plano: null, nome: null, cobrancaId: null, pixData: null, pago: false, precoBaseFmt: '24,90' };
   var enviando = false;
 
   // ========================================================================
@@ -1081,7 +1081,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
         document.querySelector('.checkout-tabs').style.display = 'none';
         document.getElementById('tab-pix').classList.remove('ativo');
         document.getElementById('tab-cartao').classList.remove('ativo');
-        document.getElementById('checkout-valor').innerHTML = '0,00<small>/mês</small>';
+        document.querySelector('.checkout-valor').innerHTML = 'R$ <span id="checkout-valor">0,00</span>';
         avisoEl.style.display = 'block';
         valorFinalEl.textContent = '0,00';
 
@@ -1116,11 +1116,12 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
         }, 1500);
 
       } else {
-        document.getElementById('checkout-valor').innerHTML =
-          valorFinal.toFixed(2).replace('.', ',') + '<small>/mês</small>';
-        document.getElementById('cartao-valor').textContent = valorFinal.toFixed(2).replace('.', ',');
+        var valorFmt = valorFinal.toFixed(2).replace('.', ',');
+        document.getElementById('checkout-valor').textContent = valorFmt;
+        document.getElementById('cartao-valor').textContent = valorFmt;
+        dadosCheckout.precoBaseFmt = valorFmt;
         avisoEl.style.display = 'block';
-        valorFinalEl.textContent = 'R$ ' + valorFinal.toFixed(2).replace('.', ',');
+        valorFinalEl.textContent = 'R$ ' + valorFmt;
       }
 
       btn.disabled = false;
@@ -1157,11 +1158,11 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   }
 
   // ========================================================================
-  // 🔄 POLLING — verifica status a cada 3s
+  // 🔄 POLLING
   // ========================================================================
   var pollingTimer = null;
   var pollingTentativas = 0;
-  var MAX_TENTATIVAS = 200; // 200 * 3s = 10 minutos
+  var MAX_TENTATIVAS = 200;
 
   function iniciarPollingPagamento() {
     pararPollingPagamento();
@@ -1212,10 +1213,9 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   }
 
   // ========================================================================
-  // 🔓 ABRIR / FECHAR CHECKOUT
+  // 🔓 ABRIR / FECHAR CHECKOUT (async — busca preço real)
   // ========================================================================
-  window.abrirCheckout = function(recordId, planoParam, nomeParam) {
-    // Se já temos cobrança criada pra ESSE cadastro, só reabre
+  window.abrirCheckout = async function(recordId, planoParam, nomeParam) {
     if (dadosCheckout.recordId === recordId && dadosCheckout.cobrancaId) {
       document.getElementById('tela-checkout').classList.add('ativo');
       document.body.style.overflow = 'hidden';
@@ -1225,10 +1225,9 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       return;
     }
 
-    // Cria cobrança nova
-    dadosCheckout = { recordId: recordId, plano: planoParam, nome: nomeParam, cobrancaId: null, pixData: null, pago: false };
+    dadosCheckout = { recordId: recordId, plano: planoParam, nome: nomeParam, cobrancaId: null, pixData: null, pago: false, precoBaseFmt: '24,90' };
 
-    // Reseta cupom + UI
+    // Reset cupom + UI
     cupomAplicado = null;
     var avisoDescEl = document.getElementById('checkout-desconto-aviso');
     if (avisoDescEl) avisoDescEl.style.display = 'none';
@@ -1237,12 +1236,34 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       blocoCupomEl.innerHTML = '<label style="font-size: 13px; font-weight: 800; color: var(--lilas-escuro); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-ticket"></i> Tem cupom de desconto?</label><div style="display: flex; gap: 8px; align-items: stretch;"><input type="text" id="cupom-input" placeholder="Digite seu código" maxlength="20" style="flex: 1; padding: 12px 14px; border-radius: 12px; border: 2px solid #e2e8f0; font-family: \'Nunito\', sans-serif; font-size: 14px; font-weight: 800; text-transform: uppercase; outline: none;"><button type="button" onclick="aplicarCupom()" id="cupom-btn" style="background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; border: none; padding: 12px 20px; border-radius: 12px; font-family: \'Nunito\', sans-serif; font-size: 13px; font-weight: 900; cursor: pointer; white-space: nowrap;">Aplicar</button></div><div id="cupom-msg" style="margin-top: 10px; font-size: 12.5px; font-weight: 800; display: none;"></div>';
     }
     document.querySelector('.checkout-tabs').style.display = '';
-    var valorPadraoReset = planoParam === 'destaque' ? '69,90' : '24,90';
-    document.getElementById('checkout-valor').innerHTML = valorPadraoReset + '<small>/mês</small>';
-    document.getElementById('cartao-valor').textContent = valorPadraoReset;
     document.querySelector('.checkout-header h2').innerHTML = 'Pagamento seguro';
     document.getElementById('checkout-plano-nome').textContent =
       'Plano ' + (planoParam === 'destaque' ? 'Destaque' : 'Profissional') + ' Afeto';
+
+    // Restaura o /mês caso tenha sido removido pelo cupom 100%
+    document.querySelector('.checkout-valor').innerHTML = 'R$ <span id="checkout-valor">...</span><small>/mês</small>';
+    document.getElementById('cartao-valor').textContent = '...';
+
+    // Busca preço real
+    var precoReal = null;
+    try {
+      var cr = await fetch('/api/config-publica');
+      var cd = await cr.json();
+      if (cd && cd.ok && cd.precos) {
+        var chave = planoParam === 'destaque' ? 'preco_destaque' : 'preco_profissional';
+        if (cd.precos[chave]) precoReal = cd.precos[chave];
+      }
+    } catch (e) {
+      console.warn('Não foi possível buscar preço dinâmico:', e);
+    }
+
+    var precoFmt = precoReal
+      ? precoReal.toFixed(2).replace('.', ',')
+      : (planoParam === 'destaque' ? '69,90' : '24,90');
+
+    dadosCheckout.precoBaseFmt = precoFmt;
+    document.getElementById('checkout-valor').textContent = precoFmt;
+    document.getElementById('cartao-valor').textContent = precoFmt;
 
     document.getElementById('tab-pix').classList.add('ativo');
     document.getElementById('tab-cartao').classList.remove('ativo');
@@ -1307,6 +1328,21 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
         document.getElementById('checkout-erro-text').textContent = (data.error || 'Falha') + (data.detalhe ? ' — ' + JSON.stringify(data.detalhe).substring(0, 150) : '');
         return;
       }
+
+      // Atualiza display com o valor real do backend (só se NÃO tem cupom aplicado)
+      var valorExibir = (data.valorFinal !== undefined && data.valorFinal !== null)
+        ? data.valorFinal
+        : data.valor;
+      if (valorExibir !== undefined && valorExibir !== null && !cupomAplicado) {
+        var vf = parseFloat(valorExibir);
+        if (!isNaN(vf)) {
+          var vfFmt = vf.toFixed(2).replace('.', ',');
+          document.getElementById('checkout-valor').textContent = vfFmt;
+          document.getElementById('cartao-valor').textContent = vfFmt;
+          dadosCheckout.precoBaseFmt = vfFmt;
+        }
+      }
+
       if (data.pix && data.pix.qrCodeImage) {
         document.getElementById('pix-qrcode').innerHTML = '<img src="data:image/png;base64,' + data.pix.qrCodeImage + '" alt="QR Code Pix">';
         document.getElementById('pix-codigo').value = data.pix.copiaECola || '';
@@ -1380,7 +1416,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       if (!resp.ok || !data.ok) {
         alert('Erro no pagamento: ' + (data.error || 'Falha') + '\n' + (data.detalhe ? JSON.stringify(data.detalhe).substring(0, 200) : ''));
         btn.disabled = false;
-        btn.innerHTML = '<i class="fa-solid fa-lock"></i> Pagar R$ ' + (dadosCheckout.plano === 'destaque' ? '69,90' : '24,90');
+        btn.innerHTML = '<i class="fa-solid fa-lock"></i> Pagar R$ ' + dadosCheckout.precoBaseFmt;
         return;
       }
       dadosCheckout.pago = true;
@@ -1391,7 +1427,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     } catch (err) {
       alert('Erro: ' + err.message);
       btn.disabled = false;
-      btn.innerHTML = '<i class="fa-solid fa-lock"></i> Pagar';
+      btn.innerHTML = '<i class="fa-solid fa-lock"></i> Pagar R$ ' + dadosCheckout.precoBaseFmt;
     }
   };
 
@@ -1445,7 +1481,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     e.preventDefault();
     if (enviando) return;
 
-    // Se já temos cobrança criada, só reabre o checkout (não refaz nada)
     if (dadosCheckout.recordId && dadosCheckout.cobrancaId && !dadosCheckout.pago) {
       document.getElementById('tela-checkout').classList.add('ativo');
       document.body.style.overflow = 'hidden';
@@ -1520,7 +1555,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
         linkPerfil = resultado.data.linkPerfil || ('https://afetocuidadores.pages.dev/perfil.html?id=' + resultado.data.recordId);
       }
 
-      // PLANO PAGO → abre checkout transparente
       if (ehPago) {
         if (linkPerfil) {
           try {
@@ -1533,7 +1567,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
         return;
       }
 
-      // PLANO GRÁTIS → tela de sucesso
       var inputLink = document.getElementById('link-perfil-input');
       var blocoLink = document.getElementById('bloco-link');
       if (inputLink && linkPerfil) inputLink.value = linkPerfil;
