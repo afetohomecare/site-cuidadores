@@ -5,7 +5,7 @@
 // Cache curto (30s) para não sobrecarregar o Supabase.
 // ============================================================
 
-const CHAVES_PUBLICAS = ['preco_profissional', 'preco_destaque'];
+const CHAVES_PUBLICAS = ['preco_cadastro', 'preco_profissional', 'preco_destaque'];
 
 export async function onRequestGet(context) {
   const { env } = context;

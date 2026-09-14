@@ -27,7 +27,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 
 .badge-plano { display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; padding: 9px 22px; border-radius: 50px; font-size: 13px; font-weight: 900; letter-spacing: 0.5px; box-shadow: 0 10px 25px rgba(139,92,246,0.25); animation: fadeInBadge 0.5s ease; }
 @keyframes fadeInBadge { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
-.badge-plano.gratis { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 10px 25px rgba(16,185,129,0.25); }
+.badge-plano.basico { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 10px 25px rgba(16,185,129,0.25); }
 
 .form-card { background: white; border-radius: 30px; padding: 40px; box-shadow: 0 25px 60px rgba(139,92,246,0.1); border: 1px solid #e2e8f0; }
 
@@ -306,8 +306,8 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       <span>Afeto</span>
     </a>
 
-    <div id="badge-plano" class="badge-plano gratis">
-      <i class="fa-solid fa-check"></i> Plano Grátis
+    <div id="badge-plano" class="badge-plano basico">
+      <i class="fa-solid fa-link"></i> Cadastro Básico
     </div>
 
     <h1>Vamos criar seu <span>perfil Afeto</span></h1>
@@ -505,7 +505,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       </div>
 
       <button type="submit" id="btn-enviar" class="btn-enviar">
-        Criar meu cadastro <i class="fa-solid fa-heart"></i>
+        Continuar <i class="fa-solid fa-arrow-right"></i>
       </button>
     </form>
   </div>
@@ -534,7 +534,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       <span class="emoji">💜</span>
       <div class="txt" id="bloco-gratis-txt">
         <strong>O próximo passo é com a gente</strong>
-        Nossa equipe vai conhecer sua história com calma. Em até 48h úteis, seu perfil estará no ar pra que famílias possam te encontrar. Você continua no <strong>plano Grátis</strong> — e pode migrar pra um plano pago quando quiser.
+        Nossa equipe vai conhecer sua história com calma. Em até 48h úteis, seu perfil estará no ar pra que famílias possam te encontrar.
       </div>
     </div>
 
@@ -593,8 +593,8 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     <div class="checkout-header">
       <div class="checkout-icone"><i class="fa-solid fa-lock"></i></div>
       <h2>Pagamento seguro</h2>
-      <p id="checkout-plano-nome">Plano Profissional Afeto</p>
-      <div class="checkout-valor">R$ <span id="checkout-valor">24,90</span><small>/mês</small></div>
+      <p id="checkout-plano-nome">Plano Cadastro Básico Afeto</p>
+      <div class="checkout-valor">R$ <span id="checkout-valor">9,90</span><small id="checkout-periodo">/ano</small></div>
       <div id="checkout-desconto-aviso" style="display: none; text-align: center; font-size: 12px; font-weight: 800; color: #10b981; margin-top: 6px;">
         <i class="fa-solid fa-check"></i> Desconto aplicado — você paga <span id="checkout-valor-final">0,00</span>
       </div>
@@ -670,7 +670,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
           </div>
         </div>
         <button type="button" class="btn-pagar-cartao" onclick="pagarCartao()">
-          <i class="fa-solid fa-lock"></i> Pagar R$ <span id="cartao-valor">24,90</span>
+          <i class="fa-solid fa-lock"></i> Pagar R$ <span id="cartao-valor">9,90</span>
         </button>
         <p class="cartao-aviso"><i class="fa-solid fa-shield-halved"></i> Seus dados são criptografados e processados pelo Asaas.</p>
       </div>
@@ -699,8 +699,13 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   "use strict";
 
   var params = new URLSearchParams(window.location.search);
-  var plano = (params.get('plano') || 'gratis').toLowerCase();
-  var ehPago = (plano === 'profissional' || plano === 'destaque');
+  var planoBruto = (params.get('plano') || 'cadastro').toLowerCase();
+
+  // Retrocompatibilidade: ?plano=gratis agora aponta pro Cadastro Básico
+  if (planoBruto === 'gratis') planoBruto = 'cadastro';
+
+  var plano = planoBruto;
+  var ehPago = (plano === 'cadastro' || plano === 'profissional' || plano === 'destaque');
 
   var badge = document.getElementById('badge-plano');
   var subtitulo = document.getElementById('subtitulo-dinamico');
@@ -714,17 +719,26 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   var headerTop = document.querySelector('.header-top');
   var linkAvisoTexto = document.getElementById('link-aviso-texto');
 
-  if (ehPago) {
+  // Ajusta badge, subtítulo e botão conforme o plano
+  if (plano === 'cadastro') {
+    badge.className = 'badge-plano basico';
+    badge.innerHTML = '<i class="fa-solid fa-link"></i> Cadastro Básico';
+    subtitulo.textContent = 'Preencha seus dados com calma. Ao final, você vai direto para o pagamento seguro — e seu perfil já fica pronto pra receber famílias pelo seu link.';
+    btnEnviar.classList.add('pago');
+    btnEnviar.innerHTML = 'Ir para pagamento <i class="fa-solid fa-arrow-right"></i>';
+  } else if (plano === 'profissional' || plano === 'destaque') {
     badge.className = 'badge-plano';
     badge.innerHTML = '<i class="fa-solid fa-star"></i> Plano ' + (plano === 'profissional' ? 'Profissional' : 'Destaque');
     subtitulo.textContent = 'Preencha seus dados com calma. Ao final, você vai direto para o pagamento seguro.';
     btnEnviar.classList.add('pago');
     btnEnviar.innerHTML = 'Ir para pagamento <i class="fa-solid fa-arrow-right"></i>';
   } else {
-    badge.className = 'badge-plano gratis';
-    badge.innerHTML = '<i class="fa-solid fa-check"></i> Plano Grátis';
+    // Fallback improvável
+    badge.className = 'badge-plano basico';
+    badge.innerHTML = '<i class="fa-solid fa-link"></i> Cadastro Básico';
     subtitulo.textContent = 'Preencha os dados abaixo. Seu perfil vai ao ar após a aprovação da nossa equipe.';
-    btnEnviar.innerHTML = 'Criar meu cadastro <i class="fa-solid fa-heart"></i>';
+    btnEnviar.classList.add('pago');
+    btnEnviar.innerHTML = 'Ir para pagamento <i class="fa-solid fa-arrow-right"></i>';
   }
 
   // Botão copiar link
@@ -1009,7 +1023,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   // ========================================================================
   // 💳 CHECKOUT ASAAS
   // ========================================================================
-  var dadosCheckout = { recordId: null, plano: null, nome: null, cobrancaId: null, pixData: null, pago: false, precoBaseFmt: '24,90' };
+  var dadosCheckout = { recordId: null, plano: null, nome: null, cobrancaId: null, pixData: null, pago: false, precoBaseFmt: '9,90', periodo: '/ano' };
   var enviando = false;
 
   // ========================================================================
@@ -1086,8 +1100,10 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
         valorFinalEl.textContent = '0,00';
 
         document.querySelector('.checkout-header h2').innerHTML = 'Cupom aplicado! 🎉';
-        document.getElementById('checkout-plano-nome').textContent =
-          'Plano ' + (dadosCheckout.plano === 'destaque' ? 'Destaque' : 'Profissional') + ' Afeto — Grátis';
+        var nomePlano = dadosCheckout.plano === 'cadastro' ? 'Cadastro Básico'
+                      : dadosCheckout.plano === 'destaque' ? 'Destaque'
+                      : 'Profissional';
+        document.getElementById('checkout-plano-nome').textContent = 'Plano ' + nomePlano + ' Afeto — Liberado';
 
         setTimeout(async function() {
           try {
@@ -1144,7 +1160,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     textoSucesso.innerHTML = 'Alguém muito especial indicou você — e a gente adorou te receber assim. Seu plano já está <strong>ativo e sem custo nenhum</strong>.';
     blocoGratis.style.display = 'flex';
     blocoGratis.className = 'bloco-info lilas';
-    blocoGratisTxt.innerHTML = '<strong>Você ganhou um presente 💜</strong> O cupom <strong>' + (cupomCodigo || '') + '</strong> te deu acesso ao plano completo. Nossa equipe vai revisar seu perfil com carinho — e em até 48h úteis você estará no ar, pronta pra receber famílias.';
+    blocoGratisTxt.innerHTML = '<strong>Você ganhou um presente 💜</strong> O cupom <strong>' + (cupomCodigo || '') + '</strong> liberou seu plano completo. Nossa equipe vai revisar seu perfil com carinho — e em até 48h úteis você estará no ar, pronta pra receber famílias.';
     var blocoLink = document.getElementById('bloco-link');
     if (blocoLink) blocoLink.style.display = 'block';
     if (linkAvisoTexto) {
@@ -1213,7 +1229,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   }
 
   // ========================================================================
-  // 🔓 ABRIR / FECHAR CHECKOUT (async — busca preço real)
+  // 🔓 ABRIR / FECHAR CHECKOUT
   // ========================================================================
   window.abrirCheckout = async function(recordId, planoParam, nomeParam) {
     if (dadosCheckout.recordId === recordId && dadosCheckout.cobrancaId) {
@@ -1225,7 +1241,19 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       return;
     }
 
-    dadosCheckout = { recordId: recordId, plano: planoParam, nome: nomeParam, cobrancaId: null, pixData: null, pago: false, precoBaseFmt: '24,90' };
+    var ehAnual = (planoParam === 'cadastro');
+    var periodoLabel = ehAnual ? '/ano' : '/mês';
+
+    dadosCheckout = {
+      recordId: recordId,
+      plano: planoParam,
+      nome: nomeParam,
+      cobrancaId: null,
+      pixData: null,
+      pago: false,
+      precoBaseFmt: ehAnual ? '9,90' : '24,90',
+      periodo: periodoLabel
+    };
 
     // Reset cupom + UI
     cupomAplicado = null;
@@ -1237,11 +1265,14 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     }
     document.querySelector('.checkout-tabs').style.display = '';
     document.querySelector('.checkout-header h2').innerHTML = 'Pagamento seguro';
-    document.getElementById('checkout-plano-nome').textContent =
-      'Plano ' + (planoParam === 'destaque' ? 'Destaque' : 'Profissional') + ' Afeto';
 
-    // Restaura o /mês caso tenha sido removido pelo cupom 100%
-    document.querySelector('.checkout-valor').innerHTML = 'R$ <span id="checkout-valor">...</span><small>/mês</small>';
+    var nomePlano = planoParam === 'cadastro' ? 'Cadastro Básico'
+                  : planoParam === 'destaque' ? 'Destaque'
+                  : 'Profissional';
+    document.getElementById('checkout-plano-nome').textContent = 'Plano ' + nomePlano + ' Afeto';
+
+    // Restaura HTML com /ano ou /mês
+    document.querySelector('.checkout-valor').innerHTML = 'R$ <span id="checkout-valor">...</span><small id="checkout-periodo">' + periodoLabel + '</small>';
     document.getElementById('cartao-valor').textContent = '...';
 
     // Busca preço real
@@ -1250,16 +1281,23 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       var cr = await fetch('/api/config-publica');
       var cd = await cr.json();
       if (cd && cd.ok && cd.precos) {
-        var chave = planoParam === 'destaque' ? 'preco_destaque' : 'preco_profissional';
+        var chave = planoParam === 'cadastro' ? 'preco_cadastro'
+                  : planoParam === 'destaque' ? 'preco_destaque'
+                  : 'preco_profissional';
         if (cd.precos[chave]) precoReal = cd.precos[chave];
       }
     } catch (e) {
       console.warn('Não foi possível buscar preço dinâmico:', e);
     }
 
-    var precoFmt = precoReal
-      ? precoReal.toFixed(2).replace('.', ',')
-      : (planoParam === 'destaque' ? '69,90' : '24,90');
+    var precoFmt;
+    if (precoReal) {
+      precoFmt = precoReal.toFixed(2).replace('.', ',');
+    } else {
+      precoFmt = planoParam === 'cadastro' ? '9,90'
+               : planoParam === 'destaque' ? '69,90'
+               : '24,90';
+    }
 
     dadosCheckout.precoBaseFmt = precoFmt;
     document.getElementById('checkout-valor').textContent = precoFmt;
@@ -1289,9 +1327,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     var btn = document.getElementById('btn-enviar');
     if (btn && btn.disabled) {
       btn.disabled = false;
-      btn.innerHTML = ehPago
-        ? 'Ir para pagamento <i class="fa-solid fa-arrow-right"></i>'
-        : 'Criar meu cadastro <i class="fa-solid fa-heart"></i>';
+      btn.innerHTML = 'Ir para pagamento <i class="fa-solid fa-arrow-right"></i>';
     }
     enviando = false;
   };
@@ -1329,7 +1365,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
         return;
       }
 
-      // Atualiza display com o valor real do backend (só se NÃO tem cupom aplicado)
       var valorExibir = (data.valorFinal !== undefined && data.valorFinal !== null)
         ? data.valorFinal
         : data.valor;
@@ -1463,7 +1498,19 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     textoSucesso.innerHTML = 'Seu cadastro foi enviado com sucesso. <strong>Em até 48h</strong> você estará no ar com todos os benefícios do seu plano.';
     blocoGratis.style.display = 'flex';
     blocoGratis.className = 'bloco-info lilas';
-    blocoGratisTxt.innerHTML = '<strong>O próximo passo é com a gente 💜</strong> Nossa equipe vai revisar seu perfil com carinho. Em até 48h úteis você estará no ar com <strong>todos os benefícios do seu plano</strong>: foto, bio, cursos, selo Verificada, aparecer nas buscas, e mais. Avisamos você pelo WhatsApp assim que estiver liberado.';
+
+    var nomePlano = dadosCheckout.plano === 'cadastro' ? 'Cadastro Básico'
+                  : dadosCheckout.plano === 'destaque' ? 'Destaque'
+                  : 'Profissional';
+
+    var msgBloco;
+    if (dadosCheckout.plano === 'cadastro') {
+      msgBloco = '<strong>O próximo passo é com a gente 💜</strong> Nossa equipe vai revisar seu perfil com carinho. Em até 48h úteis você estará no ar com seu <strong>Cadastro Básico ativo</strong> — link exclusivo e todos os recursos essenciais pra você divulgar e receber famílias. Avisamos pelo WhatsApp assim que estiver liberado.';
+    } else {
+      msgBloco = '<strong>O próximo passo é com a gente 💜</strong> Nossa equipe vai revisar seu perfil com carinho. Em até 48h úteis você estará no ar com <strong>todos os benefícios do plano ' + nomePlano + '</strong>: foto, bio, cursos, selo Verificada, aparecer nas buscas, e mais. Avisamos você pelo WhatsApp assim que estiver liberado.';
+    }
+    blocoGratisTxt.innerHTML = msgBloco;
+
     var blocoLink = document.getElementById('bloco-link');
     if (blocoLink) blocoLink.style.display = 'block';
     if (linkAvisoTexto) {
@@ -1514,9 +1561,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     enviando = true;
     btnEnviar.disabled = true;
     var textoOriginal = btnEnviar.innerHTML;
-    btnEnviar.innerHTML = ehPago
-      ? 'Salvando e abrindo pagamento... <span style="display:inline-block;width:16px;height:16px;border:3px solid rgba(255,255,255,0.4);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite;"></span>'
-      : 'Enviando... <span style="display:inline-block;width:16px;height:16px;border:3px solid rgba(255,255,255,0.4);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite;"></span>';
+    btnEnviar.innerHTML = 'Salvando e abrindo pagamento... <span style="display:inline-block;width:16px;height:16px;border:3px solid rgba(255,255,255,0.4);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite;"></span>';
 
     try {
       var dados = new FormData(form);
@@ -1555,25 +1600,16 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
         linkPerfil = resultado.data.linkPerfil || ('https://afetocuidadores.pages.dev/perfil.html?id=' + resultado.data.recordId);
       }
 
-      if (ehPago) {
-        if (linkPerfil) {
-          try {
-            localStorage.setItem('afeto_link_perfil', linkPerfil);
-            localStorage.setItem('afeto_plano', plano);
-          } catch (e) {}
-        }
-        var nomeCuidadora = document.getElementById('nome').value.trim();
-        abrirCheckout(resultado.data.recordId, plano, nomeCuidadora);
-        return;
+      // Todos os planos agora vão pro checkout
+      if (linkPerfil) {
+        try {
+          localStorage.setItem('afeto_link_perfil', linkPerfil);
+          localStorage.setItem('afeto_plano', plano);
+        } catch (e) {}
       }
-
-      var inputLink = document.getElementById('link-perfil-input');
-      var blocoLink = document.getElementById('bloco-link');
-      if (inputLink && linkPerfil) inputLink.value = linkPerfil;
-      if (blocoLink) blocoLink.style.display = 'block';
-      formArea.style.display = 'none';
-      telaSucesso.classList.add('ativo');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      var nomeCuidadora = document.getElementById('nome').value.trim();
+      abrirCheckout(resultado.data.recordId, plano, nomeCuidadora);
+      return;
 
     } catch (err) {
       btnEnviar.disabled = false;

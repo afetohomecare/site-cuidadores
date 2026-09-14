@@ -46,12 +46,6 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
 .header h1 { font-size: 28px; font-weight: 900; letter-spacing: -1px; margin-bottom: 12px; line-height: 1.2; }
 .header p { font-size: 15px; color: var(--cinza-fonte); font-weight: 700; max-width: 520px; margin: 0 auto; line-height: 1.55; }
 
-.banner-ativo { background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 1px solid #6ee7b7; border-radius: 16px; padding: 18px 22px; margin-bottom: 28px; display: flex; align-items: center; gap: 14px; }
-.banner-ativo .check-icone { width: 44px; height: 44px; background: linear-gradient(135deg, #10b981, #059669); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; box-shadow: 0 8px 20px rgba(16,185,129,0.3); }
-.banner-ativo .texto { flex: 1; }
-.banner-ativo h3 { font-size: 15px; font-weight: 900; color: #065f46; margin-bottom: 3px; }
-.banner-ativo p { font-size: 13px; color: #047857; font-weight: 700; line-height: 1.5; margin: 0; }
-
 .cards { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; align-items: stretch; margin-bottom: 24px; }
 
 .card { background: white; border-radius: 20px; padding: 30px 24px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; transition: 0.3s; position: relative; }
@@ -80,8 +74,8 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
 .card-lista li strong { color: var(--preto-fonte); }
 
 .card-btn { display: flex; align-items: center; justify-content: center; width: 100%; padding: 13px; border-radius: 12px; font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 900; cursor: pointer; text-decoration: none; transition: 0.3s; border: none; }
-.card-btn.gratis-btn { background: var(--verde-claro); color: #059669; border: 1px solid #6ee7b7; }
-.card-btn.gratis-btn:hover { background: #d1fae5; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(16,185,129,0.2); }
+.card-btn.cadastro-btn { background: var(--verde-claro); color: #059669; border: 1px solid #6ee7b7; }
+.card-btn.cadastro-btn:hover { background: #d1fae5; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(16,185,129,0.2); }
 .card-btn.profissional-btn { background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; box-shadow: 0 8px 20px rgba(139,92,246,0.3); }
 .card-btn.profissional-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(139,92,246,0.4); }
 .card-btn.destaque-btn { background: transparent; color: var(--preto-fonte); border: 2px solid var(--ouro); }
@@ -146,8 +140,6 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
     .card.profissional::before { font-size: 9px; padding: 4px 12px; }
     .header h1 { font-size: 23px; }
     .header p { font-size: 14px; }
-    .banner-ativo { flex-direction: column; text-align: center; padding: 16px 18px; }
-    .banner-ativo .check-icone { margin: 0 auto; }
     .comparativo { padding: 22px 14px; }
     .comparativo-tabela th, .comparativo-tabela td { font-size: 11.5px; padding: 9px 4px; }
     .comparativo-tabela th:first-child, .comparativo-tabela td:first-child { font-size: 12px; }
@@ -173,28 +165,22 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
             <span class="logo__text">Afeto</span>
         </div>
         <h1>Escolha como quer aparecer</h1>
-        <p>Seu perfil profissional na Afeto. Comece grátis e ative recursos quando fizer sentido para você.</p>
-    </div>
-
-    <div class="banner-ativo">
-        <div class="check-icone"><i class="fa-solid fa-check"></i></div>
-        <div class="texto">
-            <h3>Seu cadastro já está ativo no plano Grátis 💜</h3>
-            <p>Você já pode compartilhar seu link e usar seu cartão de visita digital. Quando quiser aparecer nas buscas, é só ativar um plano.</p>
-        </div>
+        <p>Seu perfil profissional na Afeto. Comece pelo Cadastro Básico e cresça quando fizer sentido para você.</p>
     </div>
 
     <div class="cards">
 
-        <div class="card gratis">
-            <div class="card-nome"><i class="fa-solid fa-link"></i> Grátis</div>
+        <div class="card cadastro">
+            <div class="card-nome"><i class="fa-solid fa-link"></i> Cadastro Básico</div>
 
             <div class="card-preco">
                 <div class="linha-preco">
                     <span class="cifra">R$</span>
-                    <span class="valor">0</span>
+                    <span class="valor" id="preco-cad-valor">9</span>
+                    <span class="centavos" id="preco-cad-cent">,90</span>
+                    <span class="periodo">/ano</span>
                 </div>
-                <div class="nota">Para sempre</div>
+                <div class="nota">Pague uma vez — perfil é seu</div>
             </div>
 
             <div class="card-divisor"></div>
@@ -205,10 +191,11 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
                 <li><i class="fa-solid fa-check"></i> Use na bio do Instagram</li>
                 <li><i class="fa-solid fa-check"></i> Use no status do WhatsApp</li>
                 <li><i class="fa-solid fa-check"></i> Você divulga, você recebe</li>
+                <li><i class="fa-solid fa-check"></i> Sem cobrança mensal</li>
             </ul>
 
-            <a href="cadastro.html?plano=gratis" class="card-btn gratis-btn">
-                <i class="fa-solid fa-heart" style="margin-right: 8px;"></i> Começar Grátis
+            <a href="cadastro.html?plano=cadastro" class="card-btn cadastro-btn">
+                <i class="fa-solid fa-heart" style="margin-right: 8px;"></i> Criar meu Cadastro
             </a>
             <div class="card-nota">Seu cartão de visita digital</div>
         </div>
@@ -230,7 +217,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
             <div class="card-divisor"></div>
 
             <ul class="card-lista">
-                <li><i class="fa-solid fa-check"></i> <strong>Tudo do plano Grátis</strong></li>
+                <li><i class="fa-solid fa-check"></i> <strong>Tudo do Cadastro Básico</strong></li>
                 <li><i class="fa-solid fa-check"></i> Foto e bio profissional</li>
                 <li><i class="fa-solid fa-check"></i> <strong>Suas especialidades</strong> no perfil</li>
                 <li><i class="fa-solid fa-check"></i> Selo <strong>Verificada Afeto</strong></li>
@@ -298,7 +285,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
             <thead>
                 <tr>
                     <th>Recurso</th>
-                    <th>Grátis</th>
+                    <th>Cadastro Básico</th>
                     <th class="destaque-col">Profissional</th>
                     <th class="destaque-col">Destaque</th>
                 </tr>
@@ -358,7 +345,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
 
     <div class="info-bloco">
         <div class="icone"><i class="fa-solid fa-circle-info"></i></div>
-        <p><strong>Todos os planos incluem:</strong> cadastro permanente, suporte por WhatsApp e liberdade para mudar de plano a qualquer momento. O plano Grátis é gratuito para sempre.</p>
+        <p><strong>Todos os planos incluem:</strong> cadastro permanente, suporte por WhatsApp e liberdade para mudar de plano a qualquer momento.</p>
     </div>
 
     <div class="rodape-seguranca">
@@ -431,8 +418,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
   "use strict";
 
   // ============================================================
-  // PREÇOS DINÂMICOS — busca da tabela config do Supabase
-  // Se falhar, mantém os valores hardcoded do HTML como fallback.
+  // PREÇOS DINÂMICOS — /api/config-publica
   // ============================================================
   function formatarPreco(valor) {
     var n = parseFloat(valor);
@@ -462,6 +448,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
     .then(function(r) { return r.json(); })
     .then(function(data) {
       if (!data || !data.ok || !data.precos) return;
+      if (data.precos.preco_cadastro) aplicarPreco('cad', data.precos.preco_cadastro);
       if (data.precos.preco_profissional) aplicarPreco('prof', data.precos.preco_profissional);
       if (data.precos.preco_destaque) aplicarPreco('dest', data.precos.preco_destaque);
     })
