@@ -26,16 +26,32 @@ export async function onRequestGet(context) {
       }
     });
 
-    const data = await resp.json();
+    // Lê como texto primeiro pra não quebrar se vier vazio
+    const texto = await resp.text();
+
+    let data = null;
+    try {
+      data = JSON.parse(texto);
+    } catch (e) {
+      // Asaas respondeu algo que não é JSON — devolve o que veio pra debug
+      return jsonResp({
+        ok: false,
+        debug: 'Asaas respondeu em formato inesperado',
+        status_asaas: resp.status,
+        corpo_recebido: texto.substring(0, 500),
+        dica: 'Se o corpo estiver vazio (status 401), a chave API está errada ou tem caractere extra.'
+      }, 502);
+    }
 
     if (!resp.ok) {
       console.error('Asaas status erro:', JSON.stringify(data));
-      return jsonResp({ error: 'Falha ao consultar status', detalhe: data }, 502);
+      return jsonResp({
+        ok: false,
+        status_asaas: resp.status,
+        resposta_asaas: data
+      }, 502);
     }
 
-    // Status possíveis do Asaas:
-    // PENDING, AWAITING_RISK_ANALYSIS, APPROVED_BY_RISK_ANALYSIS,
-    // RECEIVED (pago), CONFIRMED (pago), OVERDUE, REFUNDED, etc.
     const pago = data.status === 'RECEIVED' || data.status === 'CONFIRMED';
 
     return jsonResp({
@@ -49,7 +65,11 @@ export async function onRequestGet(context) {
 
   } catch (err) {
     console.error('Erro status:', err);
-    return jsonResp({ error: 'Falha no processamento', detalhe: String(err.message) }, 500);
+    return jsonResp({
+      ok: false,
+      error: 'Falha no processamento',
+      detalhe: String(err.message)
+    }, 500);
   }
 }
 
