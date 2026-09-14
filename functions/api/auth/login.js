@@ -2,7 +2,7 @@
 // AFETO — API: login da cuidadora
 // ------------------------------------------------------------
 // Aceita CPF (11 dígitos) OU WhatsApp (10-11 dígitos).
-// Converte pra email fake e chama Supabase Auth.
+// Busca pelo valor formatado E limpo (compatibilidade).
 // ============================================================
 
 export async function onRequestPost(context) {
@@ -28,20 +28,26 @@ export async function onRequestPost(context) {
     }
 
     // ---------- BUSCA CUIDADORA ----------
-    // Busca por CPF limpo, CPF formatado OU WhatsApp limpo
+    // Busca por:
+    //   - CPF formatado (com pontos e traço)
+    //   - CPF limpo (só números)
+    //   - WhatsApp formatado
+    //   - WhatsApp limpo
     const filtro = 'or=(' +
+      'cpf.eq.' + encodeURIComponent(identificador) + ',' +
       'cpf.eq.' + encodeURIComponent(idLimpo) + ',' +
-      'whatsapp.eq.' + encodeURIComponent(idLimpo) + ',' +
-      'whatsapp.eq.' + encodeURIComponent(identificador) +
+      'whatsapp.eq.' + encodeURIComponent(identificador) + ',' +
+      'whatsapp.eq.' + encodeURIComponent(idLimpo) +
     ')';
 
-    const buscaUrl = env.SUPABASE_URL + '/rest/v1/cuidadores?select=id,cpf,status_pagamento,auth_user_id,nome&' + filtro + '&limit=1';
+    const buscaUrl = env.SUPABASE_URL + '/rest/v1/cuidadores?select=id,cpf,whatsapp,status_pagamento,auth_user_id,nome&' + filtro + '&limit=1';
 
     const buscaResp = await fetch(buscaUrl, {
       headers: headersSupabase(env)
     });
 
     if (!buscaResp.ok) {
+      console.error('Erro busca:', buscaResp.status, await buscaResp.text());
       return jsonResp({ error: 'Falha ao consultar banco.' }, 502);
     }
 
@@ -61,6 +67,7 @@ export async function onRequestPost(context) {
     const cpfLimpo = (cuidadora.cpf || '').replace(/\D/g, '');
 
     if (cpfLimpo.length !== 11) {
+      console.error('CPF inválido no banco:', cuidadora.cpf);
       return jsonResp({ error: 'Cadastro com CPF inválido. Contate o suporte.' }, 500);
     }
 
@@ -83,7 +90,7 @@ export async function onRequestPost(context) {
     const authData = await authResp.json();
 
     if (!authResp.ok) {
-      console.warn('Login falhou:', authResp.status);
+      console.warn('Login Auth falhou:', authResp.status);
       return jsonResp({ error: 'Senha incorreta. Tente novamente.' }, 401);
     }
 
