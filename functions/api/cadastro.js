@@ -1,24 +1,9 @@
 // ============================================================
 // AFETO — API: cadastro de cuidadora
-// ------------------------------------------------------------
-// Fluxo:
-//   1. Recebe o formulário (FormData)
-//   2. Verifica se CPF ou WhatsApp já existem na tabela cuidadores
-//      • Se sim → UPDATE
-//      • Se não → INSERT
-//   3. Se vier foto, sobe pro Supabase Storage (bucket "fotos")
-//   4. Atualiza o registro com a URL pública da foto
-//   5. Notifica o Telegram
-//
-// Devolve o UUID do registro (usado depois no checkout e no link
-// do perfil: perfil.html?id=<uuid>)
 // ============================================================
 
 const BUCKET_FOTOS = 'fotos';
 
-// ============================================================
-// HANDLER PRINCIPAL
-// ============================================================
 export async function onRequest(context) {
   if (context.request.method !== 'POST') {
     return jsonResp({ error: 'Método não permitido' }, 405);
@@ -33,7 +18,6 @@ export async function onRequest(context) {
   try {
     const form = await context.request.formData();
 
-    // ---------- 1. LÊ CAMPOS DO FORMULÁRIO ----------
     const nome           = campo(form, 'nome');
     const whatsapp       = campo(form, 'whatsapp');
     const cpf            = campo(form, 'cpf');
@@ -48,7 +32,7 @@ export async function onRequest(context) {
     const subespecialStr = campo(form, 'subespecialidades');
     const cursosStr      = campo(form, 'cursos');
     const indicadoPor    = campo(form, 'indicadoPor');
-    const plano          = (campo(form, 'plano') || 'gratis').toLowerCase();
+    const plano          = (campo(form, 'plano') || 'cadastro').toLowerCase();
     const foto           = form.get('foto');
 
     if (!nome || !whatsapp || !cpf) {
@@ -58,20 +42,26 @@ export async function onRequest(context) {
     const cpfLimpo   = cpf.replace(/\D/g, '');
     const whatsLimpo = whatsapp.replace(/\D/g, '');
 
-    // ---------- 2. DEFINE STATUS INICIAL PELO PLANO ----------
-    let statusPagamento   = 'Gratuito';
+    // ---------- STATUS INICIAL PELO PLANO ----------
+    // Todos os planos agora passam pelo pagamento.
+    // Só existem 3: cadastro (9,90/ano), profissional (mensal), destaque (mensal).
+    let statusPagamento   = 'AguardandoPagamento';
+    let planoCadastro     = false;
     let planoProfissional = false;
     let planoDestaque     = false;
 
-    if (plano === 'profissional') {
-      statusPagamento   = 'AguardandoPagamento';
+    if (plano === 'cadastro') {
+      planoCadastro = true;
+    } else if (plano === 'profissional') {
       planoProfissional = true;
     } else if (plano === 'destaque') {
-      statusPagamento = 'AguardandoPagamento';
-      planoDestaque   = true;
+      planoDestaque = true;
+    } else {
+      // Plano desconhecido — assume cadastro como fallback seguro
+      planoCadastro = true;
     }
 
-    // ---------- 3. MONTA O OBJETO PRA GRAVAR ----------
+    // ---------- MONTA O OBJETO ----------
     const bairrosArray = bairrosStr
       .split('|')
       .map(function (b) { return b.trim(); })
@@ -108,13 +98,14 @@ export async function onRequest(context) {
       status_pagamento:   statusPagamento,
       aprovada:           false,
       disponivel:         true,
+      plano_cadastro:     planoCadastro,
       plano_profissional: planoProfissional,
       plano_destaque:     planoDestaque
     };
 
     if (coren) campos.coren = coren;
 
-    // ---------- 4. PROCURA REGISTRO EXISTENTE (CPF ou WhatsApp) ----------
+    // ---------- PROCURA EXISTENTE ----------
     const filtro = 'or=(cpf.eq.' + encodeURIComponent(cpfLimpo) + ',whatsapp.eq.' + encodeURIComponent(whatsLimpo) + ')';
     const buscaUrl = env.SUPABASE_URL + '/rest/v1/cuidadores?select=id&' + filtro + '&limit=1';
 
@@ -131,14 +122,12 @@ export async function onRequest(context) {
     const encontrados = await buscaResp.json();
     const registroExistente = encontrados.length > 0 ? encontrados[0].id : null;
 
-    // ---------- 5. INSERE OU ATUALIZA ----------
+    // ---------- INSERE OU ATUALIZA ----------
     let cuidadorId;
     let foiCriado = false;
 
     if (registroExistente) {
-      // UPDATE
       cuidadorId = registroExistente;
-
       const updateUrl = env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadorId;
       const updateResp = await fetch(updateUrl, {
         method: 'PATCH',
@@ -152,7 +141,6 @@ export async function onRequest(context) {
         return jsonResp({ error: 'Falha ao atualizar', detalhe: txt.substring(0, 300) }, 502);
       }
     } else {
-      // INSERT
       const insertResp = await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores', {
         method: 'POST',
         headers: headersSupabase(env, true, true),
@@ -173,7 +161,7 @@ export async function onRequest(context) {
       foiCriado = true;
     }
 
-    // ---------- 6. UPLOAD DA FOTO (SE HOUVER) ----------
+    // ---------- UPLOAD DA FOTO ----------
     let fotoEnviada = false;
     let fotoErro = null;
     let fotoUrl = null;
@@ -182,7 +170,6 @@ export async function onRequest(context) {
       try {
         const nomeArquivo = cuidadorId + '.jpg';
         const caminho = BUCKET_FOTOS + '/' + nomeArquivo;
-
         const buffer = await foto.arrayBuffer();
 
         const uploadUrl = env.SUPABASE_URL + '/storage/v1/object/' + caminho;
@@ -201,10 +188,8 @@ export async function onRequest(context) {
           throw new Error('[' + uploadResp.status + '] ' + txt.substring(0, 200));
         }
 
-        // Monta URL pública da foto
         fotoUrl = env.SUPABASE_URL + '/storage/v1/object/public/' + caminho;
 
-        // Atualiza o registro com a URL da foto
         const patchUrl = env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadorId;
         const patchResp = await fetch(patchUrl, {
           method: 'PATCH',
@@ -226,14 +211,12 @@ export async function onRequest(context) {
       fotoErro = 'Sem arquivo de foto';
     }
 
-    // ---------- 7. LINK DO PERFIL ----------
     const linkPerfil = 'https://afetocuidadores.pages.dev/perfil.html?id=' + cuidadorId;
 
-    // ---------- 8. TELEGRAM ----------
     await notificarTelegram(env, {
       titulo: foiCriado
-        ? (plano === 'gratis' ? '💜 Novo cadastro GRÁTIS' : '🎉 Novo cadastro ' + plano.toUpperCase())
-        : (plano === 'gratis' ? '💜 Cadastro GRÁTIS atualizado' : '🎉 Cadastro ' + plano.toUpperCase() + ' atualizado'),
+        ? '💜 Novo cadastro ' + plano.toUpperCase()
+        : '💜 Cadastro ' + plano.toUpperCase() + ' atualizado',
       nome: nome,
       whatsapp: whatsapp,
       cpf: cpf,
@@ -247,7 +230,6 @@ export async function onRequest(context) {
       fotoErro: fotoErro
     });
 
-    // ---------- 9. RESPOSTA ----------
     return jsonResp({
       ok: true,
       recordId: cuidadorId,
@@ -255,7 +237,7 @@ export async function onRequest(context) {
       linkPerfil: linkPerfil,
       fotoEnviada: fotoEnviada,
       fotoErro: fotoErro,
-      precisaPagar: (plano === 'profissional' || plano === 'destaque')
+      precisaPagar: true  // todos os planos agora passam pelo checkout
     }, 200);
 
   } catch (err) {
@@ -283,7 +265,6 @@ function jsonResp(obj, status) {
   });
 }
 
-// Monta os headers pra chamar o Supabase (PostgREST)
 function headersSupabase(env, temBody, querRetorno) {
   const h = {
     'apikey': env.SUPABASE_SERVICE_KEY,
@@ -295,9 +276,6 @@ function headersSupabase(env, temBody, querRetorno) {
   return h;
 }
 
-// ============================================================
-// NOTIFICAÇÃO TELEGRAM
-// ============================================================
 async function notificarTelegram(env, dados) {
   try {
     const token = env.TELEGRAM_BOT_TOKEN;
@@ -310,7 +288,7 @@ async function notificarTelegram(env, dados) {
       hour: '2-digit', minute: '2-digit'
     });
 
-    const planoTexto = dados.plano === 'gratis' ? 'Grátis'
+    const planoTexto = dados.plano === 'cadastro' ? 'Cadastro Básico'
                      : dados.plano === 'profissional' ? 'Profissional'
                      : dados.plano === 'destaque' ? 'Destaque' : dados.plano;
 

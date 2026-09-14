@@ -1,7 +1,17 @@
 // ============================================================
 // AFETO — Webhook do Asaas
 // Ao confirmar pagamento: atualiza cuidador + registra cupom
+//
+// Planos:
+//   cadastro     → +365 dias
+//   profissional → +30 dias
+//   destaque     → +30 dias
 // ============================================================
+
+function diasDoPlano(plano) {
+  if (plano === 'cadastro') return 365;
+  return 30;
+}
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -31,9 +41,33 @@ export async function onRequestPost(context) {
         });
       }
 
+      // Lê dados do cuidador pra saber qual plano ele tem
+      let cuidador = null;
+      try {
+        const cResp = await fetch(
+          env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadorId +
+          '&select=cupom_usado,plano_cadastro,plano_profissional,plano_destaque&limit=1',
+          { headers: headersSupabase(env) }
+        );
+        if (cResp.ok) {
+          const linhas = await cResp.json();
+          cuidador = linhas && linhas[0];
+        }
+      } catch (err) {
+        console.warn('Erro ao ler cuidador no webhook:', err);
+      }
+
+      // Decide o plano pra calcular os dias
+      let planoDetectado = 'profissional';
+      if (cuidador) {
+        if (cuidador.plano_cadastro) planoDetectado = 'cadastro';
+        else if (cuidador.plano_destaque) planoDetectado = 'destaque';
+        else if (cuidador.plano_profissional) planoDetectado = 'profissional';
+      }
+
       const agora = new Date();
       const vence = new Date(agora);
-      vence.setDate(vence.getDate() + 30);
+      vence.setDate(vence.getDate() + diasDoPlano(planoDetectado));
 
       // 1. Atualiza cuidador
       await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadorId, {
@@ -46,16 +80,8 @@ export async function onRequestPost(context) {
         })
       });
 
-      // 2. Se tem cupom e ainda não registrou, registra agora
+      // 2. Registra uso de cupom, se houver e ainda não foi registrado
       try {
-        const resp = await fetch(
-          env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadorId +
-          '&select=cupom_usado,plano_profissional,plano_destaque&limit=1',
-          { headers: headersSupabase(env) }
-        );
-        const linhas = await resp.json();
-        const cuidador = linhas && linhas[0];
-
         if (cuidador && cuidador.cupom_usado) {
           const cupomResp = await fetch(
             env.SUPABASE_URL + '/rest/v1/cupons?codigo=eq.' +
@@ -81,9 +107,7 @@ export async function onRequestPost(context) {
                   cupom_id: cupom.id,
                   cupom_codigo: cupom.codigo,
                   cuidador_id: cuidadorId,
-                  plano: cuidador.plano_destaque ? 'destaque'
-                       : cuidador.plano_profissional ? 'profissional'
-                       : 'cadastro',
+                  plano: planoDetectado,
                   valor_original: payment.value,
                   valor_desconto: 0,
                   valor_final: payment.value,
@@ -109,6 +133,7 @@ export async function onRequestPost(context) {
         const valor = payment.value ? 'R$ ' + payment.value.toFixed(2).replace('.', ',') : '';
 
         const mensagem = '💰 *Pagamento recebido!*\n\n' + forma + ' — ' + valor + '\n\n' +
+          'Plano: *' + planoDetectado + '*\n' +
           'ID Supabase: `' + cuidadorId + '`\n\n' +
           '✅ Status: Pago\n' +
           '✅ Válido até ' + vence.toLocaleDateString('pt-BR') + '\n\n' +

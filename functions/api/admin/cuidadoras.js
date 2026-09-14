@@ -1,20 +1,11 @@
 // ============================================================
 // AFETO — API Admin: gerenciar cuidadoras
-// ------------------------------------------------------------
-// GET  /api/admin/cuidadoras                    → lista tudo
-// GET  /api/admin/cuidadoras?filtro=pendentes   → filtra
-// GET  /api/admin/cuidadoras?busca=maria        → busca
-// GET  /api/admin/cuidadoras?bairro=Centro      → filtra bairro
-// GET  /api/admin/cuidadoras?plano=profissional → filtra plano
-// PATCH /api/admin/cuidadoras?id=xxx            → 1 update
-// POST  /api/admin/cuidadoras                   → bulk update
-//        body: { ids: [...], campos: {...} }
 // ============================================================
 
 const CAMPOS_PERMITIDOS = [
   'aprovada', 'status_pagamento', 'disponivel', 'verificada',
   'categoria', 'nota', 'horas', 'comentarios',
-  'plano_profissional', 'plano_destaque',
+  'plano_cadastro', 'plano_profissional', 'plano_destaque',
   'plano_inicio', 'plano_valido_ate'
 ];
 
@@ -23,7 +14,7 @@ const CAMPOS_LISTA = [
   'foto_url', 'apresentacao', 'especialidade', 'experiencia',
   'bairro', 'bairros', 'preco', 'turno', 'cursos', 'subespecialidades',
   'categoria', 'nota', 'horas', 'verificada', 'disponivel',
-  'plano_profissional', 'plano_destaque', 'plano_cadastro',
+  'plano_cadastro', 'plano_profissional', 'plano_destaque',
   'plano_inicio', 'plano_valido_ate',
   'status_pagamento', 'aprovada', 'comentarios', 'indicado_por',
   'asaas_customer_id', 'asaas_cobranca_id', 'cupom_usado',
@@ -65,8 +56,14 @@ function headersSupabase(env, temBody, querRetorno) {
   return h;
 }
 
+// Decide o vencimento baseado no plano do cuidador
+function diasDoPlano(campos) {
+  if (campos.plano_cadastro === true) return 365;
+  return 30;
+}
+
 // ============================================================
-// GET — LISTAR COM FILTROS
+// GET — LISTAR
 // ============================================================
 export async function onRequestGet(context) {
   const { request, env } = context;
@@ -82,7 +79,6 @@ export async function onRequestGet(context) {
     const bairro = url.searchParams.get('bairro');
     const plano  = url.searchParams.get('plano');
 
-    // Buscar uma específica
     if (id) {
       const resp = await fetch(
         env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + id + '&select=' + CAMPOS_LISTA.join(','),
@@ -94,7 +90,6 @@ export async function onRequestGet(context) {
       return jsonResp({ cuidadora: linhas[0] }, 200);
     }
 
-    // Monta filtros
     const params = ['select=' + CAMPOS_LISTA.join(','), 'order=criado_em.desc'];
 
     if (filtro === 'pendentes') {
@@ -103,13 +98,11 @@ export async function onRequestGet(context) {
       params.push('aprovada=eq.true');
     } else if (filtro === 'vencidas') {
       params.push('plano_valido_ate=lt.' + new Date().toISOString());
-      params.push('plano_profissional=eq.true');
     } else if (filtro === 'pagas') {
       params.push('status_pagamento=eq.Pago');
     }
 
     if (busca) {
-      // Busca no nome OU whatsapp
       params.push('or=(nome.ilike.*' + encodeURIComponent(busca) + '*,whatsapp.ilike.*' + encodeURIComponent(busca) + '*)');
     }
 
@@ -117,13 +110,12 @@ export async function onRequestGet(context) {
       params.push('bairro=eq.' + encodeURIComponent(bairro));
     }
 
-    if (plano === 'profissional') {
+    if (plano === 'cadastro') {
+      params.push('plano_cadastro=eq.true');
+    } else if (plano === 'profissional') {
       params.push('plano_profissional=eq.true');
     } else if (plano === 'destaque') {
       params.push('plano_destaque=eq.true');
-    } else if (plano === 'gratis') {
-      params.push('plano_profissional=eq.false');
-      params.push('plano_destaque=eq.false');
     }
 
     const resp = await fetch(
@@ -170,11 +162,26 @@ export async function onRequestPatch(context) {
       return jsonResp({ error: 'Nenhum campo válido pra atualizar' }, 400);
     }
 
-    // Se tá marcando como pago, preenche vencimento automaticamente
+    // Auto-preenche vencimento quando marca como Pago
     if (campos.status_pagamento === 'Pago' && !campos.plano_valido_ate) {
+      // Se não veio plano_cadastro no body, busca do banco
+      let isCadastro = campos.plano_cadastro;
+      if (isCadastro === undefined) {
+        try {
+          const r = await fetch(
+            env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + id + '&select=plano_cadastro&limit=1',
+            { headers: headersSupabase(env) }
+          );
+          if (r.ok) {
+            const l = await r.json();
+            isCadastro = l && l[0] && l[0].plano_cadastro;
+          }
+        } catch (e) {}
+      }
+
       const hoje = new Date();
       const vence = new Date(hoje);
-      vence.setDate(vence.getDate() + 30);
+      vence.setDate(vence.getDate() + (isCadastro ? 365 : 30));
       campos.plano_inicio = hoje.toISOString();
       campos.plano_valido_ate = vence.toISOString();
     }
@@ -228,16 +235,16 @@ export async function onRequestPost(context) {
       return jsonResp({ error: 'Nenhum campo válido' }, 400);
     }
 
-    // Aplica vencimento automático se marcando como pago em lote
+    // Auto-preenche vencimento em lote (usa plano_cadastro do body como referência)
     if (campos.status_pagamento === 'Pago' && !campos.plano_valido_ate) {
       const hoje = new Date();
       const vence = new Date(hoje);
-      vence.setDate(vence.getDate() + 30);
+      const dias = campos.plano_cadastro === true ? 365 : 30;
+      vence.setDate(vence.getDate() + dias);
       campos.plano_inicio = hoje.toISOString();
       campos.plano_valido_ate = vence.toISOString();
     }
 
-    // in.(id1,id2,id3)
     const idList = ids.map(function(i) { return '"' + i + '"'; }).join(',');
     const patchUrl = env.SUPABASE_URL + '/rest/v1/cuidadores?id=in.(' + idList + ')';
 
@@ -261,7 +268,6 @@ export async function onRequestPost(context) {
   }
 }
 
-// CORS
 export async function onRequestOptions() {
   return new Response(null, {
     status: 204,

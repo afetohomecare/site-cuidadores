@@ -3,10 +3,28 @@
 // ------------------------------------------------------------
 // Aceita cupom de desconto. Se o valor final for R$ 0,
 // NÃO chama o Asaas — marca direto como Pago no Supabase.
+//
+// Planos:
+//   cadastro     → anual (365 dias)
+//   profissional → mensal (30 dias)
+//   destaque     → mensal (30 dias)
 // ============================================================
 
 const ASAAS_URL = 'https://api-sandbox.asaas.com/v3'; // ⚠️ SANDBOX
 // const ASAAS_URL = 'https://api.asaas.com/v3';       // PRODUÇÃO
+
+// Quantos dias o plano fica válido após pagamento
+function diasDoPlano(plano) {
+  if (plano === 'cadastro') return 365;
+  return 30; // profissional e destaque
+}
+
+// Nome amigável do plano
+function nomeDoPlano(plano) {
+  if (plano === 'cadastro') return 'Cadastro Básico';
+  if (plano === 'destaque') return 'Destaque';
+  return 'Profissional';
+}
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -71,11 +89,11 @@ export async function onRequestPost(context) {
 
     const valorFinal = Math.max(0, Math.round((valorBase - desconto) * 100) / 100);
 
-    // ---------- 3. SE 100% DESCONTO ----------
+    // ---------- 3. SE 100% DESCONTO (ou desconto >= preço) ----------
     if (valorFinal === 0) {
       const agora = new Date();
       const vence = new Date(agora);
-      vence.setDate(vence.getDate() + 30);
+      vence.setDate(vence.getDate() + diasDoPlano(plano));
 
       if (cuidadorId) {
         await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadorId, {
@@ -97,7 +115,7 @@ export async function onRequestPost(context) {
       return jsonResp({
         ok: true,
         gratis: true,
-        motivo: 'Cupom de 100% aplicado',
+        motivo: 'Cupom aplicado — valor zerado',
         cupom: cupomObj ? cupomObj.codigo : null,
         valorBase: valorBase,
         valorFinal: 0,
@@ -105,7 +123,7 @@ export async function onRequestPost(context) {
       }, 200);
     }
 
-    // ---------- 4. FLUXO NORMAL (COM PAGAMENTO) ----------
+    // ---------- 4. FLUXO NORMAL ----------
     if (!formaPagamento) {
       return jsonResp({ error: 'Forma de pagamento obrigatória' }, 400);
     }
@@ -129,7 +147,7 @@ export async function onRequestPost(context) {
     vencimento.setDate(vencimento.getDate() + 1);
     const dataVencimento = vencimento.toISOString().split('T')[0];
 
-    const descricaoPlano = plano === 'destaque' ? 'Destaque' : plano === 'cadastro' ? 'Ativação' : 'Profissional';
+    const descricaoPlano = nomeDoPlano(plano);
     const sufixoDesconto = desconto > 0 ? ' (desconto de R$ ' + desconto.toFixed(2).replace('.', ',') + ')' : '';
 
     const cobrancaBody = {
@@ -195,7 +213,7 @@ export async function onRequestPost(context) {
     if (pagoNaHora && cuidadorId) {
       const agora = new Date();
       const vence = new Date(agora);
-      vence.setDate(vence.getDate() + 30);
+      vence.setDate(vence.getDate() + diasDoPlano(plano));
 
       await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadorId, {
         method: 'PATCH',
@@ -282,7 +300,7 @@ async function validarCupom(env, codigo, plano, valorBase) {
   }
 
   if (cupom.plano_aplicavel && cupom.plano_aplicavel !== plano) {
-    const nomes = { cadastro: 'Ativação', profissional: 'Profissional', destaque: 'Destaque' };
+    const nomes = { cadastro: 'Cadastro Básico', profissional: 'Profissional', destaque: 'Destaque' };
     return { ok: false, erro: 'Este cupom só vale pro plano ' + (nomes[cupom.plano_aplicavel] || cupom.plano_aplicavel) };
   }
 
@@ -292,6 +310,7 @@ async function validarCupom(env, codigo, plano, valorBase) {
   } else {
     desconto = parseFloat(cupom.valor);
   }
+  // 🔒 Limita o desconto ao valor do plano — nunca gera dívida
   desconto = Math.min(desconto, valorBase);
   desconto = Math.round(desconto * 100) / 100;
 
