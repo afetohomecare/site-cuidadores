@@ -139,6 +139,31 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 .bloco-link .btn-copiar.copiado { background: linear-gradient(135deg, #10b981, #059669); }
 .bloco-link .link-aviso { font-size: 12.5px; color: var(--lilas-escuro); font-weight: 700; line-height: 1.55; display: flex; align-items: center; justify-content: center; gap: 6px; }
 
+/* ============ CRIAR SENHA (NOVO) ============ */
+.bloco-criar-senha { background: linear-gradient(135deg, #f5f3ff, #ede9fe); border: 2px solid var(--lilas); border-radius: 22px; padding: 26px 24px; margin-bottom: 24px; text-align: center; }
+.bloco-criar-senha .titulo { font-size: 17px; font-weight: 900; color: var(--lilas-escuro); margin-bottom: 6px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.bloco-criar-senha .sub { font-size: 13.5px; color: var(--cinza-fonte); font-weight: 700; margin-bottom: 20px; line-height: 1.55; }
+.bloco-criar-senha .campo { text-align: left; margin-bottom: 14px; }
+.bloco-criar-senha label { display: block; font-weight: 800; font-size: 13px; color: var(--preto-fonte); margin-bottom: 6px; }
+.bloco-criar-senha .input-wrap { position: relative; }
+.bloco-criar-senha input { width: 100%; padding: 14px 46px 14px 16px; border-radius: 14px; border: 2px solid #ddd6fe; background: white; font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 700; color: var(--preto-fonte); outline: none; transition: 0.3s; }
+.bloco-criar-senha input:focus { border-color: var(--lilas); box-shadow: 0 0 0 4px rgba(139,92,246,0.15); }
+.bloco-criar-senha .olho { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: var(--cinza-azulado); font-size: 15px; cursor: pointer; padding: 6px; }
+.bloco-criar-senha .olho:hover { color: var(--lilas-escuro); }
+.bloco-criar-senha .btn-criar { width: 100%; padding: 16px; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; border: none; border-radius: 50px; font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 900; cursor: pointer; transition: 0.3s; box-shadow: 0 10px 25px rgba(139,92,246,0.3); margin-top: 8px; display: flex; justify-content: center; align-items: center; gap: 8px; }
+.bloco-criar-senha .btn-criar:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 15px 35px rgba(139,92,246,0.4); }
+.bloco-criar-senha .btn-criar:disabled { background: #cbd5e1; cursor: not-allowed; box-shadow: none; }
+.bloco-criar-senha .aviso-erro { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; border-radius: 10px; padding: 10px 14px; font-size: 12.5px; font-weight: 800; margin-top: 12px; display: none; text-align: left; line-height: 1.5; }
+.bloco-criar-senha .aviso-erro.ativo { display: block; }
+
+/* ============ BLOCO LINK PAINEL (pós-senha) ============ */
+.bloco-painel { background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 2px solid #6ee7b7; border-radius: 22px; padding: 26px 24px; margin-bottom: 24px; text-align: center; display: none; }
+.bloco-painel.ativo { display: block; animation: fadeUp 0.5s ease; }
+.bloco-painel .titulo { font-size: 17px; font-weight: 900; color: #065f46; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.bloco-painel .sub { font-size: 13.5px; color: #047857; font-weight: 700; margin-bottom: 16px; line-height: 1.55; }
+.bloco-painel .btn-painel { display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 14px 28px; border-radius: 50px; font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 900; text-decoration: none; box-shadow: 0 10px 25px rgba(16,185,129,0.3); transition: 0.3s; }
+.bloco-painel .btn-painel:hover { transform: translateY(-2px); box-shadow: 0 15px 35px rgba(16,185,129,0.45); }
+
 .rodape-sucesso { margin-top: 32px; padding-top: 24px; border-top: 1px solid #f1f5f9; display: flex; flex-direction: column; align-items: center; gap: 10px; }
 .rodape-sucesso .afeto-frase { font-size: 13px; font-weight: 800; color: var(--lilas-escuro); font-style: italic; max-width: 400px; line-height: 1.55; }
 .rodape-sucesso a { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 800; color: var(--cinza-azulado); text-decoration: none; }
@@ -507,6 +532,44 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     <h2 id="titulo-sucesso">Que alegria ter você aqui! 💜</h2>
     <p class="texto-principal" id="texto-sucesso">Recebemos seu cadastro com muito carinho.</p>
 
+    <!-- CRIAR SENHA (NOVO) -->
+    <div id="bloco-criar-senha" class="bloco-criar-senha">
+      <div class="titulo"><i class="fa-solid fa-lock"></i> Crie sua senha</div>
+      <div class="sub">Você vai usar essa senha pra entrar no seu painel sempre que quiser. Pode ser com seu CPF ou WhatsApp.</div>
+
+      <div class="campo">
+        <label for="senha-nova">Senha (mínimo 6 caracteres)</label>
+        <div class="input-wrap">
+          <input type="password" id="senha-nova" placeholder="Digite sua senha" maxlength="50">
+          <button type="button" class="olho" data-alvo="senha-nova"><i class="fa-solid fa-eye"></i></button>
+        </div>
+      </div>
+
+      <div class="campo">
+        <label for="senha-confirma">Confirme a senha</label>
+        <div class="input-wrap">
+          <input type="password" id="senha-confirma" placeholder="Digite de novo" maxlength="50">
+          <button type="button" class="olho" data-alvo="senha-confirma"><i class="fa-solid fa-eye"></i></button>
+        </div>
+      </div>
+
+      <button type="button" class="btn-criar" id="btn-criar-senha">
+        <i class="fa-solid fa-check"></i> Criar senha e continuar
+      </button>
+
+      <div class="aviso-erro" id="senha-erro"></div>
+    </div>
+
+    <!-- LINK DO PAINEL (aparece depois de criar senha) -->
+    <div id="bloco-painel" class="bloco-painel">
+      <div class="titulo"><i class="fa-solid fa-circle-check"></i> Tudo pronto! 🎉</div>
+      <div class="sub">Seu painel está esperando por você. Entre a qualquer momento com seu CPF (ou WhatsApp) + a senha que você criou.</div>
+      <a href="painel-login.html" class="btn-painel">
+        <i class="fa-solid fa-arrow-right-to-bracket"></i> Acessar meu painel
+      </a>
+    </div>
+
+    <!-- LINK DO PERFIL -->
     <div id="bloco-link" class="bloco-link" style="display: none;">
       <div class="link-titulo"><i class="fa-solid fa-link"></i> Seu link exclusivo Afeto</div>
       <div class="link-sub">Guarde com carinho! É o seu cartão de visita digital.</div>
@@ -693,7 +756,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   var params = new URLSearchParams(window.location.search);
   var planoBruto = (params.get('plano') || 'cadastro').toLowerCase();
 
-  // Retrocompatibilidade: ?plano=gratis agora aponta pro Cadastro Básico
   if (planoBruto === 'gratis') planoBruto = 'cadastro';
 
   var plano = planoBruto;
@@ -711,7 +773,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   var headerTop = document.querySelector('.header-top');
   var linkAvisoTexto = document.getElementById('link-aviso-texto');
 
-  // Ajusta badge, subtítulo e botão conforme o plano
   if (plano === 'cadastro') {
     badge.className = 'badge-plano basico';
     badge.innerHTML = '<i class="fa-solid fa-link"></i> Cadastro Básico';
@@ -732,7 +793,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     btnEnviar.innerHTML = 'Ir para pagamento <i class="fa-solid fa-arrow-right"></i>';
   }
 
-  // Botão copiar link
   var btnCopiar = document.getElementById('btn-copiar-link');
   if (btnCopiar) {
     btnCopiar.addEventListener('click', function() {
@@ -1014,8 +1074,89 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   // ========================================================================
   // 💳 CHECKOUT ASAAS
   // ========================================================================
-  var dadosCheckout = { recordId: null, plano: null, nome: null, cobrancaId: null, pixData: null, pago: false, precoBaseFmt: '9,90', periodo: '/ano' };
+  var dadosCheckout = { recordId: null, plano: null, nome: null, cpf: null, cobrancaId: null, pixData: null, pago: false, precoBaseFmt: '9,90', periodo: '/ano' };
   var enviando = false;
+
+  // ========================================================================
+  // 🔐 CRIAR SENHA (NOVO)
+  // ========================================================================
+  function inicializarCriarSenha() {
+    var bloco = document.getElementById('bloco-criar-senha');
+    var blocoPainel = document.getElementById('bloco-painel');
+    var senhaNova = document.getElementById('senha-nova');
+    var senhaConfirma = document.getElementById('senha-confirma');
+    var btnCriar = document.getElementById('btn-criar-senha');
+    var senhaErro = document.getElementById('senha-erro');
+
+    // Olhos pra mostrar senha
+    document.querySelectorAll('.bloco-criar-senha .olho').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var alvo = document.getElementById(this.getAttribute('data-alvo'));
+        if (!alvo) return;
+        if (alvo.type === 'password') {
+          alvo.type = 'text';
+          this.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
+        } else {
+          alvo.type = 'password';
+          this.innerHTML = '<i class="fa-solid fa-eye"></i>';
+        }
+      });
+    });
+
+    btnCriar.addEventListener('click', async function() {
+      senhaErro.classList.remove('ativo');
+      senhaErro.textContent = '';
+
+      var s1 = senhaNova.value;
+      var s2 = senhaConfirma.value;
+
+      if (!s1 || s1.length < 6) {
+        senhaErro.textContent = 'A senha precisa ter pelo menos 6 caracteres.';
+        senhaErro.classList.add('ativo');
+        return;
+      }
+
+      if (s1 !== s2) {
+        senhaErro.textContent = 'As senhas não batem. Digite de novo.';
+        senhaErro.classList.add('ativo');
+        return;
+      }
+
+      btnCriar.disabled = true;
+      btnCriar.innerHTML = 'Criando... <i class="fa-solid fa-spinner fa-spin"></i>';
+
+      try {
+        var cpf = (dadosCheckout.cpf || document.getElementById('cpf').value || '').trim();
+
+        var resp = await fetch('/api/auth/criar-senha', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cpf: cpf, senha: s1 })
+        });
+
+        var data = await resp.json();
+
+        if (!resp.ok || !data.ok) {
+          senhaErro.textContent = data.error || 'Não foi possível criar sua senha. Tente novamente.';
+          senhaErro.classList.add('ativo');
+          btnCriar.disabled = false;
+          btnCriar.innerHTML = '<i class="fa-solid fa-check"></i> Criar senha e continuar';
+          return;
+        }
+
+        // Sucesso
+        bloco.style.display = 'none';
+        blocoPainel.classList.add('ativo');
+
+      } catch (err) {
+        console.error('Erro criar senha:', err);
+        senhaErro.textContent = 'Erro de conexão. Tente novamente.';
+        senhaErro.classList.add('ativo');
+        btnCriar.disabled = false;
+        btnCriar.innerHTML = '<i class="fa-solid fa-check"></i> Criar senha e continuar';
+      }
+    });
+  }
 
   // ========================================================================
   // 🎟️ CUPOM DE DESCONTO
@@ -1161,6 +1302,10 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     var inputLink = document.getElementById('link-perfil-input');
     if (linkSalvo && inputLink) inputLink.value = linkSalvo;
     telaSucesso.classList.add('ativo');
+
+    // Inicializa bloco de criar senha
+    inicializarCriarSenha();
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -1239,6 +1384,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       recordId: recordId,
       plano: planoParam,
       nome: nomeParam,
+      cpf: document.getElementById('cpf').value.trim(),
       cobrancaId: null,
       pixData: null,
       pago: false,
@@ -1246,7 +1392,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       periodo: periodoLabel
     };
 
-    // Reset cupom + UI
     cupomAplicado = null;
     var avisoDescEl = document.getElementById('checkout-desconto-aviso');
     if (avisoDescEl) avisoDescEl.style.display = 'none';
@@ -1262,11 +1407,9 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
                   : 'Profissional';
     document.getElementById('checkout-plano-nome').textContent = 'Plano ' + nomePlano + ' Afeto';
 
-    // Restaura HTML com /ano ou /mês
     document.querySelector('.checkout-valor').innerHTML = 'R$ <span id="checkout-valor">...</span><small id="checkout-periodo">' + periodoLabel + '</small>';
     document.getElementById('cartao-valor').textContent = '...';
 
-    // Busca preço real
     var precoReal = null;
     try {
       var cr = await fetch('/api/config-publica');
@@ -1455,7 +1598,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       console.error('Erro cartão (rede):', err);
       alert('Não conseguimos processar seu pagamento agora. Verifique sua conexão e tente novamente. Se persistir, fale com a gente pelo WhatsApp 💜');
     } finally {
-      // Sempre destrava o botão — mesmo se deu erro, mesmo se foi sucesso
       if (!dadosCheckout.pago) {
         btn.disabled = false;
         btn.innerHTML = '<i class="fa-solid fa-lock"></i> Pagar R$ ' + dadosCheckout.precoBaseFmt;
@@ -1517,6 +1659,10 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     var inputLink = document.getElementById('link-perfil-input');
     if (linkSalvo && inputLink) inputLink.value = linkSalvo;
     telaSucesso.classList.add('ativo');
+
+    // Inicializa bloco de criar senha
+    inicializarCriarSenha();
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 

@@ -63,6 +63,8 @@ header { position: fixed; width: 100%; top: 0; z-index: 1000; padding: 15px 5%; 
 .btn-outline { padding: 10px 24px; border-radius: 50px; font-weight: 800; color: var(--lilas); border: 2px solid var(--lilas); background: transparent; font-size: 15px; transition: 0.3s; cursor: pointer; font-family: 'Nunito', sans-serif; text-decoration: none; display: inline-block; }
 .btn-outline:hover { background: var(--lilas); color: var(--branco); }
 .btn-outline.hidden-mobile { display: inline-block; }
+.btn-entrar-header { padding: 10px 24px; border-radius: 50px; font-weight: 800; color: white; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); border: 2px solid transparent; font-size: 15px; transition: 0.3s; cursor: pointer; font-family: 'Nunito', sans-serif; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 6px 18px rgba(139,92,246,0.25); }
+.btn-entrar-header:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(139,92,246,0.4); }
 
 .hero { min-height: 60vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 80px 20px; background-color: var(--lilas); color: var(--branco); width: calc(100% - 40px); max-width: 1600px; margin: 95px auto 40px auto; border-radius: 50px; box-shadow: 0 20px 40px rgba(139,92,246,0.15); position: relative; overflow: hidden; }
 .hero h1 { font-size: 52px; font-weight: 900; line-height: 1.1; margin-bottom: 20px; max-width: 900px; letter-spacing: -1.5px; position: relative; z-index: 2; }
@@ -95,16 +97,8 @@ header { position: fixed; width: 100%; top: 0; z-index: 1000; padding: 15px 5%; 
 .benefit-card p { color: var(--cinza-fonte); font-size: 16px; font-weight: 600; line-height: 1.5; }
 
 .simulador-container { background: var(--branco); border-radius: 35px; padding: 50px; box-shadow: 0 25px 60px rgba(0,0,0,0.06); display: flex; gap: 50px; flex-wrap: wrap; border: 1px solid #e2e8f0; margin-bottom: 40px; scroll-margin-top: 90px; transition: box-shadow 0.5s ease, border-color 0.5s ease; }
-.simulador-container.destaque-chegada {
-  border-color: var(--lilas);
-  box-shadow: 0 25px 60px rgba(139,92,246,0.25), 0 0 0 6px rgba(139,92,246,0.08);
-  animation: pulsoAfeto 1.8s ease-in-out;
-}
-@keyframes pulsoAfeto {
-  0%   { transform: scale(1); box-shadow: 0 25px 60px rgba(139,92,246,0.15), 0 0 0 0 rgba(139,92,246,0); }
-  40%  { transform: scale(1.015); box-shadow: 0 30px 70px rgba(139,92,246,0.35), 0 0 0 12px rgba(139,92,246,0.12); }
-  100% { transform: scale(1); box-shadow: 0 25px 60px rgba(139,92,246,0.15), 0 0 0 0 rgba(139,92,246,0); }
-}
+.simulador-container.destaque-chegada { border-color: var(--lilas); box-shadow: 0 25px 60px rgba(139,92,246,0.25), 0 0 0 6px rgba(139,92,246,0.08); animation: pulsoAfeto 1.8s ease-in-out; }
+@keyframes pulsoAfeto { 0% { transform: scale(1); box-shadow: 0 25px 60px rgba(139,92,246,0.15), 0 0 0 0 rgba(139,92,246,0); } 40% { transform: scale(1.015); box-shadow: 0 30px 70px rgba(139,92,246,0.35), 0 0 0 12px rgba(139,92,246,0.12); } 100% { transform: scale(1); box-shadow: 0 25px 60px rgba(139,92,246,0.15), 0 0 0 0 rgba(139,92,246,0); } }
 .simulador-controles { flex: 1; min-width: 300px; }
 .simulador-resultado { flex: 1; min-width: 300px; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: var(--branco); border-radius: 30px; padding: 40px; text-align: center; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 15px 35px rgba(139,92,246,0.2); }
 label { display: block; font-weight: 800; margin-bottom: 10px; margin-top: 25px; font-size: 16px; }
@@ -139,24 +133,8 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
 .ganhos-cta .btn-planos { display: inline-flex; align-items: center; justify-content: center; gap: 10px; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; padding: 18px 42px; border-radius: 50px; font-size: 17px; font-weight: 900; text-decoration: none; box-shadow: 0 12px 30px rgba(139,92,246,0.35); transition: 0.3s; font-family: 'Nunito', sans-serif; border: none; cursor: pointer; }
 .ganhos-cta .btn-planos:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 18px 40px rgba(139,92,246,0.45); }
 
-.aviso-vagas-sutil {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: #fef3c7;
-  border: 1px solid #fde68a;
-  color: #92400e;
-  padding: 10px 22px;
-  border-radius: 50px;
-  font-size: 13px;
-  font-weight: 800;
-  letter-spacing: 0.3px;
-  margin-top: 6px;
-}
-.aviso-vagas-sutil i {
-  color: #d97706;
-  font-size: 14px;
-}
+.aviso-vagas-sutil { display: inline-flex; align-items: center; gap: 8px; background: #fef3c7; border: 1px solid #fde68a; color: #92400e; padding: 10px 22px; border-radius: 50px; font-size: 13px; font-weight: 800; letter-spacing: 0.3px; margin-top: 6px; }
+.aviso-vagas-sutil i { color: #d97706; font-size: 14px; }
 
 .comparison-table-container { background: var(--branco); border-radius: 35px; padding: 50px; box-shadow: 0 25px 60px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; margin-bottom: 40px; overflow-x: auto; }
 .comparison-table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 650px; }
@@ -179,33 +157,14 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
 .faq-item.active .faq-answer { max-height: 500px; padding: 0 30px 25px 30px; }
 .faq-answer p { color: var(--cinza-fonte); font-size: 16px; font-weight: 600; line-height: 1.6; }
 
-.faq-cta-wrapper {
-  text-align: center;
-  margin: 0 auto 60px auto;
-  padding-top: 10px;
-}
+.faq-cta-wrapper { text-align: center; margin: 0 auto 60px auto; padding-top: 10px; }
 .btn-action-lilas { background-color: var(--lilas); color: var(--branco); border: none; padding: 22px 50px; font-size: 18px; font-weight: 900; border-radius: 50px; cursor: pointer; transition: 0.3s; box-shadow: 0 10px 25px rgba(139,92,246,0.3); display: inline-flex; justify-content: center; align-items: center; gap: 10px; font-family: 'Nunito', sans-serif; text-decoration: none; }
 .btn-action-lilas:hover { background-color: var(--lilas-escuro); transform: translateY(-5px) scale(1.02); box-shadow: 0 15px 35px rgba(139,92,246,0.4); }
 .btn-wrapper { text-align: center; margin: 40px 0 60px 0; }
 
 .btn-scroll-up-wrapper { text-align: center; margin: 10px 0 50px 0; }
-.btn-scroll-up {
-  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-  background: white; color: var(--lilas-escuro);
-  padding: 18px 42px; border-radius: 50px;
-  font-size: 17px; font-weight: 900; cursor: pointer;
-  box-shadow: 0 10px 25px rgba(139,92,246,0.15);
-  border: 2px solid var(--lilas);
-  transition: 0.3s;
-  font-family: 'Nunito', sans-serif;
-  text-decoration: none;
-}
-.btn-scroll-up:hover {
-  background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro));
-  color: white;
-  transform: translateY(-4px);
-  box-shadow: 0 15px 35px rgba(139,92,246,0.4);
-}
+.btn-scroll-up { display: inline-flex; align-items: center; justify-content: center; gap: 10px; background: white; color: var(--lilas-escuro); padding: 18px 42px; border-radius: 50px; font-size: 17px; font-weight: 900; cursor: pointer; box-shadow: 0 10px 25px rgba(139,92,246,0.15); border: 2px solid var(--lilas); transition: 0.3s; font-family: 'Nunito', sans-serif; text-decoration: none; }
+.btn-scroll-up:hover { background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; transform: translateY(-4px); box-shadow: 0 15px 35px rgba(139,92,246,0.4); }
 
 .btn-scroll-up-wrapper-tabela { text-align: center; margin: 20px 0 0 0; }
 
@@ -296,6 +255,8 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
   .cuidador-card { flex: 0 0 280px; }
   .header-botoes .btn-outline { padding: 8px 16px; font-size: 13px; }
   .header-botoes .btn-outline.hidden-mobile { display: none; }
+  .btn-entrar-header { padding: 8px 16px; font-size: 13px; }
+  .btn-entrar-header span.texto-entrar { display: none; }
   .logo { font-size: 24px; }
   .ganhos-section { padding: 40px 25px; border-radius: 25px; }
   .ganhos-header h2 { font-size: 26px; }
@@ -319,7 +280,11 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
     <span class="logo__text">Afeto</span>
   </a>
   <div class="header-botoes">
-    <a href="https://afetohomecare.pages.dev" class="btn-outline">Encontrar Cuidadores</a>
+    <a href="https://afetohomecare.pages.dev" class="btn-outline hidden-mobile">Encontrar Cuidadores</a>
+    <a href="painel-login.html" class="btn-entrar-header">
+      <i class="fa-solid fa-arrow-right-to-bracket"></i>
+      <span class="texto-entrar">Entrar</span>
+    </a>
   </div>
 </header>
 
@@ -369,7 +334,6 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
     <div class="passo-card"><div class="passo-num">3</div><h3>Conexão direta e justa</h3><p>As famílias encontram você pelo site ou pelo seu link exclusivo e chamam direto no seu WhatsApp. A negociação é toda sua e 100% do valor do plantão fica com você.</p></div>
   </div>
 
-  <!-- ============ CALCULADORA DE GANHOS ============ -->
   <div class="simulador-container" id="calculadora">
     <div class="simulador-controles">
       <h3 style="font-size: 28px; margin-bottom: 10px; letter-spacing: -1px;">Calculadora de Ganhos</h3>
@@ -407,7 +371,6 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
     </div>
   </div>
 
-  <!-- ============ PROFISSIONAIS ATIVAS ============ -->
   <section id="profissionais-ativos" style="margin-top: 20px;">
     <div class="section-header" style="margin-bottom: 30px;">
       <h2>Profissionais Ativas na Afeto</h2>
@@ -489,7 +452,6 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
     </table>
   </div>
 
-  <!-- ============ BOTÃO: POR QUE TRABALHAR (após tabela) ============ -->
   <div class="btn-scroll-up-wrapper-tabela">
     <button onclick="scrollToSection('por-que-trabalhar')" class="btn-scroll-up">
       <i class="fa-solid fa-arrow-up"></i> Por que trabalhar com a Afeto?
@@ -575,7 +537,6 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
 (function() {
   "use strict";
 
-  // ============ SCROLL ULTRA SUAVE ============
   function easeInOutQuint(t) {
     return t < 0.5 ? 16 * t * t * t * t * t : 1 - Math.pow(-2 * t + 2, 5) / 2;
   }
@@ -647,10 +608,6 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
     });
   });
 
-  // ============ PROFISSIONAIS ATIVAS ============
-  // Renderiza um card a partir dos dados vindos do Supabase.
-  // O formato é plano (sem "fields"), com os nomes já em português
-  // e no padrão do banco (snake_case).
   function renderizarCard(cuidadora) {
     var nome = cuidadora.nome || 'Sem nome';
     var especialidade = cuidadora.especialidade || 'Cuidador(a)';
@@ -735,7 +692,6 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
       var response = await fetch('/api/cuidadores');
       var data = await response.json();
 
-      // A API já devolve apenas quem está aprovada, paga e com plano ativo.
       var lista = (data && data.cuidadores) ? data.cuidadores : [];
 
       grid.innerHTML = '';
