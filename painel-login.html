@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Entrar — Painel Afeto</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+:root { --lilas: #8b5cf6; --lilas-escuro: #7c3aed; --fundo-site: #f8f9fc; --preto-fonte: #1f1f1f; --cinza-fonte: #666666; --cinza-azulado: #94a3b8; --branco: #ffffff; --ouro: #fbbf24; --verde: #10b981; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); color: var(--preto-fonte); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+
+.login-wrap { max-width: 440px; width: 100%; }
+
+.login-header { text-align: center; margin-bottom: 30px; }
+.login-header .logo { display: inline-flex; align-items: center; gap: 0.16em; font-weight: 900; font-size: 32px; color: var(--lilas); text-decoration: none; line-height: 1; margin-bottom: 16px; }
+.login-header .logo svg { width: 1.11em; height: 0.69em; overflow: visible; }
+.login-header .logo svg path { fill: none; stroke: currentColor; stroke-width: 13; stroke-linecap: round; }
+.login-header h1 { font-size: 24px; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 8px; line-height: 1.2; }
+.login-header p { font-size: 14px; color: var(--cinza-fonte); font-weight: 700; line-height: 1.55; }
+
+.login-card { background: white; border-radius: 28px; padding: 36px 32px; box-shadow: 0 25px 60px rgba(139,92,246,0.1); border: 1px solid #e2e8f0; }
+
+.campo { margin-bottom: 18px; }
+.campo label { display: block; font-weight: 800; margin-bottom: 8px; font-size: 13.5px; color: var(--preto-fonte); }
+.campo input { width: 100%; padding: 15px 18px; border-radius: 14px; border: 2px solid #e2e8f0; font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 700; background: var(--fundo-site); color: var(--preto-fonte); outline: none; transition: 0.3s; }
+.campo input:focus { border-color: var(--lilas); background: white; box-shadow: 0 0 0 4px rgba(139,92,246,0.12); }
+
+.campo-senha { position: relative; }
+.campo-senha input { padding-right: 50px; }
+.campo-senha .olho { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: var(--cinza-azulado); font-size: 16px; cursor: pointer; padding: 6px; }
+.campo-senha .olho:hover { color: var(--lilas-escuro); }
+
+.btn-entrar { width: 100%; padding: 18px; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; border: none; border-radius: 50px; font-family: 'Nunito', sans-serif; font-size: 16px; font-weight: 900; cursor: pointer; transition: 0.3s; box-shadow: 0 10px 25px rgba(139,92,246,0.3); display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 8px; }
+.btn-entrar:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 15px 35px rgba(139,92,246,0.45); }
+.btn-entrar:disabled { background: #cbd5e1; cursor: not-allowed; box-shadow: none; }
+
+.esqueci { text-align: center; margin-top: 18px; }
+.esqueci a { color: var(--lilas-escuro); font-weight: 800; font-size: 13.5px; text-decoration: none; }
+.esqueci a:hover { text-decoration: underline; }
+
+.aviso-erro { background: linear-gradient(135deg, #fef2f2, #fee2e2); border: 1px solid #fecaca; color: #991b1b; border-radius: 14px; padding: 14px 16px; font-size: 13.5px; font-weight: 700; margin-bottom: 18px; display: none; line-height: 1.5; }
+.aviso-erro.ativo { display: block; animation: fadeIn 0.3s ease; }
+
+.aviso-sucesso { background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 1px solid #6ee7b7; color: #065f46; border-radius: 14px; padding: 14px 16px; font-size: 13.5px; font-weight: 700; margin-bottom: 18px; display: none; line-height: 1.5; }
+.aviso-sucesso.ativo { display: block; animation: fadeIn 0.3s ease; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+.rodape { text-align: center; margin-top: 24px; font-size: 13px; color: var(--cinza-fonte); font-weight: 700; }
+.rodape a { color: var(--lilas-escuro); text-decoration: none; font-weight: 800; }
+
+.cadastro-cta { text-align: center; margin-top: 22px; padding-top: 20px; border-top: 1px solid #f1f5f9; font-size: 13.5px; font-weight: 700; color: var(--cinza-fonte); }
+.cadastro-cta a { color: var(--lilas-escuro); text-decoration: none; font-weight: 800; }
+
+/* Modal de esqueci senha */
+.modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center; padding: 20px; }
+.modal.ativo { display: flex; }
+.modal-box { background: white; border-radius: 24px; max-width: 400px; width: 100%; padding: 32px 28px; box-shadow: 0 30px 80px rgba(0,0,0,0.4); animation: modalIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+@keyframes modalIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+.modal-box h2 { font-size: 20px; font-weight: 900; margin-bottom: 8px; text-align: center; }
+.modal-box p { font-size: 13.5px; color: var(--cinza-fonte); font-weight: 700; text-align: center; margin-bottom: 20px; line-height: 1.55; }
+.modal-acoes { display: flex; gap: 10px; margin-top: 22px; }
+.btn-modal { flex: 1; padding: 14px; border-radius: 50px; font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 900; cursor: pointer; border: none; transition: 0.2s; }
+.btn-cancelar { background: transparent; color: var(--cinza-fonte); border: 2px solid #e2e8f0; }
+.btn-confirmar { background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; }
+</style>
+</head>
+<body>
+
+<div class="login-wrap">
+
+  <div class="login-header">
+    <a href="index.html" class="logo" aria-label="Afeto">
+      <svg viewBox="9.5 15.5 111 69" aria-hidden="true" focusable="false">
+        <path d="M71.87 52.72 A28 28 0 1 0 50.20 77.30"/>
+        <path d="M79.80 22.70 A28 28 0 1 1 58.13 47.28"/>
+      </svg>
+      <span>Afeto</span>
+    </a>
+    <h1>Bem-vinda de volta 💜</h1>
+    <p>Entre com seu CPF ou WhatsApp pra acessar seu painel.</p>
+  </div>
+
+  <div class="login-card">
+
+    <div id="aviso-erro" class="aviso-erro"></div>
+    <div id="aviso-sucesso" class="aviso-sucesso"></div>
+
+    <form id="form-login" novalidate>
+
+      <div class="campo">
+        <label for="identificador">CPF ou WhatsApp</label>
+        <input type="text" id="identificador" placeholder="Ex: 123.456.789-00 ou (41) 99999-9999" autocomplete="username" required>
+      </div>
+
+      <div class="campo campo-senha">
+        <label for="senha">Senha</label>
+        <input type="password" id="senha" placeholder="Digite sua senha" autocomplete="current-password" required>
+        <button type="button" class="olho" id="olho-senha" aria-label="Mostrar senha">
+          <i class="fa-solid fa-eye"></i>
+        </button>
+      </div>
+
+      <button type="submit" id="btn-entrar" class="btn-entrar">
+        Entrar <i class="fa-solid fa-arrow-right"></i>
+      </button>
+
+    </form>
+
+    <div class="esqueci">
+      <a href="#" id="link-esqueci">Esqueci minha senha</a>
+    </div>
+
+    <div class="cadastro-cta">
+      Ainda não tem conta? <a href="planos.html">Conheça os planos</a>
+    </div>
+
+  </div>
+
+  <div class="rodape">
+    <a href="index.html">Voltar ao site</a>
+  </div>
+
+</div>
+
+<!-- MODAL ESQUECI SENHA -->
+<div class="modal" id="modal-esqueci">
+  <div class="modal-box">
+    <h2>Recuperar senha 🔐</h2>
+    <p>Digite seu CPF ou WhatsApp. Nossa equipe vai te enviar uma senha nova pelo WhatsApp em alguns minutos.</p>
+
+    <div class="campo">
+      <label for="recuperar-identificador">CPF ou WhatsApp</label>
+      <input type="text" id="recuperar-identificador" placeholder="Ex: 123.456.789-00 ou (41) 99999-9999">
+    </div>
+
+    <div id="modal-msg" class="aviso-erro" style="margin-top: 14px;"></div>
+
+    <div class="modal-acoes">
+      <button type="button" class="btn-modal btn-cancelar" id="btn-cancelar">Cancelar</button>
+      <button type="button" class="btn-modal btn-confirmar" id="btn-confirmar">Enviar pedido</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  "use strict";
+
+  var identificadorInput = document.getElementById('identificador');
+  var senhaInput = document.getElementById('senha');
+  var btnEntrar = document.getElementById('btn-entrar');
+  var avisoErro = document.getElementById('aviso-erro');
+  var avisoSucesso = document.getElementById('aviso-sucesso');
+  var olhoSenha = document.getElementById('olho-senha');
+  var form = document.getElementById('form-login');
+
+  // ---------- MÁSCARA INTELIGENTE (CPF OU WHATSAPP) ----------
+  identificadorInput.addEventListener('input', function() {
+    var v = this.value.replace(/\D/g, '');
+
+    // Se já passou de 11 dígitos, corta
+    if (v.length > 11) v = v.substring(0, 11);
+
+    if (v.length <= 6) {
+      // Ainda pode ser CPF ou WhatsApp — não formata ainda
+      this.value = v;
+    } else if (v.length === 11) {
+      // Se tem 11 dígitos, formata como CPF
+      this.value = v.substring(0, 3) + '.' + v.substring(3, 6) + '.' + v.substring(6, 9) + '-' + v.substring(9, 11);
+    } else if (v.length > 6 && v.length <= 10) {
+      // 7-10 dígitos: formata como WhatsApp
+      this.value = '(' + v.substring(0, 2) + ') ' + v.substring(2, 7) + (v.length > 7 ? '-' + v.substring(7) : '');
+    }
+  });
+
+  // ---------- MOSTRAR/ESCONDER SENHA ----------
+  olhoSenha.addEventListener('click', function() {
+    if (senhaInput.type === 'password') {
+      senhaInput.type = 'text';
+      olhoSenha.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
+    } else {
+      senhaInput.type = 'password';
+      olhoSenha.innerHTML = '<i class="fa-solid fa-eye"></i>';
+    }
+  });
+
+  // ---------- FUNÇÕES AUXILIARES ----------
+  function mostrarErro(msg) {
+    avisoSucesso.classList.remove('ativo');
+    avisoErro.textContent = msg;
+    avisoErro.classList.add('ativo');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function mostrarSucesso(msg) {
+    avisoErro.classList.remove('ativo');
+    avisoSucesso.textContent = msg;
+    avisoSucesso.classList.add('ativo');
+  }
+
+  function esconderAvisos() {
+    avisoErro.classList.remove('ativo');
+    avisoSucesso.classList.remove('ativo');
+  }
+
+  // ---------- LOGIN ----------
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    esconderAvisos();
+
+    var identificador = identificadorInput.value.trim();
+    var senha = senhaInput.value;
+
+    if (!identificador) {
+      mostrarErro('Informe seu CPF ou WhatsApp.');
+      return;
+    }
+
+    if (!senha || senha.length < 6) {
+      mostrarErro('Digite sua senha (mínimo 6 caracteres).');
+      return;
+    }
+
+    btnEntrar.disabled = true;
+    btnEntrar.innerHTML = 'Entrando... <i class="fa-solid fa-spinner fa-spin"></i>';
+
+    try {
+      var resp = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          identificador: identificador,
+          senha: senha
+        })
+      });
+
+      var data = await resp.json();
+
+      if (!resp.ok || !data.ok) {
+        mostrarErro(data.error || 'Não foi possível entrar. Verifique seus dados.');
+        btnEntrar.disabled = false;
+        btnEntrar.innerHTML = 'Entrar <i class="fa-solid fa-arrow-right"></i>';
+        return;
+      }
+
+      // Salva token
+      try {
+        localStorage.setItem('afeto_painel_token', data.token);
+        localStorage.setItem('afeto_painel_user', JSON.stringify(data.user));
+      } catch (e) {}
+
+      mostrarSucesso('Login confirmado! Entrando...');
+
+      setTimeout(function() {
+        window.location.href = 'painel.html';
+      }, 600);
+
+    } catch (err) {
+      console.error('Erro login:', err);
+      mostrarErro('Erro de conexão. Tente novamente em alguns instantes.');
+      btnEntrar.disabled = false;
+      btnEntrar.innerHTML = 'Entrar <i class="fa-solid fa-arrow-right"></i>';
+    }
+  });
+
+  // ---------- MODAL ESQUECI SENHA ----------
+  var modal = document.getElementById('modal-esqueci');
+  var linkEsqueci = document.getElementById('link-esqueci');
+  var btnCancelar = document.getElementById('btn-cancelar');
+  var btnConfirmar = document.getElementById('btn-confirmar');
+  var recuperarInput = document.getElementById('recuperar-identificador');
+  var modalMsg = document.getElementById('modal-msg');
+
+  linkEsqueci.addEventListener('click', function(e) {
+    e.preventDefault();
+    modalMsg.classList.remove('ativo');
+    modalMsg.textContent = '';
+    modal.classList.add('ativo');
+    setTimeout(function() { recuperarInput.focus(); }, 100);
+  });
+
+  btnCancelar.addEventListener('click', function() {
+    modal.classList.remove('ativo');
+  });
+
+  modal.addEventListener('click', function(e) {
+    if (e.target === modal) modal.classList.remove('ativo');
+  });
+
+  btnConfirmar.addEventListener('click', async function() {
+    var identificador = recuperarInput.value.trim();
+
+    if (!identificador) {
+      modalMsg.textContent = 'Informe seu CPF ou WhatsApp.';
+      modalMsg.classList.add('ativo');
+      return;
+    }
+
+    btnConfirmar.disabled = true;
+    btnConfirmar.textContent = 'Enviando...';
+
+    try {
+      var resp = await fetch('/api/auth/esqueci-senha', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identificador: identificador })
+      });
+
+      var data = await resp.json();
+
+      if (!resp.ok || !data.ok) {
+        modalMsg.textContent = data.error || 'Não foi possível registrar. Tente novamente.';
+        modalMsg.classList.add('ativo');
+        btnConfirmar.disabled = false;
+        btnConfirmar.textContent = 'Enviar pedido';
+        return;
+      }
+
+      // Sucesso — fecha modal e mostra aviso
+      modal.classList.remove('ativo');
+      mostrarSucesso(data.mensagem || 'Pedido registrado! Você receberá uma nova senha em breve pelo WhatsApp.');
+      btnConfirmar.disabled = false;
+      btnConfirmar.textContent = 'Enviar pedido';
+      recuperarInput.value = '';
+
+    } catch (err) {
+      console.error('Erro esqueci-senha:', err);
+      modalMsg.textContent = 'Erro de conexão. Tente novamente.';
+      modalMsg.classList.add('ativo');
+      btnConfirmar.disabled = false;
+      btnConfirmar.textContent = 'Enviar pedido';
+    }
+  });
+
+  // ---------- SE JÁ ESTÁ LOGADA, VAI DIRETO PRO PAINEL ----------
+  try {
+    var tokenExistente = localStorage.getItem('afeto_painel_token');
+    if (tokenExistente) {
+      // Verifica se ainda é válido
+      fetch('/api/auth/me', {
+        headers: { 'Authorization': 'Bearer ' + tokenExistente }
+      }).then(function(r) {
+        if (r.ok) {
+          window.location.href = 'painel.html';
+        }
+      }).catch(function() {});
+    }
+  } catch (e) {}
+
+})();
+</script>
+
+</body>
+</html>
