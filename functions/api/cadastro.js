@@ -43,8 +43,6 @@ export async function onRequest(context) {
     const whatsLimpo = whatsapp.replace(/\D/g, '');
 
     // ---------- STATUS INICIAL PELO PLANO ----------
-    // Todos os planos agora passam pelo pagamento.
-    // Só existem 3: cadastro (9,90/ano), profissional (mensal), destaque (mensal).
     let statusPagamento   = 'AguardandoPagamento';
     let planoCadastro     = false;
     let planoProfissional = false;
@@ -57,7 +55,6 @@ export async function onRequest(context) {
     } else if (plano === 'destaque') {
       planoDestaque = true;
     } else {
-      // Plano desconhecido — assume cadastro como fallback seguro
       planoCadastro = true;
     }
 
@@ -106,7 +103,15 @@ export async function onRequest(context) {
     if (coren) campos.coren = coren;
 
     // ---------- PROCURA EXISTENTE ----------
-    const filtro = 'or=(cpf.eq.' + encodeURIComponent(cpfLimpo) + ',whatsapp.eq.' + encodeURIComponent(whatsLimpo) + ')';
+    // Busca por CPF limpo OU CPF formatado OU WhatsApp limpo.
+    // O banco pode ter o CPF salvo com ou sem formatação,
+    // então testamos os dois formatos.
+    const filtro = 'or=(' +
+      'cpf.eq.' + encodeURIComponent(cpfLimpo) + ',' +
+      'cpf.eq.' + encodeURIComponent(cpf) + ',' +
+      'whatsapp.eq.' + encodeURIComponent(whatsLimpo) +
+    ')';
+
     const buscaUrl = env.SUPABASE_URL + '/rest/v1/cuidadores?select=id&' + filtro + '&limit=1';
 
     const buscaResp = await fetch(buscaUrl, {
@@ -150,15 +155,42 @@ export async function onRequest(context) {
       if (!insertResp.ok) {
         const txt = await insertResp.text();
         console.error('Erro INSERT:', insertResp.status, txt);
-        return jsonResp({ error: 'Falha ao criar cadastro', detalhe: txt.substring(0, 300) }, 502);
-      }
 
-      const criados = await insertResp.json();
-      if (!criados || !criados[0] || !criados[0].id) {
-        return jsonResp({ error: 'Banco não retornou o id do cadastro' }, 502);
+        // Fallback: se bateu no unique constraint do CPF (mas a busca não achou),
+        // tenta de novo buscando só por CPF limpo formatado de outra forma
+        if (txt.indexOf('duplicate key') !== -1 || txt.indexOf('already exists') !== -1) {
+          // Busca diretamente pelo CPF sem filtro de OR
+          const busca2 = await fetch(
+            env.SUPABASE_URL + '/rest/v1/cuidadores?cpf=eq.' + encodeURIComponent(cpfLimpo) + '&select=id&limit=1',
+            { headers: headersSupabase(env) }
+          );
+          if (busca2.ok) {
+            const linhas2 = await busca2.json();
+            if (linhas2.length > 0) {
+              // Achou — faz UPDATE
+              cuidadorId = linhas2[0].id;
+              await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadorId, {
+                method: 'PATCH',
+                headers: headersSupabase(env, true),
+                body: JSON.stringify(campos)
+              });
+            } else {
+              return jsonResp({ error: 'Falha ao criar cadastro', detalhe: txt.substring(0, 300) }, 502);
+            }
+          } else {
+            return jsonResp({ error: 'Falha ao criar cadastro', detalhe: txt.substring(0, 300) }, 502);
+          }
+        } else {
+          return jsonResp({ error: 'Falha ao criar cadastro', detalhe: txt.substring(0, 300) }, 502);
+        }
+      } else {
+        const criados = await insertResp.json();
+        if (!criados || !criados[0] || !criados[0].id) {
+          return jsonResp({ error: 'Banco não retornou o id do cadastro' }, 502);
+        }
+        cuidadorId = criados[0].id;
+        foiCriado = true;
       }
-      cuidadorId = criados[0].id;
-      foiCriado = true;
     }
 
     // ---------- UPLOAD DA FOTO ----------
@@ -237,7 +269,7 @@ export async function onRequest(context) {
       linkPerfil: linkPerfil,
       fotoEnviada: fotoEnviada,
       fotoErro: fotoErro,
-      precisaPagar: true  // todos os planos agora passam pelo checkout
+      precisaPagar: true
     }, 200);
 
   } catch (err) {

@@ -1351,8 +1351,9 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       var data = await resp.json();
       document.getElementById('checkout-loading').style.display = 'none';
       if (!resp.ok || !data.ok) {
+        console.error('Erro gerar PIX:', data.error, data.detalhe);
         document.getElementById('checkout-erro').style.display = 'block';
-        document.getElementById('checkout-erro-text').textContent = (data.error || 'Falha') + (data.detalhe ? ' — ' + JSON.stringify(data.detalhe).substring(0, 150) : '');
+        document.getElementById('checkout-erro-text').textContent = 'Não conseguimos gerar o QR Code agora. Tente novamente em alguns instantes.';
         return;
       }
 
@@ -1376,9 +1377,10 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       dadosCheckout.cobrancaId = data.cobrancaId;
       dadosCheckout.pixData = data.pix;
     } catch (err) {
+      console.error('Erro PIX (rede):', err);
       document.getElementById('checkout-loading').style.display = 'none';
       document.getElementById('checkout-erro').style.display = 'block';
-      document.getElementById('checkout-erro-text').textContent = 'Erro: ' + err.message;
+      document.getElementById('checkout-erro-text').textContent = 'Verifique sua conexão e tente novamente em alguns instantes.';
     }
   }
 
@@ -1440,9 +1442,8 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       });
       var data = await resp.json();
       if (!resp.ok || !data.ok) {
-        alert('Erro no pagamento: ' + (data.error || 'Falha') + '\n' + (data.detalhe ? JSON.stringify(data.detalhe).substring(0, 200) : ''));
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fa-solid fa-lock"></i> Pagar R$ ' + dadosCheckout.precoBaseFmt;
+        console.error('Erro cartão:', data.error, data.detalhe);
+        alert('Não conseguimos processar seu pagamento agora. Verifique os dados do cartão e tente novamente. Se persistir, fale com a gente pelo WhatsApp 💜');
         return;
       }
       dadosCheckout.pago = true;
@@ -1451,9 +1452,14 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       document.body.style.overflow = '';
       mostrarSucessoPago();
     } catch (err) {
-      alert('Erro: ' + err.message);
-      btn.disabled = false;
-      btn.innerHTML = '<i class="fa-solid fa-lock"></i> Pagar R$ ' + dadosCheckout.precoBaseFmt;
+      console.error('Erro cartão (rede):', err);
+      alert('Não conseguimos processar seu pagamento agora. Verifique sua conexão e tente novamente. Se persistir, fale com a gente pelo WhatsApp 💜');
+    } finally {
+      // Sempre destrava o botão — mesmo se deu erro, mesmo se foi sucesso
+      if (!dadosCheckout.pago) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-lock"></i> Pagar R$ ' + dadosCheckout.precoBaseFmt;
+      }
     }
   };
 
@@ -1582,7 +1588,8 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       var resultado = await Promise.race([envio, timeout]);
 
       if (!resultado.ok) {
-        alert('ERRO REAL:\n\nHTTP ' + resultado.status + '\n\n' + String(resultado.body).substring(0, 800));
+        console.error('Erro no cadastro:', resultado.status, resultado.body);
+        alert('Algo deu errado ao salvar seu cadastro. Verifique sua conexão e tente novamente em alguns instantes. Se persistir, fale com a gente pelo WhatsApp 💜');
         throw new Error('Falha');
       }
 
@@ -1591,7 +1598,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
         linkPerfil = resultado.data.linkPerfil || ('https://afetocuidadores.pages.dev/perfil.html?id=' + resultado.data.recordId);
       }
 
-      // Todos os planos agora vão pro checkout
       if (linkPerfil) {
         try {
           localStorage.setItem('afeto_link_perfil', linkPerfil);
