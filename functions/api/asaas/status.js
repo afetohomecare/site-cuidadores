@@ -1,17 +1,34 @@
 // functions/api/asaas/status.js
-// Consulta o status de uma cobrança no Asaas (usado no polling da tela de checkout)
+// Consulta o status de uma cobrança no Asaas (usado no polling)
 //
-// Quando o pagamento está confirmado, devolve também o token de criar senha
-// (se a cuidadora ainda não criou senha).
+// Quando o pagamento está confirmado, devolve também o token
+// de criar senha (se a cuidadora ainda não criou senha).
+//
+// 🌍 AMBIENTE: controlado por env.ASAAS_AMBIENTE
 
-const ASAAS_URL = 'https://api.asaas.com/v3';
+function getAsaasConfig(env) {
+  const ambiente = (env.ASAAS_AMBIENTE || 'producao').toLowerCase();
+  const isSandbox = ambiente === 'sandbox';
+
+  return {
+    url: isSandbox
+      ? 'https://sandbox.asaas.com/api/v3'
+      : 'https://api.asaas.com/v3',
+    apiKey: isSandbox
+      ? (env.ASAAS_API_KEY_SANDBOX || env.ASAAS_API_KEY)
+      : (env.ASAAS_API_KEY_PRODUCAO || env.ASAAS_API_KEY),
+    isSandbox: isSandbox
+  };
+}
 
 export async function onRequestGet(context) {
   const { request, env } = context;
-  const ASAAS_API_KEY = env.ASAAS_API_KEY;
+  const asaas = getAsaasConfig(env);
+  const ASAAS_API_KEY = asaas.apiKey;
+  const ASAAS_URL = asaas.url;
 
   if (!ASAAS_API_KEY) {
-    return jsonResp({ error: 'ASAAS_API_KEY não configurada' }, 500);
+    return jsonResp({ error: 'Chave Asaas não configurada no ambiente: ' + (asaas.isSandbox ? 'SANDBOX' : 'PRODUCAO') }, 500);
   }
 
   try {
@@ -57,6 +74,7 @@ export async function onRequestGet(context) {
 
     const resposta = {
       ok: true,
+      ambiente: asaas.isSandbox ? 'sandbox' : 'producao',
       cobrancaId: data.id,
       status: data.status,
       pago: pago,

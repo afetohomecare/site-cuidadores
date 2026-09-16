@@ -1,13 +1,30 @@
 // ============================================================
 // AFETO — API Painel: Cancelar Assinatura (Cartão)
+// 🌍 AMBIENTE: controlado por env.ASAAS_AMBIENTE
 // ============================================================
 
-const ASAAS_URL = 'https://sandbox.asaas.com/api/v3'; // 🔥 MUDAR PRA PROD DEPOIS
+function getAsaasConfig(env) {
+  const ambiente = (env.ASAAS_AMBIENTE || 'producao').toLowerCase();
+  const isSandbox = ambiente === 'sandbox';
+
+  return {
+    url: isSandbox
+      ? 'https://sandbox.asaas.com/api/v3'
+      : 'https://api.asaas.com/v3',
+    apiKey: isSandbox
+      ? (env.ASAAS_API_KEY_SANDBOX || env.ASAAS_API_KEY)
+      : (env.ASAAS_API_KEY_PRODUCAO || env.ASAAS_API_KEY),
+    isSandbox: isSandbox
+  };
+}
 
 export async function onRequestPost(context) {
   const { request, env } = context;
+  const asaas = getAsaasConfig(env);
+  const ASAAS_URL = asaas.url;
+  const ASAAS_API_KEY = asaas.apiKey;
 
-  if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_KEY || !env.ASAAS_API_KEY) {
+  if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_KEY || !ASAAS_API_KEY) {
     return jsonResp({ error: 'Configuração do servidor ausente.' }, 500);
   }
 
@@ -35,7 +52,7 @@ export async function onRequestPost(context) {
       method: 'DELETE',
       headers: {
         'User-Agent': 'Afeto/1.0',
-        'access_token': env.ASAAS_API_KEY
+        'access_token': ASAAS_API_KEY
       }
     });
 
@@ -45,18 +62,21 @@ export async function onRequestPost(context) {
       return jsonResp({ error: 'Falha ao comunicar com o Asaas.' }, 502);
     }
 
-    // 4. Remove o ID da assinatura do Supabase (para o painel dela atualizar)
-    // Nota: Mantemos o status "Pago" e a "plano_valido_ate" para ela usar até o fim do ciclo.
+    // 4. Remove o ID da assinatura do Supabase
     await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadora.id, {
       method: 'PATCH',
       headers: headersSupabase(env, true),
       body: JSON.stringify({
         asaas_subscription_id: null,
-        proxima_cobranca: null // Limpa a data da próxima cobrança pois não haverá mais
+        proxima_cobranca: null
       })
     });
 
-    return jsonResp({ ok: true, mensagem: 'Assinatura cancelada com sucesso.' }, 200);
+    return jsonResp({
+      ok: true,
+      ambiente: asaas.isSandbox ? 'sandbox' : 'producao',
+      mensagem: 'Assinatura cancelada com sucesso.'
+    }, 200);
 
   } catch (err) {
     console.error('Erro cancelar-assinatura:', err);
@@ -90,11 +110,18 @@ async function validarToken(env, request) {
 }
 
 function headersSupabase(env, temBody) {
-  const h = { 'apikey': env.SUPABASE_SERVICE_KEY, 'Authorization': 'Bearer ' + env.SUPABASE_SERVICE_KEY, 'Accept': 'application/json' };
+  const h = {
+    'apikey': env.SUPABASE_SERVICE_KEY,
+    'Authorization': 'Bearer ' + env.SUPABASE_SERVICE_KEY,
+    'Accept': 'application/json'
+  };
   if (temBody) h['Content-Type'] = 'application/json';
   return h;
 }
 
 function jsonResp(obj, status) {
-  return new Response(JSON.stringify(obj), { status: status || 200, headers: { 'Content-Type': 'application/json' } });
+  return new Response(JSON.stringify(obj), {
+    status: status || 200,
+    headers: { 'Content-Type': 'application/json' }
+  });
 }

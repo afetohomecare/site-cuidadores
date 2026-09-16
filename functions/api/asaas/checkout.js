@@ -3,28 +3,50 @@
 // ------------------------------------------------------------
 // PIX = Cobrança Avulsa (/payments)
 // Cartão = Assinatura Mensal (/subscriptions)
+//
+// 🌍 AMBIENTE: controlado por env.ASAAS_AMBIENTE
+//    • 'sandbox'  → testa no Asaas Sandbox
+//    • 'producao' → dinheiro de verdade (padrão)
 // ============================================================
 
-// 🔥 FORÇANDO ROTA PARA O SANDBOX PARA TESTES
-const ASAAS_URL = 'https://sandbox.asaas.com/api/v3';
+// 🔧 Lê a config do ambiente atual
+function getAsaasConfig(env) {
+  const ambiente = (env.ASAAS_AMBIENTE || 'producao').toLowerCase();
+  const isSandbox = ambiente === 'sandbox';
 
-function diasDoPlano(plano) {
-  return 30;
+  return {
+    url: isSandbox
+      ? 'https://sandbox.asaas.com/api/v3'
+      : 'https://api.asaas.com/v3',
+    apiKey: isSandbox
+      ? (env.ASAAS_API_KEY_SANDBOX || env.ASAAS_API_KEY)
+      : (env.ASAAS_API_KEY_PRODUCAO || env.ASAAS_API_KEY),
+    isSandbox: isSandbox
+  };
 }
 
-function nomeDoPlano(plano) {
+// 🔧 Nome bonito do plano pra aparecer na fatura
+function nomeDoPlanoBonito(plano) {
   if (plano === 'cadastro') return 'Cadastro Básico';
   if (plano === 'destaque') return 'Destaque';
   return 'Profissional';
 }
 
+function diasDoPlano(plano) {
+  return 30;
+}
+
 export async function onRequestPost(context) {
   const { request, env } = context;
-  const ASAAS_API_KEY = env.ASAAS_API_KEY;
+  const asaas = getAsaasConfig(env);
+  const ASAAS_API_KEY = asaas.apiKey;
+  const ASAAS_URL = asaas.url;
 
   if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_KEY) {
     return jsonResp({ error: 'Configuração do Supabase ausente' }, 500);
   }
+
+  console.log('🌍 Asaas em modo:', asaas.isSandbox ? 'SANDBOX' : 'PRODUÇÃO');
 
   try {
     const body = await request.json();
@@ -120,7 +142,7 @@ export async function onRequestPost(context) {
       return jsonResp({ error: 'Forma de pagamento obrigatória' }, 400);
     }
     if (!ASAAS_API_KEY) {
-      return jsonResp({ error: 'ASAAS_API_KEY não configurada' }, 500);
+      return jsonResp({ error: 'Chave do Asaas não configurada no ambiente: ' + (asaas.isSandbox ? 'SANDBOX' : 'PRODUCAO') }, 500);
     }
 
     // ⭐ DELETA COBRANÇA ANTIGA (se existir e não estiver paga)
@@ -147,9 +169,9 @@ export async function onRequestPost(context) {
       }
     }
 
-    console.log('Tentando criar/buscar cliente no Asaas com os dados:', { cpfLimpo, nome });
+    console.log('Criando/buscando cliente no Asaas:', { cpfLimpo, nome });
 
-    const customerId = await criarOuBuscarCliente(ASAAS_API_KEY, {
+    const customerId = await criarOuBuscarCliente(ASAAS_API_KEY, ASAAS_URL, {
       name: nome,
       cpfCnpj: cpfLimpo,
       mobilePhone: whatsLimpo,
@@ -167,13 +189,14 @@ export async function onRequestPost(context) {
     vencimento.setDate(vencimento.getDate() + 1);
     const dataVencimento = vencimento.toISOString().split('T')[0];
 
-    const descricaoCobranca = 'Plano Afeto - Wagner Frankowski';
-    
+    // ⭐ Descrição profissional (antes era nome pessoal)
+    const descricaoCobranca = 'Afeto — Plano ' + nomeDoPlanoBonito(plano);
+
     let cobrancaData;
     let isSubscription = false;
 
     // ============================================================
-    // ⭐ NOVO FLUXO: CARTÃO (Assinatura) vs PIX (Avulso)
+    // CARTÃO (Assinatura) vs PIX (Avulso)
     // ============================================================
     if (formaPagamento === 'CREDIT_CARD') {
       isSubscription = true;
@@ -181,12 +204,11 @@ export async function onRequestPost(context) {
         return jsonResp({ error: 'Dados do cartão obrigatórios' }, 400);
       }
 
-      // 🔥 TRUQUE DEFINITIVO: Ignora os dados incompletos da tela e força o CEP real
       const titularCartao = {
         name: nome,
         email: email || 'contato@afetocuidadores.com.br',
         cpfCnpj: cpfLimpo,
-        postalCode: '80020-000', // CEP genérico de Curitiba (com traço)
+        postalCode: '80020-000',
         addressNumber: '1',
         phone: whatsLimpo || '41999999999'
       };
@@ -195,7 +217,7 @@ export async function onRequestPost(context) {
         customer: customerId,
         billingType: 'CREDIT_CARD',
         value: valorFinal,
-        nextDueDate: dataHoje, // Cobra hoje a primeira parcela
+        nextDueDate: dataHoje,
         cycle: 'MONTHLY',
         description: descricaoCobranca,
         externalReference: cuidadorId || undefined,
@@ -214,7 +236,6 @@ export async function onRequestPost(context) {
         return jsonResp({ error: 'Falha ao criar assinatura', detalhe: cobrancaData }, 502);
       }
     } else {
-      // Fluxo PIX mantido igual
       const cobrancaBody = {
         customer: customerId,
         billingType: 'PIX',
@@ -236,7 +257,7 @@ export async function onRequestPost(context) {
       }
     }
 
-    // Salva o ID correspondente no Supabase
+    // Salva os IDs no Supabase
     if (cuidadorId) {
       const updatePayload = {
         asaas_customer_id: customerId,
@@ -290,6 +311,7 @@ export async function onRequestPost(context) {
     return jsonResp({
       ok: true,
       gratis: false,
+      ambiente: asaas.isSandbox ? 'sandbox' : 'producao',
       cobrancaId: cobrancaData.id,
       invoiceUrl: cobrancaData.invoiceUrl || '',
       status: cobrancaData.status,
@@ -311,7 +333,7 @@ export async function onRequestPost(context) {
 }
 
 // ============================================================
-// HELPERS 
+// HELPERS
 // ============================================================
 
 async function lerPrecoPlano(env, plano) {
@@ -388,20 +410,21 @@ async function registrarUsoCupom(env, cupom, cuidadorId, plano, valorBase, desco
   } catch (err) { console.warn('Erro uso cupom:', err); }
 }
 
-async function criarOuBuscarCliente(apiKey, dados) {
-  const buscaResp = await fetch(ASAAS_URL + '/customers?cpfCnpj=' + dados.cpfCnpj, {
+async function criarOuBuscarCliente(apiKey, baseUrl, dados) {
+  const buscaResp = await fetch(baseUrl + '/customers?cpfCnpj=' + dados.cpfCnpj, {
     headers: { 'User-Agent': 'Afeto/1.0', 'access_token': apiKey }
   });
   if (buscaResp.ok) {
     const buscaData = await buscaResp.json();
     if (buscaData.data && buscaData.data.length > 0) return buscaData.data[0].id;
   }
+
   const criarBody = { name: dados.name, cpfCnpj: dados.cpfCnpj };
   if (dados.mobilePhone) criarBody.mobilePhone = dados.mobilePhone;
   if (dados.email) criarBody.email = dados.email;
   if (dados.externalReference) criarBody.externalReference = dados.externalReference;
 
-  const criarResp = await fetch(ASAAS_URL + '/customers', {
+  const criarResp = await fetch(baseUrl + '/customers', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'User-Agent': 'Afeto/1.0', 'access_token': apiKey },
     body: JSON.stringify(criarBody)
