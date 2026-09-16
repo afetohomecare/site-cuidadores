@@ -5,12 +5,8 @@
 // Cartão = Assinatura Mensal (/subscriptions)
 // ============================================================
 
-const ASAAS_URL = 'https://api.asaas.com/v3';
-// No sandbox a URL muda, mas o Cloudflare geralmente lida com isso 
-// via variável de ambiente. Se a sua variável ASAAS_URL for fixa no painel,
-// certifique-se de que ela aponta para https://sandbox.asaas.com/api/v3 durante o teste!
-// Se você não tem variável ASAAS_URL, mude temporariamente a constante acima para testes:
-// const ASAAS_URL = 'https://sandbox.asaas.com/api/v3'; 
+// 🔥 FORÇANDO ROTA PARA O SANDBOX PARA TESTES
+const ASAAS_URL = 'https://sandbox.asaas.com/api/v3';
 
 function diasDoPlano(plano) {
   return 30;
@@ -150,6 +146,11 @@ export async function onRequestPost(context) {
         console.warn('Erro ao deletar cobrança antiga:', e);
       }
     }
+
+    // ============================================================
+    // 🔥 LOG PARA DEPURAR A CRIAÇÃO DO CLIENTE NO CONSOLE
+    // ============================================================
+    console.log('Tentando criar/buscar cliente no Asaas com os dados:', { cpfLimpo, nome });
 
     const customerId = await criarOuBuscarCliente(ASAAS_API_KEY, {
       name: nome,
