@@ -4,6 +4,10 @@
 // Recebe email + senha, valida no Supabase Auth e devolve
 // o access_token (JWT) que será usado pelas outras rotas admin.
 //
+// ⭐ SEGURANÇA: só deixa passar se o user tiver
+//    user_metadata.role === 'admin'. Cuidadoras têm
+//    role === 'cuidadora' e NÃO conseguem logar aqui.
+//
 // O token expira em ~1 hora. Depois disso o admin precisa
 // logar de novo.
 // ============================================================
@@ -40,6 +44,15 @@ export async function onRequestPost(context) {
 
     if (!resp.ok) {
       console.warn('Login falhou para', email, resp.status);
+      return jsonResp({ error: 'Email ou senha incorretos.' }, 401);
+    }
+
+    // ⭐ VALIDA ROLE
+    const role = data.user && data.user.user_metadata && data.user.user_metadata.role;
+
+    if (role !== 'admin') {
+      console.warn('Tentativa de login admin sem role. Email:', email, 'Role:', role);
+      // Mensagem genérica pra não vazar que o email existe
       return jsonResp({ error: 'Email ou senha incorretos.' }, 401);
     }
 
