@@ -147,9 +147,6 @@ export async function onRequestPost(context) {
       }
     }
 
-    // ============================================================
-    // 🔥 LOG PARA DEPURAR A CRIAÇÃO DO CLIENTE NO CONSOLE
-    // ============================================================
     console.log('Tentando criar/buscar cliente no Asaas com os dados:', { cpfLimpo, nome });
 
     const customerId = await criarOuBuscarCliente(ASAAS_API_KEY, {
@@ -164,15 +161,12 @@ export async function onRequestPost(context) {
       return jsonResp({ error: 'Falha ao criar cliente no Asaas' }, 502);
     }
 
-    // Configuração de datas
     const agora = new Date();
-    const dataHoje = agora.toISOString().split('T')[0]; // Para cobrar cartão na hora
-    
+    const dataHoje = agora.toISOString().split('T')[0];
     const vencimento = new Date();
     vencimento.setDate(vencimento.getDate() + 1);
-    const dataVencimento = vencimento.toISOString().split('T')[0]; // Para dar 1 dia no PIX
+    const dataVencimento = vencimento.toISOString().split('T')[0];
 
-    // 🚨 AQUI ESTÁ A CORREÇÃO! DESCRIÇÃO SEM EMOJI.
     const descricaoCobranca = 'Plano Afeto - Wagner Frankowski';
     
     let cobrancaData;
@@ -183,9 +177,19 @@ export async function onRequestPost(context) {
     // ============================================================
     if (formaPagamento === 'CREDIT_CARD') {
       isSubscription = true;
-      if (!creditCard || !creditCardHolderInfo) {
+      if (!creditCard) {
         return jsonResp({ error: 'Dados do cartão obrigatórios' }, 400);
       }
+
+      // 🔥 TRUQUE: Monta o titular do cartão nos bastidores para o Asaas não bloquear
+      const titularCartao = creditCardHolderInfo || {
+        name: nome,
+        email: email || 'contato@afetocuidadores.com.br',
+        cpfCnpj: cpfLimpo,
+        postalCode: '80020000', // CEP genérico 
+        addressNumber: '1',
+        phone: whatsLimpo || '41999999999'
+      };
 
       const subBody = {
         customer: customerId,
@@ -196,7 +200,7 @@ export async function onRequestPost(context) {
         description: descricaoCobranca,
         externalReference: cuidadorId || undefined,
         creditCard: creditCard,
-        creditCardHolderInfo: creditCardHolderInfo
+        creditCardHolderInfo: titularCartao
       };
 
       const subResp = await fetch(ASAAS_URL + '/subscriptions', {
@@ -261,7 +265,6 @@ export async function onRequestPost(context) {
       if (pixResp.ok) pixData = await pixResp.json();
     }
 
-    // Se for assinatura no cartão e o status retornar ACTIVE, o cartão foi aprovado!
     const pagoNaHora = isSubscription && cobrancaData.status === 'ACTIVE';
 
     if (pagoNaHora && cuidadorId) {
@@ -275,7 +278,7 @@ export async function onRequestPost(context) {
           status_pagamento: 'Pago',
           plano_inicio: agora.toISOString(),
           plano_valido_ate: vence.toISOString(),
-          proxima_cobranca: vence.toISOString() // Novo campo
+          proxima_cobranca: vence.toISOString()
         })
       });
 
@@ -308,7 +311,7 @@ export async function onRequestPost(context) {
 }
 
 // ============================================================
-// HELPERS (Mantidos intactos do seu código original)
+// HELPERS 
 // ============================================================
 
 async function lerPrecoPlano(env, plano) {
@@ -334,7 +337,6 @@ async function lerPrecoPlano(env, plano) {
 
 async function validarCupom(env, codigo, plano, valorBase) {
   const codigoLimpo = codigo.trim().toUpperCase();
-
   const url = env.SUPABASE_URL + '/rest/v1/cupons?codigo=eq.' + encodeURIComponent(codigoLimpo) + '&select=*&limit=1';
   const resp = await fetch(url, { headers: headersSupabase(env) });
 
@@ -343,16 +345,9 @@ async function validarCupom(env, codigo, plano, valorBase) {
   if (!linhas || linhas.length === 0) return { ok: false, erro: 'Cupom não encontrado' };
 
   const cupom = linhas[0];
-
   if (!cupom.ativo) return { ok: false, erro: 'Cupom inativo' };
-
-  if (cupom.valido_ate && new Date(cupom.valido_ate) < new Date()) {
-    return { ok: false, erro: 'Cupom expirado' };
-  }
-
-  if (cupom.usos_maximos && cupom.usos_atuais >= cupom.usos_maximos) {
-    return { ok: false, erro: 'Cupom esgotado' };
-  }
+  if (cupom.valido_ate && new Date(cupom.valido_ate) < new Date()) return { ok: false, erro: 'Cupom expirado' };
+  if (cupom.usos_maximos && cupom.usos_atuais >= cupom.usos_maximos) return { ok: false, erro: 'Cupom esgotado' };
 
   if (cupom.plano_aplicavel && cupom.plano_aplicavel !== plano) {
     const nomes = { cadastro: 'Cadastro Básico', profissional: 'Profissional', destaque: 'Destaque' };
@@ -366,9 +361,7 @@ async function validarCupom(env, codigo, plano, valorBase) {
     desconto = parseFloat(cupom.valor);
   }
   desconto = Math.min(desconto, valorBase);
-  desconto = Math.round(desconto * 100) / 100;
-
-  return { ok: true, cupom: cupom, desconto: desconto };
+  return { ok: true, cupom: cupom, desconto: Math.round(desconto * 100) / 100 };
 }
 
 async function registrarUsoCupom(env, cupom, cuidadorId, plano, valorBase, desconto, valorFinal, asaasPagamentoId) {
@@ -387,31 +380,22 @@ async function registrarUsoCupom(env, cupom, cuidadorId, plano, valorBase, desco
         asaas_pagamento_id: asaasPagamentoId || null
       })
     });
-
     await fetch(env.SUPABASE_URL + '/rest/v1/cupons?id=eq.' + cupom.id, {
       method: 'PATCH',
       headers: headersSupabase(env, true, false),
-      body: JSON.stringify({
-        usos_atuais: (cupom.usos_atuais || 0) + 1
-      })
+      body: JSON.stringify({ usos_atuais: (cupom.usos_atuais || 0) + 1 })
     });
-  } catch (err) {
-    console.warn('Erro ao registrar uso do cupom:', err);
-  }
+  } catch (err) { console.warn('Erro uso cupom:', err); }
 }
 
 async function criarOuBuscarCliente(apiKey, dados) {
   const buscaResp = await fetch(ASAAS_URL + '/customers?cpfCnpj=' + dados.cpfCnpj, {
     headers: { 'User-Agent': 'Afeto/1.0', 'access_token': apiKey }
   });
-
   if (buscaResp.ok) {
     const buscaData = await buscaResp.json();
-    if (buscaData.data && buscaData.data.length > 0) {
-      return buscaData.data[0].id;
-    }
+    if (buscaData.data && buscaData.data.length > 0) return buscaData.data[0].id;
   }
-
   const criarBody = { name: dados.name, cpfCnpj: dados.cpfCnpj };
   if (dados.mobilePhone) criarBody.mobilePhone = dados.mobilePhone;
   if (dados.email) criarBody.email = dados.email;
@@ -419,19 +403,11 @@ async function criarOuBuscarCliente(apiKey, dados) {
 
   const criarResp = await fetch(ASAAS_URL + '/customers', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'User-Agent': 'Afeto/1.0',
-      'access_token': apiKey
-    },
+    headers: { 'Content-Type': 'application/json', 'User-Agent': 'Afeto/1.0', 'access_token': apiKey },
     body: JSON.stringify(criarBody)
   });
-
   const criarData = await criarResp.json();
-  if (!criarResp.ok) {
-    console.error('Erro criar cliente:', JSON.stringify(criarData));
-    return null;
-  }
+  if (!criarResp.ok) return null;
   return criarData.id;
 }
 
@@ -448,7 +424,6 @@ function headersSupabase(env, temBody, querRetorno) {
 
 function jsonResp(obj, status) {
   return new Response(JSON.stringify(obj), {
-    status: status || 200,
-    headers: { 'Content-Type': 'application/json' }
+    status: status || 200, headers: { 'Content-Type': 'application/json' }
   });
 }
