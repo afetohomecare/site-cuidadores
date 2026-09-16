@@ -9,54 +9,397 @@
 <style>
 :root { --lilas: #8b5cf6; --lilas-escuro: #7c3aed; --fundo-site: #f8f9fc; --preto-fonte: #1f1f1f; --cinza-fonte: #666666; --cinza-azulado: #94a3b8; --branco: #ffffff; --ouro: #fbbf24; --verde: #10b981; --verde-claro: #ecfdf5; }
 * { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
 
 body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-height: 100vh; color: var(--preto-fonte); }
 
 .wrap { max-width: 900px; margin: 0 auto; padding: 40px 15px; }
 
 .header { text-align: center; margin-bottom: 30px; }
-
 .header .logo {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.16em;
-  font-family: 'Nunito', sans-serif;
-  font-weight: 900;
-  font-size: 26px;
-  line-height: 1;
-  letter-spacing: -0.03em;
-  color: var(--lilas);
-  text-decoration: none;
-  margin-bottom: 16px;
+  display: inline-flex; align-items: center; gap: 0.16em;
+  font-weight: 900; font-size: 26px; line-height: 1; letter-spacing: -0.03em;
+  color: var(--lilas); text-decoration: none; margin-bottom: 16px;
 }
-.header .logo__mark {
-  flex: none;
-  width: 1.11em;
-  height: 0.69em;
-  transform: translateY(-0.02em);
-  overflow: visible;
+.header .logo__mark { flex: none; width: 1.11em; height: 0.69em; transform: translateY(-0.02em); overflow: visible; }
+.header .logo__mark path { fill: none; stroke: currentColor; stroke-width: 13; stroke-linecap: round; }
+.header h1 { font-size: 30px; font-weight: 900; letter-spacing: -1px; margin-bottom: 12px; line-height: 1.2; }
+.header h1 span { color: var(--lilas-escuro); }
+.header p { font-size: 15px; color: var(--cinza-fonte); font-weight: 700; max-width: 540px; margin: 0 auto; line-height: 1.55; }
+
+.beneficios-afeto {
+  background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+  border-radius: 30px; padding: 50px 40px; margin-bottom: 30px;
+  border: 1px solid #ddd6fe; position: relative; overflow: hidden;
 }
-.header .logo__mark path {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 13;
-  stroke-linecap: round;
+.beneficios-afeto::before {
+  content: ""; position: absolute; top: -80px; right: -80px;
+  width: 260px; height: 260px;
+  background: radial-gradient(circle, rgba(139,92,246,0.15), transparent 70%);
+  border-radius: 50%; pointer-events: none;
+}
+.beneficios-afeto::after {
+  content: ""; position: absolute; bottom: -100px; left: -100px;
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(251,191,36,0.12), transparent 70%);
+  border-radius: 50%; pointer-events: none;
 }
 
-.header h1 { font-size: 28px; font-weight: 900; letter-spacing: -1px; margin-bottom: 12px; line-height: 1.2; }
-.header p { font-size: 15px; color: var(--cinza-fonte); font-weight: 700; max-width: 520px; margin: 0 auto; line-height: 1.55; }
+.beneficios-header { text-align: center; margin-bottom: 42px; position: relative; z-index: 2; }
+.beneficios-header .beneficios-tag {
+  display: inline-block; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro));
+  color: white; padding: 6px 18px; border-radius: 50px;
+  font-size: 12px; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase;
+  margin-bottom: 18px; box-shadow: 0 8px 20px rgba(139,92,246,0.25);
+}
+.beneficios-header h2 { font-size: 32px; font-weight: 900; letter-spacing: -1px; margin-bottom: 12px; color: var(--preto-fonte); line-height: 1.15; }
+.beneficios-header h2 span { color: var(--lilas-escuro); }
+.beneficios-header p { font-size: 16px; font-weight: 700; color: var(--cinza-fonte); max-width: 600px; margin: 0 auto; line-height: 1.55; }
 
-.cards { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; align-items: stretch; margin-bottom: 24px; }
+.mockups-area { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: start; margin-bottom: 30px; position: relative; z-index: 2; }
+.mockup-bloco { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.mockup-bloco .mockup-titulo {
+  text-align: center; font-size: 14px; font-weight: 900; color: var(--lilas-escuro);
+  line-height: 1.4; max-width: 240px; height: 84px;
+  display: flex; flex-direction: column; justify-content: flex-end; align-items: center;
+  padding-bottom: 4px;
+}
+.mockup-bloco .mockup-titulo small { display: block; font-size: 12px; font-weight: 700; color: var(--cinza-fonte); margin-top: 6px; line-height: 1.5; }
 
+.phone {
+  width: 220px; max-width: 100%; background: #1f1f1f; border-radius: 32px;
+  padding: 10px; box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+  position: relative; transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+.phone::before {
+  content: ""; position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+  width: 70px; height: 5px; background: #333; border-radius: 20px; z-index: 3;
+}
+.phone-tela { background: white; border-radius: 24px; overflow: hidden; height: 380px; position: relative; }
+
+.phone-interativo { cursor: pointer; }
+.phone-interativo:hover { transform: translateY(-6px); box-shadow: 0 32px 60px rgba(0,0,0,0.3), 0 0 0 3px rgba(139,92,246,0.15); }
+.phone-interativo:active { transform: translateY(-3px) scale(0.99); }
+
+.phone-interativo .phone-tela { display: grid; }
+.phone-interativo .phone-screen {
+  grid-area: 1 / 1; width: 100%; height: 380px; overflow: hidden;
+  transition: transform 0.65s cubic-bezier(0.65, 0, 0.35, 1), opacity 0.45s ease;
+  will-change: transform;
+}
+.phone-interativo .phone-screen.screen-principal { transform: translateX(0); opacity: 1; z-index: 2; position: relative; }
+.phone-interativo .phone-screen.screen-perfil { transform: translateX(100%); opacity: 0; z-index: 1; position: relative; }
+.phone-interativo.aberto .phone-screen.screen-principal { transform: translateX(-100%); opacity: 0; }
+.phone-interativo.aberto .phone-screen.screen-perfil { transform: translateX(0); opacity: 1; }
+
+.mockup-link-hint { position: relative; z-index: 1; }
+.mockup-link-hint::before {
+  content: ""; position: absolute; inset: -3px -7px; border-radius: 8px;
+  background: rgba(0, 149, 246, 0.15); z-index: -1;
+  animation: linkPulse 2.2s ease-in-out infinite; pointer-events: none;
+}
+@keyframes linkPulse { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 1; transform: scale(1.06); } }
+
+/* ============ AVATARES COM INICIAL ============ */
+.avatar-inicial {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-weight: 900;
+  background: linear-gradient(135deg, #a78bfa, #8b5cf6);
+  border-radius: 50%;
+}
+
+/* INSTAGRAM */
+.insta-header {
+  background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
+  padding: 18px 12px 6px; text-align: center;
+  color: white; font-size: 11px; font-weight: 900; letter-spacing: 0.5px;
+}
+.insta-perfil { padding: 12px 12px 8px; display: flex; gap: 10px; align-items: center; }
+.insta-avatar {
+  width: 54px; height: 54px; border-radius: 50%; padding: 3px;
+  background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
+  flex-shrink: 0; overflow: hidden;
+}
+.insta-avatar .avatar-inicial { font-size: 22px; border: 2.5px solid white; }
+.insta-stats { display: flex; gap: 6px; flex: 1; }
+.insta-stat { text-align: center; flex: 1; }
+.insta-stat b { font-size: 12px; font-weight: 900; display: block; color: var(--preto-fonte); }
+.insta-stat span { font-size: 9px; color: var(--cinza-fonte); font-weight: 600; }
+.insta-bio { padding: 0 12px 16px; font-size: 11px; line-height: 1.55; color: var(--preto-fonte); }
+.insta-bio .nome { font-weight: 900; font-size: 12px; margin-bottom: 4px; }
+.insta-bio .desc { color: var(--preto-fonte); font-weight: 600; line-height: 1.55; }
+.insta-bio .link {
+  color: #0095f6; font-weight: 800; display: inline-flex;
+  align-items: center; gap: 4px; margin-top: 8px; font-size: 10.5px;
+}
+
+/* WHATSAPP */
+.zap-header {
+  background: #075e54; color: white; padding: 18px 12px 8px;
+  display: flex; align-items: center; gap: 10px; font-size: 12px; font-weight: 800;
+}
+.zap-header .zap-avatar {
+  width: 26px; height: 26px; border-radius: 50%; overflow: hidden; flex-shrink: 0;
+}
+.zap-header .zap-avatar .avatar-inicial { font-size: 12px; }
+.zap-body {
+  background: #ece5dd; padding: 14px 12px; flex: 1;
+  display: flex; flex-direction: column; gap: 8px; justify-content: flex-start;
+}
+.zap-msg {
+  background: white; padding: 8px 11px; border-radius: 10px;
+  font-size: 11px; color: var(--preto-fonte); line-height: 1.45;
+  max-width: 92%; box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+}
+.zap-msg.enviada { background: #dcf8c6; align-self: flex-end; }
+.zap-msg .link { color: #039be5; text-decoration: underline; font-weight: 700; word-break: break-all; }
+.zap-msg .hora { display: block; text-align: right; font-size: 8.5px; color: #999; margin-top: 3px; font-weight: 700; }
+
+/* PERFIL COMPACTO */
+.perfil-screen-compact { display: flex !important; flex-direction: column; height: 380px; }
+.perfil-topo-compact {
+  background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro));
+  padding: 22px 14px 12px; display: flex; align-items: center; gap: 10px;
+  color: white; flex-shrink: 0;
+}
+.perfil-topo-compact .btn-voltar {
+  width: 26px; height: 26px; background: rgba(255,255,255,0.25);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 11px; flex-shrink: 0;
+  animation: voltarHint 2.5s ease-in-out infinite;
+}
+@keyframes voltarHint { 0%, 100% { transform: translateX(0); opacity: 0.9; } 50% { transform: translateX(-3px); opacity: 1; } }
+.perfil-topo-compact .perfil-titulo-logo {
+  display: inline-flex; align-items: center; gap: 0.14em;
+  font-weight: 900; font-size: 14px; letter-spacing: -0.03em;
+}
+.perfil-topo-compact .perfil-titulo-logo::before { content: "💜"; font-size: 11px; }
+
+.perfil-conteudo-compact {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 10px 16px 14px; gap: 8px; text-align: center;
+}
+.perfil-disp-compact {
+  background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro));
+  color: white; font-size: 9px; font-weight: 900; letter-spacing: 0.4px;
+  padding: 4px 12px; border-radius: 20px; display: inline-flex;
+  align-items: center; gap: 5px;
+  box-shadow: 0 4px 12px rgba(139,92,246,0.3); text-transform: uppercase;
+}
+.perfil-disp-compact .pulse-dot {
+  width: 5px; height: 5px; background: white; border-radius: 50%;
+  box-shadow: 0 0 6px rgba(255,255,255,0.9);
+  animation: pulseDotMini 1.5s infinite;
+}
+@keyframes pulseDotMini { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.4); } }
+
+.perfil-foto-compact {
+  width: 62px; height: 62px; border-radius: 50%; padding: 3px;
+  background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro));
+  box-shadow: 0 10px 22px rgba(139,92,246,0.3);
+  flex-shrink: 0; overflow: hidden;
+}
+.perfil-foto-compact .avatar-inicial { font-size: 26px; border: 2px solid white; }
+
+.perfil-nome-compact { font-size: 15px; font-weight: 900; color: var(--preto-fonte); letter-spacing: -0.4px; line-height: 1.1; }
+.perfil-espec-compact { font-size: 10.5px; font-weight: 800; color: var(--lilas-escuro); line-height: 1.2; margin-top: -3px; }
+.perfil-bairro-compact {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10px; font-weight: 700; color: var(--cinza-fonte); margin-top: -3px;
+}
+.perfil-bairro-compact i { color: var(--lilas); font-size: 9px; }
+
+.perfil-bio-compact {
+  background: #faf5ff; border-left: 3px solid var(--lilas);
+  border-radius: 8px; padding: 7px 10px; font-size: 10px;
+  line-height: 1.4; color: var(--cinza-fonte); font-weight: 600;
+  width: 100%; text-align: left; font-style: italic; margin-top: 1px;
+}
+
+.perfil-comentario-compact {
+  background: #fffbeb; border-left: 3px solid #fbbf24;
+  border-radius: 8px; padding: 7px 10px; width: 100%; text-align: left; margin-top: 1px;
+}
+.perfil-comentario-compact .estrelas-mini { color: #fbbf24; font-size: 10px; letter-spacing: 1px; line-height: 1; display: block; margin-bottom: 3px; }
+.perfil-comentario-compact .texto-mini { font-size: 9.5px; font-weight: 700; color: var(--preto-fonte); line-height: 1.35; font-style: italic; }
+.perfil-comentario-compact .autor-mini { font-size: 8.5px; font-weight: 800; color: var(--cinza-azulado); margin-top: 3px; display: block; }
+
+.perfil-btn-whats-compact {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white; padding: 9px 16px; border-radius: 30px;
+  display: flex; align-items: center; justify-content: center;
+  gap: 7px; font-size: 11px; font-weight: 900;
+  box-shadow: 0 6px 16px rgba(16,185,129,0.3);
+  width: 100%; margin-top: 2px;
+}
+
+/* PAINEL */
+.painel-tela { padding: 0; }
+.painel-topo {
+  background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro));
+  padding: 22px 14px 14px; display: flex; justify-content: space-between;
+  align-items: center; color: white;
+}
+.painel-logo { display: inline-flex; align-items: center; gap: 0.14em; font-weight: 900; font-size: 14px; letter-spacing: -0.03em; }
+.painel-logo::before { content: "💜"; font-size: 11px; }
+.painel-sino {
+  width: 22px; height: 22px; background: rgba(255,255,255,0.2);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 10px; position: relative;
+}
+.painel-sino::after {
+  content: ""; position: absolute; top: 3px; right: 3px;
+  width: 6px; height: 6px; background: #fbbf24; border-radius: 50%;
+  border: 1.5px solid var(--lilas);
+}
+.painel-saudacao { padding: 14px 14px 10px; display: flex; align-items: center; gap: 10px; }
+.painel-avatar {
+  width: 38px; height: 38px; border-radius: 50%; overflow: hidden;
+  flex-shrink: 0;
+}
+.painel-avatar .avatar-inicial { font-size: 15px; }
+.painel-ola { font-size: 13px; font-weight: 900; color: var(--preto-fonte); line-height: 1.2; margin-bottom: 3px; }
+.painel-status {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10px; font-weight: 800; color: #059669;
+  background: #ecfdf5; padding: 3px 8px; border-radius: 20px;
+  border: 1px solid #a7f3d0;
+}
+.painel-dot {
+  width: 5px; height: 5px; background: #10b981; border-radius: 50%;
+  box-shadow: 0 0 4px #10b981; animation: pulseDotMini 1.8s infinite;
+}
+.painel-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; padding: 6px 12px 12px; }
+.painel-stat {
+  background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+  border: 1px solid #ddd6fe; border-radius: 12px;
+  padding: 10px 6px; text-align: center;
+}
+.painel-stat b { display: block; font-size: 16px; font-weight: 900; color: var(--lilas-escuro); line-height: 1; letter-spacing: -0.5px; }
+.painel-stat span { display: block; font-size: 8.5px; font-weight: 800; color: var(--cinza-fonte); text-transform: uppercase; letter-spacing: 0.3px; margin-top: 4px; }
+.painel-menu { padding: 4px 12px 16px; display: flex; flex-direction: column; gap: 2px; }
+.painel-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 10px; border-radius: 10px;
+  font-size: 11.5px; font-weight: 800; color: var(--cinza-fonte);
+  transition: 0.2s;
+}
+.painel-item i {
+  width: 22px; height: 22px; border-radius: 7px;
+  background: #f5f3ff; color: var(--lilas-escuro);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; flex-shrink: 0;
+}
+.painel-item.destaque-item { background: linear-gradient(135deg, #f5f3ff, #ede9fe); color: var(--lilas-escuro); }
+
+/* CTA ÂNCORA */
+.cta-ancora { text-align: center; margin: -15px 0 45px 0; position: relative; z-index: 2; }
+.cta-ancora a {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 14px 32px; background: white; color: var(--lilas-escuro);
+  border: 2px solid var(--lilas); border-radius: 50px;
+  font-size: 15px; font-weight: 900; text-decoration: none;
+  transition: 0.3s; box-shadow: 0 10px 25px rgba(139,92,246,0.15);
+}
+.cta-ancora a:hover {
+  background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro));
+  color: white; transform: translateY(-3px);
+  box-shadow: 0 15px 35px rgba(139,92,246,0.35);
+}
+.cta-ancora a i { animation: arrowDown 1.8s ease-in-out infinite; }
+@keyframes arrowDown { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(3px); } }
+
+.beneficios-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 45px; position: relative; z-index: 2; }
+.beneficio-item {
+  background: white; border-radius: 20px; padding: 26px 22px;
+  border: 1px solid #e2e8f0; transition: 0.3s; text-align: center;
+}
+.beneficio-item:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(139,92,246,0.12); border-color: var(--lilas); }
+.beneficio-item .ico {
+  width: 52px; height: 52px; border-radius: 14px;
+  background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+  color: var(--lilas-escuro); display: flex; align-items: center; justify-content: center;
+  font-size: 22px; margin: 0 auto 14px; border: 1px solid #ddd6fe;
+}
+.beneficio-item h3 { font-size: 16px; font-weight: 900; margin-bottom: 8px; color: var(--preto-fonte); line-height: 1.3; }
+.beneficio-item p { font-size: 13.5px; font-weight: 600; color: var(--cinza-fonte); line-height: 1.55; margin: 0; }
+
+.comparativo-afeto-agencias {
+  background: white; border-radius: 24px; padding: 32px 28px;
+  border: 1px solid #e2e8f0; position: relative; z-index: 2;
+}
+.comparativo-afeto-agencias h3 { font-size: 20px; font-weight: 900; text-align: center; margin-bottom: 8px; color: var(--preto-fonte); letter-spacing: -0.5px; }
+.comparativo-afeto-agencias .sub { text-align: center; font-size: 14px; color: var(--cinza-fonte); font-weight: 700; margin-bottom: 26px; }
+.comp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.comp-col { padding: 20px 18px; border-radius: 18px; }
+.comp-col.agencia { background: #fef2f2; border: 1px solid #fecaca; }
+.comp-col.afeto { background: linear-gradient(135deg, #f5f3ff, #ede9fe); border: 1px solid #c4b5fd; }
+.comp-col h4 { font-size: 14px; font-weight: 900; margin-bottom: 14px; display: flex; align-items: center; gap: 6px; }
+.comp-col.agencia h4 { color: #991b1b; }
+.comp-col.afeto h4 { color: var(--lilas-escuro); }
+.comp-col ul { list-style: none; padding: 0; margin: 0; }
+.comp-col li { font-size: 13px; font-weight: 700; padding: 7px 0; display: flex; gap: 8px; align-items: flex-start; line-height: 1.45; }
+.comp-col li i { margin-top: 3px; flex-shrink: 0; }
+.comp-col.agencia li { color: #7f1d1d; }
+.comp-col.agencia li i { color: #dc2626; }
+.comp-col.afeto li { color: var(--lilas-escuro); }
+.comp-col.afeto li i { color: var(--verde); }
+
+/* CARDS */
+.cards { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; align-items: stretch; margin-bottom: 30px; scroll-margin-top: 20px; }
 .card { background: white; border-radius: 20px; padding: 30px 24px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; transition: 0.3s; position: relative; }
 .card.profissional { border: 2px solid var(--lilas); box-shadow: 0 20px 40px rgba(139,92,246,0.1); }
-.card.profissional::before { content: "MAIS ESCOLHIDO"; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; padding: 5px 14px; border-radius: 50px; font-size: 10px; font-weight: 900; letter-spacing: 1px; white-space: nowrap; }
-
-.card-nome { font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 20px; color: var(--cinza-fonte); display: flex; align-items: center; gap: 8px; }
+.card.profissional::before {
+  content: "MAIS ESCOLHIDO"; position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+  background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro));
+  color: white; padding: 5px 14px; border-radius: 50px;
+  font-size: 10px; font-weight: 900; letter-spacing: 1px; white-space: nowrap;
+}
+.card-nome {
+  font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: 1.2px;
+  margin-bottom: 6px; color: var(--cinza-fonte);
+  display: flex; align-items: center; gap: 8px;
+}
 .card.profissional .card-nome { color: var(--lilas); }
 .card.destaque .card-nome { color: var(--ouro); }
+.card-tagline { font-size: 12.5px; font-weight: 700; color: var(--lilas-escuro); margin-bottom: 18px; }
 
-.card-preco { margin-bottom: 24px; }
+.card-preco { margin-bottom: 20px; }
+
+.preco-de-linha {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+}
+.card-preco .preco-de {
+  position: relative; display: inline-block;
+  font-size: 13px; font-weight: 700; color: #94a3b8;
+  letter-spacing: 0; line-height: 1.3; padding: 0 3px;
+}
+.card-preco .preco-de::after {
+  content: ""; position: absolute; top: 50%; left: -1px; right: -1px;
+  height: 1.5px; background: #fca5a5;
+  transform: translateY(-50%) rotate(-9deg);
+  transform-origin: center; border-radius: 2px; pointer-events: none;
+}
+.card-preco .desconto-badge {
+  display: inline-block;
+  background: #fef2f2;
+  color: #dc2626;
+  font-size: 10.5px;
+  font-weight: 900;
+  padding: 2px 8px;
+  border-radius: 20px;
+  border: 1px solid #fecaca;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
 .card-preco .linha-preco { display: flex; align-items: baseline; gap: 2px; }
 .card-preco .cifra { font-size: 15px; font-weight: 800; color: var(--cinza-fonte); }
 .card-preco .valor { font-size: 38px; font-weight: 900; letter-spacing: -2px; line-height: 1; color: var(--preto-fonte); }
@@ -66,14 +409,21 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
 .card-preco .nota { font-size: 12px; font-weight: 700; color: var(--cinza-azulado); margin-top: 8px; }
 
 .card-divisor { height: 1px; background: #f1f5f9; margin-bottom: 20px; }
-
-.card-lista { list-style: none; flex: 1; margin-bottom: 24px; }
-.card-lista li { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; font-weight: 700; line-height: 1.5; padding: 6px 0; color: var(--cinza-fonte); }
+.card-lista { list-style: none; flex: 1; margin-bottom: 20px; }
+.card-lista li {
+  display: flex; align-items: flex-start; gap: 10px;
+  font-size: 13px; font-weight: 700; line-height: 1.5; padding: 6px 0; color: var(--cinza-fonte);
+}
 .card-lista li i { color: var(--lilas); font-size: 11px; margin-top: 4px; flex-shrink: 0; width: 12px; }
 .card-lista li.item-extra i { color: var(--ouro); }
 .card-lista li strong { color: var(--preto-fonte); }
 
-.card-btn { display: flex; align-items: center; justify-content: center; width: 100%; padding: 13px; border-radius: 12px; font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 900; cursor: pointer; text-decoration: none; transition: 0.3s; border: none; }
+.card-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; padding: 13px; border-radius: 12px;
+  font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 900;
+  cursor: pointer; text-decoration: none; transition: 0.3s; border: none;
+}
 .card-btn.cadastro-btn { background: var(--verde-claro); color: #059669; border: 1px solid #6ee7b7; }
 .card-btn.cadastro-btn:hover { background: #d1fae5; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(16,185,129,0.2); }
 .card-btn.profissional-btn { background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; box-shadow: 0 8px 20px rgba(139,92,246,0.3); }
@@ -81,34 +431,60 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
 .card-btn.destaque-btn { background: transparent; color: var(--preto-fonte); border: 2px solid var(--ouro); }
 .card-btn.destaque-btn:hover { background: #fffbeb; }
 
-.card-nota { text-align: center; font-size: 11px; color: var(--cinza-azulado); font-weight: 700; margin-top: 12px; }
+.card-seguranca {
+  text-align: center; font-size: 10.5px; font-weight: 700;
+  color: var(--cinza-azulado); margin-top: 10px;
+  display: flex; align-items: center; justify-content: center;
+  gap: 5px; line-height: 1.4;
+}
+.card-seguranca i { color: var(--verde); font-size: 11px; }
 
-.tag-fundadora { background: linear-gradient(135deg, #fffbeb, #fef3c7); border: 1px solid #fde68a; border-radius: 12px; padding: 12px 18px; margin-bottom: 16px; text-align: center; font-size: 13px; font-weight: 800; color: #78350f; display: flex; align-items: center; justify-content: center; gap: 8px; }
-.tag-fundadora i { color: #d97706; font-size: 15px; }
-
-.sem-fidelidade { background: linear-gradient(135deg, #f5f3ff, #ede9fe); border-radius: 16px; padding: 20px 24px; margin-bottom: 24px; display: flex; gap: 14px; align-items: center; border: 1px solid #c4b5fd; }
-.sem-fidelidade .icone { width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; box-shadow: 0 8px 20px rgba(139,92,246,0.25); }
-.sem-fidelidade p { font-size: 13px; color: var(--lilas-escuro); font-weight: 800; line-height: 1.55; margin: 0; }
-.sem-fidelidade strong { color: var(--preto-fonte); }
-
-.ja-paguei { text-align: center; margin: 30px 0 10px 0; padding: 24px; background: linear-gradient(135deg, #f5f3ff, #ede9fe); border-radius: 16px; border: 1px solid #ddd6fe; }
-.ja-paguei p { font-size: 15px; font-weight: 800; color: var(--lilas-escuro); margin-bottom: 14px; }
-.ja-paguei a { display: inline-flex; align-items: center; gap: 10px; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; padding: 14px 32px; border-radius: 50px; font-size: 15px; font-weight: 900; text-decoration: none; box-shadow: 0 8px 20px rgba(139,92,246,0.3); transition: 0.3s; }
-.ja-paguei a:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(139,92,246,0.4); }
-
-.comparativo { background: white; border-radius: 20px; padding: 30px 26px; border: 1px solid #e2e8f0; margin-bottom: 24px; }
+.comparativo { background: white; border-radius: 20px; padding: 30px 26px; border: 1px solid #e2e8f0; margin-bottom: 30px; }
 .comparativo h3 { font-size: 16px; font-weight: 900; text-align: center; margin-bottom: 22px; letter-spacing: -0.5px; }
 .comparativo-tabela { width: 100%; border-collapse: collapse; font-size: 13px; }
-.comparativo-tabela th { text-align: center; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; color: var(--cinza-fonte); padding: 8px 6px; border-bottom: 2px solid #e2e8f0; }
+.comparativo-tabela th {
+  text-align: center; font-size: 11px; font-weight: 900;
+  text-transform: uppercase; letter-spacing: 0.5px;
+  color: var(--cinza-fonte); padding: 8px 6px;
+  border-bottom: 2px solid #e2e8f0;
+}
 .comparativo-tabela th:first-child { text-align: left; }
 .comparativo-tabela th.destaque-col { color: var(--lilas); }
-.comparativo-tabela td { padding: 11px 6px; border-bottom: 1px solid #f1f5f9; text-align: center; font-weight: 700; color: var(--cinza-fonte); }
+.comparativo-tabela td {
+  padding: 11px 6px; border-bottom: 1px solid #f1f5f9;
+  text-align: center; font-weight: 700; color: var(--cinza-fonte);
+}
 .comparativo-tabela td:first-child { text-align: left; color: var(--preto-fonte); font-weight: 800; }
 .comparativo-tabela .check { color: var(--verde); font-size: 15px; }
 .comparativo-tabela .x { color: #cbd5e1; font-size: 15px; }
 
+.faq-secao { margin-bottom: 30px; }
+.faq-secao h3 { font-size: 22px; font-weight: 900; text-align: center; margin-bottom: 24px; color: var(--preto-fonte); letter-spacing: -0.5px; }
+.faq-item { background: white; border-radius: 16px; border: 1px solid #e2e8f0; margin-bottom: 12px; overflow: hidden; transition: 0.2s; }
+.faq-item[open] { border-color: var(--lilas); box-shadow: 0 8px 24px rgba(139,92,246,0.08); }
+.faq-item summary {
+  padding: 18px 22px; font-size: 14.5px; font-weight: 900;
+  color: var(--preto-fonte); cursor: pointer; list-style: none;
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 12px; transition: 0.2s;
+}
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary::after { content: "＋"; color: var(--lilas); font-size: 18px; font-weight: 900; transition: 0.3s; flex-shrink: 0; }
+.faq-item[open] summary::after { content: "−"; }
+.faq-item summary:hover { background: #faf5ff; }
+.faq-item .faq-resposta {
+  padding: 0 22px 20px; font-size: 13.5px; font-weight: 600;
+  color: var(--cinza-fonte); line-height: 1.6;
+  border-top: 1px solid #f1f5f9; padding-top: 16px;
+}
+
 .info-bloco { background: white; border-radius: 16px; padding: 20px 24px; margin-bottom: 24px; display: flex; gap: 14px; align-items: flex-start; border: 1px solid #e2e8f0; }
-.info-bloco .icone { width: 40px; height: 40px; border-radius: 10px; background: #f1f5f9; color: var(--cinza-fonte); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.info-bloco .icone {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: #f1f5f9; color: var(--cinza-fonte);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; flex-shrink: 0;
+}
 .info-bloco p { font-size: 13px; color: var(--cinza-fonte); font-weight: 700; line-height: 1.6; margin: 0; }
 .info-bloco strong { color: var(--preto-fonte); }
 
@@ -124,7 +500,13 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
 .footer-content p { margin-bottom: 25px; }
 .footer-aviso { font-size: 11px; color: var(--cinza-azulado); font-weight: 600; line-height: 1.5; font-style: italic; padding: 0 20px; }
 .footer-social { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; }
-.footer-social a { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; display: flex; justify-content: center; align-items: center; font-size: 22px; box-shadow: 0 8px 20px rgba(139,92,246,0.25); transition: 0.3s; text-decoration: none; }
+.footer-social a {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro));
+  color: white; display: flex; justify-content: center; align-items: center;
+  font-size: 22px; box-shadow: 0 8px 20px rgba(139,92,246,0.25);
+  transition: 0.3s; text-decoration: none;
+}
 .footer-social a:hover { transform: translateY(-4px) scale(1.08); }
 .footer-info { display: flex; justify-content: center; gap: 25px; flex-wrap: wrap; margin-bottom: 25px; font-size: 14px; color: var(--cinza-fonte); font-weight: 700; }
 .footer-info i { color: var(--lilas); margin-right: 6px; }
@@ -133,22 +515,52 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
 .footer-links a:hover { color: var(--lilas); text-decoration: underline; }
 .footer-legal { font-size: 11px; color: var(--cinza-azulado); border-top: 1px solid #e2e8f0; padding-top: 20px; }
 
+.scroll-hint {
+  display: none; text-align: center; font-size: 12px; font-weight: 800;
+  color: var(--lilas-escuro); margin-top: -20px; margin-bottom: 30px;
+  animation: pulseHint 2s ease-in-out infinite; position: relative; z-index: 2;
+}
+.scroll-hint i { display: inline-block; animation: moveHint 1.5s ease-in-out infinite; }
+@keyframes pulseHint { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
+@keyframes moveHint { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(6px); } }
+
 @media (max-width: 750px) {
     .wrap { padding: 28px 14px; }
+    .header h1 { font-size: 24px; }
+    .header p { font-size: 14px; }
     .cards { grid-template-columns: 1fr; gap: 22px; }
     .card { padding: 26px 22px; }
     .card.profissional::before { font-size: 9px; padding: 4px 12px; }
-    .header h1 { font-size: 23px; }
-    .header p { font-size: 14px; }
     .comparativo { padding: 22px 14px; }
     .comparativo-tabela th, .comparativo-tabela td { font-size: 11.5px; padding: 9px 4px; }
     .comparativo-tabela th:first-child, .comparativo-tabela td:first-child { font-size: 12px; }
-    .sem-fidelidade { padding: 16px 18px; }
-    .tag-fundadora { font-size: 12px; padding: 10px 14px; text-align: center; }
     .site-footer { padding: 40px 18px 25px; }
     .rodape-seguranca { gap: 20px; padding: 15px 0 8px; }
     .rodape-seguranca .item-seg i { font-size: 20px; }
     .rodape-seguranca .item-seg .texto-seg .titulo-seg { font-size: 13px; }
+    .beneficios-afeto { padding: 35px 20px; border-radius: 24px; }
+    .beneficios-grid { grid-template-columns: 1fr; gap: 12px; }
+    .comp-grid { grid-template-columns: 1fr; }
+    .beneficios-header h2 { font-size: 22px; }
+    .beneficios-header p { font-size: 14.5px; }
+    .mockup-bloco .mockup-titulo { height: auto; min-height: 72px; }
+
+    .mockups-area {
+        display: flex; flex-wrap: nowrap;
+        overflow-x: auto; overflow-y: hidden;
+        gap: 20px; margin-bottom: 15px;
+        padding: 5px 20px 20px 20px;
+        margin-left: -20px; margin-right: -20px;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+        scrollbar-color: var(--lilas) transparent;
+    }
+    .mockups-area::-webkit-scrollbar { height: 6px; }
+    .mockups-area::-webkit-scrollbar-track { background: rgba(139,92,246,0.08); border-radius: 10px; margin: 0 20px; }
+    .mockups-area::-webkit-scrollbar-thumb { background: var(--lilas); border-radius: 10px; }
+    .mockups-area .mockup-bloco { flex: 0 0 85%; max-width: 320px; scroll-snap-align: center; }
+    .scroll-hint { display: block; }
 }
 </style>
 </head>
@@ -164,46 +576,269 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
             </svg>
             <span class="logo__text">Afeto</span>
         </div>
-        <h1>Escolha como quer aparecer</h1>
-        <p>Seu perfil profissional na Afeto. Comece pelo Cadastro Básico e cresça quando fizer sentido para você.</p>
+        <h1>Comece a ser encontrada <span>pelas famílias certas.</span></h1>
+        <p>Seu perfil profissional, seu link exclusivo e famílias chegando até você — sem intermediários, sem comissão.</p>
     </div>
 
-    <div class="cards">
+    <section class="beneficios-afeto">
+
+      <div class="beneficios-header">
+        <span class="beneficios-tag">💜 Sua vitrine profissional</span>
+        <h2>Veja como sua vitrine <span>funciona por dentro.</span></h2>
+        <p>Toque nos celulares e veja o que suas futuras famílias vão enxergar quando você compartilhar seu link.</p>
+      </div>
+
+      <div class="mockups-area">
+
+        <!-- INSTAGRAM -->
+        <div class="mockup-bloco">
+          <div class="mockup-titulo">
+            Seu perfil no Instagram
+            <small>Toque no link e veja o perfil por dentro</small>
+          </div>
+          <div class="phone phone-interativo" data-mockup="1">
+            <div class="phone-tela">
+              <div class="phone-screen screen-principal">
+                <div class="insta-header">Instagram</div>
+                <div class="insta-perfil">
+                  <div class="insta-avatar"><div class="avatar-inicial">M</div></div>
+                  <div class="insta-stats">
+                    <div class="insta-stat"><b>142</b><span>posts</span></div>
+                    <div class="insta-stat"><b>1.2k</b><span>seguidores</span></div>
+                    <div class="insta-stat"><b>380</b><span>seguindo</span></div>
+                  </div>
+                </div>
+                <div class="insta-bio">
+                  <div class="nome">Maria Silva</div>
+                  <div class="desc">
+                    Cuidadora de Idosos 💜<br>
+                    Habilidades em Cuidados Paliativos<br>
+                    Curitiba e região
+                  </div>
+                  <span class="link mockup-link-hint"><i class="fa-solid fa-link" style="font-size:9px;"></i> afeto.app/maria</span>
+                </div>
+              </div>
+              <div class="phone-screen screen-perfil perfil-screen-compact">
+                <div class="perfil-topo-compact">
+                  <div class="btn-voltar"><i class="fa-solid fa-arrow-left"></i></div>
+                  <div class="perfil-titulo-logo">Afeto</div>
+                </div>
+                <div class="perfil-conteudo-compact">
+                  <span class="perfil-disp-compact"><span class="pulse-dot"></span>Disponível</span>
+                  <div class="perfil-foto-compact"><div class="avatar-inicial">M</div></div>
+                  <div class="perfil-nome-compact">Maria S.</div>
+                  <div class="perfil-espec-compact">Cuidadora de Idosos</div>
+                  <div class="perfil-bairro-compact"><i class="fa-solid fa-location-dot"></i> Batel, Curitiba</div>
+                  <div class="perfil-bio-compact">"Cuidadora há 8 anos, com experiência em idosos acamados."</div>
+                  <div class="perfil-comentario-compact">
+                    <span class="estrelas-mini">★★★★★</span>
+                    <span class="texto-mini">"Atenciosa e pontual."</span>
+                    <span class="autor-mini">— Família Souza</span>
+                  </div>
+                  <div class="perfil-btn-whats-compact"><i class="fa-brands fa-whatsapp"></i> Falar no WhatsApp</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- WHATSAPP -->
+        <div class="mockup-bloco">
+          <div class="mockup-titulo">
+            Compartilhe pelo WhatsApp
+            <small>Toque no link e veja o perfil por dentro</small>
+          </div>
+          <div class="phone phone-interativo" data-mockup="2">
+            <div class="phone-tela">
+              <div class="phone-screen screen-principal" style="display:flex; flex-direction:column;">
+                <div class="zap-header">
+                  <div class="zap-avatar"><div class="avatar-inicial" style="background: linear-gradient(135deg, #f472b6, #db2777);">F</div></div>
+                  <div>Família Souza</div>
+                </div>
+                <div class="zap-body">
+                  <div class="zap-msg">
+                    Oi Maria! Vi seu perfil, você faz plantão noturno?
+                    <span class="hora">14:22</span>
+                  </div>
+                  <div class="zap-msg enviada">
+                    Oi! Faço sim 💜 Aqui está meu perfil completo:
+                    <br><span class="link mockup-link-hint">afeto.app/maria</span>
+                    <span class="hora">14:23 ✓✓</span>
+                  </div>
+                  <div class="zap-msg">
+                    Perfeito, vou olhar!
+                    <span class="hora">14:24</span>
+                  </div>
+                </div>
+              </div>
+              <div class="phone-screen screen-perfil perfil-screen-compact">
+                <div class="perfil-topo-compact">
+                  <div class="btn-voltar"><i class="fa-solid fa-arrow-left"></i></div>
+                  <div class="perfil-titulo-logo">Afeto</div>
+                </div>
+                <div class="perfil-conteudo-compact">
+                  <span class="perfil-disp-compact"><span class="pulse-dot"></span>Disponível</span>
+                  <div class="perfil-foto-compact"><div class="avatar-inicial">M</div></div>
+                  <div class="perfil-nome-compact">Maria S.</div>
+                  <div class="perfil-espec-compact">Cuidadora de Idosos</div>
+                  <div class="perfil-bairro-compact"><i class="fa-solid fa-location-dot"></i> Batel, Curitiba</div>
+                  <div class="perfil-bio-compact">"Cuidadora há 8 anos, com experiência em idosos acamados."</div>
+                  <div class="perfil-comentario-compact">
+                    <span class="estrelas-mini">★★★★★</span>
+                    <span class="texto-mini">"Atenciosa e pontual."</span>
+                    <span class="autor-mini">— Família Souza</span>
+                  </div>
+                  <div class="perfil-btn-whats-compact"><i class="fa-brands fa-whatsapp"></i> Falar no WhatsApp</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAINEL -->
+        <div class="mockup-bloco">
+          <div class="mockup-titulo">
+            Seu painel da cuidadora
+            <small>Veja acessos, contatos e oportunidades</small>
+          </div>
+          <div class="phone">
+            <div class="phone-tela painel-tela">
+              <div class="painel-topo">
+                <div class="painel-logo">Afeto</div>
+                <div class="painel-sino"><i class="fa-solid fa-bell"></i></div>
+              </div>
+              <div class="painel-saudacao">
+                <div class="painel-avatar"><div class="avatar-inicial">M</div></div>
+                <div>
+                  <div class="painel-ola">Olá, Maria 💜</div>
+                  <div class="painel-status"><span class="painel-dot"></span>Disponível agora</div>
+                </div>
+              </div>
+              <div class="painel-stats">
+                <div class="painel-stat"><b>142</b><span>Visitas</span></div>
+                <div class="painel-stat"><b>8</b><span>Contatos</span></div>
+                <div class="painel-stat"><b>3</b><span>Oportun.</span></div>
+              </div>
+              <div class="painel-menu">
+                <div class="painel-item"><i class="fa-solid fa-camera"></i> Trocar foto</div>
+                <div class="painel-item"><i class="fa-solid fa-pen"></i> Editar perfil</div>
+                <div class="painel-item destaque-item"><i class="fa-solid fa-heart-pulse"></i> Oportunidades de plantão</div>
+                <div class="painel-item"><i class="fa-solid fa-crown"></i> Meu plano</div>
+                <div class="painel-item"><i class="fa-solid fa-shield"></i> Meus dados</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="scroll-hint">
+        Deslize para ver mais <i class="fa-solid fa-arrow-right"></i>
+      </div>
+
+      <div class="cta-ancora">
+        <a href="#planos">
+          <i class="fa-solid fa-arrow-down"></i> Ver planos
+        </a>
+      </div>
+
+      <div class="beneficios-grid">
+        <div class="beneficio-item">
+          <div class="ico"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+          <h3>100% do valor é seu</h3>
+          <p>Você define seu valor e fica com tudo. Zero comissão sobre plantões.</p>
+        </div>
+        <div class="beneficio-item">
+          <div class="ico"><i class="fa-brands fa-whatsapp"></i></div>
+          <h3>Famílias direto no seu WhatsApp</h3>
+          <p>Sem agência no meio. Você negocia direto com quem precisa do seu cuidado.</p>
+        </div>
+        <div class="beneficio-item">
+          <div class="ico"><i class="fa-solid fa-link"></i></div>
+          <h3>Seu link profissional</h3>
+          <p>Compartilhe onde quiser — Instagram, WhatsApp, cartão. Sua vitrine é sua.</p>
+        </div>
+      </div>
+
+      <div class="comparativo-afeto-agencias">
+        <h3>Afeto <span style="color: var(--cinza-azulado);">vs</span> Agências Tradicionais</h3>
+        <p class="sub">Por que cada vez mais cuidadoras estão migrando pra Afeto</p>
+        <div class="comp-grid">
+          <div class="comp-col agencia">
+            <h4>❌ Agência tradicional</h4>
+            <ul>
+              <li><i class="fa-solid fa-xmark"></i> Fica com até 40% do valor do plantão</li>
+              <li><i class="fa-solid fa-xmark"></i> Você é só um número na escala deles</li>
+              <li><i class="fa-solid fa-xmark"></i> Sem histórico, sem avaliações, sem reputação</li>
+              <li><i class="fa-solid fa-xmark"></i> Não pode recusar plantões nem escolher clientes</li>
+              <li><i class="fa-solid fa-xmark"></i> Você não constrói nada pra você</li>
+            </ul>
+          </div>
+          <div class="comp-col afeto">
+            <h4>⭐ Afeto</h4>
+            <ul>
+              <li><i class="fa-solid fa-check"></i> Você fica com <strong>100% do valor</strong> combinado</li>
+              <li><i class="fa-solid fa-check"></i> Você é protagonista — as famílias te procuram</li>
+              <li><i class="fa-solid fa-check"></i> Selo Verificada, avaliações reais e histórico de horas</li>
+              <li><i class="fa-solid fa-check"></i> Total liberdade: aceita o que faz sentido pra você</li>
+              <li><i class="fa-solid fa-check"></i> Você constrói uma marca pessoal sua</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <div class="cards" id="planos">
 
         <div class="card cadastro">
             <div class="card-nome"><i class="fa-solid fa-link"></i> Cadastro Básico</div>
+            <div class="card-tagline">Pra quem tá começando</div>
 
             <div class="card-preco">
+                <div class="preco-de-linha">
+                    <span class="preco-de" id="de-cad">De R$ 19,90 por</span>
+                    <span class="desconto-badge" id="desc-cad" style="display:none;"></span>
+                </div>
                 <div class="linha-preco">
                     <span class="cifra">R$</span>
                     <span class="valor" id="preco-cad-valor">9</span>
                     <span class="centavos" id="preco-cad-cent">,90</span>
-                    <span class="periodo">/ano</span>
+                    <span class="periodo">/mês</span>
                 </div>
-                <div class="nota">Pague uma vez — perfil é seu</div>
+                <div class="por-dia" id="por-dia-cad">R$ 0,33 por dia</div>
+                <div class="nota">Comece simples, cresça quando quiser</div>
             </div>
 
             <div class="card-divisor"></div>
 
             <ul class="card-lista">
-                <li><i class="fa-solid fa-check"></i> <strong>Seu link exclusivo</strong></li>
-                <li><i class="fa-solid fa-check"></i> Compartilhe onde quiser</li>
-                <li><i class="fa-solid fa-check"></i> Use na bio do Instagram</li>
-                <li><i class="fa-solid fa-check"></i> Use no status do WhatsApp</li>
-                <li><i class="fa-solid fa-check"></i> Você divulga, você recebe</li>
-                <li><i class="fa-solid fa-check"></i> Sem cobrança mensal</li>
+                <li><i class="fa-solid fa-check"></i> <strong>Seu link exclusivo</strong> Afeto</li>
+                <li><i class="fa-solid fa-check"></i> <strong>Painel da cuidadora</strong> incluído</li>
+                <li><i class="fa-solid fa-check"></i> <strong>Foto, bio e habilidades</strong> no perfil</li>
+                <li><i class="fa-solid fa-check"></i> <strong>Estatísticas</strong> de acessos</li>
+                <li><i class="fa-solid fa-check"></i> Compartilhe no Instagram e WhatsApp</li>
+                <li><i class="fa-solid fa-check"></i> Cancele quando quiser</li>
             </ul>
 
             <a href="cadastro.html?plano=cadastro" class="card-btn cadastro-btn">
-                <i class="fa-solid fa-heart" style="margin-right: 8px;"></i> Criar meu Cadastro
+                <i class="fa-solid fa-heart" style="margin-right: 8px;"></i> Começar pelo Básico
             </a>
-            <div class="card-nota">Seu cartão de visita digital</div>
+            <div class="card-seguranca">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span>Sem fidelidade · Cancele em 1 clique</span>
+            </div>
         </div>
 
         <div class="card profissional">
             <div class="card-nome"><i class="fa-solid fa-user-check"></i> Profissional</div>
+            <div class="card-tagline">Pra ser encontrada</div>
 
             <div class="card-preco">
+                <div class="preco-de-linha">
+                    <span class="preco-de" id="de-prof">De R$ 34,90 por</span>
+                    <span class="desconto-badge" id="desc-prof" style="display:none;"></span>
+                </div>
                 <div class="linha-preco">
                     <span class="cifra">R$</span>
                     <span class="valor" id="preco-prof-valor">24</span>
@@ -211,38 +846,44 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
                     <span class="periodo">/mês</span>
                 </div>
                 <div class="por-dia" id="por-dia-prof">R$ 0,83 por dia</div>
-                <div class="nota">Cancele quando quiser</div>
+                <div class="nota">Apareça nas buscas do site</div>
             </div>
 
             <div class="card-divisor"></div>
 
             <ul class="card-lista">
                 <li><i class="fa-solid fa-check"></i> <strong>Tudo do Cadastro Básico</strong></li>
-                <li><i class="fa-solid fa-check"></i> Foto e bio profissional</li>
-                <li><i class="fa-solid fa-check"></i> <strong>Suas especialidades</strong> no perfil</li>
-                <li><i class="fa-solid fa-check"></i> Selo <strong>Verificada Afeto</strong></li>
                 <li><i class="fa-solid fa-check"></i> <strong>Aparece nas buscas</strong> do site</li>
-                <li><i class="fa-solid fa-check"></i> <strong>Mais clientes</strong> te encontram</li>
-                <li><i class="fa-solid fa-check"></i> Painel exclusivo</li>
+                <li><i class="fa-solid fa-check"></i> Selo <strong>Verificada Afeto</strong></li>
+                <li><i class="fa-solid fa-check"></i> <strong>Mais famílias te encontram</strong></li>
+                <li><i class="fa-solid fa-check"></i> Destaque sobre o perfil Básico</li>
                 <li><i class="fa-solid fa-check"></i> <strong>Nós te divulgamos</strong></li>
             </ul>
 
             <a href="cadastro.html?plano=profissional" class="card-btn profissional-btn">Quero ser Profissional</a>
-            <div class="card-nota">Mais famílias te encontram</div>
+            <div class="card-seguranca">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span>Sem fidelidade · Cancele em 1 clique</span>
+            </div>
         </div>
 
         <div class="card destaque">
             <div class="card-nome"><i class="fa-solid fa-gem"></i> Destaque</div>
+            <div class="card-tagline">Pra crescer mais rápido</div>
 
             <div class="card-preco">
+                <div class="preco-de-linha">
+                    <span class="preco-de" id="de-dest">De R$ 54,90 por</span>
+                    <span class="desconto-badge" id="desc-dest" style="display:none;"></span>
+                </div>
                 <div class="linha-preco">
                     <span class="cifra">R$</span>
-                    <span class="valor" id="preco-dest-valor">69</span>
+                    <span class="valor" id="preco-dest-valor">39</span>
                     <span class="centavos" id="preco-dest-cent">,90</span>
                     <span class="periodo">/mês</span>
                 </div>
-                <div class="por-dia" id="por-dia-dest">R$ 2,33 por dia</div>
-                <div class="nota">Cancele quando quiser</div>
+                <div class="por-dia" id="por-dia-dest">R$ 1,33 por dia</div>
+                <div class="nota">Seja a primeira nos resultados</div>
             </div>
 
             <div class="card-divisor"></div>
@@ -257,26 +898,12 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
             </ul>
 
             <a href="cadastro.html?plano=destaque" class="card-btn destaque-btn">Quero Destaque</a>
-            <div class="card-nota">Máxima visibilidade</div>
+            <div class="card-seguranca">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span>Sem fidelidade · Cancele em 1 clique</span>
+            </div>
         </div>
 
-    </div>
-
-    <div class="tag-fundadora">
-        <i class="fa-solid fa-star"></i>
-        Preços especiais para as primeiras parceiras da Afeto
-    </div>
-
-    <div class="sem-fidelidade">
-        <div class="icone"><i class="fa-solid fa-heart"></i></div>
-        <p><strong>Sem fidelidade:</strong> cancele quando quiser, em 1 clique, sem burocracia.</p>
-    </div>
-
-    <div class="ja-paguei">
-        <p>Já fez o pagamento e ainda não completou seu perfil?</p>
-        <a href="upgrade.html">
-            <i class="fa-solid fa-arrow-right"></i> Completar meu perfil agora
-        </a>
     </div>
 
     <div class="comparativo">
@@ -285,21 +912,15 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
             <thead>
                 <tr>
                     <th>Recurso</th>
-                    <th>Cadastro Básico</th>
+                    <th>Básico</th>
                     <th class="destaque-col">Profissional</th>
                     <th class="destaque-col">Destaque</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td>Cadastro + Link exclusivo</td>
+                    <td>Link exclusivo + Painel + Foto + Estatísticas</td>
                     <td><i class="fa-solid fa-check check"></i></td>
-                    <td><i class="fa-solid fa-check check"></i></td>
-                    <td><i class="fa-solid fa-check check"></i></td>
-                </tr>
-                <tr>
-                    <td>Foto e bio profissional</td>
-                    <td><i class="fa-solid fa-xmark x"></i></td>
                     <td><i class="fa-solid fa-check check"></i></td>
                     <td><i class="fa-solid fa-check check"></i></td>
                 </tr>
@@ -311,18 +932,6 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
                 </tr>
                 <tr>
                     <td>Selo Verificada Afeto</td>
-                    <td><i class="fa-solid fa-xmark x"></i></td>
-                    <td><i class="fa-solid fa-check check"></i></td>
-                    <td><i class="fa-solid fa-check check"></i></td>
-                </tr>
-                <tr>
-                    <td>Mais clientes te encontram</td>
-                    <td><i class="fa-solid fa-xmark x"></i></td>
-                    <td><i class="fa-solid fa-check check"></i></td>
-                    <td><i class="fa-solid fa-check check"></i></td>
-                </tr>
-                <tr>
-                    <td>Painel exclusivo</td>
                     <td><i class="fa-solid fa-xmark x"></i></td>
                     <td><i class="fa-solid fa-check check"></i></td>
                     <td><i class="fa-solid fa-check check"></i></td>
@@ -343,9 +952,28 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
         </table>
     </div>
 
+    <div class="faq-secao">
+        <h3>Perguntas frequentes</h3>
+
+        <details class="faq-item">
+            <summary>Posso cancelar quando quiser?</summary>
+            <p class="faq-resposta">Sim. Sem fidelidade, sem multa, sem burocracia. Você cancela em 1 clique dentro do seu painel e o acesso permanece até o fim do ciclo já pago.</p>
+        </details>
+
+        <details class="faq-item">
+            <summary>Como as famílias vão me encontrar?</summary>
+            <p class="faq-resposta">De duas formas: pelo nosso site (onde as famílias buscam cuidadoras por bairro e habilidades) e pelo seu link exclusivo — que você pode colar na bio do Instagram, no status do WhatsApp, ou compartilhar direto com quem precisar.</p>
+        </details>
+
+        <details class="faq-item">
+            <summary>Preciso pagar comissão em cima dos plantões?</summary>
+            <p class="faq-resposta">Não. A Afeto não cobra nada sobre o valor dos plantões que você fecha com as famílias. O combinado é 100% seu — nossa assinatura cobre apenas a infraestrutura e divulgação do seu perfil.</p>
+        </details>
+    </div>
+
     <div class="info-bloco">
         <div class="icone"><i class="fa-solid fa-circle-info"></i></div>
-        <p><strong>Todos os planos incluem:</strong> cadastro permanente, suporte por WhatsApp e liberdade para mudar de plano a qualquer momento.</p>
+        <p><strong>Todos os planos incluem:</strong> cadastro permanente, painel da cuidadora, suporte por WhatsApp e liberdade para mudar de plano a qualquer momento.</p>
     </div>
 
     <div class="rodape-seguranca">
@@ -376,15 +1004,12 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
 
 <footer class="site-footer">
     <div class="footer-content">
-
         <p class="footer-aviso">
             A Afeto atua como plataforma de conexão entre famílias e cuidadoras autônomas. Não executamos serviços de saúde ou cuidado — as informações dos perfis são de responsabilidade das profissionais cadastradas.
         </p>
-
         <p>
             A Afeto é uma plataforma digital que aproxima famílias de cuidadores com boa reputação, em um ambiente seguro e transparente. Nosso papel é fornecer a melhor tecnologia em apresentação de perfis e marketing para profissionais autônomos. Cada cuidador parceiro atua de forma independente, utilizando nossa vitrine para expandir sua base de clientes, definindo seus próprios horários e ganhos com 100% de autonomia.
         </p>
-
         <div class="footer-social">
             <a href="https://www.instagram.com/afetohomecareoficial" target="_blank" aria-label="Instagram Afeto">
                 <i class="fa-brands fa-instagram"></i>
@@ -396,20 +1021,16 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
                 <i class="fa-solid fa-envelope"></i>
             </a>
         </div>
-
         <div class="footer-info">
             <span><i class="fa-solid fa-location-dot"></i> Curitiba-PR</span>
         </div>
-
         <div class="footer-links">
             <a href="termos.html">Termos de Uso</a>
             <a href="privacidade.html">Política de Privacidade</a>
         </div>
-
         <div class="footer-legal">
             Afeto &copy; 2026. Todos os direitos reservados. CNPJ: 64.215.069/0001-15.
         </div>
-
     </div>
 </footer>
 
@@ -417,9 +1038,13 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
 (function() {
   "use strict";
 
-  // ============================================================
-  // PREÇOS DINÂMICOS — /api/config-publica
-  // ============================================================
+  var phonesInterativos = document.querySelectorAll('.phone-interativo');
+  phonesInterativos.forEach(function(phone) {
+    phone.addEventListener('click', function() {
+      this.classList.toggle('aberto');
+    });
+  });
+
   function formatarPreco(valor) {
     var n = parseFloat(valor);
     if (isNaN(n)) return null;
@@ -433,24 +1058,55 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
     };
   }
 
-  function aplicarPreco(sufixo, valor) {
+  function aplicarPreco(sufixo, valor, valorOriginal) {
     var f = formatarPreco(valor);
-    if (!f) return;
-    var elValor = document.getElementById('preco-' + sufixo + '-valor');
-    var elCent = document.getElementById('preco-' + sufixo + '-cent');
-    var elDia = document.getElementById('por-dia-' + sufixo);
-    if (elValor) elValor.textContent = f.inteiro;
-    if (elCent) elCent.textContent = f.centavos;
-    if (elDia) elDia.textContent = f.porDia;
+    if (f) {
+      var elValor = document.getElementById('preco-' + sufixo + '-valor');
+      var elCent = document.getElementById('preco-' + sufixo + '-cent');
+      var elDia = document.getElementById('por-dia-' + sufixo);
+      if (elValor) elValor.textContent = f.inteiro;
+      if (elCent) elCent.textContent = f.centavos;
+      if (elDia) elDia.textContent = f.porDia;
+    }
+
+    var elDe = document.getElementById('de-' + sufixo);
+    var elDesc = document.getElementById('desc-' + sufixo);
+
+    if (elDe) {
+      if (valorOriginal && valorOriginal > valor) {
+        var fo = formatarPreco(valorOriginal);
+        if (fo) {
+          elDe.textContent = 'De R$ ' + fo.inteiro + fo.centavos + ' por';
+          elDe.style.display = 'inline-block';
+
+          if (elDesc) {
+            var pct = Math.round((1 - valor / valorOriginal) * 100);
+            if (pct >= 5) {
+              elDesc.textContent = '-' + pct + '%';
+              elDesc.style.display = 'inline-block';
+            } else {
+              elDesc.style.display = 'none';
+            }
+          }
+        } else {
+          elDe.style.display = 'none';
+          if (elDesc) elDesc.style.display = 'none';
+        }
+      } else {
+        elDe.style.display = 'none';
+        if (elDesc) elDesc.style.display = 'none';
+      }
+    }
   }
 
   fetch('/api/config-publica')
     .then(function(r) { return r.json(); })
     .then(function(data) {
       if (!data || !data.ok || !data.precos) return;
-      if (data.precos.preco_cadastro) aplicarPreco('cad', data.precos.preco_cadastro);
-      if (data.precos.preco_profissional) aplicarPreco('prof', data.precos.preco_profissional);
-      if (data.precos.preco_destaque) aplicarPreco('dest', data.precos.preco_destaque);
+      var p = data.precos;
+      if (p.preco_cadastro) aplicarPreco('cad', p.preco_cadastro, p.preco_cadastro_pos);
+      if (p.preco_profissional) aplicarPreco('prof', p.preco_profissional, p.preco_prof_pos);
+      if (p.preco_destaque) aplicarPreco('dest', p.preco_destaque, p.preco_destaque_pos);
     })
     .catch(function(err) {
       console.warn('Preços dinâmicos indisponíveis, usando fallback:', err);

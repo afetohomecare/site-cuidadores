@@ -139,7 +139,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 .bloco-link .btn-copiar.copiado { background: linear-gradient(135deg, #10b981, #059669); }
 .bloco-link .link-aviso { font-size: 12.5px; color: var(--lilas-escuro); font-weight: 700; line-height: 1.55; display: flex; align-items: center; justify-content: center; gap: 6px; }
 
-/* ============ CRIAR SENHA (NOVO) ============ */
+/* ============ CRIAR SENHA ============ */
 .bloco-criar-senha { background: linear-gradient(135deg, #f5f3ff, #ede9fe); border: 2px solid var(--lilas); border-radius: 22px; padding: 26px 24px; margin-bottom: 24px; text-align: center; }
 .bloco-criar-senha .titulo { font-size: 17px; font-weight: 900; color: var(--lilas-escuro); margin-bottom: 6px; display: flex; align-items: center; justify-content: center; gap: 8px; }
 .bloco-criar-senha .sub { font-size: 13.5px; color: var(--cinza-fonte); font-weight: 700; margin-bottom: 20px; line-height: 1.55; }
@@ -379,7 +379,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       <div class="campo">
         <label for="bio">Sua apresentação:</label>
         <span class="ajuda">💜 Esse texto vai aparecer <strong>no seu perfil</strong>, visível para as famílias que buscam um cuidado. Capriche! Conte sua experiência, o que te faz uma boa profissional e o carinho que você coloca no que faz.</span>
-        <textarea id="bio" name="bio" placeholder="Ex: Sou cuidadora há 8 anos, especializada em idosos com Alzheimer. Tenho paciência, carinho e atenção aos detalhes." required></textarea>
+        <textarea id="bio" name="bio" placeholder="Ex: Sou cuidadora há 8 anos, com experiência em idosos com Alzheimer. Tenho paciência, carinho e atenção aos detalhes." required></textarea>
       </div>
 
       <div class="campo">
@@ -463,10 +463,10 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
         </div>
       </div>
 
-      <div class="secao-titulo"><i class="fa-solid fa-star"></i> Suas especialidades</div>
+      <div class="secao-titulo"><i class="fa-solid fa-star"></i> Suas habilidades</div>
 
       <div class="campo">
-        <label>Especialidades: <span class="contador-subs" id="contador-subs">0/10 selecionadas</span></label>
+        <label>Habilidades: <span class="contador-subs" id="contador-subs">0/10 selecionadas</span></label>
         <span class="ajuda">Marque até 10 que se aplicam. Essas tags aparecem no seu perfil.</span>
         <div class="checkbox-grid" id="subespecialidades">
           <label class="checkbox-item"><input type="checkbox" name="sub" value="Alzheimer"> Alzheimer</label>
@@ -532,7 +532,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     <h2 id="titulo-sucesso">Que alegria ter você aqui! 💜</h2>
     <p class="texto-principal" id="texto-sucesso">Recebemos seu cadastro com muito carinho.</p>
 
-    <!-- CRIAR SENHA (NOVO) -->
     <div id="bloco-criar-senha" class="bloco-criar-senha">
       <div class="titulo"><i class="fa-solid fa-lock"></i> Crie sua senha</div>
       <div class="sub">Você vai usar essa senha pra entrar no seu painel sempre que quiser. Pode ser com seu CPF ou WhatsApp.</div>
@@ -560,7 +559,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       <div class="aviso-erro" id="senha-erro"></div>
     </div>
 
-    <!-- LINK DO PAINEL (aparece depois de criar senha) -->
     <div id="bloco-painel" class="bloco-painel">
       <div class="titulo"><i class="fa-solid fa-circle-check"></i> Tudo pronto! 🎉</div>
       <div class="sub">Seu painel está esperando por você. Entre a qualquer momento com seu CPF (ou WhatsApp) + a senha que você criou.</div>
@@ -569,7 +567,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       </a>
     </div>
 
-    <!-- LINK DO PERFIL -->
     <div id="bloco-link" class="bloco-link" style="display: none;">
       <div class="link-titulo"><i class="fa-solid fa-link"></i> Seu link exclusivo Afeto</div>
       <div class="link-sub">Guarde com carinho! É o seu cartão de visita digital.</div>
@@ -649,7 +646,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       <div class="checkout-icone"><i class="fa-solid fa-lock"></i></div>
       <h2>Pagamento seguro</h2>
       <p id="checkout-plano-nome">Plano Cadastro Básico Afeto</p>
-      <div class="checkout-valor">R$ <span id="checkout-valor">9,90</span><small id="checkout-periodo">/ano</small></div>
+      <div class="checkout-valor">R$ <span id="checkout-valor">9,90</span><small id="checkout-periodo">/mês</small></div>
       <div id="checkout-desconto-aviso" style="display: none; text-align: center; font-size: 12px; font-weight: 800; color: #10b981; margin-top: 6px;">
         <i class="fa-solid fa-check"></i> Desconto aplicado — você paga <span id="checkout-valor-final">0,00</span>
       </div>
@@ -665,7 +662,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       </button>
     </div>
 
-    <!-- CAMPO DE CUPOM -->
     <div id="bloco-cupom" style="margin-bottom: 18px; padding: 16px; background: #f8f9fc; border-radius: 14px; border: 2px dashed #c4b5fd;">
       <label style="font-size: 13px; font-weight: 800; color: var(--lilas-escuro); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
         <i class="fa-solid fa-ticket"></i> Tem cupom de desconto?
@@ -1074,11 +1070,11 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   // ========================================================================
   // 💳 CHECKOUT ASAAS
   // ========================================================================
-  var dadosCheckout = { recordId: null, plano: null, nome: null, cpf: null, cobrancaId: null, pixData: null, pago: false, precoBaseFmt: '9,90', periodo: '/ano' };
+  var dadosCheckout = { recordId: null, plano: null, nome: null, cpf: null, cobrancaId: null, pixData: null, pago: false, precoBaseFmt: '9,90', periodo: '/mês' };
   var enviando = false;
 
   // ========================================================================
-  // 🔐 CRIAR SENHA (NOVO)
+  // 🔐 CRIAR SENHA
   // ========================================================================
   function inicializarCriarSenha() {
     var bloco = document.getElementById('bloco-criar-senha');
@@ -1088,7 +1084,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     var btnCriar = document.getElementById('btn-criar-senha');
     var senhaErro = document.getElementById('senha-erro');
 
-    // Olhos pra mostrar senha
     document.querySelectorAll('.bloco-criar-senha .olho').forEach(function(btn) {
       btn.addEventListener('click', function() {
         var alvo = document.getElementById(this.getAttribute('data-alvo'));
@@ -1144,7 +1139,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
           return;
         }
 
-        // Sucesso
         bloco.style.display = 'none';
         blocoPainel.classList.add('ativo');
 
@@ -1303,7 +1297,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     if (linkSalvo && inputLink) inputLink.value = linkSalvo;
     telaSucesso.classList.add('ativo');
 
-    // Inicializa bloco de criar senha
     inicializarCriarSenha();
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1377,8 +1370,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       return;
     }
 
-    var ehAnual = (planoParam === 'cadastro');
-    var periodoLabel = ehAnual ? '/ano' : '/mês';
+    var periodoLabel = '/mês';
 
     dadosCheckout = {
       recordId: recordId,
@@ -1388,7 +1380,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       cobrancaId: null,
       pixData: null,
       pago: false,
-      precoBaseFmt: ehAnual ? '9,90' : '24,90',
+      precoBaseFmt: '9,90',
       periodo: periodoLabel
     };
 
@@ -1429,7 +1421,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       precoFmt = precoReal.toFixed(2).replace('.', ',');
     } else {
       precoFmt = planoParam === 'cadastro' ? '9,90'
-               : planoParam === 'destaque' ? '69,90'
+               : planoParam === 'destaque' ? '39,90'
                : '24,90';
     }
 
@@ -1660,7 +1652,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     if (linkSalvo && inputLink) inputLink.value = linkSalvo;
     telaSucesso.classList.add('ativo');
 
-    // Inicializa bloco de criar senha
     inicializarCriarSenha();
 
     window.scrollTo({ top: 0, behavior: 'smooth' });

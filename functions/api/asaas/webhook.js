@@ -2,14 +2,13 @@
 // AFETO — Webhook do Asaas
 // Ao confirmar pagamento: atualiza cuidador + registra cupom
 //
-// Planos:
-//   cadastro     → +365 dias
-//   profissional → +30 dias
-//   destaque     → +30 dias
+// Planos (TODOS MENSAIS):
+//   cadastro     → 30 dias
+//   profissional → 30 dias
+//   destaque     → 30 dias
 // ============================================================
 
 function diasDoPlano(plano) {
-  if (plano === 'cadastro') return 365;
   return 30;
 }
 

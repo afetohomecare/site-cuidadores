@@ -4,18 +4,18 @@
 // Aceita cupom de desconto. Se o valor final for R$ 0,
 // NÃO chama o Asaas — marca direto como Pago no Supabase.
 //
-// Planos:
-//   cadastro     → anual (365 dias)
-//   profissional → mensal (30 dias)
-//   destaque     → mensal (30 dias)
+// Planos (TODOS MENSAIS):
+//   cadastro     → 30 dias
+//   profissional → 30 dias
+//   destaque     → 30 dias
 // ============================================================
 
 const ASAAS_URL = 'https://api.asaas.com/v3';  // ✅ PRODUÇÃO
 
 // Quantos dias o plano fica válido após pagamento
+// Todos os planos agora são MENSAIS.
 function diasDoPlano(plano) {
-  if (plano === 'cadastro') return 365;
-  return 30; // profissional e destaque
+  return 30;
 }
 
 // Nome amigável do plano
@@ -309,7 +309,6 @@ async function validarCupom(env, codigo, plano, valorBase) {
   } else {
     desconto = parseFloat(cupom.valor);
   }
-  // Limita o desconto ao valor do plano — nunca gera dívida
   desconto = Math.min(desconto, valorBase);
   desconto = Math.round(desconto * 100) / 100;
 

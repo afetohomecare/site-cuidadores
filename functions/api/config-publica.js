@@ -3,9 +3,22 @@
 // ------------------------------------------------------------
 // Sem auth. Devolve apenas preços que aparecem na vitrine.
 // Cache curto (30s) para não sobrecarregar o Supabase.
+//
+// Devolve 6 chaves:
+//   • preco_cadastro / preco_profissional / preco_destaque
+//     → preço promocional (o que aparece grande no card)
+//   • preco_cadastro_pos / preco_prof_pos / preco_destaque_pos
+//     → preço cheio (o que aparece riscado, "De R$ X por")
 // ============================================================
 
-const CHAVES_PUBLICAS = ['preco_cadastro', 'preco_profissional', 'preco_destaque'];
+const CHAVES_PUBLICAS = [
+  'preco_cadastro',
+  'preco_profissional',
+  'preco_destaque',
+  'preco_cadastro_pos',
+  'preco_prof_pos',
+  'preco_destaque_pos'
+];
 
 export async function onRequestGet(context) {
   const { env } = context;
