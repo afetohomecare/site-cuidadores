@@ -139,6 +139,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 .bloco-link .btn-copiar.copiado { background: linear-gradient(135deg, #10b981, #059669); }
 .bloco-link .link-aviso { font-size: 12.5px; color: var(--lilas-escuro); font-weight: 700; line-height: 1.55; display: flex; align-items: center; justify-content: center; gap: 6px; }
 
+/* ============ CRIAR SENHA ============ */
 .bloco-criar-senha { background: linear-gradient(135deg, #f5f3ff, #ede9fe); border: 2px solid var(--lilas); border-radius: 22px; padding: 26px 24px; margin-bottom: 24px; text-align: center; }
 .bloco-criar-senha .titulo { font-size: 17px; font-weight: 900; color: var(--lilas-escuro); margin-bottom: 6px; display: flex; align-items: center; justify-content: center; gap: 8px; }
 .bloco-criar-senha .sub { font-size: 13.5px; color: var(--cinza-fonte); font-weight: 700; margin-bottom: 20px; line-height: 1.55; }
@@ -155,6 +156,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 .bloco-criar-senha .aviso-erro { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; border-radius: 10px; padding: 10px 14px; font-size: 12.5px; font-weight: 800; margin-top: 12px; display: none; text-align: left; line-height: 1.5; }
 .bloco-criar-senha .aviso-erro.ativo { display: block; }
 
+/* ============ BLOCO LINK PAINEL (pós-senha) ============ */
 .bloco-painel { background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 2px solid #6ee7b7; border-radius: 22px; padding: 26px 24px; margin-bottom: 24px; text-align: center; display: none; }
 .bloco-painel.ativo { display: block; animation: fadeUp 0.5s ease; }
 .bloco-painel .titulo { font-size: 17px; font-weight: 900; color: #065f46; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; gap: 8px; }
@@ -193,6 +195,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 .foto-modal-btn-cancel { background: transparent; color: var(--cinza-fonte); border: 2px solid #e2e8f0; }
 .foto-modal-btn-confirm { background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; box-shadow: 0 8px 20px rgba(139, 92, 246, 0.35); }
 
+/* ============ TELA DE CHECKOUT ============ */
 .tela-checkout { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 9998; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
 .tela-checkout.ativo { display: flex; }
 .checkout-card { background: white; border-radius: 28px; max-width: 460px; width: 100%; padding: 32px 28px; box-shadow: 0 30px 80px rgba(0,0,0,0.4); position: relative; animation: modalIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); max-height: 92vh; overflow-y: auto; margin: auto; }
@@ -998,7 +1001,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     bairrosSelecionados.forEach(function(b, idx) {
       var tag = document.createElement('span');
       tag.className = idx === 0 ? 'tag-bairro principal' : 'tag-bairro';
-      // b vem de BAIRROS (constante controlada), então é seguro
       tag.innerHTML = (idx === 0 ? '⭐ ' : '') + b + ' <button type="button" data-b="' + b + '">×</button>';
       caixaBairros.insertBefore(tag, inputBairros);
     });
@@ -1078,7 +1080,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   // ========================================================================
   // 💳 CHECKOUT ASAAS
   // ========================================================================
-  var dadosCheckout = { recordId: null, plano: null, nome: null, cpf: null, cobrancaId: null, pixData: null, pago: false, precoBaseFmt: '9,90', periodo: '/mês' };
+  var dadosCheckout = { recordId: null, plano: null, nome: null, cpf: null, cobrancaId: null, pixData: null, pago: false, precoBaseFmt: '9,90', periodo: '/mês', tokenCriarSenha: null };
   var enviando = false;
 
   // ========================================================================
@@ -1134,7 +1136,11 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
         var resp = await fetch('/api/auth/criar-senha', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ cpf: cpf, senha: s1 })
+          body: JSON.stringify({
+            cpf: cpf,
+            senha: s1,
+            token: dadosCheckout.tokenCriarSenha || ''
+          })
         });
 
         var data = await resp.json();
@@ -1216,7 +1222,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       var valorFinalEl = document.getElementById('checkout-valor-final');
 
       if (valorFinal === 0) {
-        // Cupom 100% — marca como grátis
         document.getElementById('bloco-cupom').innerHTML =
           '<div style="text-align: center; padding: 30px 20px;">' +
             '<div style="font-size: 60px; margin-bottom: 14px;">🎉</div>' +
@@ -1257,6 +1262,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
             var d = await r.json();
             if (d.ok && d.gratis) {
               dadosCheckout.pago = true;
+              pararPollingPagamento();
               document.getElementById('tela-checkout').classList.remove('ativo');
               document.body.style.overflow = '';
               mostrarSucessoGratis(d.cupom);
@@ -1267,7 +1273,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
         }, 1500);
 
       } else {
-        // ⭐ DESCONTO PARCIAL — atualiza textos E regenera o PIX
         var valorFmt = valorFinal.toFixed(2).replace('.', ',');
         document.getElementById('checkout-valor').textContent = valorFmt;
         document.getElementById('cartao-valor').textContent = valorFmt;
@@ -1301,9 +1306,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   };
 
   // ⭐ Regenera o QR Code PIX com o cupom aplicado
-  // Retorna true se deu certo, false se falhou
   async function regenerarPixComCupom() {
-    // ⭐ Para o polling antigo ANTES de mexer no cobrancaId
     pararPollingPagamento();
 
     document.getElementById('pix-qrcode').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><p>Atualizando valor com desconto...</p>';
@@ -1330,7 +1333,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       if (!resp.ok || !data.ok) {
         console.error('Erro regenerar PIX:', data.error, data.detalhe);
         document.getElementById('pix-qrcode').innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color: #ef4444;"></i><p>Não foi possível atualizar o QR Code com o desconto.</p>';
-        // Retoma polling do ID antigo (que ainda existe se a regeneração falhou)
         iniciarPollingPagamento();
         return false;
       }
@@ -1419,11 +1421,17 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     pollingTentativas++;
 
     try {
-      var resp = await fetch('/api/asaas/status?id=' + encodeURIComponent(dadosCheckout.cobrancaId));
+      var resp = await fetch('/api/asaas/status?id=' + encodeURIComponent(dadosCheckout.cobrancaId) + '&cuidadorId=' + encodeURIComponent(dadosCheckout.recordId));
       var data = await resp.json();
 
       if (data.ok && data.pago) {
         dadosCheckout.pago = true;
+
+        // ⭐ Guarda o token de criar senha se o backend devolveu
+        if (data.token_criar_senha) {
+          dadosCheckout.tokenCriarSenha = data.token_criar_senha;
+        }
+
         pararPollingPagamento();
 
         document.getElementById('tela-checkout').classList.remove('ativo');
@@ -1460,7 +1468,8 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       pixData: null,
       pago: false,
       precoBaseFmt: '9,90',
-      periodo: periodoLabel
+      periodo: periodoLabel,
+      tokenCriarSenha: null
     };
 
     cupomAplicado = null;
@@ -1624,8 +1633,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     var ma = cardExpiry.split('/');
     var btn = document.querySelector('.btn-pagar-cartao');
 
-    // ⭐ Para o polling do PIX — não faz sentido continuar verificando
-    // enquanto a cobrança de cartão está sendo gerada
     pararPollingPagamento();
 
     btn.disabled = true;
@@ -1663,7 +1670,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       if (!resp.ok || !data.ok) {
         console.error('Erro cartão:', data.error, data.detalhe);
         alert('Não conseguimos processar seu pagamento agora. Verifique os dados do cartão e tente novamente. Se persistir, fale com a gente pelo WhatsApp 💜');
-        // Não retoma polling — o usuário deve tentar de novo
         return;
       }
       dadosCheckout.pago = true;

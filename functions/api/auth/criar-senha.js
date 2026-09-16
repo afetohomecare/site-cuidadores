@@ -1,12 +1,17 @@
 // ============================================================
 // AFETO — API: criar senha da cuidadora (após pagamento)
 // ------------------------------------------------------------
-// Recebe CPF + senha, cria usuário no Supabase Auth.
-// Só aceita se status_pagamento = 'Pago'.
+// Recebe CPF + senha + token temporário. Só funciona se:
+//   • status_pagamento = 'Pago'
+//   • token_criar_senha bate com o do banco
+//   • token ainda não expirou (1h)
+//   • cuidadora ainda não tem auth_user_id
 //
 // Email fake: <cpf_limpo>@afeto.app
-//   Ex: 12345678900@afeto.app
-// (Cuidadora nunca vê esse email — é só um identificador interno)
+//
+// ⭐ SEGURANÇA: o token é gerado no webhook.js quando o pagamento
+//    confirma e só é válido por 1h. Isso impede que alguém com
+//    o CPF de outra pessoa crie a senha antes dela.
 // ============================================================
 
 export async function onRequestPost(context) {
@@ -20,9 +25,14 @@ export async function onRequestPost(context) {
     const body = await request.json();
     const cpf = (body.cpf || '').trim();
     const senha = body.senha || '';
+    const token = (body.token || '').trim();
 
     if (!cpf || !senha) {
       return jsonResp({ error: 'CPF e senha são obrigatórios.' }, 400);
+    }
+
+    if (!token) {
+      return jsonResp({ error: 'Sessão inválida. Volte ao cadastro e tente novamente.' }, 400);
     }
 
     const cpfLimpo = cpf.replace(/\D/g, '');
@@ -37,7 +47,7 @@ export async function onRequestPost(context) {
 
     // ---------- BUSCA CUIDADORA POR CPF ----------
     const filtro = 'or=(cpf.eq.' + encodeURIComponent(cpfLimpo) + ',cpf.eq.' + encodeURIComponent(cpf) + ')';
-    const buscaUrl = env.SUPABASE_URL + '/rest/v1/cuidadores?select=id,status_pagamento,auth_user_id,nome&' + filtro + '&limit=1';
+    const buscaUrl = env.SUPABASE_URL + '/rest/v1/cuidadores?select=id,status_pagamento,auth_user_id,nome,token_criar_senha,token_criar_senha_expira_em&' + filtro + '&limit=1';
 
     const buscaResp = await fetch(buscaUrl, {
       headers: headersSupabase(env)
@@ -67,6 +77,26 @@ export async function onRequestPost(context) {
       return jsonResp({ error: 'Você já tem uma senha criada. Use a tela de login.' }, 409);
     }
 
+    // ---------- VALIDA TOKEN TEMPORÁRIO ----------
+    if (!cuidadora.token_criar_senha) {
+      return jsonResp({ error: 'Sessão inválida. Volte ao cadastro e tente novamente.' }, 403);
+    }
+
+    if (cuidadora.token_criar_senha !== token) {
+      console.warn('Token inválido pra cuidadora:', cuidadora.id);
+      return jsonResp({ error: 'Sessão inválida. Volte ao cadastro e tente novamente.' }, 403);
+    }
+
+    // Verifica expiração
+    if (cuidadora.token_criar_senha_expira_em) {
+      const expira = new Date(cuidadora.token_criar_senha_expira_em);
+      const agora = new Date();
+      if (expira < agora) {
+        console.warn('Token expirado pra cuidadora:', cuidadora.id);
+        return jsonResp({ error: 'Sessão expirada. Fale com a gente pelo WhatsApp pra liberar seu acesso.' }, 403);
+      }
+    }
+
     // ---------- CRIA USUÁRIO NO SUPABASE AUTH ----------
     const emailFake = cpfLimpo + '@afeto.app';
 
@@ -83,7 +113,8 @@ export async function onRequestPost(context) {
         email_confirm: true,
         user_metadata: {
           cuidador_id: cuidadora.id,
-          nome: cuidadora.nome
+          nome: cuidadora.nome,
+          role: 'cuidadora'
         }
       })
     });
@@ -98,6 +129,7 @@ export async function onRequestPost(context) {
     const authUserId = criarUserData.id;
 
     // ---------- ATUALIZA CUIDADORA ----------
+    // Limpa o token (usa uma vez só) + vincula auth_user_id
     const patchResp = await fetch(
       env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadora.id,
       {
@@ -105,7 +137,9 @@ export async function onRequestPost(context) {
         headers: headersSupabase(env, true, false),
         body: JSON.stringify({
           auth_user_id: authUserId,
-          senha_criada_em: new Date().toISOString()
+          senha_criada_em: new Date().toISOString(),
+          token_criar_senha: null,
+          token_criar_senha_expira_em: null
         })
       }
     );
