@@ -1,17 +1,16 @@
 // ============================================================
-// AFETO — API: cria cliente + cobrança no Asaas
+// AFETO — API: cria cliente + cobrança/assinatura no Asaas
 // ------------------------------------------------------------
-// Aceita cupom de desconto. Se o valor final for R$ 0,
-// NÃO chama o Asaas — marca direto como Pago no Supabase.
-//
-// Planos (TODOS MENSAIS): 30 dias
-//
-// IMPORTANTE: quando uma nova cobrança é gerada pra um cuidador
-// que já tinha uma cobrança ativa (ex: aplicar cupom depois),
-// a cobrança antiga é DELETADA no Asaas — senão ficam 2 válidas.
+// PIX = Cobrança Avulsa (/payments)
+// Cartão = Assinatura Mensal (/subscriptions)
 // ============================================================
 
 const ASAAS_URL = 'https://api.asaas.com/v3';
+// No sandbox a URL muda, mas o Cloudflare geralmente lida com isso 
+// via variável de ambiente. Se a sua variável ASAAS_URL for fixa no painel,
+// certifique-se de que ela aponta para https://sandbox.asaas.com/api/v3 durante o teste!
+// Se você não tem variável ASAAS_URL, mude temporariamente a constante acima para testes:
+// const ASAAS_URL = 'https://sandbox.asaas.com/api/v3'; 
 
 function diasDoPlano(plano) {
   return 30;
@@ -141,15 +140,10 @@ export async function onRequestPost(context) {
           const statusAtual = cData[0] && cData[0].status_pagamento;
 
           if (antigaCobrancaId && statusAtual !== 'Pago') {
-            const delResp = await fetch(ASAAS_URL + '/payments/' + antigaCobrancaId, {
+            await fetch(ASAAS_URL + '/payments/' + antigaCobrancaId, {
               method: 'DELETE',
               headers: { 'User-Agent': 'Afeto/1.0', 'access_token': ASAAS_API_KEY }
             });
-            if (delResp.ok) {
-              console.log('✅ Cobrança antiga deletada:', antigaCobrancaId);
-            } else {
-              console.warn('⚠️ Não foi possível deletar cobrança antiga:', antigaCobrancaId, delResp.status);
-            }
           }
         }
       } catch (e) {
@@ -169,83 +163,106 @@ export async function onRequestPost(context) {
       return jsonResp({ error: 'Falha ao criar cliente no Asaas' }, 502);
     }
 
+    // Configuração de datas
+    const agora = new Date();
+    const dataHoje = agora.toISOString().split('T')[0]; // Para cobrar cartão na hora
+    
     const vencimento = new Date();
     vencimento.setDate(vencimento.getDate() + 1);
-    const dataVencimento = vencimento.toISOString().split('T')[0];
+    const dataVencimento = vencimento.toISOString().split('T')[0]; // Para dar 1 dia no PIX
 
-    // ============================================================
-    // ⭐ DESCRIÇÃO DA COBRANÇA (o que aparece no app do banco)
-    // ------------------------------------------------------------
-    // Esse texto vira a "mensagem" que a cliente vê ao pagar o PIX.
-    // Deixei curto pra caber em todos os bancos.
-    //
-    // Se o emoji 💜 der problema, tira e deixa só:
-    //   'Plano Afeto - Wagner Frankowski'
-    // ============================================================
     const descricaoCobranca = '💜 Plano Afeto - Wagner Frankowski';
+    
+    let cobrancaData;
+    let isSubscription = false;
 
-    const cobrancaBody = {
-      customer: customerId,
-      billingType: formaPagamento,
-      value: valorFinal,
-      dueDate: dataVencimento,
-      description: descricaoCobranca,
-      externalReference: cuidadorId || undefined
-    };
-
+    // ============================================================
+    // ⭐ NOVO FLUXO: CARTÃO (Assinatura) vs PIX (Avulso)
+    // ============================================================
     if (formaPagamento === 'CREDIT_CARD') {
+      isSubscription = true;
       if (!creditCard || !creditCardHolderInfo) {
         return jsonResp({ error: 'Dados do cartão obrigatórios' }, 400);
       }
-      cobrancaBody.creditCard = creditCard;
-      cobrancaBody.creditCardHolderInfo = creditCardHolderInfo;
+
+      const subBody = {
+        customer: customerId,
+        billingType: 'CREDIT_CARD',
+        value: valorFinal,
+        nextDueDate: dataHoje, // Cobra hoje a primeira parcela
+        cycle: 'MONTHLY',
+        description: descricaoCobranca,
+        externalReference: cuidadorId || undefined,
+        creditCard: creditCard,
+        creditCardHolderInfo: creditCardHolderInfo
+      };
+
+      const subResp = await fetch(ASAAS_URL + '/subscriptions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'User-Agent': 'Afeto/1.0', 'access_token': ASAAS_API_KEY },
+        body: JSON.stringify(subBody)
+      });
+      cobrancaData = await subResp.json();
+
+      if (!subResp.ok) {
+        return jsonResp({ error: 'Falha ao criar assinatura', detalhe: cobrancaData }, 502);
+      }
+    } else {
+      // Fluxo PIX mantido igual
+      const cobrancaBody = {
+        customer: customerId,
+        billingType: 'PIX',
+        value: valorFinal,
+        dueDate: dataVencimento,
+        description: descricaoCobranca,
+        externalReference: cuidadorId || undefined
+      };
+
+      const cobrancaResp = await fetch(ASAAS_URL + '/payments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'User-Agent': 'Afeto/1.0', 'access_token': ASAAS_API_KEY },
+        body: JSON.stringify(cobrancaBody)
+      });
+      cobrancaData = await cobrancaResp.json();
+
+      if (!cobrancaResp.ok) {
+        return jsonResp({ error: 'Falha ao criar cobrança', detalhe: cobrancaData }, 502);
+      }
     }
 
-    const cobrancaResp = await fetch(ASAAS_URL + '/payments', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'User-Agent': 'Afeto/1.0',
-        'access_token': ASAAS_API_KEY
-      },
-      body: JSON.stringify(cobrancaBody)
-    });
-
-    const cobrancaData = await cobrancaResp.json();
-
-    if (!cobrancaResp.ok) {
-      console.error('Asaas cobrança erro:', JSON.stringify(cobrancaData));
-      return jsonResp({ error: 'Falha ao criar cobrança', detalhe: cobrancaData }, 502);
-    }
-
+    // Salva o ID correspondente no Supabase
     if (cuidadorId) {
+      const updatePayload = {
+        asaas_customer_id: customerId,
+        cupom_usado: cupomObj ? cupomObj.codigo : null
+      };
+
+      if (isSubscription) {
+        updatePayload.asaas_subscription_id = cobrancaData.id;
+      } else {
+        updatePayload.asaas_cobranca_id = cobrancaData.id;
+      }
+
       await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadorId, {
         method: 'PATCH',
         headers: headersSupabase(env, true, false),
-        body: JSON.stringify({
-          asaas_customer_id: customerId,
-          asaas_cobranca_id: cobrancaData.id,
-          cupom_usado: cupomObj ? cupomObj.codigo : null
-        })
+        body: JSON.stringify(updatePayload)
       });
     }
 
+    // Se for PIX, gera o QRCode
     let pixData = null;
     if (formaPagamento === 'PIX') {
       const pixResp = await fetch(ASAAS_URL + '/payments/' + cobrancaData.id + '/pixQrCode', {
-        headers: {
-          'User-Agent': 'Afeto/1.0',
-          'access_token': ASAAS_API_KEY
-        }
+        headers: { 'User-Agent': 'Afeto/1.0', 'access_token': ASAAS_API_KEY }
       });
       if (pixResp.ok) pixData = await pixResp.json();
     }
 
-    const pagoNaHora = formaPagamento === 'CREDIT_CARD'
-      && (cobrancaData.status === 'CONFIRMED' || cobrancaData.status === 'RECEIVED');
+    // Se for assinatura no cartão e o status retornar ACTIVE, o cartão foi aprovado!
+    const pagoNaHora = isSubscription && cobrancaData.status === 'ACTIVE';
 
     if (pagoNaHora && cuidadorId) {
-      const agora = new Date();
       const vence = new Date(agora);
       vence.setDate(vence.getDate() + diasDoPlano(plano));
 
@@ -255,7 +272,8 @@ export async function onRequestPost(context) {
         body: JSON.stringify({
           status_pagamento: 'Pago',
           plano_inicio: agora.toISOString(),
-          plano_valido_ate: vence.toISOString()
+          plano_valido_ate: vence.toISOString(),
+          proxima_cobranca: vence.toISOString() // Novo campo
         })
       });
 
@@ -268,12 +286,13 @@ export async function onRequestPost(context) {
       ok: true,
       gratis: false,
       cobrancaId: cobrancaData.id,
-      invoiceUrl: cobrancaData.invoiceUrl,
+      invoiceUrl: cobrancaData.invoiceUrl || '',
       status: cobrancaData.status,
       valorBase: valorBase,
       valorFinal: valorFinal,
       desconto: desconto,
       pagoNaHora: pagoNaHora,
+      isSubscription: isSubscription,
       pix: pixData ? {
         qrCodeImage: pixData.encodedImage,
         copiaECola: pixData.payload
@@ -287,7 +306,7 @@ export async function onRequestPost(context) {
 }
 
 // ============================================================
-// HELPERS
+// HELPERS (Mantidos intactos do seu código original)
 // ============================================================
 
 async function lerPrecoPlano(env, plano) {

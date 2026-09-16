@@ -1,9 +1,9 @@
 // ============================================================
-// AFETO — Webhook do Asaas
-// Ao confirmar pagamento: atualiza cuidador + registra cupom
-// + gera token temporário pra criar senha
-//
-// Planos (TODOS MENSAIS): 30 dias
+// AFETO — Webhook do Asaas (Atualizado com Recorrência)
+// ------------------------------------------------------------
+// Ao confirmar pagamento ou renovar assinatura: atualiza cuidador 
+// + registra cupom + gera token temporário pra criar senha.
+// Se atrasar, muda status.
 // ============================================================
 
 function diasDoPlano(plano) {
@@ -36,13 +36,36 @@ export async function onRequestPost(context) {
 
     console.log('📩 Webhook Asaas:', evento, payment && payment.id);
 
+    // ============================================================
+    // CUIDADORA FICOU INADIMPLENTE
+    // ============================================================
+    if (evento === 'PAYMENT_OVERDUE') {
+      const cuidadorId = payment.externalReference;
+      
+      if (cuidadorId && env.SUPABASE_URL && env.SUPABASE_SERVICE_KEY) {
+        await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadorId, {
+          method: 'PATCH',
+          headers: headersSupabase(env, true, false),
+          body: JSON.stringify({
+            status_pagamento: 'Inadimplente'
+          })
+        });
+
+        if (env.TELEGRAM_BOT_TOKEN && env.TELEGRAM_CHAT_ID) {
+           await notificarTelegram(env, '⚠️ *Assinatura Vencida/Atrasada!*\n\nA cuidadora de ID `' + cuidadorId + '` não realizou o pagamento. O perfil dela ficará oculto/pendente até a regularização.');
+        }
+      }
+      return jsonResp({ received: true }, 200);
+    }
+
+    // ============================================================
+    // PAGAMENTO CONFIRMADO (Avulso ou Mensalidade)
+    // ============================================================
     if (evento === 'PAYMENT_RECEIVED' || evento === 'PAYMENT_CONFIRMED') {
       const cuidadorId = payment.externalReference;
 
       if (!cuidadorId || !env.SUPABASE_URL || !env.SUPABASE_SERVICE_KEY) {
-        return new Response(JSON.stringify({ received: true }), {
-          status: 200, headers: { 'Content-Type': 'application/json' }
-        });
+        return jsonResp({ received: true }, 200);
       }
 
       // Lê dados do cuidador
@@ -72,16 +95,15 @@ export async function onRequestPost(context) {
       const vence = new Date(agora);
       vence.setDate(vence.getDate() + diasDoPlano(planoDetectado));
 
-      // ⭐ Monta o PATCH. Se a cuidadora ainda NÃO criou senha,
-      //    gera um token temporário (válido por 1h) pra ela usar
-      //    no /api/auth/criar-senha.
+      // ⭐ Monta o PATCH.
       const patchBody = {
         status_pagamento: 'Pago',
         plano_inicio: agora.toISOString(),
-        plano_valido_ate: vence.toISOString()
+        plano_valido_ate: vence.toISOString(),
+        proxima_cobranca: vence.toISOString()
       };
 
-      // Só gera token se ela ainda não tem auth_user_id
+      // Se for a primeira compra dela (não tem auth_user_id), gera o token de criar senha
       if (!cuidador || !cuidador.auth_user_id) {
         const token = gerarToken();
         const expira = new Date(agora);
@@ -91,6 +113,8 @@ export async function onRequestPost(context) {
         patchBody.token_criar_senha_expira_em = expira.toISOString();
 
         console.log('🔐 Token gerado pra cuidadora:', cuidadorId, token);
+      } else {
+         console.log('♻️ Assinatura/Plano renovado para cuidadora:', cuidadorId);
       }
 
       // 1. Atualiza cuidador
@@ -100,7 +124,7 @@ export async function onRequestPost(context) {
         body: JSON.stringify(patchBody)
       });
 
-      // 2. Registra uso de cupom
+      // 2. Registra uso de cupom (Se houver)
       try {
         if (cuidador && cuidador.cupom_usado) {
           const cupomResp = await fetch(
@@ -119,7 +143,8 @@ export async function onRequestPost(context) {
             );
             const usos = await jaUsado.json();
 
-            if (!usos || usos.length === 0) {
+            // Só registra se ainda não foi registrado neste pagamento
+            if (!usos || usos.length === 0 || !usos.find(u => u.asaas_pagamento_id === payment.id)) {
               await fetch(env.SUPABASE_URL + '/rest/v1/cupons_usos', {
                 method: 'POST',
                 headers: headersSupabase(env, true, false),
@@ -149,47 +174,35 @@ export async function onRequestPost(context) {
 
       // 3. Telegram
       if (env.TELEGRAM_BOT_TOKEN && env.TELEGRAM_CHAT_ID) {
+        const isSubscription = payment.subscription ? '♻️ Assinatura/Mensalidade' : '💰 Pagamento Avulso';
         const forma = payment.billingType === 'PIX' ? '💠 Pix' : '💳 Cartão';
         const valor = payment.value ? 'R$ ' + payment.value.toFixed(2).replace('.', ',') : '';
 
-        const mensagem = '💰 *Pagamento recebido!*\n\n' + forma + ' — ' + valor + '\n\n' +
+        const mensagem = isSubscription + ' *recebida!*\n\n' + forma + ' — ' + valor + '\n\n' +
           'Plano: *' + planoDetectado + '*\n' +
           'ID Supabase: `' + cuidadorId + '`\n\n' +
           '✅ Status: Pago\n' +
-          '✅ Válido até ' + vence.toLocaleDateString('pt-BR') + '\n\n' +
-          '👉 Falta marcar *aprovada = true* no painel.';
+          '✅ Válido até ' + vence.toLocaleDateString('pt-BR');
 
-        try {
-          await fetch('https://api.telegram.org/bot' + env.TELEGRAM_BOT_TOKEN + '/sendMessage', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              chat_id: env.TELEGRAM_CHAT_ID,
-              text: mensagem,
-              parse_mode: 'Markdown'
-            })
-          });
-        } catch (errTelegram) { console.error('Telegram:', errTelegram); }
+        await notificarTelegram(env, mensagem);
       }
     }
 
-    return new Response(JSON.stringify({ received: true }), {
-      status: 200, headers: { 'Content-Type': 'application/json' }
-    });
+    return jsonResp({ received: true }, 200);
 
   } catch (err) {
     console.error('❌ Erro webhook:', err);
-    return new Response(JSON.stringify({ error: String(err.message) }), {
-      status: 500, headers: { 'Content-Type': 'application/json' }
-    });
+    return jsonResp({ error: String(err.message) }, 500);
   }
 }
 
 export async function onRequestGet() {
-  return new Response(JSON.stringify({ ok: true, message: 'Webhook ativo.' }), {
-    status: 200, headers: { 'Content-Type': 'application/json' }
-  });
+  return jsonResp({ ok: true, message: 'Webhook ativo e pronto para assinaturas.' }, 200);
 }
+
+// ============================================================
+// HELPERS
+// ============================================================
 
 function headersSupabase(env, temBody, querRetorno) {
   const h = {
@@ -200,4 +213,25 @@ function headersSupabase(env, temBody, querRetorno) {
   if (temBody) h['Content-Type'] = 'application/json';
   if (querRetorno) h['Prefer'] = 'return=representation';
   return h;
+}
+
+function jsonResp(obj, status) {
+  return new Response(JSON.stringify(obj), {
+    status: status || 200,
+    headers: { 'Content-Type': 'application/json' }
+  });
+}
+
+async function notificarTelegram(env, texto) {
+  try {
+    await fetch('https://api.telegram.org/bot' + env.TELEGRAM_BOT_TOKEN + '/sendMessage', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: env.TELEGRAM_CHAT_ID,
+        text: texto,
+        parse_mode: 'Markdown'
+      })
+    });
+  } catch (err) { console.error('Telegram Erro:', err); }
 }
