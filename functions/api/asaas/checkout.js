@@ -4,21 +4,19 @@
 // Aceita cupom de desconto. Se o valor final for R$ 0,
 // NÃO chama o Asaas — marca direto como Pago no Supabase.
 //
-// Planos (TODOS MENSAIS):
-//   cadastro     → 30 dias
-//   profissional → 30 dias
-//   destaque     → 30 dias
+// Planos (TODOS MENSAIS): 30 dias
+//
+// IMPORTANTE: quando uma nova cobrança é gerada pra um cuidador
+// que já tinha uma cobrança ativa (ex: aplicar cupom depois),
+// a cobrança antiga é DELETADA no Asaas — senão ficam 2 válidas.
 // ============================================================
 
-const ASAAS_URL = 'https://api.asaas.com/v3';  // ✅ PRODUÇÃO
+const ASAAS_URL = 'https://api.asaas.com/v3';
 
-// Quantos dias o plano fica válido após pagamento
-// Todos os planos agora são MENSAIS.
 function diasDoPlano(plano) {
   return 30;
 }
 
-// Nome amigável do plano
 function nomeDoPlano(plano) {
   if (plano === 'cadastro') return 'Cadastro Básico';
   if (plano === 'destaque') return 'Destaque';
@@ -88,7 +86,7 @@ export async function onRequestPost(context) {
 
     const valorFinal = Math.max(0, Math.round((valorBase - desconto) * 100) / 100);
 
-    // ---------- 3. SE 100% DESCONTO (ou desconto >= preço) ----------
+    // ---------- 3. SE 100% DESCONTO ----------
     if (valorFinal === 0) {
       const agora = new Date();
       const vence = new Date(agora);
@@ -128,6 +126,37 @@ export async function onRequestPost(context) {
     }
     if (!ASAAS_API_KEY) {
       return jsonResp({ error: 'ASAAS_API_KEY não configurada' }, 500);
+    }
+
+    // ⭐ DELETA COBRANÇA ANTIGA (se existir e não estiver paga)
+    // Isso evita ter 2 QR Codes ativos quando a cuidadora aplica cupom
+    // depois de o PIX original já ter sido gerado.
+    if (cuidadorId) {
+      try {
+        const cResp = await fetch(
+          env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadorId + '&select=asaas_cobranca_id,status_pagamento&limit=1',
+          { headers: headersSupabase(env) }
+        );
+        if (cResp.ok) {
+          const cData = await cResp.json();
+          const antigaCobrancaId = cData[0] && cData[0].asaas_cobranca_id;
+          const statusAtual = cData[0] && cData[0].status_pagamento;
+
+          if (antigaCobrancaId && statusAtual !== 'Pago') {
+            const delResp = await fetch(ASAAS_URL + '/payments/' + antigaCobrancaId, {
+              method: 'DELETE',
+              headers: { 'User-Agent': 'Afeto/1.0', 'access_token': ASAAS_API_KEY }
+            });
+            if (delResp.ok) {
+              console.log('✅ Cobrança antiga deletada:', antigaCobrancaId);
+            } else {
+              console.warn('⚠️ Não foi possível deletar cobrança antiga:', antigaCobrancaId, delResp.status);
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('Erro ao deletar cobrança antiga:', e);
+      }
     }
 
     const customerId = await criarOuBuscarCliente(ASAAS_API_KEY, {

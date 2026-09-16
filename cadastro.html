@@ -139,7 +139,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 .bloco-link .btn-copiar.copiado { background: linear-gradient(135deg, #10b981, #059669); }
 .bloco-link .link-aviso { font-size: 12.5px; color: var(--lilas-escuro); font-weight: 700; line-height: 1.55; display: flex; align-items: center; justify-content: center; gap: 6px; }
 
-/* ============ CRIAR SENHA ============ */
 .bloco-criar-senha { background: linear-gradient(135deg, #f5f3ff, #ede9fe); border: 2px solid var(--lilas); border-radius: 22px; padding: 26px 24px; margin-bottom: 24px; text-align: center; }
 .bloco-criar-senha .titulo { font-size: 17px; font-weight: 900; color: var(--lilas-escuro); margin-bottom: 6px; display: flex; align-items: center; justify-content: center; gap: 8px; }
 .bloco-criar-senha .sub { font-size: 13.5px; color: var(--cinza-fonte); font-weight: 700; margin-bottom: 20px; line-height: 1.55; }
@@ -156,7 +155,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 .bloco-criar-senha .aviso-erro { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; border-radius: 10px; padding: 10px 14px; font-size: 12.5px; font-weight: 800; margin-top: 12px; display: none; text-align: left; line-height: 1.5; }
 .bloco-criar-senha .aviso-erro.ativo { display: block; }
 
-/* ============ BLOCO LINK PAINEL (pós-senha) ============ */
 .bloco-painel { background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 2px solid #6ee7b7; border-radius: 22px; padding: 26px 24px; margin-bottom: 24px; text-align: center; display: none; }
 .bloco-painel.ativo { display: block; animation: fadeUp 0.5s ease; }
 .bloco-painel .titulo { font-size: 17px; font-weight: 900; color: #065f46; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; gap: 8px; }
@@ -195,7 +193,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 .foto-modal-btn-cancel { background: transparent; color: var(--cinza-fonte); border: 2px solid #e2e8f0; }
 .foto-modal-btn-confirm { background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; box-shadow: 0 8px 20px rgba(139, 92, 246, 0.35); }
 
-/* ============ TELA DE CHECKOUT ============ */
 .tela-checkout { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 9998; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
 .tela-checkout.ativo { display: flex; }
 .checkout-card { background: white; border-radius: 28px; max-width: 460px; width: 100%; padding: 32px 28px; box-shadow: 0 30px 80px rgba(0,0,0,0.4); position: relative; animation: modalIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); max-height: 92vh; overflow-y: auto; margin: auto; }
@@ -749,6 +746,16 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 (function() {
   "use strict";
 
+  // ============================================================
+  // 🔒 HELPER: escape HTML (previne XSS em texto de usuário)
+  // ============================================================
+  function escapeHTML(txt) {
+    if (!txt) return '';
+    var div = document.createElement('div');
+    div.textContent = String(txt);
+    return div.innerHTML;
+  }
+
   var params = new URLSearchParams(window.location.search);
   var planoBruto = (params.get('plano') || 'cadastro').toLowerCase();
 
@@ -991,6 +998,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     bairrosSelecionados.forEach(function(b, idx) {
       var tag = document.createElement('span');
       tag.className = idx === 0 ? 'tag-bairro principal' : 'tag-bairro';
+      // b vem de BAIRROS (constante controlada), então é seguro
       tag.innerHTML = (idx === 0 ? '⭐ ' : '') + b + ' <button type="button" data-b="' + b + '">×</button>';
       caixaBairros.insertBefore(tag, inputBairros);
     });
@@ -1192,7 +1200,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       if (!resp.ok || !data.ok) {
         msg.style.display = 'block';
         msg.style.color = '#ef4444';
-        msg.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> ' + (data.error || 'Cupom inválido');
+        msg.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> ' + escapeHTML(data.error || 'Cupom inválido');
         btn.disabled = false;
         btn.textContent = 'Aplicar';
         return;
@@ -1201,13 +1209,14 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       cupomAplicado = codigo;
       msg.style.display = 'block';
       msg.style.color = '#10b981';
-      msg.innerHTML = '<i class="fa-solid fa-circle-check"></i> Cupom <strong>' + codigo + '</strong> aplicado! Você economiza R$ ' + (data.desconto || 0).toFixed(2).replace('.', ',');
+      msg.innerHTML = '<i class="fa-solid fa-circle-check"></i> Cupom <strong>' + escapeHTML(codigo) + '</strong> aplicado! Você economiza R$ ' + (data.desconto || 0).toFixed(2).replace('.', ',');
 
       var valorFinal = data.valorFinal || 0;
       var avisoEl = document.getElementById('checkout-desconto-aviso');
       var valorFinalEl = document.getElementById('checkout-valor-final');
 
       if (valorFinal === 0) {
+        // Cupom 100% — marca como grátis
         document.getElementById('bloco-cupom').innerHTML =
           '<div style="text-align: center; padding: 30px 20px;">' +
             '<div style="font-size: 60px; margin-bottom: 14px;">🎉</div>' +
@@ -1258,12 +1267,23 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
         }, 1500);
 
       } else {
+        // ⭐ DESCONTO PARCIAL — atualiza textos E regenera o PIX
         var valorFmt = valorFinal.toFixed(2).replace('.', ',');
         document.getElementById('checkout-valor').textContent = valorFmt;
         document.getElementById('cartao-valor').textContent = valorFmt;
         dadosCheckout.precoBaseFmt = valorFmt;
         avisoEl.style.display = 'block';
         valorFinalEl.textContent = 'R$ ' + valorFmt;
+
+        var regenerou = await regenerarPixComCupom();
+
+        if (!regenerou) {
+          msg.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Cupom válido, mas houve erro ao atualizar o QR Code. Toque em "Aplicar" de novo.';
+          msg.style.color = '#d97706';
+          btn.disabled = false;
+          btn.textContent = 'Aplicar';
+          return;
+        }
       }
 
       btn.disabled = false;
@@ -1271,6 +1291,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       btn.style.background = '#10b981';
 
     } catch (err) {
+      console.error('Erro aplicar cupom:', err);
       msg.style.display = 'block';
       msg.style.color = '#ef4444';
       msg.textContent = 'Erro de rede. Tente novamente.';
@@ -1279,14 +1300,72 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     }
   };
 
+  // ⭐ Regenera o QR Code PIX com o cupom aplicado
+  // Retorna true se deu certo, false se falhou
+  async function regenerarPixComCupom() {
+    // ⭐ Para o polling antigo ANTES de mexer no cobrancaId
+    pararPollingPagamento();
+
+    document.getElementById('pix-qrcode').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><p>Atualizando valor com desconto...</p>';
+    document.getElementById('pix-codigo').value = '';
+    document.getElementById('checkout-erro').style.display = 'none';
+
+    try {
+      var resp = await fetch('/api/asaas/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nome: dadosCheckout.nome,
+          cpf: document.getElementById('cpf').value.trim(),
+          whatsapp: document.getElementById('whatsapp').value.trim(),
+          plano: dadosCheckout.plano,
+          recordIdAirtable: dadosCheckout.recordId,
+          cupomCodigo: cupomAplicado,
+          formaPagamento: 'PIX'
+        })
+      });
+
+      var data = await resp.json();
+
+      if (!resp.ok || !data.ok) {
+        console.error('Erro regenerar PIX:', data.error, data.detalhe);
+        document.getElementById('pix-qrcode').innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color: #ef4444;"></i><p>Não foi possível atualizar o QR Code com o desconto.</p>';
+        // Retoma polling do ID antigo (que ainda existe se a regeneração falhou)
+        iniciarPollingPagamento();
+        return false;
+      }
+
+      if (data.pix && data.pix.qrCodeImage) {
+        document.getElementById('pix-qrcode').innerHTML = '<img src="data:image/png;base64,' + data.pix.qrCodeImage + '" alt="QR Code Pix">';
+        document.getElementById('pix-codigo').value = data.pix.copiaECola || '';
+      }
+
+      dadosCheckout.cobrancaId = data.cobrancaId;
+      dadosCheckout.pixData = data.pix;
+
+      iniciarPollingPagamento();
+
+      console.log('✅ PIX regenerado com desconto:', data.valorFinal);
+      return true;
+
+    } catch (err) {
+      console.error('Erro regenerar PIX (rede):', err);
+      document.getElementById('pix-qrcode').innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color: #ef4444;"></i><p>Erro de conexão. Tente novamente.</p>';
+      iniciarPollingPagamento();
+      return false;
+    }
+  }
+
   function mostrarSucessoGratis(cupomCodigo) {
+    pararPollingPagamento();
+
     if (formArea) formArea.style.display = 'none';
     if (headerTop) headerTop.style.display = 'none';
     tituloSucesso.textContent = 'Acesso liberado! 🎉';
     textoSucesso.innerHTML = 'Alguém muito especial indicou você — e a gente adorou te receber assim. Seu plano já está <strong>ativo e sem custo nenhum</strong>.';
     blocoGratis.style.display = 'flex';
     blocoGratis.className = 'bloco-info lilas';
-    blocoGratisTxt.innerHTML = '<strong>Você ganhou um presente 💜</strong> O cupom <strong>' + (cupomCodigo || '') + '</strong> liberou seu plano completo. Nossa equipe vai revisar seu perfil com carinho — e em até 48h úteis você estará no ar, pronta pra receber famílias.';
+    blocoGratisTxt.innerHTML = '<strong>Você ganhou um presente 💜</strong> O cupom <strong>' + escapeHTML(cupomCodigo || '') + '</strong> liberou seu plano completo. Nossa equipe vai revisar seu perfil com carinho — e em até 48h úteis você estará no ar, pronta pra receber famílias.';
     var blocoLink = document.getElementById('bloco-link');
     if (blocoLink) blocoLink.style.display = 'block';
     if (linkAvisoTexto) {
@@ -1544,6 +1623,11 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     if (!cardCvv || cardCvv.length < 3) { alert('CVV inválido.'); return; }
     var ma = cardExpiry.split('/');
     var btn = document.querySelector('.btn-pagar-cartao');
+
+    // ⭐ Para o polling do PIX — não faz sentido continuar verificando
+    // enquanto a cobrança de cartão está sendo gerada
+    pararPollingPagamento();
+
     btn.disabled = true;
     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processando...';
     try {
@@ -1579,10 +1663,10 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       if (!resp.ok || !data.ok) {
         console.error('Erro cartão:', data.error, data.detalhe);
         alert('Não conseguimos processar seu pagamento agora. Verifique os dados do cartão e tente novamente. Se persistir, fale com a gente pelo WhatsApp 💜');
+        // Não retoma polling — o usuário deve tentar de novo
         return;
       }
       dadosCheckout.pago = true;
-      pararPollingPagamento();
       document.getElementById('tela-checkout').classList.remove('ativo');
       document.body.style.overflow = '';
       mostrarSucessoPago();
@@ -1623,6 +1707,8 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   }
 
   function mostrarSucessoPago() {
+    pararPollingPagamento();
+
     if (formArea) formArea.style.display = 'none';
     if (headerTop) headerTop.style.display = 'none';
     tituloSucesso.textContent = 'Pagamento confirmado! 💜';
