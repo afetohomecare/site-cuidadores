@@ -129,8 +129,6 @@ export async function onRequestPost(context) {
     }
 
     // ⭐ DELETA COBRANÇA ANTIGA (se existir e não estiver paga)
-    // Isso evita ter 2 QR Codes ativos quando a cuidadora aplica cupom
-    // depois de o PIX original já ter sido gerado.
     if (cuidadorId) {
       try {
         const cResp = await fetch(
@@ -175,15 +173,23 @@ export async function onRequestPost(context) {
     vencimento.setDate(vencimento.getDate() + 1);
     const dataVencimento = vencimento.toISOString().split('T')[0];
 
-    const descricaoPlano = nomeDoPlano(plano);
-    const sufixoDesconto = desconto > 0 ? ' (desconto de R$ ' + desconto.toFixed(2).replace('.', ',') + ')' : '';
+    // ============================================================
+    // ⭐ DESCRIÇÃO DA COBRANÇA (o que aparece no app do banco)
+    // ------------------------------------------------------------
+    // Esse texto vira a "mensagem" que a cliente vê ao pagar o PIX.
+    // Deixei curto pra caber em todos os bancos.
+    //
+    // Se o emoji 💜 der problema, tira e deixa só:
+    //   'Plano Afeto - Wagner Frankowski'
+    // ============================================================
+    const descricaoCobranca = '💜 Plano Afeto - Wagner Frankowski';
 
     const cobrancaBody = {
       customer: customerId,
       billingType: formaPagamento,
       value: valorFinal,
       dueDate: dataVencimento,
-      description: 'Plano ' + descricaoPlano + ' Afeto' + sufixoDesconto,
+      description: descricaoCobranca,
       externalReference: cuidadorId || undefined
     };
 

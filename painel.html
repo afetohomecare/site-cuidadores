@@ -477,8 +477,8 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
     var fotoEl = document.getElementById('perfil-foto');
     var placeholderEl = document.getElementById('perfil-foto-placeholder');
     var avisoFoto = document.getElementById('aviso-foto');
-    var wrapper = document.getElementById('perfil-foto-wrapper');
 
+    // Limpa overlay antigo caso ainda exista no DOM (compatibilidade)
     var overlayAntigo = document.getElementById('blur-overlay-foto');
     if (overlayAntigo) overlayAntigo.remove();
 
@@ -486,44 +486,26 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
       fotoEl.src = cuidadora.foto_url;
       fotoEl.style.display = 'block';
       placeholderEl.style.display = 'none';
+      fotoEl.style.filter = 'none';
+      fotoEl.style.transform = 'none';
 
-      if (planoAtual === 'basico') {
-        fotoEl.style.filter = 'blur(14px)';
-        fotoEl.style.transform = 'scale(1.05)';
-
-        var overlay = document.createElement('div');
-        overlay.id = 'blur-overlay-foto';
-        overlay.style.cssText = 'position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 12px; z-index: 2; border-radius: 50%; overflow: hidden;';
-        overlay.innerHTML =
-          '<div style="font-size: 28px; margin-bottom: 4px;">🔒</div>' +
-          '<div style="font-size: 12px; font-weight: 900; color: white; text-shadow: 0 2px 8px rgba(0,0,0,0.8); margin-bottom: 6px; line-height: 1.3;">Escolha um plano</div>' +
-          '<div style="font-size: 10px; font-weight: 700; color: white; text-shadow: 0 2px 8px rgba(0,0,0,0.8); line-height: 1.3;">pra liberar sua foto</div>';
-
-        wrapper.appendChild(overlay);
-
-        avisoFoto.className = 'aviso-moderacao';
-        avisoFoto.style.background = 'linear-gradient(135deg, #ecfdf5, #d1fae5)';
-        avisoFoto.style.color = '#065f46';
-        avisoFoto.innerHTML = '<i class="fa-solid fa-circle-check"></i> Foto aprovada! Ative um plano pra liberar';
-      } else {
-        fotoEl.style.filter = 'none';
-        fotoEl.style.transform = 'none';
-        avisoFoto.className = 'aviso-moderacao';
-        avisoFoto.style.background = '';
-        avisoFoto.style.color = '';
-        avisoFoto.innerHTML = '<i class="fa-solid fa-circle-check"></i> Foto aprovada';
-      }
+      avisoFoto.className = 'aviso-moderacao';
+      avisoFoto.style.background = '';
+      avisoFoto.style.color = '';
+      avisoFoto.innerHTML = '<i class="fa-solid fa-circle-check"></i> Foto aprovada';
     } else {
       fotoEl.style.display = 'none';
       placeholderEl.style.display = 'flex';
       fotoEl.style.filter = 'none';
       fotoEl.style.transform = 'none';
+
       avisoFoto.className = 'aviso-moderacao';
       avisoFoto.style.background = '';
       avisoFoto.style.color = '';
       avisoFoto.innerHTML = '<i class="fa-solid fa-shield-halved"></i> Toda foto passa por revisão antes de ir ao ar';
     }
 
+    // Se tem foto nova em análise, sobrescreve o aviso
     if (cuidadora.foto_pendente) {
       avisoFoto.className = 'aviso-moderacao pendente';
       avisoFoto.style.background = '';
