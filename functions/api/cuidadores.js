@@ -4,6 +4,7 @@
 // Lê do Supabase (PostgreSQL) somente as cuidadoras que estão:
 //   • aprovada = true
 //   • status_pagamento = 'Pago'
+//   • plano_valido_ate >= HOJE (Impede de mostrar perfis vencidos do PIX)
 //   • tem plano_profissional OU plano_destaque ativo
 //
 // A filtragem é feita NO BANCO (não no navegador), para não
@@ -55,9 +56,13 @@ export async function onRequestGet(context) {
     return respostaErro('Configuração do servidor ausente.', 500);
   }
 
+  // 🕒 Pegando a data de hoje para barrar as contas vencidas do PIX!
+  const hoje = new Date().toISOString();
+
   const parametros = [
     'aprovada=eq.true',
     'status_pagamento=eq.Pago',
+    'plano_valido_ate=gte.' + hoje, // 🔥 TRAVA DUPLA DEFINITIVA!
     'or=(plano_profissional.eq.true,plano_destaque.eq.true)',
     'select=' + CAMPOS_PUBLICOS.join(','),
     'order=criado_em.desc'
