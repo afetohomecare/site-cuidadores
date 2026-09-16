@@ -181,12 +181,12 @@ export async function onRequestPost(context) {
         return jsonResp({ error: 'Dados do cartão obrigatórios' }, 400);
       }
 
-      // 🔥 TRUQUE: Monta o titular do cartão nos bastidores para o Asaas não bloquear
-      const titularCartao = creditCardHolderInfo || {
+      // 🔥 TRUQUE DEFINITIVO: Ignora os dados incompletos da tela e força o CEP real
+      const titularCartao = {
         name: nome,
         email: email || 'contato@afetocuidadores.com.br',
         cpfCnpj: cpfLimpo,
-        postalCode: '80020000', // CEP genérico 
+        postalCode: '80020-000', // CEP genérico de Curitiba (com traço)
         addressNumber: '1',
         phone: whatsLimpo || '41999999999'
       };
