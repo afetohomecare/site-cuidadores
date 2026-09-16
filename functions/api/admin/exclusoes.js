@@ -1,5 +1,6 @@
 // ============================================================
 // AFETO — API Admin: gerenciar solicitações de exclusão
+// ⭐ SEGURANÇA: só aceita user com role === 'admin'
 // ============================================================
 
 function jsonResp(obj, status) {
@@ -20,7 +21,15 @@ async function validarToken(env, request) {
       'Authorization': 'Bearer ' + token
     }
   });
-  return resp.ok;
+  if (!resp.ok) return false;
+
+  const user = await resp.json();
+
+  // ⭐ VALIDA ROLE — só admin passa
+  const role = user && user.user_metadata && user.user_metadata.role;
+  if (role !== 'admin') return false;
+
+  return true;
 }
 
 function headersSupabase(env, temBody, querRetorno) {
@@ -129,13 +138,17 @@ export async function onRequestPatch(context) {
 
     if (acao === 'aprovar') {
       const cResp = await fetch(
-        env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadorId + '&select=foto_url&limit=1',
+        env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadorId + '&select=foto_url,auth_user_id&limit=1',
         { headers: headersSupabase(env) }
       );
       let fotoAntiga = null;
+      let authUserId = null;
       if (cResp.ok) {
         const cData = await cResp.json();
-        if (cData[0]) fotoAntiga = cData[0].foto_url;
+        if (cData[0]) {
+          fotoAntiga = cData[0].foto_url;
+          authUserId = cData[0].auth_user_id;
+        }
       }
 
       const anonBody = {
@@ -160,7 +173,11 @@ export async function onRequestPatch(context) {
         plano_cadastro: false,
         plano_profissional: false,
         plano_destaque: false,
-        status_pagamento: 'Excluido'
+        status_pagamento: 'Excluido',
+        cpf: null,
+        auth_user_id: null,
+        token_criar_senha: null,
+        token_criar_senha_expira_em: null
       };
 
       const patchResp = await fetch(
@@ -190,6 +207,20 @@ export async function onRequestPatch(context) {
           }
         } catch (e) {
           console.warn('Erro ao deletar foto:', e);
+        }
+      }
+
+      if (authUserId) {
+        try {
+          await fetch(env.SUPABASE_URL + '/auth/v1/admin/users/' + authUserId, {
+            method: 'DELETE',
+            headers: {
+              'apikey': env.SUPABASE_SERVICE_KEY,
+              'Authorization': 'Bearer ' + env.SUPABASE_SERVICE_KEY
+            }
+          });
+        } catch (e) {
+          console.warn('Erro ao deletar auth user:', e);
         }
       }
     }

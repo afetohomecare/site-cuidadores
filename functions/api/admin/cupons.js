@@ -1,5 +1,6 @@
 // ============================================================
 // AFETO — API Admin: cupons
+// ⭐ SEGURANÇA: só aceita user com role === 'admin'
 // ============================================================
 
 function jsonResp(obj, status) {
@@ -13,13 +14,22 @@ async function validarToken(env, request) {
   const auth = request.headers.get('Authorization') || '';
   const token = auth.replace('Bearer ', '').trim();
   if (!token) return false;
+
   const resp = await fetch(env.SUPABASE_URL + '/auth/v1/user', {
     headers: {
       'apikey': env.SUPABASE_SERVICE_KEY,
       'Authorization': 'Bearer ' + token
     }
   });
-  return resp.ok;
+  if (!resp.ok) return false;
+
+  const user = await resp.json();
+
+  // ⭐ VALIDA ROLE — só admin passa
+  const role = user && user.user_metadata && user.user_metadata.role;
+  if (role !== 'admin') return false;
+
+  return true;
 }
 
 function headersSupabase(env, temBody, querRetorno) {

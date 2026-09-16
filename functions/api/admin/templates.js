@@ -1,10 +1,6 @@
 // ============================================================
 // AFETO — API Admin: templates de mensagem WhatsApp
-// ------------------------------------------------------------
-// GET    /api/admin/templates       → lista
-// POST   /api/admin/templates       → cria
-// PATCH  /api/admin/templates?id=X  → edita
-// DELETE /api/admin/templates?id=X  → apaga
+// ⭐ SEGURANÇA: só aceita user com role === 'admin'
 // ============================================================
 
 function jsonResp(obj, status) {
@@ -25,7 +21,15 @@ async function validarToken(env, request) {
       'Authorization': 'Bearer ' + token
     }
   });
-  return resp.ok;
+  if (!resp.ok) return false;
+
+  const user = await resp.json();
+
+  // ⭐ VALIDA ROLE — só admin passa
+  const role = user && user.user_metadata && user.user_metadata.role;
+  if (role !== 'admin') return false;
+
+  return true;
 }
 
 function headersSupabase(env, temBody, querRetorno) {

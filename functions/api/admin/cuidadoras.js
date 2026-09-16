@@ -1,5 +1,7 @@
 // ============================================================
 // AFETO — API Admin: gerenciar cuidadoras
+// ------------------------------------------------------------
+// ⭐ SEGURANÇA: só aceita user com role === 'admin' no metadata
 // ============================================================
 
 const CAMPOS_PERMITIDOS = [
@@ -42,6 +44,13 @@ async function validarToken(env, request) {
 
   if (!resp.ok) return { ok: false, motivo: 'Token inválido ou expirado' };
   const user = await resp.json();
+
+  // ⭐ VALIDA ROLE — só admin passa
+  const role = user && user.user_metadata && user.user_metadata.role;
+  if (role !== 'admin') {
+    return { ok: false, motivo: 'Acesso restrito a administradores' };
+  }
+
   return { ok: true, user: user };
 }
 
@@ -58,7 +67,7 @@ function headersSupabase(env, temBody, querRetorno) {
 
 // Decide o vencimento baseado no plano do cuidador
 function diasDoPlano(campos) {
-  if (campos.plano_cadastro === true) return 365;
+  if (campos.plano_cadastro === true) return 30;
   return 30;
 }
 
@@ -164,7 +173,6 @@ export async function onRequestPatch(context) {
 
     // Auto-preenche vencimento quando marca como Pago
     if (campos.status_pagamento === 'Pago' && !campos.plano_valido_ate) {
-      // Se não veio plano_cadastro no body, busca do banco
       let isCadastro = campos.plano_cadastro;
       if (isCadastro === undefined) {
         try {
@@ -181,7 +189,7 @@ export async function onRequestPatch(context) {
 
       const hoje = new Date();
       const vence = new Date(hoje);
-      vence.setDate(vence.getDate() + (isCadastro ? 365 : 30));
+      vence.setDate(vence.getDate() + diasDoPlano({ plano_cadastro: isCadastro }));
       campos.plano_inicio = hoje.toISOString();
       campos.plano_valido_ate = vence.toISOString();
     }
@@ -235,12 +243,10 @@ export async function onRequestPost(context) {
       return jsonResp({ error: 'Nenhum campo válido' }, 400);
     }
 
-    // Auto-preenche vencimento em lote (usa plano_cadastro do body como referência)
     if (campos.status_pagamento === 'Pago' && !campos.plano_valido_ate) {
       const hoje = new Date();
       const vence = new Date(hoje);
-      const dias = campos.plano_cadastro === true ? 365 : 30;
-      vence.setDate(vence.getDate() + dias);
+      vence.setDate(vence.getDate() + diasDoPlano({ plano_cadastro: campos.plano_cadastro }));
       campos.plano_inicio = hoje.toISOString();
       campos.plano_valido_ate = vence.toISOString();
     }

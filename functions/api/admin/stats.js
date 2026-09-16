@@ -1,5 +1,6 @@
 // ============================================================
 // AFETO — API Admin: números do dashboard
+// ⭐ SEGURANÇA: só aceita user com role === 'admin'
 // ============================================================
 
 function jsonResp(obj, status) {
@@ -20,7 +21,15 @@ async function validarToken(env, request) {
       'Authorization': 'Bearer ' + token
     }
   });
-  return resp.ok;
+  if (!resp.ok) return false;
+
+  const user = await resp.json();
+
+  // ⭐ VALIDA ROLE — só admin passa
+  const role = user && user.user_metadata && user.user_metadata.role;
+  if (role !== 'admin') return false;
+
+  return true;
 }
 
 function headersSupabase(env) {
@@ -39,7 +48,6 @@ export async function onRequestGet(context) {
   }
 
   try {
-    // Busca todas de uma vez (ok até ~2000 cuidadoras)
     const resp = await fetch(
       env.SUPABASE_URL + '/rest/v1/cuidadores?select=id,aprovada,status_pagamento,plano_profissional,plano_destaque,plano_valido_ate,bairro,criado_em,cupom_usado',
       { headers: headersSupabase(env) }
@@ -52,7 +60,6 @@ export async function onRequestGet(context) {
     const em7dias = new Date(agora);
     em7dias.setDate(em7dias.getDate() + 7);
 
-    // Contagens
     let total = cuidadores.length;
     let pendentes = 0;
     let aprovadas = 0;
@@ -85,20 +92,16 @@ export async function onRequestGet(context) {
       if (c.cupom_usado) contagemCupons[c.cupom_usado] = (contagemCupons[c.cupom_usado] || 0) + 1;
     });
 
-    // Top bairros
     const topBairros = Object.keys(contagemBairros)
       .map(function(k) { return { bairro: k, total: contagemBairros[k] }; })
       .sort(function(a, b) { return b.total - a.total; })
       .slice(0, 5);
 
-    // Top cupons
     const topCupons = Object.keys(contagemCupons)
       .map(function(k) { return { cupom: k, total: contagemCupons[k] }; })
       .sort(function(a, b) { return b.total - a.total; })
       .slice(0, 5);
 
-    // Taxa de conversão: de todos que se cadastraram com plano pago,
-    // quantos de fato pagaram
     const comPlanoPago = cuidadores.filter(function(c) {
       return c.plano_profissional || c.plano_destaque;
     }).length;
