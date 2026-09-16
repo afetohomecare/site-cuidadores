@@ -1,12 +1,6 @@
 // ============================================================
 // AFETO — Webhook do Telegram
-// ------------------------------------------------------------
-// Recebe os cliques nos botões inline (fotos pra aprovar/rejeitar).
-// Quando o admin clica num botão, o Telegram manda um POST aqui.
-//
-// Callback data:
-//   foto_aprovar:<cuidadorId>  → move foto_url_pendente → foto_url
-//   foto_rejeitar:<cuidadorId> → limpa foto_url_pendente
+// Valida upload_id antes de aprovar/rejeitar
 // ============================================================
 
 function jsonResp(obj, status) {
@@ -26,11 +20,9 @@ export async function onRequestPost(context) {
   try {
     const body = await request.json();
 
-    // Telegram envia update com callback_query quando alguém clica num botão
     const cb = body.callback_query;
     if (!cb) return jsonResp({ ok: true, motivo: 'Não é callback' }, 200);
 
-    // ⭐ Valida que veio do chat certo (admin)
     const chatId = cb.message && cb.message.chat && cb.message.chat.id;
     if (String(chatId) !== String(env.TELEGRAM_CHAT_ID)) {
       console.warn('Callback de chat não autorizado:', chatId);
@@ -41,15 +33,15 @@ export async function onRequestPost(context) {
     const parts = data.split(':');
     const acao = parts[0];
     const cuidadorId = parts[1];
+    const uploadIdClicado = parts[2];
 
-    if (!cuidadorId || (acao !== 'foto_aprovar' && acao !== 'foto_rejeitar')) {
+    if (!cuidadorId || !uploadIdClicado || (acao !== 'foto_aprovar' && acao !== 'foto_rejeitar')) {
       return jsonResp({ ok: false, motivo: 'Callback inválido' }, 200);
     }
 
-    // Busca estado atual
     const buscaResp = await fetch(
       env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(cuidadorId) +
-      '&select=id,nome,foto_url,foto_url_pendente,foto_pendente&limit=1',
+      '&select=id,nome,foto_url,foto_url_pendente,foto_pendente,foto_upload_id,foto_pendente_path&limit=1',
       { headers: headersSupabase(env) }
     );
 
@@ -71,22 +63,65 @@ export async function onRequestPost(context) {
       return jsonResp({ ok: true }, 200);
     }
 
+    // ⭐ Valida upload_id
+    if (cuidadora.foto_upload_id !== uploadIdClicado) {
+      console.warn('Upload ID não bate. Clicado:', uploadIdClicado, 'Atual:', cuidadora.foto_upload_id);
+      await responderCallback(env, cb.id, '⚠️ Essa foto já foi substituída por outra mais nova');
+      return jsonResp({ ok: true }, 200);
+    }
+
     let patchBody = {};
     let textoCallback = '';
     let emojiResultado = '';
 
     if (acao === 'foto_aprovar') {
+      // ⭐ Antes de aprovar, deleta a foto oficial antiga (se houver)
+      if (cuidadora.foto_url) {
+        try {
+          const antigaPath = cuidadora.foto_url.split('/storage/v1/object/public/')[1];
+          // Só deleta se NÃO for o mesmo arquivo do pendente (evita deletar o que vai ser promovido)
+          if (antigaPath && antigaPath !== cuidadora.foto_pendente_path) {
+            await fetch(env.SUPABASE_URL + '/storage/v1/object/' + antigaPath, {
+              method: 'DELETE',
+              headers: {
+                'Authorization': 'Bearer ' + env.SUPABASE_SERVICE_KEY
+              }
+            });
+          }
+        } catch (e) {
+          console.warn('Erro ao deletar foto antiga:', e);
+        }
+      }
+
       patchBody = {
         foto_url: cuidadora.foto_url_pendente,
         foto_url_pendente: null,
-        foto_pendente: false
+        foto_pendente: false,
+        foto_upload_id: null,
+        foto_pendente_path: null
       };
       textoCallback = '✅ Foto aprovada!';
       emojiResultado = '✅';
     } else {
+      // ⭐ Rejeitar — deleta o arquivo pendente do storage
+      if (cuidadora.foto_pendente_path) {
+        try {
+          await fetch(env.SUPABASE_URL + '/storage/v1/object/' + cuidadora.foto_pendente_path, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': 'Bearer ' + env.SUPABASE_SERVICE_KEY
+            }
+          });
+        } catch (e) {
+          console.warn('Erro ao deletar foto rejeitada:', e);
+        }
+      }
+
       patchBody = {
         foto_url_pendente: null,
-        foto_pendente: false
+        foto_pendente: false,
+        foto_upload_id: null,
+        foto_pendente_path: null
       };
       textoCallback = '❌ Foto rejeitada';
       emojiResultado = '❌';
@@ -135,7 +170,6 @@ async function responderCallback(env, callbackId, texto) {
 
 async function editarMensagem(env, chatId, messageId, emoji, nomeCuidadora) {
   try {
-    // Remove os botões
     await fetch('https://api.telegram.org/bot' + env.TELEGRAM_BOT_TOKEN + '/editMessageReplyMarkup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -146,7 +180,6 @@ async function editarMensagem(env, chatId, messageId, emoji, nomeCuidadora) {
       })
     });
 
-    // Atualiza a legenda
     const titulo = emoji === '✅' ? 'Foto aprovada' : 'Foto rejeitada';
     await fetch('https://api.telegram.org/bot' + env.TELEGRAM_BOT_TOKEN + '/editMessageCaption', {
       method: 'POST',

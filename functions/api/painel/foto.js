@@ -1,9 +1,8 @@
 // ============================================================
 // AFETO — API Painel: upload de foto (pendente de aprovação)
 // ------------------------------------------------------------
-// A foto NÃO substitui a atual. Fica salva em foto_url_pendente
-// e marcada com foto_pendente = true. Você aprova pelo Telegram
-// (com botões) ou pelo painel admin.
+// Cada upload gera arquivo com ID único (não sobrescreve).
+// Guarda o caminho em foto_pendente_path pra deletar depois.
 // ============================================================
 
 const BUCKET = 'fotos';
@@ -37,7 +36,11 @@ export async function onRequestPost(context) {
       return jsonResp({ error: 'O arquivo precisa ser uma imagem.' }, 400);
     }
 
-    const nomeArquivo = cuidadora.id + '-pendente.jpg';
+    // ⭐ Gera upload_id único ANTES de nomear o arquivo
+    const uploadId = Date.now().toString(36) + '-' + Math.random().toString(36).substring(2, 10);
+
+    // ⭐ Nome do arquivo agora tem uploadId — cada upload é único
+    const nomeArquivo = cuidadora.id + '-' + uploadId + '.jpg';
     const caminho = BUCKET + '/' + nomeArquivo;
     const buffer = await foto.arrayBuffer();
 
@@ -60,8 +63,26 @@ export async function onRequestPost(context) {
       return jsonResp({ error: 'Falha ao enviar a foto.' }, 502);
     }
 
-    const fotoUrl = env.SUPABASE_URL + '/storage/v1/object/public/' + caminho + '?v=' + Date.now();
+    const fotoUrl = env.SUPABASE_URL + '/storage/v1/object/public/' + caminho;
 
+    // ⭐ Busca foto pendente anterior pra deletar (se houver)
+    let caminhoPendenteAntigo = null;
+    try {
+      const cResp = await fetch(
+        env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadora.id + '&select=foto_pendente_path&limit=1',
+        { headers: headersSupabase(env) }
+      );
+      if (cResp.ok) {
+        const cData = await cResp.json();
+        if (cData[0] && cData[0].foto_pendente_path) {
+          caminhoPendenteAntigo = cData[0].foto_pendente_path;
+        }
+      }
+    } catch (e) {
+      console.warn('Erro ao buscar pendente antigo:', e);
+    }
+
+    // Atualiza registro com novo pendente
     const patchResp = await fetch(
       env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadora.id,
       {
@@ -69,7 +90,9 @@ export async function onRequestPost(context) {
         headers: headersSupabase(env, true),
         body: JSON.stringify({
           foto_url_pendente: fotoUrl,
-          foto_pendente: true
+          foto_pendente: true,
+          foto_upload_id: uploadId,
+          foto_pendente_path: caminho
         })
       }
     );
@@ -80,7 +103,21 @@ export async function onRequestPost(context) {
       return jsonResp({ error: 'Falha ao registrar foto.' }, 502);
     }
 
-    await notificarTelegram(env, cuidadora.id, fotoUrl, cuidadora.nome);
+    // ⭐ Deleta o arquivo pendente anterior (não é mais necessário)
+    if (caminhoPendenteAntigo && caminhoPendenteAntigo !== caminho) {
+      try {
+        await fetch(env.SUPABASE_URL + '/storage/v1/object/' + caminhoPendenteAntigo, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': 'Bearer ' + env.SUPABASE_SERVICE_KEY
+          }
+        });
+      } catch (e) {
+        console.warn('Erro ao deletar pendente antigo:', e);
+      }
+    }
+
+    await notificarTelegram(env, cuidadora.id, fotoUrl, cuidadora.nome, uploadId);
 
     return jsonResp({
       ok: true,
@@ -125,7 +162,7 @@ async function validarToken(env, request) {
   return linhas[0];
 }
 
-async function notificarTelegram(env, cuidadorId, fotoUrl, cuidadorNome) {
+async function notificarTelegram(env, cuidadorId, fotoUrl, cuidadorNome, uploadId) {
   try {
     const token = env.TELEGRAM_BOT_TOKEN;
     const chatId = env.TELEGRAM_CHAT_ID;
@@ -153,8 +190,8 @@ async function notificarTelegram(env, cuidadorId, fotoUrl, cuidadorNome) {
         parse_mode: 'Markdown',
         reply_markup: {
           inline_keyboard: [[
-            { text: '✅ Aprovar', callback_data: 'foto_aprovar:' + cuidadorId },
-            { text: '❌ Rejeitar', callback_data: 'foto_rejeitar:' + cuidadorId }
+            { text: '✅ Aprovar', callback_data: 'foto_aprovar:' + cuidadorId + ':' + uploadId },
+            { text: '❌ Rejeitar', callback_data: 'foto_rejeitar:' + cuidadorId + ':' + uploadId }
           ]]
         }
       })

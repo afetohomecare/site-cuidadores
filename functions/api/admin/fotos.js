@@ -41,7 +41,6 @@ function headersSupabase(env, temBody, querRetorno) {
   return h;
 }
 
-// GET — lista fotos pendentes
 export async function onRequestGet(context) {
   const { request, env } = context;
 
@@ -66,7 +65,6 @@ export async function onRequestGet(context) {
   }
 }
 
-// PATCH — aprova ou rejeita
 export async function onRequestPatch(context) {
   const { request, env } = context;
 
@@ -88,7 +86,7 @@ export async function onRequestPatch(context) {
 
     const buscaResp = await fetch(
       env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(id) +
-      '&select=id,foto_url,foto_url_pendente,foto_pendente,nome&limit=1',
+      '&select=id,foto_url,foto_url_pendente,foto_pendente,foto_pendente_path,nome&limit=1',
       { headers: headersSupabase(env) }
     );
 
@@ -104,16 +102,52 @@ export async function onRequestPatch(context) {
     }
 
     let patchBody = {};
+
     if (acao === 'aprovar') {
+      // ⭐ Deleta foto oficial antiga (se houver e for diferente do pendente)
+      if (cuidadora.foto_url) {
+        try {
+          const antigaPath = cuidadora.foto_url.split('/storage/v1/object/public/')[1];
+          if (antigaPath && antigaPath !== cuidadora.foto_pendente_path) {
+            await fetch(env.SUPABASE_URL + '/storage/v1/object/' + antigaPath, {
+              method: 'DELETE',
+              headers: {
+                'Authorization': 'Bearer ' + env.SUPABASE_SERVICE_KEY
+              }
+            });
+          }
+        } catch (e) {
+          console.warn('Erro ao deletar foto antiga:', e);
+        }
+      }
+
       patchBody = {
         foto_url: cuidadora.foto_url_pendente,
         foto_url_pendente: null,
-        foto_pendente: false
+        foto_pendente: false,
+        foto_upload_id: null,
+        foto_pendente_path: null
       };
     } else {
+      // ⭐ Rejeitar — deleta arquivo pendente
+      if (cuidadora.foto_pendente_path) {
+        try {
+          await fetch(env.SUPABASE_URL + '/storage/v1/object/' + cuidadora.foto_pendente_path, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': 'Bearer ' + env.SUPABASE_SERVICE_KEY
+            }
+          });
+        } catch (e) {
+          console.warn('Erro ao deletar foto rejeitada:', e);
+        }
+      }
+
       patchBody = {
         foto_url_pendente: null,
-        foto_pendente: false
+        foto_pendente: false,
+        foto_upload_id: null,
+        foto_pendente_path: null
       };
     }
 
