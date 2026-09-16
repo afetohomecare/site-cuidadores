@@ -79,7 +79,6 @@ export async function onRequestPost(context) {
       if (cuidadora.foto_url) {
         try {
           const antigaPath = cuidadora.foto_url.split('/storage/v1/object/public/')[1];
-          // Só deleta se NÃO for o mesmo arquivo do pendente (evita deletar o que vai ser promovido)
           if (antigaPath && antigaPath !== cuidadora.foto_pendente_path) {
             await fetch(env.SUPABASE_URL + '/storage/v1/object/' + antigaPath, {
               method: 'DELETE',
