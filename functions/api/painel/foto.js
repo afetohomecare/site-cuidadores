@@ -2,12 +2,12 @@
 // AFETO — API Painel: upload de foto (pendente de aprovação)
 // ------------------------------------------------------------
 // A foto NÃO substitui a atual. Fica salva em foto_url_pendente
-// e marcada com foto_pendente = true. Você aprova pelo painel
-// admin, aí sim vira a foto oficial.
+// e marcada com foto_pendente = true. Você aprova pelo Telegram
+// (com botões) ou pelo painel admin.
 // ============================================================
 
 const BUCKET = 'fotos';
-const TAMANHO_MAX = 5 * 1024 * 1024; // 5MB
+const TAMANHO_MAX = 5 * 1024 * 1024;
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -37,7 +37,6 @@ export async function onRequestPost(context) {
       return jsonResp({ error: 'O arquivo precisa ser uma imagem.' }, 400);
     }
 
-    // ---------- UPLOAD ----------
     const nomeArquivo = cuidadora.id + '-pendente.jpg';
     const caminho = BUCKET + '/' + nomeArquivo;
     const buffer = await foto.arrayBuffer();
@@ -63,7 +62,6 @@ export async function onRequestPost(context) {
 
     const fotoUrl = env.SUPABASE_URL + '/storage/v1/object/public/' + caminho + '?v=' + Date.now();
 
-    // ---------- MARCA PENDENTE ----------
     const patchResp = await fetch(
       env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadora.id,
       {
@@ -82,8 +80,7 @@ export async function onRequestPost(context) {
       return jsonResp({ error: 'Falha ao registrar foto.' }, 502);
     }
 
-    // ---------- TELEGRAM ----------
-    await notificarTelegram(env, cuidadora.id, fotoUrl);
+    await notificarTelegram(env, cuidadora.id, fotoUrl, cuidadora.nome);
 
     return jsonResp({
       ok: true,
@@ -128,7 +125,7 @@ async function validarToken(env, request) {
   return linhas[0];
 }
 
-async function notificarTelegram(env, cuidadorId, fotoUrl) {
+async function notificarTelegram(env, cuidadorId, fotoUrl, cuidadorNome) {
   try {
     const token = env.TELEGRAM_BOT_TOKEN;
     const chatId = env.TELEGRAM_CHAT_ID;
@@ -141,8 +138,9 @@ async function notificarTelegram(env, cuidadorId, fotoUrl) {
     });
 
     const msg = '📸 *Nova foto aguardando aprovação*\n\n' +
+      '👤 ' + (cuidadorNome || 'Cuidadora') + '\n' +
       'ID: `' + cuidadorId + '`\n\n' +
-      '[Ver no painel admin](https://afetocuidadores.pages.dev/admin)\n\n' +
+      'Toque em ✅ pra aprovar ou ❌ pra rejeitar.\n\n' +
       '🕒 ' + agora;
 
     await fetch('https://api.telegram.org/bot' + token + '/sendPhoto', {
@@ -152,7 +150,13 @@ async function notificarTelegram(env, cuidadorId, fotoUrl) {
         chat_id: chatId,
         photo: fotoUrl,
         caption: msg,
-        parse_mode: 'Markdown'
+        parse_mode: 'Markdown',
+        reply_markup: {
+          inline_keyboard: [[
+            { text: '✅ Aprovar', callback_data: 'foto_aprovar:' + cuidadorId },
+            { text: '❌ Rejeitar', callback_data: 'foto_rejeitar:' + cuidadorId }
+          ]]
+        }
       })
     });
   } catch (e) {

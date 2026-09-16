@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fotos Pendentes — Admin Afeto</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root { --lilas: #8b5cf6; --lilas-escuro: #7c3aed; --fundo-site: #f8f9fc; --preto-fonte: #1f1f1f; --cinza-fonte: #666666; --cinza-azulado: #94a3b8; --branco: #ffffff; --ouro: #fbbf24; --verde: #10b981; --vermelho: #ef4444; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: var(--preto-fonte); min-height: 100vh; }
+.topbar { background: white; border-bottom: 1px solid #e2e8f0; padding: 16px 24px; display: flex; align-items: center; gap: 20px; position: sticky; top: 0; z-index: 10; }
+.topbar h1 { font-size: 20px; font-weight: 900; letter-spacing: -0.5px; display: flex; align-items: center; gap: 10px; }
+.topbar a { color: var(--lilas-escuro); font-weight: 800; font-size: 14px; text-decoration: none; display: flex; align-items: center; gap: 6px; }
+.topbar a:hover { text-decoration: underline; }
+.wrap { max-width: 1100px; margin: 0 auto; padding: 30px 20px 60px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+.card { background: white; border-radius: 20px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 5px 15px rgba(0,0,0,0.03); display: flex; flex-direction: column; }
+.card-foto-area { position: relative; width: 100%; aspect-ratio: 1; background: #f1f5f9; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.card-foto-area img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.card-foto-area i { font-size: 80px; color: #cbd5e1; }
+.card-foto-area .badge-pendente {
+  position: absolute; top: 12px; left: 12px;
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  color: #78350f; padding: 5px 12px; border-radius: 20px;
+  font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px;
+  display: inline-flex; align-items: center; gap: 5px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.card-info { padding: 18px 20px; }
+.card-nome { font-size: 16px; font-weight: 900; margin-bottom: 4px; }
+.card-meta { font-size: 13px; color: var(--cinza-fonte); font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 5px; }
+.card-meta i { color: var(--lilas); font-size: 11px; }
+.card-data { font-size: 11.5px; color: var(--cinza-azulado); font-weight: 700; margin-bottom: 14px; }
+.card-acoes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.btn-acao { padding: 12px 14px; border-radius: 50px; border: none; font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 900; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 6px; }
+.btn-acao:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-aprovar { background: linear-gradient(135deg, #10b981, #059669); color: white; box-shadow: 0 6px 16px rgba(16,185,129,0.3); }
+.btn-aprovar:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(16,185,129,0.4); }
+.btn-rejeitar { background: white; color: var(--vermelho); border: 2px solid var(--vermelho); }
+.btn-rejeitar:hover:not(:disabled) { background: var(--vermelho); color: white; }
+.loader { text-align: center; padding: 60px 20px; color: var(--lilas); font-weight: 800; font-size: 16px; }
+.vazio { text-align: center; padding: 80px 20px; color: var(--cinza-fonte); font-weight: 700; }
+.vazio i { font-size: 60px; color: #cbd5e1; margin-bottom: 16px; display: block; }
+.vazio h3 { font-size: 20px; font-weight: 900; margin-bottom: 8px; color: var(--preto-fonte); }
+.toast { position: fixed; bottom: 25px; right: 25px; padding: 16px 22px; background: white; border-radius: 16px; box-shadow: 0 15px 40px rgba(0,0,0,0.15); border-left: 5px solid var(--verde); font-weight: 800; font-size: 14px; z-index: 9999; opacity: 0; transform: translateY(20px); transition: 0.3s; pointer-events: none; max-width: 340px; }
+.toast.ativo { opacity: 1; transform: translateY(0); }
+.toast.erro { border-left-color: var(--vermelho); }
+.modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(6px); z-index: 9999; align-items: center; justify-content: center; padding: 20px; }
+.modal.ativo { display: flex; }
+.modal-box { background: white; border-radius: 24px; max-width: 480px; width: 100%; padding: 30px; box-shadow: 0 30px 70px rgba(0,0,0,0.4); }
+.modal-box h2 { font-size: 20px; font-weight: 900; margin-bottom: 8px; }
+.modal-box .sub { font-size: 13.5px; color: var(--cinza-fonte); font-weight: 700; margin-bottom: 20px; line-height: 1.55; }
+.modal-box textarea { width: 100%; padding: 14px; border-radius: 12px; border: 2px solid #e2e8f0; font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 600; outline: none; resize: vertical; min-height: 90px; margin-bottom: 18px; }
+.modal-box textarea:focus { border-color: var(--lilas); }
+.modal-acoes { display: flex; gap: 10px; }
+.modal-acoes button { flex: 1; padding: 14px; border-radius: 50px; border: none; font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 900; cursor: pointer; }
+.btn-cancelar { background: transparent; color: var(--cinza-fonte); border: 2px solid #e2e8f0; }
+.btn-confirmar { background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; }
+@media (max-width: 600px) { .topbar { padding: 14px 16px; } .topbar h1 { font-size: 17px; } .wrap { padding: 20px 14px 40px; } .grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="painel.html"><i class="fa-solid fa-arrow-left"></i> Voltar ao painel</a>
+  <h1><i class="fa-solid fa-camera" style="color: var(--lilas);"></i> Fotos Pendentes</h1>
+</div>
+
+<div class="wrap">
+  <div id="lista-container">
+    <div class="loader"><i class="fa-solid fa-spinner fa-spin"></i><br>Carregando fotos...</div>
+  </div>
+</div>
+
+<div class="modal" id="modal-rejeitar">
+  <div class="modal-box">
+    <h2>Rejeitar foto?</h2>
+    <p class="sub">A cuidadora não terá a foto publicada. Você pode adicionar uma observação (opcional).</p>
+    <textarea id="motivo-rejeicao" placeholder="Ex: Foto com baixa resolução, rosto não visível..."></textarea>
+    <div class="modal-acoes">
+      <button class="btn-cancelar" onclick="fecharModalRejeitar()">Cancelar</button>
+      <button class="btn-confirmar" id="btn-confirmar-rejeitar" style="background: linear-gradient(135deg, #ef4444, #b91c1c);">Rejeitar foto</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function() {
+  "use strict";
+
+  var TOKEN_KEY = 'afeto_admin_token';
+  var token = null;
+
+  try { token = localStorage.getItem(TOKEN_KEY); } catch (e) {}
+
+  if (!token) {
+    alert('Você não está logado como admin.');
+    window.location.href = 'login.html';
+    return;
+  }
+
+  function escapeHTML(txt) {
+    if (!txt) return '';
+    var div = document.createElement('div');
+    div.textContent = String(txt);
+    return div.innerHTML;
+  }
+
+  function formatarData(iso) {
+    if (!iso) return '—';
+    try {
+      var d = new Date(iso);
+      return d.toLocaleDateString('pt-BR') + ' às ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    } catch (e) { return '—'; }
+  }
+
+  var toastEl = document.getElementById('toast');
+  var toastTimer = null;
+  function mostrarToast(msg, erro) {
+    toastEl.textContent = msg;
+    toastEl.classList.toggle('erro', !!erro);
+    toastEl.classList.add('ativo');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function() { toastEl.classList.remove('ativo'); }, 3000);
+  }
+
+  async function api(url, opts) {
+    opts = opts || {};
+    opts.headers = opts.headers || {};
+    opts.headers['Authorization'] = 'Bearer ' + token;
+    if (opts.body) opts.headers['Content-Type'] = 'application/json';
+
+    var resp = await fetch(url, opts);
+
+    if (resp.status === 401) {
+      alert('Sessão expirada. Faça login novamente.');
+      window.location.href = 'login.html';
+      throw new Error('401');
+    }
+    return resp;
+  }
+
+  var fotosAtuais = [];
+  var idParaRejeitar = null;
+
+  async function carregar() {
+    var container = document.getElementById('lista-container');
+    container.innerHTML = '<div class="loader"><i class="fa-solid fa-spinner fa-spin"></i><br>Carregando fotos...</div>';
+
+    try {
+      var resp = await api('/api/admin/fotos');
+      var data = await resp.json();
+
+      if (!resp.ok) {
+        container.innerHTML = '<div class="vazio"><i class="fa-solid fa-triangle-exclamation"></i>Erro: ' + escapeHTML(data.error || 'desconhecido') + '</div>';
+        return;
+      }
+
+      fotosAtuais = data.fotos || [];
+
+      if (fotosAtuais.length === 0) {
+        container.innerHTML = '<div class="vazio"><i class="fa-solid fa-circle-check"></i><h3>Nenhuma foto pendente</h3><p>Tudo em ordem por aqui 💜</p></div>';
+        return;
+      }
+
+      var html = '<div class="grid">';
+      fotosAtuais.forEach(function(f) {
+        var fotoUrl = f.foto_url_pendente || f.foto_url;
+        var fotoHTML = fotoUrl
+          ? '<img src="' + escapeHTML(fotoUrl) + '" alt="' + escapeHTML(f.nome) + '" loading="lazy">'
+          : '<i class="fa-solid fa-user"></i>';
+
+        html +=
+          '<div class="card" data-id="' + escapeHTML(f.id) + '">' +
+            '<div class="card-foto-area">' +
+              '<div class="badge-pendente"><i class="fa-solid fa-hourglass-half"></i> Pendente</div>' +
+              fotoHTML +
+            '</div>' +
+            '<div class="card-info">' +
+              '<div class="card-nome">' + escapeHTML(f.nome || 'Sem nome') + '</div>' +
+              '<div class="card-meta"><i class="fa-solid fa-phone"></i> ' + escapeHTML(f.whatsapp || '—') + '</div>' +
+              '<div class="card-data">Enviada em ' + formatarData(f.atualizado_em || f.criado_em) + '</div>' +
+              '<div class="card-acoes">' +
+                '<button class="btn-acao btn-aprovar" data-acao="aprovar" data-id="' + escapeHTML(f.id) + '"><i class="fa-solid fa-check"></i> Aprovar</button>' +
+                '<button class="btn-acao btn-rejeitar" data-acao="rejeitar" data-id="' + escapeHTML(f.id) + '"><i class="fa-solid fa-xmark"></i> Rejeitar</button>' +
+              '</div>' +
+            '</div>' +
+          '</div>';
+      });
+      html += '</div>';
+
+      container.innerHTML = html;
+
+      container.querySelectorAll('.btn-aprovar').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          aprovar(this.getAttribute('data-id'), this);
+        });
+      });
+
+      container.querySelectorAll('.btn-rejeitar').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          abrirModalRejeitar(this.getAttribute('data-id'));
+        });
+      });
+
+    } catch (err) {
+      console.error('Erro:', err);
+      container.innerHTML = '<div class="vazio"><i class="fa-solid fa-triangle-exclamation"></i>Erro de conexão.</div>';
+    }
+  }
+
+  async function aprovar(id, btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+
+    try {
+      var resp = await api('/api/admin/fotos?id=' + encodeURIComponent(id), {
+        method: 'PATCH',
+        body: JSON.stringify({ acao: 'aprovar' })
+      });
+      var data = await resp.json();
+
+      if (!resp.ok || !data.ok) {
+        mostrarToast(data.error || 'Erro ao aprovar', true);
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-check"></i> Aprovar';
+        return;
+      }
+
+      mostrarToast('✅ Foto aprovada!');
+      carregar();
+    } catch (err) {
+      mostrarToast('Erro de conexão', true);
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-check"></i> Aprovar';
+    }
+  }
+
+  function abrirModalRejeitar(id) {
+    idParaRejeitar = id;
+    document.getElementById('motivo-rejeicao').value = '';
+    document.getElementById('modal-rejeitar').classList.add('ativo');
+  }
+
+  window.fecharModalRejeitar = function() {
+    document.getElementById('modal-rejeitar').classList.remove('ativo');
+    idParaRejeitar = null;
+  };
+
+  document.getElementById('btn-confirmar-rejeitar').addEventListener('click', async function() {
+    if (!idParaRejeitar) return;
+
+    var btn = this;
+    btn.disabled = true;
+    btn.textContent = 'Rejeitando...';
+
+    try {
+      var resp = await api('/api/admin/fotos?id=' + encodeURIComponent(idParaRejeitar), {
+        method: 'PATCH',
+        body: JSON.stringify({ acao: 'rejeitar' })
+      });
+      var data = await resp.json();
+
+      if (!resp.ok || !data.ok) {
+        mostrarToast(data.error || 'Erro ao rejeitar', true);
+        btn.disabled = false;
+        btn.textContent = 'Rejeitar foto';
+        return;
+      }
+
+      mostrarToast('❌ Foto rejeitada');
+      fecharModalRejeitar();
+      carregar();
+    } catch (err) {
+      mostrarToast('Erro de conexão', true);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Rejeitar foto';
+    }
+  });
+
+  document.getElementById('modal-rejeitar').addEventListener('click', function(e) {
+    if (e.target === this) fecharModalRejeitar();
+  });
+
+  carregar();
+})();
+</script>
+</body>
+</html>
