@@ -1,7 +1,10 @@
 // functions/api/asaas/status.js
 // Consulta o status de uma cobrança no Asaas (usado no polling da tela de checkout)
+//
+// Quando o pagamento está confirmado, devolve também o token de criar senha
+// (se a cuidadora ainda não criou senha).
 
-const ASAAS_URL = 'https://api.asaas.com/v3';  // ✅ PRODUÇÃO
+const ASAAS_URL = 'https://api.asaas.com/v3';
 
 export async function onRequestGet(context) {
   const { request, env } = context;
@@ -14,6 +17,7 @@ export async function onRequestGet(context) {
   try {
     const url = new URL(request.url);
     const cobrancaId = url.searchParams.get('id');
+    const cuidadorId = url.searchParams.get('cuidadorId');
 
     if (!cobrancaId) {
       return jsonResp({ error: 'Parâmetro ?id= obrigatório' }, 400);
@@ -26,20 +30,17 @@ export async function onRequestGet(context) {
       }
     });
 
-    // Lê como texto primeiro pra não quebrar se vier vazio
     const texto = await resp.text();
 
     let data = null;
     try {
       data = JSON.parse(texto);
     } catch (e) {
-      // Asaas respondeu algo que não é JSON — devolve o que veio pra debug
       return jsonResp({
         ok: false,
         debug: 'Asaas respondeu em formato inesperado',
         status_asaas: resp.status,
-        corpo_recebido: texto.substring(0, 500),
-        dica: 'Se o corpo estiver vazio (status 401), a chave API está errada ou tem caractere extra.'
+        corpo_recebido: texto.substring(0, 500)
       }, 502);
     }
 
@@ -54,14 +55,49 @@ export async function onRequestGet(context) {
 
     const pago = data.status === 'RECEIVED' || data.status === 'CONFIRMED';
 
-    return jsonResp({
+    const resposta = {
       ok: true,
       cobrancaId: data.id,
       status: data.status,
       pago: pago,
       valor: data.value,
       formaPagamento: data.billingType
-    }, 200);
+    };
+
+    // ⭐ Se pagou, busca o token de criar senha no Supabase
+    if (pago && cuidadorId && env.SUPABASE_URL && env.SUPABASE_SERVICE_KEY) {
+      try {
+        const cResp = await fetch(
+          env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(cuidadorId) +
+          '&select=token_criar_senha,token_criar_senha_expira_em,auth_user_id&limit=1',
+          {
+            headers: {
+              'apikey': env.SUPABASE_SERVICE_KEY,
+              'Authorization': 'Bearer ' + env.SUPABASE_SERVICE_KEY,
+              'Accept': 'application/json'
+            }
+          }
+        );
+
+        if (cResp.ok) {
+          const linhas = await cResp.json();
+          const c = linhas && linhas[0];
+
+          if (c && !c.auth_user_id && c.token_criar_senha) {
+            const expira = c.token_criar_senha_expira_em ? new Date(c.token_criar_senha_expira_em) : null;
+            const agora = new Date();
+
+            if (expira && expira > agora) {
+              resposta.token_criar_senha = c.token_criar_senha;
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('Erro ao buscar token criar senha:', e);
+      }
+    }
+
+    return jsonResp(resposta, 200);
 
   } catch (err) {
     console.error('Erro status:', err);

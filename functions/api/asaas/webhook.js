@@ -1,15 +1,20 @@
 // ============================================================
 // AFETO — Webhook do Asaas
 // Ao confirmar pagamento: atualiza cuidador + registra cupom
+// + gera token temporário pra criar senha
 //
-// Planos (TODOS MENSAIS):
-//   cadastro     → 30 dias
-//   profissional → 30 dias
-//   destaque     → 30 dias
+// Planos (TODOS MENSAIS): 30 dias
 // ============================================================
 
 function diasDoPlano(plano) {
   return 30;
+}
+
+// Gera token aleatório de 32 caracteres (hex)
+function gerarToken() {
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
 export async function onRequestPost(context) {
@@ -40,12 +45,12 @@ export async function onRequestPost(context) {
         });
       }
 
-      // Lê dados do cuidador pra saber qual plano ele tem
+      // Lê dados do cuidador
       let cuidador = null;
       try {
         const cResp = await fetch(
           env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadorId +
-          '&select=cupom_usado,plano_cadastro,plano_profissional,plano_destaque&limit=1',
+          '&select=cupom_usado,plano_cadastro,plano_profissional,plano_destaque,auth_user_id&limit=1',
           { headers: headersSupabase(env) }
         );
         if (cResp.ok) {
@@ -56,7 +61,6 @@ export async function onRequestPost(context) {
         console.warn('Erro ao ler cuidador no webhook:', err);
       }
 
-      // Decide o plano pra calcular os dias
       let planoDetectado = 'profissional';
       if (cuidador) {
         if (cuidador.plano_cadastro) planoDetectado = 'cadastro';
@@ -68,18 +72,35 @@ export async function onRequestPost(context) {
       const vence = new Date(agora);
       vence.setDate(vence.getDate() + diasDoPlano(planoDetectado));
 
+      // ⭐ Monta o PATCH. Se a cuidadora ainda NÃO criou senha,
+      //    gera um token temporário (válido por 1h) pra ela usar
+      //    no /api/auth/criar-senha.
+      const patchBody = {
+        status_pagamento: 'Pago',
+        plano_inicio: agora.toISOString(),
+        plano_valido_ate: vence.toISOString()
+      };
+
+      // Só gera token se ela ainda não tem auth_user_id
+      if (!cuidador || !cuidador.auth_user_id) {
+        const token = gerarToken();
+        const expira = new Date(agora);
+        expira.setHours(expira.getHours() + 1);
+
+        patchBody.token_criar_senha = token;
+        patchBody.token_criar_senha_expira_em = expira.toISOString();
+
+        console.log('🔐 Token gerado pra cuidadora:', cuidadorId, token);
+      }
+
       // 1. Atualiza cuidador
       await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadorId, {
         method: 'PATCH',
         headers: headersSupabase(env, true, false),
-        body: JSON.stringify({
-          status_pagamento: 'Pago',
-          plano_inicio: agora.toISOString(),
-          plano_valido_ate: vence.toISOString()
-        })
+        body: JSON.stringify(patchBody)
       });
 
-      // 2. Registra uso de cupom, se houver e ainda não foi registrado
+      // 2. Registra uso de cupom
       try {
         if (cuidador && cuidador.cupom_usado) {
           const cupomResp = await fetch(
