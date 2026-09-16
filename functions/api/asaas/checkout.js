@@ -172,7 +172,8 @@ export async function onRequestPost(context) {
     vencimento.setDate(vencimento.getDate() + 1);
     const dataVencimento = vencimento.toISOString().split('T')[0]; // Para dar 1 dia no PIX
 
-    const descricaoCobranca = '💜 Plano Afeto - Wagner Frankowski';
+    // 🚨 AQUI ESTÁ A CORREÇÃO! DESCRIÇÃO SEM EMOJI.
+    const descricaoCobranca = 'Plano Afeto - Wagner Frankowski';
     
     let cobrancaData;
     let isSubscription = false;
