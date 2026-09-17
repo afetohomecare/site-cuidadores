@@ -52,8 +52,11 @@ export async function onRequest(context) {
     if (whatsLimpo.length < 10 || whatsLimpo.length > 11) {
       return jsonResp({ error: 'WhatsApp inválido.' }, 400);
     }
-    if (senha && senha.length < 6) {
-      return jsonResp({ error: 'A senha precisa ter no mínimo 6 caracteres.' }, 400);
+    if (!senha || senha.length < 8) {
+      return jsonResp({ error: 'A senha precisa ter no mínimo 8 caracteres.' }, 400);
+    }
+    if (senha.length > 100) {
+      return jsonResp({ error: 'A senha está longa demais.' }, 400);
     }
 
     if (foto && foto.size > 0) {
@@ -153,7 +156,7 @@ export async function onRequest(context) {
       }
 
       // Cadastro antigo sem auth_user_id: permite completar (fluxo legado)
-      const updateUrl = env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadorId;
+      const updateUrl = env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(cuidadorId);
       const updateResp = await fetch(updateUrl, {
         method: 'PATCH',
         headers: headersSupabase(env, true),
@@ -194,7 +197,7 @@ export async function onRequest(context) {
               }
               cuidadorId = linhas2[0].id;
               authUserId = null;
-              await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadorId, {
+              await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(cuidadorId), {
                 method: 'PATCH',
                 headers: headersSupabase(env, true),
                 body: JSON.stringify(campos)
@@ -224,7 +227,7 @@ export async function onRequest(context) {
     let criouAuth = false;
     let authErro = null;
 
-    if (senha && senha.length >= 6 && !authUserId && cpfLimpo.length === 11) {
+    if (!authUserId && cpfLimpo.length === 11) {
       try {
         const emailFake = cpfLimpo + '@afeto.app';
 
@@ -248,15 +251,33 @@ export async function onRequest(context) {
         });
 
         const criarUserData = await criarUserResp.json();
+        const msgAuth = JSON.stringify(criarUserData || {}).toLowerCase();
 
         if (!criarUserResp.ok) {
           console.error('Erro criar user Auth:', criarUserResp.status, JSON.stringify(criarUserData));
+          if (msgAuth.indexOf('already') !== -1 || msgAuth.indexOf('registered') !== -1 || criarUserResp.status === 422) {
+            const existenteAuthId = await buscarAuthIdPorEmail(env, emailFake);
+            if (existenteAuthId && cuidadorId) {
+              await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(cuidadorId), {
+                method: 'PATCH',
+                headers: headersSupabase(env, true),
+                body: JSON.stringify({ auth_user_id: existenteAuthId })
+              });
+            }
+            return jsonResp({
+              error: 'Você já tem uma conta na Afeto. Faça login ou use "Esqueci minha senha".',
+              codigo: 'CADASTRO_DUPLICADO',
+              cpf: cpfLimpo
+            }, 409);
+          }
+          authErro = 'Não foi possível criar o acesso. Tente novamente.';
+        } else if (!criarUserData.id) {
           authErro = 'Não foi possível criar o acesso. Tente novamente.';
         } else {
           authUserId = criarUserData.id;
           criouAuth = true;
 
-          await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadorId, {
+          const vincularResp = await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(cuidadorId), {
             method: 'PATCH',
             headers: headersSupabase(env, true),
             body: JSON.stringify({
@@ -264,11 +285,34 @@ export async function onRequest(context) {
               senha_criada_em: new Date().toISOString()
             })
           });
+          if (!vincularResp.ok) {
+            console.error('Erro ao vincular auth_user_id:', vincularResp.status, await vincularResp.text());
+            authUserId = null;
+            criouAuth = false;
+            authErro = 'Não foi possível vincular o acesso. Tente novamente.';
+          }
         }
       } catch (err) {
         console.error('Erro criar auth user:', err);
-        authErro = String(err && err.message ? err.message : err);
+        authErro = 'Não foi possível criar o acesso. Tente novamente.';
       }
+    }
+
+    if (!authUserId) {
+      await notificarTelegram(env, {
+        titulo: '⚠️ Cadastro sem conta de acesso',
+        nome: nome,
+        whatsapp: whatsapp,
+        cpf: cpf,
+        profissao: especialidade,
+        plano: plano,
+        authErro: authErro || 'auth_user_id ausente'
+      });
+      return jsonResp({
+        ok: false,
+        error: 'Não foi possível criar seu acesso. Tente novamente em alguns instantes. Se o problema continuar, fale com a Afeto.',
+        codigo: 'CONTA_NAO_CRIADA'
+      }, 503);
     }
 
     // ---------- UPLOAD DA FOTO ----------
@@ -345,7 +389,7 @@ export async function onRequest(context) {
       criado: foiCriado,
       linkPerfil: linkPerfil,
       fotoEnviada: fotoEnviada,
-      criouAuth: criouAuth,
+      criouAuth: true,
       precisaPagar: true
     }, 200);
 
@@ -371,6 +415,33 @@ function jsonResp(obj, status) {
     status: status || 200,
     headers: { 'Content-Type': 'application/json; charset=utf-8' }
   });
+}
+
+async function buscarAuthIdPorEmail(env, email) {
+  try {
+    const resp = await fetch(
+      env.SUPABASE_URL + '/auth/v1/admin/users?email=' + encodeURIComponent(email) + '&per_page=5',
+      {
+        headers: {
+          'apikey': env.SUPABASE_SERVICE_KEY,
+          'Authorization': 'Bearer ' + env.SUPABASE_SERVICE_KEY
+        }
+      }
+    );
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    const lista = Array.isArray(data) ? data : (data.users || []);
+    const alvo = String(email).toLowerCase();
+    for (let i = 0; i < lista.length; i++) {
+      const u = lista[i];
+      if (u && u.id && String(u.email || '').toLowerCase() === alvo) return u.id;
+    }
+    if (data && data.id && String(data.email || '').toLowerCase() === alvo) return data.id;
+    return null;
+  } catch (err) {
+    console.error('Erro ao buscar usuário Auth:', err);
+    return null;
+  }
 }
 
 function headersSupabase(env, temBody, querRetorno) {

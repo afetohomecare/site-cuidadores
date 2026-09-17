@@ -74,8 +74,8 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       <form id="form-reset" novalidate>
 
         <div class="campo campo-senha">
-          <label for="senha">Nova senha (mínimo 6 caracteres)</label>
-          <input type="password" id="senha" placeholder="Digite sua nova senha" minlength="6" maxlength="100" autocomplete="new-password" required>
+          <label for="senha">Nova senha (mínimo 8 caracteres)</label>
+          <input type="password" id="senha" placeholder="Digite sua nova senha" minlength="8" maxlength="100" autocomplete="new-password" required>
           <button type="button" class="olho" id="olho-1" aria-label="Mostrar senha">
             <i class="fa-solid fa-eye"></i>
           </button>
@@ -83,7 +83,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 
         <div class="campo campo-senha">
           <label for="senha2">Confirme a nova senha</label>
-          <input type="password" id="senha2" placeholder="Digite de novo" minlength="6" maxlength="100" autocomplete="new-password" required>
+          <input type="password" id="senha2" placeholder="Digite de novo" minlength="8" maxlength="100" autocomplete="new-password" required>
           <button type="button" class="olho" id="olho-2" aria-label="Mostrar senha">
             <i class="fa-solid fa-eye"></i>
           </button>
@@ -152,8 +152,8 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     var senha = senhaInput.value;
     var senha2 = senha2Input.value;
 
-    if (!senha || senha.length < 6) {
-      mostrarAviso('A senha precisa ter no mínimo 6 caracteres.', 'erro');
+    if (!senha || senha.length < 8) {
+      mostrarAviso('A senha precisa ter no mínimo 8 caracteres.', 'erro');
       senhaInput.focus();
       return;
     }

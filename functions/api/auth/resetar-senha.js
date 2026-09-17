@@ -21,8 +21,8 @@ export async function onRequestPost(context) {
       return jsonResp({ error: 'Token inválido ou expirado. Solicite um novo link.' }, 400);
     }
 
-    if (!novaSenha || novaSenha.length < 6) {
-      return jsonResp({ error: 'A senha precisa ter no mínimo 6 caracteres.' }, 400);
+    if (!novaSenha || novaSenha.length < 8) {
+      return jsonResp({ error: 'A senha precisa ter no mínimo 8 caracteres.' }, 400);
     }
 
     if (novaSenha.length > 100) {

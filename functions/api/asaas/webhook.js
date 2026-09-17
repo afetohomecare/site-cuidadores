@@ -6,6 +6,8 @@
 //   • Trata inadimplência, estorno e chargeback
 // ============================================================
 
+import { idSeguro } from '../../_lib/auth.js';
+
 function getWebhookToken(env) {
   const ambiente = (env.ASAAS_AMBIENTE || 'producao').toLowerCase();
   if (ambiente === 'sandbox') {
@@ -37,9 +39,9 @@ export async function onRequestPost(context) {
     // INADIMPLÊNCIA
     // ============================================================
     if (evento === 'PAYMENT_OVERDUE') {
-      const cuidadorId = payment.externalReference;
+      const cuidadorId = idSeguro(payment.externalReference);
       if (cuidadorId && env.SUPABASE_URL && env.SUPABASE_SERVICE_KEY) {
-        await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadorId, {
+        await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(cuidadorId), {
           method: 'PATCH',
           headers: headersSupabase(env, true, false),
           body: JSON.stringify({ status_pagamento: 'Inadimplente' })
@@ -56,9 +58,9 @@ export async function onRequestPost(context) {
     // ESTORNO / CHARGEBACK
     // ============================================================
     if (evento === 'PAYMENT_REFUNDED' || evento === 'PAYMENT_CHARGEBACK_REQUESTED' || evento === 'PAYMENT_CHARGEBACK_DISPUTE') {
-      const cuidadorId = payment.externalReference;
+      const cuidadorId = idSeguro(payment.externalReference);
       if (cuidadorId && env.SUPABASE_URL && env.SUPABASE_SERVICE_KEY) {
-        await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadorId, {
+        await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(cuidadorId), {
           method: 'PATCH',
           headers: headersSupabase(env, true, false),
           body: JSON.stringify({
@@ -78,7 +80,7 @@ export async function onRequestPost(context) {
     // PAGAMENTO CONFIRMADO
     // ============================================================
     if (evento === 'PAYMENT_RECEIVED' || evento === 'PAYMENT_CONFIRMED') {
-      const cuidadorId = payment.externalReference;
+      const cuidadorId = idSeguro(payment.externalReference);
 
       if (!cuidadorId || !env.SUPABASE_URL || !env.SUPABASE_SERVICE_KEY) {
         return jsonResp({ received: true }, 200);
@@ -87,7 +89,7 @@ export async function onRequestPost(context) {
       let cuidador = null;
       try {
         const cResp = await fetch(
-          env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadorId +
+          env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(cuidadorId) +
           '&select=cupom_usado,plano_cadastro,plano_profissional,plano_destaque,plano_valido_ate&limit=1',
           { headers: headersSupabase(env) }
         );
@@ -117,7 +119,7 @@ export async function onRequestPost(context) {
         proxima_cobranca: vence.toISOString()
       };
 
-      await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadorId, {
+      await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(cuidadorId), {
         method: 'PATCH',
         headers: headersSupabase(env, true, false),
         body: JSON.stringify(patchBody)
@@ -135,7 +137,7 @@ export async function onRequestPost(context) {
 
           if (cupom) {
             const jaUsado = await fetch(
-              env.SUPABASE_URL + '/rest/v1/cupons_usos?cupom_id=eq.' + cupom.id + '&cuidador_id=eq.' + cuidadorId + '&limit=1',
+              env.SUPABASE_URL + '/rest/v1/cupons_usos?cupom_id=eq.' + encodeURIComponent(cupom.id) + '&cuidador_id=eq.' + encodeURIComponent(cuidadorId) + '&limit=1',
               { headers: headersSupabase(env) }
             );
             const usos = await jaUsado.json();
@@ -156,7 +158,7 @@ export async function onRequestPost(context) {
                 })
               });
 
-              await fetch(env.SUPABASE_URL + '/rest/v1/cupons?id=eq.' + cupom.id, {
+              await fetch(env.SUPABASE_URL + '/rest/v1/cupons?id=eq.' + encodeURIComponent(cupom.id), {
                 method: 'PATCH',
                 headers: headersSupabase(env, true, false),
                 body: JSON.stringify({ usos_atuais: (cupom.usos_atuais || 0) + 1 })
@@ -188,7 +190,7 @@ export async function onRequestPost(context) {
 
   } catch (err) {
     console.error('❌ Erro webhook:', err);
-    return jsonResp({ error: String(err.message) }, 500);
+    return jsonResp({ error: 'Falha no processamento' }, 500);
   }
 }
 

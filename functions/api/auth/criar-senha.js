@@ -34,8 +34,8 @@ export async function onRequestPost(context) {
       return jsonResp({ error: 'CPF inválido.' }, 400);
     }
 
-    if (senha.length < 6) {
-      return jsonResp({ error: 'A senha precisa ter pelo menos 6 caracteres.' }, 400);
+    if (senha.length < 8) {
+      return jsonResp({ error: 'A senha precisa ter pelo menos 8 caracteres.' }, 400);
     }
 
     if (senha.length > 100) {

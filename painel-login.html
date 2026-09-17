@@ -229,8 +229,8 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       return;
     }
 
-    if (!senha || senha.length < 6) {
-      mostrarErro('Digite sua senha (mínimo 6 caracteres).');
+    if (!senha) {
+      mostrarErro('Digite sua senha.');
       return;
     }
 

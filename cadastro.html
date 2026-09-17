@@ -297,15 +297,15 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       <div class="secao-titulo"><i class="fa-solid fa-lock"></i> Acesso ao painel</div>
 
       <div class="campo campo-senha">
-        <label for="senha-cadastro">Crie sua senha (mínimo 6 caracteres):</label>
+        <label for="senha-cadastro">Crie sua senha (mínimo 8 caracteres):</label>
         <span class="ajuda">💜 Você vai usar essa senha pra entrar no seu painel sempre que quiser. Pode ser com seu CPF ou WhatsApp.</span>
-        <input type="password" id="senha-cadastro" name="senha" placeholder="Digite sua senha" minlength="6" maxlength="50" required autocomplete="new-password">
+        <input type="password" id="senha-cadastro" name="senha" placeholder="Digite sua senha" minlength="8" maxlength="50" required autocomplete="new-password">
         <button type="button" class="olho" data-alvo="senha-cadastro"><i class="fa-solid fa-eye"></i></button>
       </div>
 
       <div class="campo campo-senha">
         <label for="senha-confirma-cadastro">Confirme a senha:</label>
-        <input type="password" id="senha-confirma-cadastro" placeholder="Digite de novo" minlength="6" maxlength="50" required autocomplete="new-password">
+        <input type="password" id="senha-confirma-cadastro" placeholder="Digite de novo" minlength="8" maxlength="50" required autocomplete="new-password">
         <button type="button" class="olho" data-alvo="senha-confirma-cadastro"><i class="fa-solid fa-eye"></i></button>
       </div>
 
@@ -1237,6 +1237,10 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   }
 
   window.abrirCheckout = async function(recordId, planoParam, nomeParam) {
+    if (!recordId) {
+      alert('Não foi possível abrir o pagamento. Envie o cadastro novamente.');
+      return;
+    }
     if (dadosCheckout.recordId === recordId && dadosCheckout.cobrancaId) {
       document.getElementById('tela-checkout').classList.add('ativo');
       document.body.style.overflow = 'hidden';
@@ -1342,7 +1346,10 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 
       if (!resp.ok || !data.ok) {
         document.getElementById('checkout-erro').style.display = 'block';
-        document.getElementById('checkout-erro-text').textContent = 'Não conseguimos gerar o QR Code agora. Tente novamente em alguns instantes.';
+        document.getElementById('checkout-erro-text').textContent =
+          (data && (data.codigo === 'CONTA_NAO_CRIADA' || data.codigo === 'DADOS_DIVERGENTES') && data.error)
+            ? data.error
+            : 'Não conseguimos gerar o QR Code agora. Tente novamente em alguns instantes.';
         return;
       }
 
@@ -1500,8 +1507,8 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     var senhaValor = document.getElementById('senha-cadastro').value;
     var senhaConfirma = document.getElementById('senha-confirma-cadastro').value;
 
-    if (!senhaValor || senhaValor.length < 6) {
-      alert('Sua senha precisa ter no mínimo 6 caracteres.');
+    if (!senhaValor || senhaValor.length < 8) {
+      alert('Sua senha precisa ter no mínimo 8 caracteres.');
       document.getElementById('senha-cadastro').focus();
       return;
     }
@@ -1577,8 +1584,18 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
           return;
         }
 
+        if (resultado.data && resultado.data.codigo === 'CONTA_NAO_CRIADA') {
+          alert(resultado.data.error || 'Não foi possível criar seu acesso. Tente novamente em alguns instantes.');
+          throw new Error('Falha');
+        }
+
         console.error('Erro no cadastro:', resultado.status, resultado.body);
-        alert('Algo deu errado ao salvar seu cadastro. Verifique sua conexão e tente novamente.');
+        alert((resultado.data && resultado.data.error) ? resultado.data.error : 'Algo deu errado ao salvar seu cadastro. Verifique sua conexão e tente novamente.');
+        throw new Error('Falha');
+      }
+
+      if (!resultado.data || !resultado.data.recordId || !resultado.data.criouAuth) {
+        alert('Seu cadastro foi salvo, mas o acesso ainda não ficou pronto. Tente enviar de novo em alguns instantes.');
         throw new Error('Falha');
       }
 
