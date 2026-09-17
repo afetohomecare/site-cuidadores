@@ -1,11 +1,11 @@
 // ============================================================
-// AFETO — API: esqueci minha senha
+// AFETO — API: esqueci minha senha (SÓ CPF)
 // ------------------------------------------------------------
 // 🛡️ Segurança:
 //   • Token aleatório (32 bytes) com expiração de 24h
 //   • Nunca revela se CPF existe ou não
 //   • Envia link pro WhatsApp via botão no Telegram
-//   • Aceita CPF/WhatsApp COM e SEM formatação
+//   • Aceita CPF COM e SEM formatação
 // ============================================================
 
 function gerarToken() {
@@ -21,30 +21,11 @@ function escaparHTML(s) {
     .replace(/>/g, '&gt;');
 }
 
-// Gera variantes de CPF: com e sem formatação
-function variantesCPF(idLimpo) {
-  if (idLimpo.length !== 11) return [idLimpo];
-  var formatado = idLimpo.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-  return [idLimpo, formatado];
-}
-
-// Gera variantes de WhatsApp: com e sem formatação
-function variantesWhats(idLimpo) {
-  var variantes = [idLimpo];
-  if (idLimpo.length === 11) {
-    var ddd = idLimpo.substring(0, 2);
-    var p1 = idLimpo.substring(2, 7);
-    var p2 = idLimpo.substring(7, 11);
-    variantes.push('(' + ddd + ') ' + p1 + '-' + p2); // (11) 98635-80921
-    variantes.push(ddd + p1 + p2);                     // 119863580921 (sem nada)
-  } else if (idLimpo.length === 10) {
-    var ddd = idLimpo.substring(0, 2);
-    var p1 = idLimpo.substring(2, 6);
-    var p2 = idLimpo.substring(6, 10);
-    variantes.push('(' + ddd + ') ' + p1 + '-' + p2);
-    variantes.push(ddd + p1 + p2);
-  }
-  return variantes;
+// Retorna as duas variantes de CPF: com pontos/traço e sem
+function variantesCPF(cpfLimpo) {
+  if (cpfLimpo.length !== 11) return [cpfLimpo];
+  var formatado = cpfLimpo.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+  return [cpfLimpo, formatado];
 }
 
 export async function onRequestPost(context) {
@@ -56,36 +37,24 @@ export async function onRequestPost(context) {
 
   try {
     const body = await request.json();
-    const identificador = (body.identificador || '').trim();
+    const cpfDigitado = (body.identificador || '').trim();
 
-    if (!identificador) {
-      return jsonResp({ error: 'Informe seu CPF ou WhatsApp.' }, 400);
+    if (!cpfDigitado) {
+      return jsonResp({ error: 'Informe seu CPF.' }, 400);
     }
 
-    const idLimpo = identificador.replace(/\D/g, '');
+    const cpfLimpo = cpfDigitado.replace(/\D/g, '');
 
-    if (idLimpo.length < 10 || idLimpo.length > 11) {
-      return jsonResp({ error: 'CPF ou WhatsApp inválido.' }, 400);
+    if (cpfLimpo.length !== 11) {
+      return jsonResp({ error: 'CPF precisa ter 11 dígitos.' }, 400);
     }
 
-    // ---------- MONTA TODAS AS VARIANTES POSSÍVEIS ----------
-    var valores = [];
-    variantesCPF(idLimpo).forEach(function(v) { valores.push(v); });
-    variantesWhats(idLimpo).forEach(function(v) { valores.push(v); });
-    // Também tenta o que o usuário digitou literalmente
-    valores.push(identificador);
-
-    // Remove duplicados
-    valores = valores.filter(function(v, i, arr) {
-      return arr.indexOf(v) === i;
-    });
-
-    // Monta filtro OR
+    // ---------- MONTA VARIANTES ----------
+    var valores = variantesCPF(cpfLimpo);
     var filtros = [];
     valores.forEach(function(v) {
       var enc = encodeURIComponent(v);
       filtros.push('cpf.eq.' + enc);
-      filtros.push('whatsapp.eq.' + enc);
     });
     var filtro = 'or=(' + filtros.join(',') + ')';
 
@@ -95,7 +64,7 @@ export async function onRequestPost(context) {
 
     const respostaPadrao = {
       ok: true,
-      mensagem: 'Se esse CPF/WhatsApp estiver cadastrado, você vai receber o link de recuperação no WhatsApp em alguns instantes.'
+      mensagem: 'Se esse CPF estiver cadastrado, você vai receber o link de recuperação no WhatsApp em alguns instantes.'
     };
 
     if (!buscaResp.ok) {
@@ -116,10 +85,10 @@ export async function onRequestPost(context) {
       return jsonResp(respostaPadrao, 200);
     }
 
-    // ---------- GERA TOKEN (24 horas de validade) ----------
+    // ---------- GERA TOKEN (24h) ----------
     const token = gerarToken();
     const expiraEm = new Date();
-    expiraEm.setHours(expiraEm.getHours() + 24); // 🆕 24h
+    expiraEm.setHours(expiraEm.getHours() + 24);
 
     const patchUrl = env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadora.id;
     const patchResp = await fetch(patchUrl, {
@@ -136,7 +105,7 @@ export async function onRequestPost(context) {
       return jsonResp(respostaPadrao, 200);
     }
 
-    // ---------- NOTIFICA NO TELEGRAM ----------
+    // ---------- TELEGRAM ----------
     await notificarTelegramComBotao(env, cuidadora, token, expiraEm);
 
     return jsonResp(respostaPadrao, 200);
@@ -174,7 +143,6 @@ async function notificarTelegramComBotao(env, cuidadora, token, expiraEm) {
       linkReset + '\n\n' +
       'Se você não pediu isso, é só ignorar esta mensagem.';
 
-    // Normaliza WhatsApp (com ou sem traços, com ou sem 55)
     const numeroLimpo = (cuidadora.whatsapp || '').replace(/\D/g, '');
     let numeroCompleto = numeroLimpo;
     if (numeroLimpo.length === 10 || numeroLimpo.length === 11) {
@@ -226,7 +194,7 @@ async function notificarTelegramComBotao(env, cuidadora, token, expiraEm) {
 }
 
 // ============================================================
-// TELEGRAM — caso especial: cadastro sem conta
+// TELEGRAM — cadastro sem conta
 // ============================================================
 async function notificarTelegramSemConta(env, cuidadora) {
   try {

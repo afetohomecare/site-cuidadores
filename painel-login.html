@@ -58,7 +58,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 .cadastro-cta { text-align: center; margin-top: 22px; padding-top: 20px; border-top: 1px solid #f1f5f9; font-size: 13.5px; font-weight: 700; color: var(--cinza-fonte); }
 .cadastro-cta a { color: var(--lilas-escuro); text-decoration: none; font-weight: 800; }
 
-/* Modal de esqueci senha */
 .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center; padding: 20px; }
 .modal.ativo { display: flex; }
 .modal-box { background: white; border-radius: 24px; max-width: 400px; width: 100%; padding: 32px 28px; box-shadow: 0 30px 80px rgba(0,0,0,0.4); animation: modalIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
@@ -84,7 +83,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       <span>Afeto</span>
     </a>
     <h1>Bem-vinda de volta 💜</h1>
-    <p>Entre com seu CPF ou WhatsApp pra acessar seu painel.</p>
+    <p>Entre com seu CPF pra acessar seu painel.</p>
   </div>
 
   <div class="login-card">
@@ -95,8 +94,8 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     <form id="form-login" novalidate>
 
       <div class="campo">
-        <label for="identificador">CPF ou WhatsApp</label>
-        <input type="text" id="identificador" placeholder="Ex: 123.456.789-00 ou (41) 99999-9999" autocomplete="username" required>
+        <label for="identificador">CPF</label>
+        <input type="text" id="identificador" placeholder="000.000.000-00" maxlength="14" inputmode="numeric" autocomplete="username" required>
       </div>
 
       <div class="campo campo-senha">
@@ -129,15 +128,14 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 
 </div>
 
-<!-- MODAL ESQUECI SENHA -->
 <div class="modal" id="modal-esqueci">
   <div class="modal-box">
     <h2>Recuperar senha 🔐</h2>
-    <p>Digite seu CPF ou WhatsApp. Nossa equipe vai te enviar uma senha nova pelo WhatsApp em alguns minutos.</p>
+    <p>Digite seu CPF. Vamos te enviar um link no WhatsApp pra você criar uma senha nova.</p>
 
     <div class="campo">
-      <label for="recuperar-identificador">CPF ou WhatsApp</label>
-      <input type="text" id="recuperar-identificador" placeholder="Ex: 123.456.789-00 ou (41) 99999-9999">
+      <label for="recuperar-identificador">CPF</label>
+      <input type="text" id="recuperar-identificador" placeholder="000.000.000-00" maxlength="14" inputmode="numeric" autocomplete="off">
     </div>
 
     <div id="modal-msg" class="aviso-erro" style="margin-top: 14px;"></div>
@@ -161,26 +159,24 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   var olhoSenha = document.getElementById('olho-senha');
   var form = document.getElementById('form-login');
 
-  // ---------- MÁSCARA INTELIGENTE (CPF OU WHATSAPP) ----------
+  // ============================================================
+  // MÁSCARA DE CPF
+  // ============================================================
+  function mascaraCPF(valor) {
+    var v = valor.replace(/\D/g, '').substring(0, 11);
+    if (v.length <= 3) return v;
+    if (v.length <= 6) return v.replace(/(\d{3})(\d{1,3})/, '$1.$2');
+    if (v.length <= 9) return v.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3');
+    return v.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
+  }
+
   identificadorInput.addEventListener('input', function() {
-    var v = this.value.replace(/\D/g, '');
-
-    // Se já passou de 11 dígitos, corta
-    if (v.length > 11) v = v.substring(0, 11);
-
-    if (v.length <= 6) {
-      // Ainda pode ser CPF ou WhatsApp — não formata ainda
-      this.value = v;
-    } else if (v.length === 11) {
-      // Se tem 11 dígitos, formata como CPF
-      this.value = v.substring(0, 3) + '.' + v.substring(3, 6) + '.' + v.substring(6, 9) + '-' + v.substring(9, 11);
-    } else if (v.length > 6 && v.length <= 10) {
-      // 7-10 dígitos: formata como WhatsApp
-      this.value = '(' + v.substring(0, 2) + ') ' + v.substring(2, 7) + (v.length > 7 ? '-' + v.substring(7) : '');
-    }
+    this.value = mascaraCPF(this.value);
   });
 
-  // ---------- MOSTRAR/ESCONDER SENHA ----------
+  // ============================================================
+  // MOSTRAR/ESCONDER SENHA
+  // ============================================================
   olhoSenha.addEventListener('click', function() {
     if (senhaInput.type === 'password') {
       senhaInput.type = 'text';
@@ -191,7 +187,9 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     }
   });
 
-  // ---------- FUNÇÕES AUXILIARES ----------
+  // ============================================================
+  // AVISOS
+  // ============================================================
   function mostrarErro(msg) {
     avisoSucesso.classList.remove('ativo');
     avisoErro.textContent = msg;
@@ -210,16 +208,24 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     avisoSucesso.classList.remove('ativo');
   }
 
-  // ---------- LOGIN ----------
+  // ============================================================
+  // LOGIN
+  // ============================================================
   form.addEventListener('submit', async function(e) {
     e.preventDefault();
     esconderAvisos();
 
     var identificador = identificadorInput.value.trim();
     var senha = senhaInput.value;
+    var soDigitos = identificador.replace(/\D/g, '');
 
     if (!identificador) {
-      mostrarErro('Informe seu CPF ou WhatsApp.');
+      mostrarErro('Informe seu CPF.');
+      return;
+    }
+
+    if (soDigitos.length !== 11) {
+      mostrarErro('CPF precisa ter 11 dígitos.');
       return;
     }
 
@@ -250,7 +256,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
         return;
       }
 
-      // Salva token
       try {
         localStorage.setItem('afeto_painel_token', data.token);
         localStorage.setItem('afeto_painel_user', JSON.stringify(data.user));
@@ -270,13 +275,20 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     }
   });
 
-  // ---------- MODAL ESQUECI SENHA ----------
+  // ============================================================
+  // MODAL ESQUECI SENHA
+  // ============================================================
   var modal = document.getElementById('modal-esqueci');
   var linkEsqueci = document.getElementById('link-esqueci');
   var btnCancelar = document.getElementById('btn-cancelar');
   var btnConfirmar = document.getElementById('btn-confirmar');
   var recuperarInput = document.getElementById('recuperar-identificador');
   var modalMsg = document.getElementById('modal-msg');
+
+  // Máscara no campo de recuperação
+  recuperarInput.addEventListener('input', function() {
+    this.value = mascaraCPF(this.value);
+  });
 
   linkEsqueci.addEventListener('click', function(e) {
     e.preventDefault();
@@ -296,9 +308,16 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 
   btnConfirmar.addEventListener('click', async function() {
     var identificador = recuperarInput.value.trim();
+    var soDigitos = identificador.replace(/\D/g, '');
 
     if (!identificador) {
-      modalMsg.textContent = 'Informe seu CPF ou WhatsApp.';
+      modalMsg.textContent = 'Informe seu CPF.';
+      modalMsg.classList.add('ativo');
+      return;
+    }
+
+    if (soDigitos.length !== 11) {
+      modalMsg.textContent = 'CPF precisa ter 11 dígitos.';
       modalMsg.classList.add('ativo');
       return;
     }
@@ -323,9 +342,8 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
         return;
       }
 
-      // Sucesso — fecha modal e mostra aviso
       modal.classList.remove('ativo');
-      mostrarSucesso(data.mensagem || 'Pedido registrado! Você receberá uma nova senha em breve pelo WhatsApp.');
+      mostrarSucesso(data.mensagem || 'Se esse CPF estiver cadastrado, você vai receber o link no WhatsApp em alguns instantes.');
       btnConfirmar.disabled = false;
       btnConfirmar.textContent = 'Enviar pedido';
       recuperarInput.value = '';
@@ -339,11 +357,12 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     }
   });
 
-  // ---------- SE JÁ ESTÁ LOGADA, VAI DIRETO PRO PAINEL ----------
+  // ============================================================
+  // SE JÁ ESTÁ LOGADA, VAI DIRETO PRO PAINEL
+  // ============================================================
   try {
     var tokenExistente = localStorage.getItem('afeto_painel_token');
     if (tokenExistente) {
-      // Verifica se ainda é válido
       fetch('/api/auth/me', {
         headers: { 'Authorization': 'Bearer ' + tokenExistente }
       }).then(function(r) {
@@ -351,6 +370,17 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
           window.location.href = 'painel.html';
         }
       }).catch(function() {});
+    }
+  } catch (e) {}
+
+  // ============================================================
+  // PRÉ-PREENCHER CPF SE VIER DA URL (?cpf=...)
+  // ============================================================
+  try {
+    var params = new URLSearchParams(window.location.search);
+    var cpfUrl = params.get('cpf');
+    if (cpfUrl) {
+      identificadorInput.value = mascaraCPF(cpfUrl);
     }
   } catch (e) {}
 
