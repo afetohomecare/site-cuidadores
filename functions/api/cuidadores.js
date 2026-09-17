@@ -1,6 +1,10 @@
 // ============================================================
-// AFETO — API Admin: gerenciar cuidadoras
-// 🛡️ BLINDAGEM: gera token ao marcar Pago manualmente
+// AFETO — API pública da vitrine + PATCH/POST admin (legado)
+// ------------------------------------------------------------
+// GET: lista só quem está aprovada, paga e com plano ativo.
+//      Resposta: { cuidadores: [...] } — o que index.html e
+//      perfil.html esperam. Sem CPF, e-mail nem dados Asaas.
+// PATCH/POST: continuam exigindo token de admin.
 // ============================================================
 
 const CAMPOS_PERMITIDOS = [
@@ -10,16 +14,32 @@ const CAMPOS_PERMITIDOS = [
   'plano_inicio', 'plano_valido_ate'
 ];
 
-const CAMPOS_LISTA = [
-  'id', 'nome', 'whatsapp', 'whatsapp_agencia', 'email', 'cpf', 'coren',
-  'foto_url', 'apresentacao', 'especialidade', 'experiencia',
-  'bairro', 'bairros', 'preco', 'turno', 'cursos', 'subespecialidades',
-  'categoria', 'nota', 'horas', 'verificada', 'disponivel',
-  'plano_cadastro', 'plano_profissional', 'plano_destaque',
-  'plano_inicio', 'plano_valido_ate',
-  'status_pagamento', 'aprovada', 'comentarios', 'indicado_por',
-  'asaas_customer_id', 'asaas_cobranca_id', 'cupom_usado',
-  'criado_em', 'atualizado_em'
+const CAMPOS_PUBLICOS = [
+  'id',
+  'nome',
+  'whatsapp',
+  'whatsapp_agencia',
+  'foto_url',
+  'apresentacao',
+  'motivacao',
+  'especialidade',
+  'experiencia',
+  'bairro',
+  'bairros',
+  'preco',
+  'turno',
+  'cursos',
+  'subespecialidades',
+  'categoria',
+  'nota',
+  'horas',
+  'verificada',
+  'disponivel',
+  'plano_profissional',
+  'plano_destaque',
+  'coren',
+  'comentarios',
+  'criado_em'
 ];
 
 function jsonResp(obj, status) {
@@ -115,61 +135,43 @@ async function garantirTokenSePagoManual(env, id, campos) {
 }
 
 export async function onRequestGet(context) {
-  const { request, env } = context;
-  const auth = await validarToken(env, request);
-  if (!auth.ok) return jsonResp({ error: auth.motivo }, 401);
+  const { env } = context;
+
+  if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_KEY) {
+    return jsonResp({ error: 'Configuração do servidor ausente.' }, 500);
+  }
 
   try {
-    const url = new URL(request.url);
-    const id = url.searchParams.get('id');
-    const filtro = url.searchParams.get('filtro');
-    const busca = url.searchParams.get('busca');
-    const bairro = url.searchParams.get('bairro');
-    const plano = url.searchParams.get('plano');
-
-    if (id) {
-      const resp = await fetch(
-        env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + id + '&select=' + CAMPOS_LISTA.join(','),
-        { headers: headersSupabase(env) }
-      );
-      const linhas = await resp.json();
-      if (!resp.ok) return jsonResp({ error: 'Falha ao buscar' }, 502);
-      if (linhas.length === 0) return jsonResp({ error: 'Não encontrada' }, 404);
-      return jsonResp({ cuidadora: linhas[0] }, 200);
-    }
-
-    const params = ['select=' + CAMPOS_LISTA.join(','), 'order=criado_em.desc'];
-
-    if (filtro === 'pendentes') params.push('aprovada=eq.false');
-    else if (filtro === 'aprovadas') params.push('aprovada=eq.true');
-    else if (filtro === 'vencidas') params.push('plano_valido_ate=lt.' + new Date().toISOString());
-    else if (filtro === 'pagas') params.push('status_pagamento=eq.Pago');
-
-    if (busca) {
-      params.push('or=(nome.ilike.*' + encodeURIComponent(busca) + '*,whatsapp.ilike.*' + encodeURIComponent(busca) + '*)');
-    }
-
-    if (bairro) params.push('bairro=eq.' + encodeURIComponent(bairro));
-
-    if (plano === 'cadastro') params.push('plano_cadastro=eq.true');
-    else if (plano === 'profissional') params.push('plano_profissional=eq.true');
-    else if (plano === 'destaque') params.push('plano_destaque=eq.true');
+    const hoje = new Date().toISOString();
+    const parametros = [
+      'aprovada=eq.true',
+      'status_pagamento=eq.Pago',
+      'plano_valido_ate=gte.' + hoje,
+      'or=(plano_profissional.eq.true,plano_destaque.eq.true)',
+      'select=' + CAMPOS_PUBLICOS.join(','),
+      'order=criado_em.desc'
+    ].join('&');
 
     const resp = await fetch(
-      env.SUPABASE_URL + '/rest/v1/cuidadores?' + params.join('&'),
+      env.SUPABASE_URL + '/rest/v1/cuidadores?' + parametros,
       { headers: headersSupabase(env) }
     );
 
     if (!resp.ok) {
-      console.error('Erro listar:', await resp.text());
+      console.error('Erro listar vitrine:', await resp.text());
       return jsonResp({ error: 'Falha ao listar' }, 502);
     }
 
-    const linhas = await resp.json();
-    return jsonResp({ cuidadoras: linhas }, 200);
-
+    const cuidadores = await resp.json();
+    return new Response(JSON.stringify({ cuidadores: cuidadores }), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Cache-Control': 'public, max-age=60, s-maxage=60'
+      }
+    });
   } catch (err) {
-    console.error('Erro GET admin:', err);
+    console.error('Erro GET vitrine:', err);
     return jsonResp({ error: 'Falha no processamento' }, 500);
   }
 }

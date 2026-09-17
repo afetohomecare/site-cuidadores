@@ -692,6 +692,8 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
       var response = await fetch('/api/cuidadores');
       var data = await response.json();
 
+      if (!response.ok) throw new Error((data && data.error) || 'Falha ao listar');
+
       var lista = (data && data.cuidadores) ? data.cuidadores : [];
 
       grid.innerHTML = '';

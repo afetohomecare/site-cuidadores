@@ -21,7 +21,7 @@ export async function onRequestPost(context) {
     const tokenEsperado = getWebhookToken(env);
     const tokenRecebido = request.headers.get('asaas-access-token');
 
-    if (tokenEsperado && tokenRecebido !== tokenEsperado) {
+    if (!tokenEsperado || tokenRecebido !== tokenEsperado) {
       return new Response(JSON.stringify({ error: 'Token inválido' }), {
         status: 401, headers: { 'Content-Type': 'application/json' }
       });

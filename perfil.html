@@ -588,7 +588,7 @@ async function carregarTudo() {
         var response = await fetch('/api/cuidadores');
         var data = await response.json();
 
-        if (!data || !data.cuidadores) throw new Error('Sem dados');
+        if (!response.ok || !data || !data.cuidadores) throw new Error('Sem dados');
 
         todosCuidadores = data.cuidadores;
         var perfilAtual = todosCuidadores.find(function(c) { return c.id === recordId; });
