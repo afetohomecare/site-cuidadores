@@ -1,73 +1,75 @@
-// functions/notificar-contato.js
+// Notifica contato só a partir de um perfil existente na vitrine.
+
+import { jsonResp } from './_lib/http.js';
+import { headersSupabase, supabaseOk } from './_lib/supabase.js';
+import { idSeguro } from './_lib/auth.js';
 
 export async function onRequest(context) {
-  // Aceita só POST
-  if (context.request.method !== "POST") {
-    return new Response("Método não permitido", { status: 405 });
+  if (context.request.method !== 'POST') {
+    return jsonResp({ error: 'Método não permitido' }, 405);
+  }
+
+  const env = context.env;
+  if (!supabaseOk(env)) {
+    return jsonResp({ ok: false }, 200);
   }
 
   try {
     const dados = await context.request.json();
+    const ref = idSeguro(dados.ref || dados.id);
+    if (!ref) {
+      return jsonResp({ ok: false, motivo: 'ref_invalida' }, 400);
+    }
 
-    const nome = dados.nome || "Profissional";
-    const bairro = dados.bairro || "Curitiba";
-    const especialidade = dados.especialidade || "—";
-    const ref = dados.ref || "—";
-    const origem = dados.origem || "Perfil";
+    const hoje = new Date().toISOString();
+    const resp = await fetch(
+      env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(ref) +
+      '&aprovada=eq.true&status_pagamento=eq.Pago&plano_valido_ate=gte.' + hoje +
+      '&select=id,nome,bairro,especialidade&limit=1',
+      { headers: headersSupabase(env) }
+    );
 
-    // Data/hora de Brasília
-    const agora = new Date().toLocaleString("pt-BR", {
-      timeZone: "America/Sao_Paulo",
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit"
+    if (!resp.ok) return jsonResp({ ok: false }, 200);
+    const linhas = await resp.json();
+    const c = linhas && linhas[0];
+    if (!c) return jsonResp({ ok: false, motivo: 'nao_encontrada' }, 404);
+
+    const token = env.TELEGRAM_BOT_TOKEN;
+    const chatId = env.TELEGRAM_CHAT_ID;
+    if (!token || !chatId) {
+      return jsonResp({ ok: true }, 200);
+    }
+
+    const agora = new Date().toLocaleString('pt-BR', {
+      timeZone: 'America/Sao_Paulo',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
     });
 
     const mensagem =
-      `💜 *Novo contato na Afeto!*\n\n` +
-      `👤 *Cuidadora:* ${nome}\n` +
-      `📍 *Bairro:* ${bairro}\n` +
-      `🩺 *Especialidade:* ${especialidade}\n` +
-      `🔖 *Ref:* #${ref}\n` +
-      `📄 *Origem:* ${origem}\n` +
-      `🕒 *Quando:* ${agora}`;
+      '*Novo contato na Afeto*\n\n' +
+      'Cuidadora: ' + (c.nome || '') + '\n' +
+      'Bairro: ' + (c.bairro || 'Curitiba') + '\n' +
+      'Especialidade: ' + (c.especialidade || '—') + '\n' +
+      'Ref: #' + c.id + '\n' +
+      'Quando: ' + agora;
 
-    const token = context.env.TELEGRAM_BOT_TOKEN;
-    const chatId = context.env.TELEGRAM_CHAT_ID;
-
-    if (!token || !chatId) {
-      console.error("Telegram não configurado (token ou chat_id ausente)");
-      return new Response(JSON.stringify({ ok: false, motivo: "sem_config" }), {
-        status: 200,
-        headers: { "Content-Type": "application/json" }
-      });
-    }
-
-    const url = `https://api.telegram.org/bot${token}/sendMessage`;
-
-    await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+    await fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         chat_id: chatId,
         text: mensagem,
-        parse_mode: "Markdown",
         disable_web_page_preview: true
       })
     });
 
-    return new Response(JSON.stringify({ ok: true }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" }
-    });
-
+    return jsonResp({ ok: true }, 200);
   } catch (err) {
-    console.error("Erro notificar-contato:", err);
-    return new Response(JSON.stringify({ ok: false }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" }
-    });
+    console.error('Erro notificar-contato:', err);
+    return jsonResp({ ok: false }, 200);
   }
 }

@@ -1,12 +1,10 @@
-// functions/api/asaas/status.js
-// Consulta o status de uma cobrança no Asaas (polling)
-//
-// 🛡️ BLINDAGENS:
-//   • Marca como Pago no banco se o webhook falhar
-//   • Trata estorno/chargeback
-//   • Sem token (a conta já foi criada no cadastro)
-//
-// 🌍 AMBIENTE: controlado por env.ASAAS_AMBIENTE
+// Consulta status de uma cobrança Asaas (polling após PIX).
+// Só marca Pago no banco se a cobrança for daquela cuidadora
+// (externalReference ou asaas_cobranca_id).
+
+import { jsonResp } from '../../_lib/http.js';
+import { headersSupabase, supabaseOk } from '../../_lib/supabase.js';
+import { idSeguro } from '../../_lib/auth.js';
 
 function getAsaasConfig(env) {
   const ambiente = (env.ASAAS_AMBIENTE || 'producao').toLowerCase();
@@ -27,19 +25,19 @@ export async function onRequestGet(context) {
   const ASAAS_URL = asaas.url;
 
   if (!ASAAS_API_KEY) {
-    return jsonResp({ error: 'Chave Asaas não configurada' }, 500);
+    return jsonResp({ error: 'Pagamento temporariamente indisponível.' }, 500);
   }
 
   try {
     const url = new URL(request.url);
-    const cobrancaId = url.searchParams.get('id');
-    const cuidadorId = url.searchParams.get('cuidadorId');
+    const cobrancaId = String(url.searchParams.get('id') || '').trim();
+    const cuidadorId = idSeguro(url.searchParams.get('cuidadorId'));
 
-    if (!cobrancaId) {
-      return jsonResp({ error: 'Parâmetro ?id= obrigatório' }, 400);
+    if (!cobrancaId || cobrancaId.length > 80 || !/^[a-zA-Z0-9_-]+$/.test(cobrancaId)) {
+      return jsonResp({ error: 'Cobrança inválida.' }, 400);
     }
 
-    const resp = await fetch(`${ASAAS_URL}/payments/${cobrancaId}`, {
+    const resp = await fetch(ASAAS_URL + '/payments/' + encodeURIComponent(cobrancaId), {
       headers: {
         'User-Agent': 'Afeto/1.0',
         'access_token': ASAAS_API_KEY
@@ -51,19 +49,11 @@ export async function onRequestGet(context) {
     try {
       data = JSON.parse(texto);
     } catch (e) {
-      return jsonResp({
-        ok: false,
-        debug: 'Asaas respondeu em formato inesperado',
-        status_asaas: resp.status
-      }, 502);
+      return jsonResp({ ok: false, error: 'Falha ao consultar pagamento.' }, 502);
     }
 
     if (!resp.ok) {
-      return jsonResp({
-        ok: false,
-        status_asaas: resp.status,
-        resposta_asaas: data
-      }, 502);
+      return jsonResp({ ok: false, error: 'Cobrança não encontrada.' }, 404);
     }
 
     const pago = data.status === 'RECEIVED' || data.status === 'CONFIRMED';
@@ -80,101 +70,88 @@ export async function onRequestGet(context) {
       formaPagamento: data.billingType
     };
 
-    // 🛡️ Se pagou, marca como Pago no banco (redundância do webhook)
-    if (pago && cuidadorId && env.SUPABASE_URL && env.SUPABASE_SERVICE_KEY) {
-      try {
-        const cResp = await fetch(
-          env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(cuidadorId) +
-          '&select=status_pagamento,plano_cadastro,plano_profissional,plano_destaque,plano_valido_ate&limit=1',
-          {
-            headers: {
-              'apikey': env.SUPABASE_SERVICE_KEY,
-              'Authorization': 'Bearer ' + env.SUPABASE_SERVICE_KEY,
-              'Accept': 'application/json'
-            }
-          }
-        );
-
-        if (cResp.ok) {
-          const linhas = await cResp.json();
-          const c = linhas && linhas[0];
-
-          if (c && c.status_pagamento !== 'Pago') {
-            const agora = new Date();
-            const patchBody = { status_pagamento: 'Pago' };
-
-            let planoDetectado = 'profissional';
-            if (c.plano_cadastro) planoDetectado = 'cadastro';
-            else if (c.plano_destaque) planoDetectado = 'destaque';
-            else if (c.plano_profissional) planoDetectado = 'profissional';
-
-            if (!c.plano_valido_ate) {
-              const vence = new Date(agora);
-              vence.setDate(vence.getDate() + 30);
-              patchBody.plano_inicio = agora.toISOString();
-              patchBody.plano_valido_ate = vence.toISOString();
-              patchBody.proxima_cobranca = vence.toISOString();
-            }
-
-            await fetch(
-              env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(cuidadorId),
-              {
-                method: 'PATCH',
-                headers: {
-                  'apikey': env.SUPABASE_SERVICE_KEY,
-                  'Authorization': 'Bearer ' + env.SUPABASE_SERVICE_KEY,
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(patchBody)
-              }
-            );
-
-            console.log('🛡️ Status marcou como Pago:', cuidadorId);
-          }
-        }
-      } catch (e) {
-        console.warn('Erro ao marcar Pago via status:', e);
-      }
-    }
-
-    // 🛡️ Se estornou, remove acesso
-    if (estornado && cuidadorId && env.SUPABASE_URL && env.SUPABASE_SERVICE_KEY) {
-      try {
-        await fetch(
-          env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(cuidadorId),
-          {
-            method: 'PATCH',
-            headers: {
-              'apikey': env.SUPABASE_SERVICE_KEY,
-              'Authorization': 'Bearer ' + env.SUPABASE_SERVICE_KEY,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              status_pagamento: 'Estornado',
-              plano_valido_ate: new Date().toISOString()
-            })
-          }
-        );
-      } catch (e) {
-        console.warn('Erro estorno:', e);
+    if ((pago || estornado) && cuidadorId && supabaseOk(env)) {
+      const pertence = await cobrancaPertenceACuidadora(env, data, cobrancaId, cuidadorId);
+      if (pertence) {
+        if (pago) await marcarPago(env, cuidadorId);
+        if (estornado) await marcarEstornado(env, cuidadorId);
       }
     }
 
     return jsonResp(resposta, 200);
-
   } catch (err) {
     console.error('Erro status:', err);
-    return jsonResp({
-      ok: false,
-      error: 'Falha no processamento',
-      detalhe: String(err.message)
-    }, 500);
+    return jsonResp({ ok: false, error: 'Falha no processamento' }, 500);
   }
 }
 
-function jsonResp(obj, status) {
-  return new Response(JSON.stringify(obj), {
-    status: status || 200,
-    headers: { 'Content-Type': 'application/json' }
-  });
+async function cobrancaPertenceACuidadora(env, payment, cobrancaId, cuidadorId) {
+  if (payment.externalReference && String(payment.externalReference) === String(cuidadorId)) {
+    return true;
+  }
+
+  const cResp = await fetch(
+    env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(cuidadorId) +
+    '&select=id,asaas_cobranca_id&limit=1',
+    { headers: headersSupabase(env) }
+  );
+  if (!cResp.ok) return false;
+  const linhas = await cResp.json();
+  const c = linhas && linhas[0];
+  return !!(c && c.asaas_cobranca_id && String(c.asaas_cobranca_id) === String(cobrancaId));
+}
+
+async function marcarPago(env, cuidadorId) {
+  try {
+    const cResp = await fetch(
+      env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(cuidadorId) +
+      '&select=status_pagamento,plano_cadastro,plano_profissional,plano_destaque,plano_valido_ate&limit=1',
+      { headers: headersSupabase(env) }
+    );
+    if (!cResp.ok) return;
+
+    const linhas = await cResp.json();
+    const c = linhas && linhas[0];
+    if (!c || c.status_pagamento === 'Pago') return;
+
+    const agora = new Date();
+    const patchBody = { status_pagamento: 'Pago' };
+
+    if (!c.plano_valido_ate) {
+      const vence = new Date(agora);
+      vence.setDate(vence.getDate() + 30);
+      patchBody.plano_inicio = agora.toISOString();
+      patchBody.plano_valido_ate = vence.toISOString();
+      patchBody.proxima_cobranca = vence.toISOString();
+    }
+
+    await fetch(
+      env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(cuidadorId),
+      {
+        method: 'PATCH',
+        headers: headersSupabase(env, true, false),
+        body: JSON.stringify(patchBody)
+      }
+    );
+  } catch (e) {
+    console.warn('Erro ao marcar Pago via status:', e);
+  }
+}
+
+async function marcarEstornado(env, cuidadorId) {
+  try {
+    await fetch(
+      env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(cuidadorId),
+      {
+        method: 'PATCH',
+        headers: headersSupabase(env, true, false),
+        body: JSON.stringify({
+          status_pagamento: 'Estornado',
+          plano_valido_ate: new Date().toISOString()
+        })
+      }
+    );
+  } catch (e) {
+    console.warn('Erro estorno:', e);
+  }
 }
