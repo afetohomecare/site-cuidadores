@@ -1,7 +1,7 @@
 // ============================================================
 // AFETO — API Admin: gerenciar cuidadoras
-// ------------------------------------------------------------
-// ⭐ SEGURANÇA: só aceita user com role === 'admin' no metadata
+// 🛡️ BLINDAGEM: gera token ao marcar Pago manualmente
+// 🆕 Busca por CPF + retorna mais campos pro modal de detalhes
 // ============================================================
 
 const CAMPOS_PERMITIDOS = [
@@ -13,13 +13,16 @@ const CAMPOS_PERMITIDOS = [
 
 const CAMPOS_LISTA = [
   'id', 'nome', 'whatsapp', 'whatsapp_agencia', 'email', 'cpf', 'coren',
-  'foto_url', 'apresentacao', 'especialidade', 'experiencia',
+  'foto_url', 'foto_url_pendente', 'foto_pendente',
+  'apresentacao', 'motivacao', 'especialidade', 'experiencia',
   'bairro', 'bairros', 'preco', 'turno', 'cursos', 'subespecialidades',
   'categoria', 'nota', 'horas', 'verificada', 'disponivel',
   'plano_cadastro', 'plano_profissional', 'plano_destaque',
-  'plano_inicio', 'plano_valido_ate',
+  'plano_inicio', 'plano_valido_ate', 'proxima_cobranca',
   'status_pagamento', 'aprovada', 'comentarios', 'indicado_por',
-  'asaas_customer_id', 'asaas_cobranca_id', 'cupom_usado',
+  'asaas_customer_id', 'asaas_cobranca_id', 'asaas_subscription_id', 'cupom_usado',
+  'excluido', 'excluido_em', 'auth_user_id',
+  'mostrar_bio', 'mostrar_habilidades', 'mostrar_cursos', 'mostrar_bairros', 'mostrar_preco',
   'criado_em', 'atualizado_em'
 ];
 
@@ -28,6 +31,12 @@ function jsonResp(obj, status) {
     status: status || 200,
     headers: { 'Content-Type': 'application/json; charset=utf-8' }
   });
+}
+
+function gerarToken() {
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
 async function validarToken(env, request) {
@@ -45,7 +54,6 @@ async function validarToken(env, request) {
   if (!resp.ok) return { ok: false, motivo: 'Token inválido ou expirado' };
   const user = await resp.json();
 
-  // ⭐ VALIDA ROLE — só admin passa
   const role = user && user.user_metadata && user.user_metadata.role;
   if (role !== 'admin') {
     return { ok: false, motivo: 'Acesso restrito a administradores' };
@@ -65,28 +73,63 @@ function headersSupabase(env, temBody, querRetorno) {
   return h;
 }
 
-// Decide o vencimento baseado no plano do cuidador
 function diasDoPlano(campos) {
-  if (campos.plano_cadastro === true) return 30;
   return 30;
 }
 
-// ============================================================
-// GET — LISTAR
-// ============================================================
+// 🛡️ Gera token se o admin está marcando como Pago manualmente
+async function garantirTokenSePagoManual(env, id, campos) {
+  if (campos.status_pagamento !== 'Pago') return;
+
+  try {
+    const cResp = await fetch(
+      env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + id + '&select=auth_user_id,token_criar_senha,token_criar_senha_expira_em&limit=1',
+      { headers: headersSupabase(env) }
+    );
+    if (!cResp.ok) return;
+
+    const linhas = await cResp.json();
+    const c = linhas && linhas[0];
+    if (!c || c.auth_user_id) return;
+
+    const agora = new Date();
+    const expiraAtual = c.token_criar_senha_expira_em ? new Date(c.token_criar_senha_expira_em) : null;
+    const tokenEhValido = c.token_criar_senha && expiraAtual && expiraAtual > agora;
+
+    if (tokenEhValido) return;
+
+    const token = gerarToken();
+    const expira = new Date(agora);
+    expira.setHours(expira.getHours() + 1);
+
+    await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + id, {
+      method: 'PATCH',
+      headers: headersSupabase(env, true, false),
+      body: JSON.stringify({
+        token_criar_senha: token,
+        token_criar_senha_expira_em: expira.toISOString()
+      })
+    });
+
+    console.log('🛡️ Token gerado via admin manual:', id);
+  } catch (e) {
+    console.warn('Erro ao garantir token admin:', e);
+  }
+}
+
 export async function onRequestGet(context) {
   const { request, env } = context;
-
   const auth = await validarToken(env, request);
   if (!auth.ok) return jsonResp({ error: auth.motivo }, 401);
 
   try {
     const url = new URL(request.url);
-    const id     = url.searchParams.get('id');
+    const id = url.searchParams.get('id');
     const filtro = url.searchParams.get('filtro');
-    const busca  = url.searchParams.get('busca');
+    const busca = url.searchParams.get('busca');
     const bairro = url.searchParams.get('bairro');
-    const plano  = url.searchParams.get('plano');
+    const plano = url.searchParams.get('plano');
+    const cpf = url.searchParams.get('cpf');
 
     if (id) {
       const resp = await fetch(
@@ -101,31 +144,27 @@ export async function onRequestGet(context) {
 
     const params = ['select=' + CAMPOS_LISTA.join(','), 'order=criado_em.desc'];
 
-    if (filtro === 'pendentes') {
-      params.push('aprovada=eq.false');
-    } else if (filtro === 'aprovadas') {
-      params.push('aprovada=eq.true');
-    } else if (filtro === 'vencidas') {
-      params.push('plano_valido_ate=lt.' + new Date().toISOString());
-    } else if (filtro === 'pagas') {
-      params.push('status_pagamento=eq.Pago');
+    if (filtro === 'pendentes') params.push('aprovada=eq.false');
+    else if (filtro === 'aprovadas') params.push('aprovada=eq.true');
+    else if (filtro === 'vencidas') params.push('plano_valido_ate=lt.' + new Date().toISOString());
+    else if (filtro === 'pagas') params.push('status_pagamento=eq.Pago');
+
+    // 🆕 Busca por CPF (com e sem formatação)
+    if (cpf) {
+      const cpfLimpo = cpf.replace(/\D/g, '');
+      const cpfFmt = cpfLimpo.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+      params.push('or=(cpf.eq.' + cpfLimpo + ',cpf.eq.' + encodeURIComponent(cpfFmt) + ')');
     }
 
     if (busca) {
       params.push('or=(nome.ilike.*' + encodeURIComponent(busca) + '*,whatsapp.ilike.*' + encodeURIComponent(busca) + '*)');
     }
 
-    if (bairro) {
-      params.push('bairro=eq.' + encodeURIComponent(bairro));
-    }
+    if (bairro) params.push('bairro=eq.' + encodeURIComponent(bairro));
 
-    if (plano === 'cadastro') {
-      params.push('plano_cadastro=eq.true');
-    } else if (plano === 'profissional') {
-      params.push('plano_profissional=eq.true');
-    } else if (plano === 'destaque') {
-      params.push('plano_destaque=eq.true');
-    }
+    if (plano === 'cadastro') params.push('plano_cadastro=eq.true');
+    else if (plano === 'profissional') params.push('plano_profissional=eq.true');
+    else if (plano === 'destaque') params.push('plano_destaque=eq.true');
 
     const resp = await fetch(
       env.SUPABASE_URL + '/rest/v1/cuidadores?' + params.join('&'),
@@ -133,8 +172,7 @@ export async function onRequestGet(context) {
     );
 
     if (!resp.ok) {
-      const txt = await resp.text();
-      console.error('Erro listar:', txt);
+      console.error('Erro listar:', await resp.text());
       return jsonResp({ error: 'Falha ao listar' }, 502);
     }
 
@@ -147,12 +185,8 @@ export async function onRequestGet(context) {
   }
 }
 
-// ============================================================
-// PATCH — ATUALIZAR UMA
-// ============================================================
 export async function onRequestPatch(context) {
   const { request, env } = context;
-
   const auth = await validarToken(env, request);
   if (!auth.ok) return jsonResp({ error: auth.motivo }, 401);
 
@@ -168,10 +202,9 @@ export async function onRequestPatch(context) {
     }
 
     if (Object.keys(campos).length === 0) {
-      return jsonResp({ error: 'Nenhum campo válido pra atualizar' }, 400);
+      return jsonResp({ error: 'Nenhum campo válido' }, 400);
     }
 
-    // Auto-preenche vencimento quando marca como Pago
     if (campos.status_pagamento === 'Pago' && !campos.plano_valido_ate) {
       let isCadastro = campos.plano_cadastro;
       if (isCadastro === undefined) {
@@ -202,10 +235,11 @@ export async function onRequestPatch(context) {
     });
 
     if (!resp.ok) {
-      const txt = await resp.text();
-      console.error('Erro PATCH:', txt);
+      console.error('Erro PATCH:', await resp.text());
       return jsonResp({ error: 'Falha ao atualizar' }, 502);
     }
+
+    await garantirTokenSePagoManual(env, id, campos);
 
     const atualizados = await resp.json();
     return jsonResp({ ok: true, cuidadora: atualizados[0] }, 200);
@@ -216,12 +250,8 @@ export async function onRequestPatch(context) {
   }
 }
 
-// ============================================================
-// POST — ATUALIZAÇÃO EM MASSA
-// ============================================================
 export async function onRequestPost(context) {
   const { request, env } = context;
-
   const auth = await validarToken(env, request);
   if (!auth.ok) return jsonResp({ error: auth.motivo }, 401);
 
@@ -251,7 +281,7 @@ export async function onRequestPost(context) {
       campos.plano_valido_ate = vence.toISOString();
     }
 
-    const idList = ids.map(function(i) { return '"' + i + '"'; }).join(',');
+    const idList = ids.map(i => '"' + i + '"').join(',');
     const patchUrl = env.SUPABASE_URL + '/rest/v1/cuidadores?id=in.(' + idList + ')';
 
     const resp = await fetch(patchUrl, {
@@ -261,9 +291,14 @@ export async function onRequestPost(context) {
     });
 
     if (!resp.ok) {
-      const txt = await resp.text();
-      console.error('Erro bulk PATCH:', txt);
+      console.error('Erro bulk PATCH:', await resp.text());
       return jsonResp({ error: 'Falha na atualização em lote' }, 502);
+    }
+
+    if (campos.status_pagamento === 'Pago') {
+      for (const id of ids) {
+        await garantirTokenSePagoManual(env, id, campos);
+      }
     }
 
     return jsonResp({ ok: true, atualizadas: ids.length }, 200);
