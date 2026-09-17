@@ -118,6 +118,12 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
 .btn-pago:hover:not(:disabled) { background: #10b981; color: white; }
 .btn-whats { background: #25D366; color: white; }
 .btn-whats:hover:not(:disabled) { background: #1da851; }
+.reset-card { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; background: white; border-radius: 20px; padding: 20px 22px; border: 1px solid #e2e8f0; margin-bottom: 12px; }
+.reset-card:hover { border-color: #c4b5fd; }
+.reset-card .reset-info { flex: 1; min-width: 200px; }
+.reset-card .reset-nome { font-size: 16px; font-weight: 900; margin-bottom: 4px; }
+.reset-card .reset-meta { font-size: 13px; color: var(--cinza); font-weight: 700; display: flex; flex-wrap: wrap; gap: 12px; }
+.reset-card .btn-whats { text-decoration: none; }
 
 .lista { display: flex; flex-direction: column; gap: 12px; }
 .loader { text-align: center; padding: 60px 20px; color: var(--lilas); font-size: 16px; font-weight: 700; }
@@ -222,6 +228,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
     <li class="menu-item ativo" data-tab="dashboard"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></li>
     <li class="menu-item" data-tab="cuidadoras"><i class="fa-solid fa-users"></i><span>Cuidadoras</span></li>
     <li class="menu-item" data-tab="mensagens"><i class="fa-solid fa-comments"></i><span>Mensagens</span></li>
+    <li class="menu-item" data-tab="resets"><i class="fa-solid fa-key"></i><span>Recuperar senha</span><span class="badge-alerta" id="badge-resets" style="display:none;">0</span></li>
     <li class="menu-item" onclick="window.location.href='exclusoes.html'"><i class="fa-solid fa-trash"></i><span>Exclusões</span><span class="badge-alerta" id="badge-exclusoes" style="display:none;">0</span></li>
     <li class="menu-item" onclick="window.location.href='fotos.html'"><i class="fa-solid fa-camera"></i><span>Fotos</span><span class="badge-alerta" id="badge-fotos" style="display:none;">0</span></li>
     <li class="menu-item" onclick="window.location.href='cupons.html'"><i class="fa-solid fa-ticket"></i><span>Cupons</span></li>
@@ -253,6 +260,11 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
       <div class="stat-card"><div class="stat-icone amarelo"><i class="fa-solid fa-hourglass-half"></i></div><div class="stat-info"><div class="stat-numero" id="s-vencendo">—</div><div class="stat-label">Vencem em 7d</div></div></div>
       <div class="stat-card"><div class="stat-icone azul"><i class="fa-solid fa-plus"></i></div><div class="stat-info"><div class="stat-numero" id="s-novas">—</div><div class="stat-label">Novas (7 dias)</div></div></div>
       <div class="stat-card"><div class="stat-icone lilas"><i class="fa-solid fa-percent"></i></div><div class="stat-info"><div class="stat-numero" id="s-conversao">—</div><div class="stat-label">Conversão</div></div></div>
+    </div>
+
+    <div class="painel-section" style="margin-bottom:20px;">
+      <h2><i class="fa-solid fa-key"></i> Pedidos de recuperação de senha</h2>
+      <div id="dash-resets"><p class="mini-vazio">Nenhum pedido pendente</p></div>
     </div>
 
     <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px;">
@@ -334,6 +346,18 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
     </div>
 
     <div id="lista-templates"><div class="loader"><i class="fa-solid fa-spinner fa-spin"></i> Carregando...</div></div>
+  </div>
+
+  <div id="tab-resets" class="tab-content">
+    <div class="page-header">
+      <div>
+        <h1>Recuperar senha</h1>
+        <p>Mesmo botão do Telegram: abre o WhatsApp com o link pronto. É só enviar.</p>
+      </div>
+    </div>
+    <div id="lista-resets">
+      <div class="loader"><i class="fa-solid fa-spinner fa-spin"></i> Carregando...</div>
+    </div>
   </div>
 
 </main>
@@ -494,6 +518,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
       if (tab === 'dashboard') carregarDashboard();
       if (tab === 'cuidadoras') carregarCuidadoras();
       if (tab === 'mensagens') carregarTemplates();
+      if (tab === 'resets') carregarResets();
     });
   });
 
@@ -523,6 +548,8 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
       topCupons.innerHTML = data.topCupons.length === 0
         ? '<li class="mini-vazio">Nenhum cupom usado ainda</li>'
         : data.topCupons.map(function(c) { return '<li><span>' + esc(c.cupom) + '</span><span class="valor">' + c.total + ' usos</span></li>'; }).join('');
+
+      await preencherResets('dash-resets', true);
 
     } catch (err) { console.error(err); }
   }
@@ -560,6 +587,91 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
       }
     } catch (err) {
       console.warn('Erro ao carregar badge fotos:', err);
+    }
+  }
+
+  function fmtExpiraReset(iso) {
+    if (!iso) return '—';
+    try {
+      return new Date(iso).toLocaleString('pt-BR', {
+        timeZone: 'America/Sao_Paulo',
+        day: '2-digit', month: '2-digit',
+        hour: '2-digit', minute: '2-digit'
+      });
+    } catch (e) {
+      return '—';
+    }
+  }
+
+  function htmlCardReset(p) {
+    return (
+      '<div class="reset-card">' +
+        '<div class="reset-info">' +
+          '<div class="reset-nome">' + esc(p.nome || 'Sem nome') + '</div>' +
+          '<div class="reset-meta">' +
+            '<span><i class="fa-brands fa-whatsapp"></i> ' + esc(p.whatsapp || '—') + '</span>' +
+            '<span><i class="fa-solid fa-id-card"></i> ' + esc(p.cpf || '—') + '</span>' +
+            '<span><i class="fa-solid fa-clock"></i> até ' + esc(fmtExpiraReset(p.expira_em)) + '</span>' +
+          '</div>' +
+        '</div>' +
+        (p.waUrl
+          ? '<a class="btn-acao btn-whats" href="' + esc(p.waUrl) + '" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> Enviar no WhatsApp</a>'
+          : '<span class="mini-vazio">Sem WhatsApp</span>') +
+      '</div>'
+    );
+  }
+
+  async function buscarResets() {
+    var resp = await api('/api/admin/resets');
+    if (!resp.ok) return [];
+    var data = await resp.json();
+    return data.pedidos || [];
+  }
+
+  function atualizarBadgeResets(qtd) {
+    var badge = document.getElementById('badge-resets');
+    if (!badge) return;
+    if (qtd > 0) {
+      badge.textContent = qtd;
+      badge.style.display = 'inline-block';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+
+  async function preencherResets(idLista, resumido) {
+    var el = document.getElementById(idLista);
+    if (!el) return;
+    try {
+      var pedidos = await buscarResets();
+      atualizarBadgeResets(pedidos.length);
+      if (pedidos.length === 0) {
+        el.innerHTML = '<p class="mini-vazio">Nenhum pedido pendente</p>';
+        return;
+      }
+      var lista = resumido ? pedidos.slice(0, 5) : pedidos;
+      var extra = (resumido && pedidos.length > 5)
+        ? '<p class="mini-vazio" style="padding-top:8px;">+' + (pedidos.length - 5) + ' no menu Recuperar senha</p>'
+        : '';
+      el.innerHTML = lista.map(htmlCardReset).join('') + extra;
+    } catch (err) {
+      console.warn('Erro ao listar resets:', err);
+      el.innerHTML = '<p class="mini-vazio">Não foi possível carregar os pedidos.</p>';
+    }
+  }
+
+  async function carregarResets() {
+    var listaEl = document.getElementById('lista-resets');
+    listaEl.innerHTML = '<div class="loader"><i class="fa-solid fa-spinner fa-spin"></i> Carregando...</div>';
+    await preencherResets('lista-resets', false);
+  }
+
+  async function carregarBadgeResets() {
+    try {
+      var pedidos = await buscarResets();
+      atualizarBadgeResets(pedidos.length);
+    } catch (err) {
+      console.warn('Erro ao carregar badge resets:', err);
     }
   }
 
@@ -1161,6 +1273,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
   carregarDashboard();
   carregarBadgeExclusoes();
   carregarBadgeFotos();
+  carregarBadgeResets();
 
 })();
 </script>

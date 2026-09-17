@@ -8,6 +8,8 @@
 //   • Aceita CPF COM e SEM formatação
 // ============================================================
 
+import { urlWhatsAppReset } from '../../_lib/reset-senha.js';
+
 function gerarToken() {
   const bytes = new Uint8Array(32);
   crypto.getRandomValues(bytes);
@@ -90,7 +92,7 @@ export async function onRequestPost(context) {
     const expiraEm = new Date();
     expiraEm.setHours(expiraEm.getHours() + 24);
 
-    const patchUrl = env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadora.id;
+    const patchUrl = env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(cuidadora.id);
     const patchResp = await fetch(patchUrl, {
       method: 'PATCH',
       headers: headersSupabase(env, true),
@@ -128,25 +130,11 @@ async function notificarTelegramComBotao(env, cuidadora, token, expiraEm) {
       return;
     }
 
-    const linkReset = 'https://afetocuidadores.pages.dev/painel-reset.html?token=' + token;
-
-    const primeiroNome = (cuidadora.nome || '').trim().split(/\s+/)[0] || '';
-    const saudacao = primeiroNome ? 'Oi, ' + primeiroNome + '! 💜' : 'Oi! 💜';
-
-    const mensagemWpp =
-      saudacao + '\n\n' +
-      'Recebi seu pedido de recuperação de senha da Afeto.\n\n' +
-      'Clique neste link pra criar uma nova senha (válido por 24 horas):\n\n' +
-      linkReset + '\n\n' +
-      'Se você não pediu isso, é só ignorar esta mensagem.';
-
-    const numeroLimpo = (cuidadora.whatsapp || '').replace(/\D/g, '');
-    let numeroCompleto = numeroLimpo;
-    if (numeroLimpo.length === 10 || numeroLimpo.length === 11) {
-      numeroCompleto = '55' + numeroLimpo;
+    const waUrl = urlWhatsAppReset(cuidadora, token);
+    if (!waUrl) {
+      console.error('WhatsApp ausente no pedido de reset:', cuidadora.id);
+      return;
     }
-
-    const waUrl = 'https://wa.me/' + numeroCompleto + '?text=' + encodeURIComponent(mensagemWpp);
 
     const agora = new Date().toLocaleString('pt-BR', {
       timeZone: 'America/Sao_Paulo',
