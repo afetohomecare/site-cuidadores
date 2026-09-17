@@ -1,5 +1,10 @@
 // ============================================================
 // AFETO — API: cadastro de cuidadora
+// ------------------------------------------------------------
+// 🆕 Opção B: cria conta + senha JUNTO com o cadastro.
+//    A cuidadora já tem login antes mesmo de pagar.
+//    O acesso ao "mundo real" (aparecer no site) só é liberado
+//    após pagamento + aprovação do admin.
 // ============================================================
 
 const BUCKET_FOTOS = 'fotos';
@@ -21,6 +26,7 @@ export async function onRequest(context) {
     const nome           = campo(form, 'nome');
     const whatsapp       = campo(form, 'whatsapp');
     const cpf            = campo(form, 'cpf');
+    const senha          = campo(form, 'senha');          // 🆕 NOVO
     const bio            = campo(form, 'bio');
     const motivacao      = campo(form, 'motivacao');
     const especialidade  = campo(form, 'profissao');
@@ -48,33 +54,21 @@ export async function onRequest(context) {
     let planoProfissional = false;
     let planoDestaque     = false;
 
-    if (plano === 'cadastro') {
-      planoCadastro = true;
-    } else if (plano === 'profissional') {
-      planoProfissional = true;
-    } else if (plano === 'destaque') {
-      planoDestaque = true;
-    } else {
-      planoCadastro = true;
-    }
+    if (plano === 'profissional') planoProfissional = true;
+    else if (plano === 'destaque') planoDestaque = true;
+    else planoCadastro = true;
 
     // ---------- MONTA O OBJETO ----------
     const bairrosArray = bairrosStr
-      .split('|')
-      .map(function (b) { return b.trim(); })
-      .filter(function (b) { return b; });
+      .split('|').map(function (b) { return b.trim(); }).filter(function (b) { return b; });
 
     const bairroPrincipal = bairrosArray[0] || '';
 
     const subsArray = subespecialStr
-      .split('|')
-      .map(function (s) { return s.trim(); })
-      .filter(function (s) { return s; });
+      .split('|').map(function (s) { return s.trim(); }).filter(function (s) { return s; });
 
     const cursosArray = cursosStr
-      .split(/\n|;/)
-      .map(function (c) { return c.trim(); })
-      .filter(function (c) { return c; });
+      .split(/\n|;/).map(function (c) { return c.trim(); }).filter(function (c) { return c; });
 
     const campos = {
       nome:               nome,
@@ -103,20 +97,15 @@ export async function onRequest(context) {
     if (coren) campos.coren = coren;
 
     // ---------- PROCURA EXISTENTE ----------
-    // Busca por CPF limpo OU CPF formatado OU WhatsApp limpo.
-    // O banco pode ter o CPF salvo com ou sem formatação,
-    // então testamos os dois formatos.
     const filtro = 'or=(' +
       'cpf.eq.' + encodeURIComponent(cpfLimpo) + ',' +
       'cpf.eq.' + encodeURIComponent(cpf) + ',' +
       'whatsapp.eq.' + encodeURIComponent(whatsLimpo) +
     ')';
 
-    const buscaUrl = env.SUPABASE_URL + '/rest/v1/cuidadores?select=id&' + filtro + '&limit=1';
+    const buscaUrl = env.SUPABASE_URL + '/rest/v1/cuidadores?select=id,auth_user_id&' + filtro + '&limit=1';
 
-    const buscaResp = await fetch(buscaUrl, {
-      headers: headersSupabase(env)
-    });
+    const buscaResp = await fetch(buscaUrl, { headers: headersSupabase(env) });
 
     if (!buscaResp.ok) {
       const txt = await buscaResp.text();
@@ -125,14 +114,17 @@ export async function onRequest(context) {
     }
 
     const encontrados = await buscaResp.json();
-    const registroExistente = encontrados.length > 0 ? encontrados[0].id : null;
+    const registroExistente = encontrados.length > 0 ? encontrados[0] : null;
 
     // ---------- INSERE OU ATUALIZA ----------
     let cuidadorId;
     let foiCriado = false;
+    let authUserId = null;
 
     if (registroExistente) {
-      cuidadorId = registroExistente;
+      cuidadorId = registroExistente.id;
+      authUserId = registroExistente.auth_user_id || null;
+
       const updateUrl = env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadorId;
       const updateResp = await fetch(updateUrl, {
         method: 'PATCH',
@@ -156,19 +148,16 @@ export async function onRequest(context) {
         const txt = await insertResp.text();
         console.error('Erro INSERT:', insertResp.status, txt);
 
-        // Fallback: se bateu no unique constraint do CPF (mas a busca não achou),
-        // tenta de novo buscando só por CPF limpo formatado de outra forma
         if (txt.indexOf('duplicate key') !== -1 || txt.indexOf('already exists') !== -1) {
-          // Busca diretamente pelo CPF sem filtro de OR
           const busca2 = await fetch(
-            env.SUPABASE_URL + '/rest/v1/cuidadores?cpf=eq.' + encodeURIComponent(cpfLimpo) + '&select=id&limit=1',
+            env.SUPABASE_URL + '/rest/v1/cuidadores?cpf=eq.' + encodeURIComponent(cpfLimpo) + '&select=id,auth_user_id&limit=1',
             { headers: headersSupabase(env) }
           );
           if (busca2.ok) {
             const linhas2 = await busca2.json();
             if (linhas2.length > 0) {
-              // Achou — faz UPDATE
               cuidadorId = linhas2[0].id;
+              authUserId = linhas2[0].auth_user_id || null;
               await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadorId, {
                 method: 'PATCH',
                 headers: headersSupabase(env, true),
@@ -190,6 +179,60 @@ export async function onRequest(context) {
         }
         cuidadorId = criados[0].id;
         foiCriado = true;
+      }
+    }
+
+    // ============================================================
+    // 🆕 CRIA USUÁRIO NO SUPABASE AUTH (se tem senha e ainda não tem conta)
+    // ============================================================
+    let criouAuth = false;
+    let authErro = null;
+
+    if (senha && senha.length >= 6 && !authUserId && cpfLimpo.length === 11) {
+      try {
+        const emailFake = cpfLimpo + '@afeto.app';
+
+        const criarUserResp = await fetch(env.SUPABASE_URL + '/auth/v1/admin/users', {
+          method: 'POST',
+          headers: {
+            'apikey': env.SUPABASE_SERVICE_KEY,
+            'Authorization': 'Bearer ' + env.SUPABASE_SERVICE_KEY,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            email: emailFake,
+            password: senha,
+            email_confirm: true,
+            user_metadata: {
+              cuidador_id: cuidadorId,
+              nome: nome,
+              role: 'cuidadora'
+            }
+          })
+        });
+
+        const criarUserData = await criarUserResp.json();
+
+        if (!criarUserResp.ok) {
+          console.error('Erro criar user Auth:', criarUserResp.status, JSON.stringify(criarUserData));
+          authErro = 'Não foi possível criar o acesso. Tente novamente.';
+        } else {
+          authUserId = criarUserData.id;
+          criouAuth = true;
+
+          // Vincula auth_user_id no banco
+          await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadorId, {
+            method: 'PATCH',
+            headers: headersSupabase(env, true),
+            body: JSON.stringify({
+              auth_user_id: authUserId,
+              senha_criada_em: new Date().toISOString()
+            })
+          });
+        }
+      } catch (err) {
+        console.error('Erro criar auth user:', err);
+        authErro = String(err && err.message ? err.message : err);
       }
     }
 
@@ -230,8 +273,7 @@ export async function onRequest(context) {
         });
 
         if (!patchResp.ok) {
-          const txt = await patchResp.text();
-          console.error('Erro ao gravar foto_url:', patchResp.status, txt);
+          console.error('Erro ao gravar foto_url:', await patchResp.text());
         } else {
           fotoEnviada = true;
         }
@@ -239,8 +281,6 @@ export async function onRequest(context) {
         fotoErro = String(err && err.message ? err.message : err);
         console.error('Erro upload foto:', fotoErro);
       }
-    } else {
-      fotoErro = 'Sem arquivo de foto';
     }
 
     const linkPerfil = 'https://afetocuidadores.pages.dev/perfil.html?id=' + cuidadorId;
@@ -259,7 +299,9 @@ export async function onRequest(context) {
       indicadoPor: indicadoPor,
       linkPerfil: linkPerfil,
       fotoEnviada: fotoEnviada,
-      fotoErro: fotoErro
+      fotoErro: fotoErro,
+      criouAuth: criouAuth,
+      authErro: authErro
     });
 
     return jsonResp({
@@ -269,6 +311,8 @@ export async function onRequest(context) {
       linkPerfil: linkPerfil,
       fotoEnviada: fotoEnviada,
       fotoErro: fotoErro,
+      criouAuth: criouAuth,
+      authErro: authErro,
       precisaPagar: true
     }, 200);
 
@@ -338,9 +382,14 @@ async function notificarTelegram(env, dados) {
       msg += '\n🔗 *Link do perfil:*\n' + dados.linkPerfil + '\n';
     }
 
+    if (dados.criouAuth) {
+      msg += '\n🔐 *Conta criada com senha ✅*\n';
+    } else if (dados.authErro) {
+      msg += '\n⚠️ *Erro ao criar conta:* ' + String(dados.authErro).substring(0, 150) + '\n';
+    }
+
     if (dados.fotoEnviada === false && dados.fotoErro) {
       msg += '\n📸 *Foto:* ❌ falhou\n';
-      msg += '⚠️ *Erro:* ' + String(dados.fotoErro).substring(0, 200) + '\n';
     }
 
     msg += '\n🕒 ' + agora;

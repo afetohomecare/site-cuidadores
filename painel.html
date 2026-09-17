@@ -180,7 +180,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
       <li><a href="#" class="ativo" data-secao="inicio"><i class="fa-solid fa-house"></i> Início</a></li>
       <li><a href="#" data-secao="editar"><i class="fa-solid fa-pen-to-square"></i> Editar meu perfil</a></li>
       <li><a href="#" data-secao="plano"><i class="fa-solid fa-crown"></i> Meu plano</a></li>
-      <li><a href="#" data-secao="plantões"><i class="fa-solid fa-heart-pulse"></i> Meus plantões</a></li>
+      <li><a href="#" data-secao="plantoes"><i class="fa-solid fa-heart-pulse"></i> Meus plantões</a></li>
       <li><a href="#" data-secao="config"><i class="fa-solid fa-gear"></i> Configurações</a></li>
       <li><a href="#" data-secao="dados"><i class="fa-solid fa-user-shield"></i> Meus dados</a></li>
 
@@ -248,7 +248,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
       </div>
     </section>
 
-    <section class="secao" id="secao-plantões">
+    <section class="secao" id="secao-plantoes">
       <div class="main-header">
         <h1>Meus plantões</h1>
         <p>Em breve você poderá registrar aqui seus plantões e ganhar o selo de horas certificadas Afeto 💜</p>
@@ -313,6 +313,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
   <i class="fa-solid fa-spinner fa-spin"></i>
   <p>Carregando seu painel...</p>
 </div>
+
 <script>
 (function() {
   "use strict";
@@ -642,7 +643,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
     var modal = document.getElementById('modal-edicao');
     if (modal) modal.remove();
     var html = '', titulo = '', subtitulo = '', campoInput = '';
-    
+
     if (campo === 'bio') {
       titulo = 'Editar sobre mim'; subtitulo = 'Conte sua história com carinho.';
       campoInput = '<textarea id="input-edicao" rows="6">' + escapeHTML(cuidadora.apresentacao || '') + '</textarea>';
@@ -669,7 +670,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
 
     html = '<div class="modal ativo" id="modal-edicao"><div class="modal-box"><h2>' + titulo + '</h2><p class="subtitulo">' + subtitulo + '</p><div class="campo">' + campoInput + '</div><div class="modal-acoes"><button class="btn-modal btn-cancelar" id="btn-modal-cancelar">Cancelar</button><button class="btn-modal btn-salvar" id="btn-modal-salvar">Salvar</button></div></div></div>';
     document.getElementById('container-modais').innerHTML = html;
-    
+
     document.querySelectorAll('#grid-habilidades input[type="checkbox"]').forEach(function(cb) {
       cb.addEventListener('change', function() { this.closest('.checkbox-item').classList.toggle('ativo', this.checked); });
     });
@@ -703,7 +704,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
   }
 
   // ==========================================
-  // ⭐ LÓGICA ATUALIZADA DO PLANO (ASSINATURA/PIX/CHECKOUT)
+  // PLANO
   // ==========================================
   function renderizarPlano() {
     var container = document.getElementById('plano-conteudo');
@@ -712,8 +713,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
                    : 'Cadastro Básico';
     var dias = diasRestantes(cuidadora.plano_valido_ate);
     var vencendo = dias > 0 && dias <= 7;
-    
-    // Identifica se é assinatura de cartão (tem ID) e se está pago
+
     var isAssinatura = !!cuidadora.asaas_subscription_id;
     var taPago = cuidadora.status_pagamento === 'Pago';
 
@@ -737,14 +737,12 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
 
     var botoesHtml = '';
     if (isAssinatura && taPago) {
-       // Se tem cartão ativo, mostra cancelar
        botoesHtml = '<button id="btn-cancelar-assinatura" style="background: transparent; color: var(--vermelho); border: 2px solid var(--vermelho); padding: 10px 20px; border-radius: 50px; font-family: \'Nunito\', sans-serif; font-size: 13px; font-weight: 900; cursor: pointer; margin-top: 15px; transition: 0.3s;">Cancelar Assinatura</button>';
     } else if (!isAssinatura && taPago && dias > 7) {
-       // Se pagou avulso no PIX e falta mais de 7 dias pra vencer: esconde tudo
        botoesHtml = '';
     } else {
-       // Se está inativo ou vencendo (PIX), aponta pro CHECKOUT pra pagar de novo
-       botoesHtml = '<a href="checkout.html" style="display: inline-block; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; padding: 10px 20px; border-radius: 50px; text-decoration: none; font-family: \'Nunito\', sans-serif; font-size: 13px; font-weight: 900; margin-top: 15px;">✨ Ativar / Renovar Plano</a>';
+       // 🆕 Agora aponta pra planos.html (checkout.html não existe)
+       botoesHtml = '<a href="planos.html" style="display: inline-block; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; padding: 10px 20px; border-radius: 50px; text-decoration: none; font-family: \'Nunito\', sans-serif; font-size: 13px; font-weight: 900; margin-top: 15px;">✨ Ativar / Renovar Plano</a>';
     }
 
     container.innerHTML = '' +
@@ -765,7 +763,6 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
           '</div>'
         : '');
 
-    // Conecta o botão de Cancelar ao Backend que criamos
     var btnCancelar = document.getElementById('btn-cancelar-assinatura');
     if (btnCancelar) {
        btnCancelar.addEventListener('click', async function() {
@@ -775,8 +772,8 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
              try {
                 await api('/api/painel/cancelar-assinatura', { method: 'POST' });
                 alert('✅ Assinatura cancelada com sucesso! Não haverá novas cobranças no seu cartão.');
-                cuidadora.asaas_subscription_id = null; // Atualiza a tela localmente
-                renderizarPlano(); 
+                cuidadora.asaas_subscription_id = null;
+                renderizarPlano();
              } catch(e) {
                 alert('Falha ao cancelar: ' + e.message);
                 btnCancelar.disabled = false;
@@ -788,7 +785,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
   }
 
   // ==========================================
-  // ⭐ LÓGICA ATUALIZADA DE CONFIGURAÇÕES
+  // CONFIGURAÇÕES
   // ==========================================
   function renderizarConfig() {
     var container = document.getElementById('config-conteudo');

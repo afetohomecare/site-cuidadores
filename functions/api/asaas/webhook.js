@@ -2,9 +2,8 @@
 // AFETO — Webhook do Asaas
 // ------------------------------------------------------------
 // 🛡️ BLINDAGENS:
-//   • Não sobrescreve token válido existente (evita corrida)
-//   • Trata estornos e chargebacks
-//   • Trata inadimplência
+//   • Sem gerenciamento de token (conta já foi criada no cadastro)
+//   • Trata inadimplência, estorno e chargeback
 // ============================================================
 
 function getWebhookToken(env) {
@@ -13,16 +12,6 @@ function getWebhookToken(env) {
     return env.ASAAS_WEBHOOK_TOKEN_SANDBOX || env.ASAAS_WEBHOOK_TOKEN;
   }
   return env.ASAAS_WEBHOOK_TOKEN_PRODUCAO || env.ASAAS_WEBHOOK_TOKEN;
-}
-
-function diasDoPlano(plano) {
-  return 30;
-}
-
-function gerarToken() {
-  const bytes = new Uint8Array(16);
-  crypto.getRandomValues(bytes);
-  return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
 export async function onRequestPost(context) {
@@ -64,7 +53,7 @@ export async function onRequestPost(context) {
     }
 
     // ============================================================
-    // 🛡️ ESTORNO / CHARGEBACK — retira acesso
+    // ESTORNO / CHARGEBACK
     // ============================================================
     if (evento === 'PAYMENT_REFUNDED' || evento === 'PAYMENT_CHARGEBACK_REQUESTED' || evento === 'PAYMENT_CHARGEBACK_DISPUTE') {
       const cuidadorId = payment.externalReference;
@@ -79,7 +68,7 @@ export async function onRequestPost(context) {
         });
 
         if (env.TELEGRAM_BOT_TOKEN && env.TELEGRAM_CHAT_ID) {
-          await notificarTelegram(env, '🔄 *' + evento + '*\n\nCuidadora ID `' + cuidadorId + '` teve pagamento estornado. Acesso removido.');
+          await notificarTelegram(env, '🔄 *' + evento + '*\n\nCuidadora ID `' + cuidadorId + '` teve pagamento estornado.');
         }
       }
       return jsonResp({ received: true }, 200);
@@ -99,7 +88,7 @@ export async function onRequestPost(context) {
       try {
         const cResp = await fetch(
           env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadorId +
-          '&select=cupom_usado,plano_cadastro,plano_profissional,plano_destaque,auth_user_id,token_criar_senha,token_criar_senha_expira_em&limit=1',
+          '&select=cupom_usado,plano_cadastro,plano_profissional,plano_destaque,plano_valido_ate&limit=1',
           { headers: headersSupabase(env) }
         );
         if (cResp.ok) {
@@ -119,7 +108,7 @@ export async function onRequestPost(context) {
 
       const agora = new Date();
       const vence = new Date(agora);
-      vence.setDate(vence.getDate() + diasDoPlano(planoDetectado));
+      vence.setDate(vence.getDate() + 30);
 
       const patchBody = {
         status_pagamento: 'Pago',
@@ -128,32 +117,13 @@ export async function onRequestPost(context) {
         proxima_cobranca: vence.toISOString()
       };
 
-      // 🛡️ Só gera token se realmente não tem um válido
-      if (cuidador && !cuidador.auth_user_id) {
-        const expiraAtual = cuidador.token_criar_senha_expira_em
-          ? new Date(cuidador.token_criar_senha_expira_em)
-          : null;
-        const tokenJaEhValido = cuidador.token_criar_senha && expiraAtual && expiraAtual > agora;
-
-        if (tokenJaEhValido) {
-          console.log('✅ Token já válido, não sobrescreve');
-        } else {
-          const token = gerarToken();
-          const expira = new Date(agora);
-          expira.setHours(expira.getHours() + 1);
-          patchBody.token_criar_senha = token;
-          patchBody.token_criar_senha_expira_em = expira.toISOString();
-          console.log('🔐 Token gerado pelo webhook:', cuidadorId);
-        }
-      }
-
       await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadorId, {
         method: 'PATCH',
         headers: headersSupabase(env, true, false),
         body: JSON.stringify(patchBody)
       });
 
-      // Registra uso de cupom
+      // Registra cupom
       try {
         if (cuidador && cuidador.cupom_usado) {
           const cupomResp = await fetch(

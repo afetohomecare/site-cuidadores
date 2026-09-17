@@ -38,12 +38,18 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 .campo { margin-bottom: 22px; }
 .campo label { display: block; font-weight: 800; margin-bottom: 8px; font-size: 14px; color: var(--preto-fonte); }
 .campo .ajuda { display: block; font-size: 12px; color: var(--cinza-fonte); font-weight: 600; margin-bottom: 8px; line-height: 1.5; }
-.campo input[type="text"], .campo input[type="tel"], .campo input[type="number"], .campo textarea, .campo select { width: 100%; padding: 15px 18px; border-radius: 16px; border: 2px solid #e2e8f0; font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 700; background: var(--fundo-site); color: var(--preto-fonte); outline: none; transition: 0.3s; }
+.campo input[type="text"], .campo input[type="tel"], .campo input[type="number"], .campo input[type="password"], .campo textarea, .campo select { width: 100%; padding: 15px 18px; border-radius: 16px; border: 2px solid #e2e8f0; font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 700; background: var(--fundo-site); color: var(--preto-fonte); outline: none; transition: 0.3s; }
 .campo input:focus, .campo textarea:focus, .campo select:focus { border-color: var(--lilas); background: white; box-shadow: 0 0 0 4px rgba(139,92,246,0.12); }
 .campo textarea { resize: vertical; min-height: 90px; }
 .campo select { cursor: pointer; appearance: none; -webkit-appearance: none; -moz-appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238b5cf6' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 18px center; background-size: 16px; padding-right: 45px; }
 .campo select option { background-color: white; color: var(--preto-fonte); font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 700; }
 .campo select option:first-child { color: var(--cinza-azulado); }
+
+/* 🆕 Campo de senha com olho */
+.campo-senha { position: relative; }
+.campo-senha input { padding-right: 50px !important; }
+.campo-senha .olho { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: var(--cinza-azulado); font-size: 16px; cursor: pointer; padding: 6px; }
+.campo-senha .olho:hover { color: var(--lilas-escuro); }
 
 .input-prefix { position: relative; display: flex; align-items: center; }
 .input-prefix span { position: absolute; left: 18px; font-weight: 800; color: var(--lilas-escuro); font-size: 15px; pointer-events: none; z-index: 2; }
@@ -121,6 +127,11 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 @keyframes pulseIcon { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
 .tela-sucesso h2 { font-size: 26px; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 14px; line-height: 1.2; }
 .tela-sucesso .texto-principal { font-size: 16px; color: var(--cinza-fonte); font-weight: 700; line-height: 1.65; margin-bottom: 28px; max-width: 460px; margin-left: auto; margin-right: auto; }
+
+/* 🆕 Botão grande "Acessar meu painel" */
+.btn-acessar-painel { display: inline-flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 20px; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; border: none; border-radius: 50px; font-family: 'Nunito', sans-serif; font-size: 17px; font-weight: 900; cursor: pointer; text-decoration: none; box-shadow: 0 15px 35px rgba(139,92,246,0.35); transition: 0.3s; margin-bottom: 16px; }
+.btn-acessar-painel:hover { transform: translateY(-3px); box-shadow: 0 20px 45px rgba(139,92,246,0.5); }
+
 .bloco-info { background: linear-gradient(135deg, #fffbeb, #fef3c7); border: 1px solid #fde68a; border-radius: 18px; padding: 22px 24px; margin-bottom: 24px; text-align: left; display: flex; gap: 14px; align-items: flex-start; }
 .bloco-info .emoji { font-size: 26px; line-height: 1; flex-shrink: 0; }
 .bloco-info .txt { font-size: 14px; font-weight: 700; color: #78350f; line-height: 1.6; }
@@ -137,32 +148,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 .bloco-link .btn-copiar { background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; border: none; padding: 14px 22px; border-radius: 14px; font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 900; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 6px; white-space: nowrap; box-shadow: 0 8px 20px rgba(139,92,246,0.3); }
 .bloco-link .btn-copiar:hover { transform: translateY(-2px); }
 .bloco-link .btn-copiar.copiado { background: linear-gradient(135deg, #10b981, #059669); }
-.bloco-link .link-aviso { font-size: 12.5px; color: var(--lilas-escuro); font-weight: 700; line-height: 1.55; display: flex; align-items: center; justify-content: center; gap: 6px; }
-
-/* ============ CRIAR SENHA ============ */
-.bloco-criar-senha { background: linear-gradient(135deg, #f5f3ff, #ede9fe); border: 2px solid var(--lilas); border-radius: 22px; padding: 26px 24px; margin-bottom: 24px; text-align: center; }
-.bloco-criar-senha .titulo { font-size: 17px; font-weight: 900; color: var(--lilas-escuro); margin-bottom: 6px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-.bloco-criar-senha .sub { font-size: 13.5px; color: var(--cinza-fonte); font-weight: 700; margin-bottom: 20px; line-height: 1.55; }
-.bloco-criar-senha .campo { text-align: left; margin-bottom: 14px; }
-.bloco-criar-senha label { display: block; font-weight: 800; font-size: 13px; color: var(--preto-fonte); margin-bottom: 6px; }
-.bloco-criar-senha .input-wrap { position: relative; }
-.bloco-criar-senha input { width: 100%; padding: 14px 46px 14px 16px; border-radius: 14px; border: 2px solid #ddd6fe; background: white; font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 700; color: var(--preto-fonte); outline: none; transition: 0.3s; }
-.bloco-criar-senha input:focus { border-color: var(--lilas); box-shadow: 0 0 0 4px rgba(139,92,246,0.15); }
-.bloco-criar-senha .olho { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: var(--cinza-azulado); font-size: 15px; cursor: pointer; padding: 6px; }
-.bloco-criar-senha .olho:hover { color: var(--lilas-escuro); }
-.bloco-criar-senha .btn-criar { width: 100%; padding: 16px; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; border: none; border-radius: 50px; font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 900; cursor: pointer; transition: 0.3s; box-shadow: 0 10px 25px rgba(139,92,246,0.3); margin-top: 8px; display: flex; justify-content: center; align-items: center; gap: 8px; }
-.bloco-criar-senha .btn-criar:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 15px 35px rgba(139,92,246,0.4); }
-.bloco-criar-senha .btn-criar:disabled { background: #cbd5e1; cursor: not-allowed; box-shadow: none; }
-.bloco-criar-senha .aviso-erro { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; border-radius: 10px; padding: 10px 14px; font-size: 12.5px; font-weight: 800; margin-top: 12px; display: none; text-align: left; line-height: 1.5; }
-.bloco-criar-senha .aviso-erro.ativo { display: block; }
-
-/* ============ BLOCO LINK PAINEL (pós-senha) ============ */
-.bloco-painel { background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 2px solid #6ee7b7; border-radius: 22px; padding: 26px 24px; margin-bottom: 24px; text-align: center; display: none; }
-.bloco-painel.ativo { display: block; animation: fadeUp 0.5s ease; }
-.bloco-painel .titulo { font-size: 17px; font-weight: 900; color: #065f46; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-.bloco-painel .sub { font-size: 13.5px; color: #047857; font-weight: 700; margin-bottom: 16px; line-height: 1.55; }
-.bloco-painel .btn-painel { display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 14px 28px; border-radius: 50px; font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 900; text-decoration: none; box-shadow: 0 10px 25px rgba(16,185,129,0.3); transition: 0.3s; }
-.bloco-painel .btn-painel:hover { transform: translateY(-2px); box-shadow: 0 15px 35px rgba(16,185,129,0.45); }
 
 .rodape-sucesso { margin-top: 32px; padding-top: 24px; border-top: 1px solid #f1f5f9; display: flex; flex-direction: column; align-items: center; gap: 10px; }
 .rodape-sucesso .afeto-frase { font-size: 13px; font-weight: 800; color: var(--lilas-escuro); font-style: italic; max-width: 400px; line-height: 1.55; }
@@ -195,7 +180,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 .foto-modal-btn-cancel { background: transparent; color: var(--cinza-fonte); border: 2px solid #e2e8f0; }
 .foto-modal-btn-confirm { background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; box-shadow: 0 8px 20px rgba(139, 92, 246, 0.35); }
 
-/* ============ TELA DE CHECKOUT ============ */
+/* CHECKOUT */
 .tela-checkout { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 9998; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
 .tela-checkout.ativo { display: flex; }
 .checkout-card { background: white; border-radius: 28px; max-width: 460px; width: 100%; padding: 32px 28px; box-shadow: 0 30px 80px rgba(0,0,0,0.4); position: relative; animation: modalIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); max-height: 92vh; overflow-y: auto; margin: auto; }
@@ -228,46 +213,12 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 .btn-copiar-pix.copiado { background: linear-gradient(135deg, #10b981, #059669); }
 .pix-aviso { font-size: 12px; color: var(--lilas-escuro); font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px; line-height: 1.5; }
 
-.pix-aguardando {
-  display: none;
-  background: linear-gradient(135deg, #f5f3ff, #ede9fe);
-  border: 2px solid #c4b5fd;
-  border-radius: 16px;
-  padding: 18px 20px;
-  margin-top: 16px;
-  text-align: center;
-}
+.pix-aguardando { display: none; background: linear-gradient(135deg, #f5f3ff, #ede9fe); border: 2px solid #c4b5fd; border-radius: 16px; padding: 18px 20px; margin-top: 16px; text-align: center; }
 .pix-aguardando.ativo { display: block; animation: fadeIn 0.4s ease; }
-.pix-aguardando .icone {
-  width: 44px;
-  height: 44px;
-  background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro));
-  color: white;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 20px;
-  margin: 0 auto 12px;
-  box-shadow: 0 8px 20px rgba(139,92,246,0.3);
-  animation: pulsar-check 1.5s ease-in-out infinite;
-}
-@keyframes pulsar-check {
-  0%, 100% { transform: scale(1); box-shadow: 0 8px 20px rgba(139,92,246,0.3); }
-  50% { transform: scale(1.08); box-shadow: 0 12px 25px rgba(139,92,246,0.5); }
-}
-.pix-aguardando .titulo {
-  font-size: 15px;
-  font-weight: 900;
-  color: var(--lilas-escuro);
-  margin-bottom: 4px;
-}
-.pix-aguardando .sub {
-  font-size: 12.5px;
-  color: var(--cinza-fonte);
-  font-weight: 600;
-  line-height: 1.55;
-}
+.pix-aguardando .icone { width: 44px; height: 44px; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 20px; margin: 0 auto 12px; box-shadow: 0 8px 20px rgba(139,92,246,0.3); animation: pulsar-check 1.5s ease-in-out infinite; }
+@keyframes pulsar-check { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+.pix-aguardando .titulo { font-size: 15px; font-weight: 900; color: var(--lilas-escuro); margin-bottom: 4px; }
+.pix-aguardando .sub { font-size: 12.5px; color: var(--cinza-fonte); font-weight: 600; line-height: 1.55; }
 
 .cartao-form { display: flex; flex-direction: column; gap: 12px; }
 .campo-cartao { display: flex; flex-direction: column; gap: 6px; }
@@ -286,22 +237,8 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 .checkout-loading p, .checkout-erro p { font-size: 15px; font-weight: 700; color: var(--cinza-fonte); line-height: 1.5; }
 .btn-tentar { margin-top: 16px; padding: 14px 28px; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; border: none; border-radius: 50px; font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 900; cursor: pointer; }
 
-.checkout-seguranca {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 18px;
-  padding-top: 16px;
-  border-top: 1px solid #f1f5f9;
-  font-size: 11.5px;
-  color: var(--cinza-azulado);
-  font-weight: 700;
-  letter-spacing: 0.2px;
-  text-align: center;
-}
+.checkout-seguranca { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 18px; padding-top: 16px; border-top: 1px solid #f1f5f9; font-size: 11.5px; color: var(--cinza-azulado); font-weight: 700; letter-spacing: 0.2px; text-align: center; }
 .checkout-seguranca i { color: #10b981; font-size: 13px; }
-.checkout-seguranca strong { color: var(--cinza-fonte); font-weight: 900; }
 
 @media (max-width: 600px) {
   .form-card { padding: 28px 22px; border-radius: 24px; }
@@ -360,6 +297,25 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
         <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00" maxlength="14" required>
       </div>
 
+      <!-- 🆕 SENHA — NOVO -->
+      <div class="secao-titulo"><i class="fa-solid fa-lock"></i> Acesso ao painel</div>
+
+      <div class="campo campo-senha">
+        <label for="senha-cadastro">Crie sua senha (mínimo 6 caracteres):</label>
+        <span class="ajuda">💜 Você vai usar essa senha pra entrar no seu painel sempre que quiser. Pode ser com seu CPF ou WhatsApp.</span>
+        <input type="password" id="senha-cadastro" name="senha" placeholder="Digite sua senha" minlength="6" maxlength="50" required autocomplete="new-password">
+        <button type="button" class="olho" data-alvo="senha-cadastro"><i class="fa-solid fa-eye"></i></button>
+      </div>
+
+      <div class="campo campo-senha">
+        <label for="senha-confirma-cadastro">Confirme a senha:</label>
+        <input type="password" id="senha-confirma-cadastro" placeholder="Digite de novo" minlength="6" maxlength="50" required autocomplete="new-password">
+        <button type="button" class="olho" data-alvo="senha-confirma-cadastro"><i class="fa-solid fa-eye"></i></button>
+      </div>
+      <!-- 🆕 FIM SENHA -->
+
+      <div class="secao-titulo"><i class="fa-solid fa-camera"></i> Sua foto</div>
+
       <div class="campo">
         <label>Foto profissional:</label>
         <div class="foto-instrucoes">
@@ -375,6 +331,8 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
           <div class="trocar-foto"><i class="fa-solid fa-rotate"></i> Trocar foto</div>
         </label>
       </div>
+
+      <div class="secao-titulo"><i class="fa-solid fa-pen-fancy"></i> Sua história</div>
 
       <div class="campo">
         <label for="bio">Sua apresentação:</label>
@@ -503,19 +461,19 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       <div class="termos">
         <div class="termos-titulo">⚖️ Antes de enviar, precisamos do seu consentimento</div>
 
-        <div class="termo-item" data-termo="termo1">
+        <div class="termo-item">
           <input type="checkbox" id="termo1" name="aceite_termos" value="Sim">
           <label for="termo1">Li e concordo com os <a href="termos.html" target="_blank">Termos de Uso</a> e a <a href="privacidade.html" target="_blank">Política de Privacidade</a> da Afeto.</label>
         </div>
-        <div class="termo-item" data-termo="termo2">
+        <div class="termo-item">
           <input type="checkbox" id="termo2" name="aceite_lgpd" value="Sim">
           <label for="termo2">Autorizo a Afeto a tratar meus dados pessoais e profissionais para fins de cadastro, exibição do meu perfil na plataforma e contato sobre oportunidades de plantão.</label>
         </div>
-        <div class="termo-item" data-termo="termo3">
+        <div class="termo-item">
           <input type="checkbox" id="termo3" name="veracidade" value="Sim">
           <label for="termo3">Declaro que todas as informações preenchidas neste formulário são verdadeiras e de minha inteira responsabilidade.</label>
         </div>
-        <div class="termo-item" data-termo="termo4">
+        <div class="termo-item">
           <input type="checkbox" id="termo4" name="antecedentes" value="Sim">
           <label for="termo4">Declaro que não possuo antecedentes criminais e autorizo a Afeto a verificar essa informação junto aos órgãos competentes.</label>
         </div>
@@ -527,47 +485,18 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     </form>
   </div>
 
+  <!-- 🆕 TELA DE SUCESSO SIMPLIFICADA -->
   <div id="tela-sucesso" class="tela-sucesso">
     <div class="icone"><i class="fa-solid fa-check"></i></div>
     <h2 id="titulo-sucesso">Que alegria ter você aqui! 💜</h2>
     <p class="texto-principal" id="texto-sucesso">Recebemos seu cadastro com muito carinho.</p>
 
-    <div id="bloco-criar-senha" class="bloco-criar-senha">
-      <div class="titulo"><i class="fa-solid fa-lock"></i> Crie sua senha</div>
-      <div class="sub">Você vai usar essa senha pra entrar no seu painel sempre que quiser. Pode ser com seu CPF ou WhatsApp.</div>
+    <!-- 🆕 Botão pro painel (com CPF pré-preenchido) -->
+    <a href="#" id="btn-acessar-painel" class="btn-acessar-painel">
+      <i class="fa-solid fa-arrow-right-to-bracket"></i> Acessar meu painel
+    </a>
 
-      <div class="campo">
-        <label for="senha-nova">Senha (mínimo 6 caracteres)</label>
-        <div class="input-wrap">
-          <input type="password" id="senha-nova" placeholder="Digite sua senha" maxlength="50">
-          <button type="button" class="olho" data-alvo="senha-nova"><i class="fa-solid fa-eye"></i></button>
-        </div>
-      </div>
-
-      <div class="campo">
-        <label for="senha-confirma">Confirme a senha</label>
-        <div class="input-wrap">
-          <input type="password" id="senha-confirma" placeholder="Digite de novo" maxlength="50">
-          <button type="button" class="olho" data-alvo="senha-confirma"><i class="fa-solid fa-eye"></i></button>
-        </div>
-      </div>
-
-      <button type="button" class="btn-criar" id="btn-criar-senha">
-        <i class="fa-solid fa-check"></i> Criar senha e continuar
-      </button>
-
-      <div class="aviso-erro" id="senha-erro"></div>
-    </div>
-
-    <div id="bloco-painel" class="bloco-painel">
-      <div class="titulo"><i class="fa-solid fa-circle-check"></i> Tudo pronto! 🎉</div>
-      <div class="sub">Seu painel está esperando por você. Entre a qualquer momento com seu CPF (ou WhatsApp) + a senha que você criou.</div>
-      <a href="painel-login.html" class="btn-painel">
-        <i class="fa-solid fa-arrow-right-to-bracket"></i> Acessar meu painel
-      </a>
-    </div>
-
-    <div id="bloco-link" class="bloco-link" style="display: none;">
+    <div id="bloco-link" class="bloco-link" style="display: none; margin-top: 20px;">
       <div class="link-titulo"><i class="fa-solid fa-link"></i> Seu link exclusivo Afeto</div>
       <div class="link-sub">Guarde com carinho! É o seu cartão de visita digital.</div>
       <div class="link-caixa">
@@ -576,13 +505,9 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
           <i class="fa-solid fa-copy"></i> Copiar
         </button>
       </div>
-      <div class="link-aviso" id="link-aviso-texto">
-        <i class="fa-solid fa-hourglass-half"></i>
-        Seu perfil está em <strong>análise</strong> — em breve nossa equipe libera 💜
-      </div>
     </div>
 
-    <div id="bloco-gratis" class="bloco-info">
+    <div id="bloco-gratis" class="bloco-info lilas" style="margin-top: 20px;">
       <span class="emoji">💜</span>
       <div class="txt" id="bloco-gratis-txt">
         <strong>O próximo passo é com a gente</strong>
@@ -647,9 +572,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       <h2>Pagamento seguro</h2>
       <p id="checkout-plano-nome">Plano Cadastro Básico Afeto</p>
       <div class="checkout-valor">R$ <span id="checkout-valor">9,90</span><small id="checkout-periodo">/mês</small></div>
-      <div id="checkout-desconto-aviso" style="display: none; text-align: center; font-size: 12px; font-weight: 800; color: #10b981; margin-top: 6px;">
-        <i class="fa-solid fa-check"></i> Desconto aplicado — você paga <span id="checkout-valor-final">0,00</span>
-      </div>
     </div>
 
     <div class="checkout-tabs">
@@ -749,9 +671,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 (function() {
   "use strict";
 
-  // ============================================================
-  // 🔒 HELPER: escape HTML (previne XSS em texto de usuário)
-  // ============================================================
   function escapeHTML(txt) {
     if (!txt) return '';
     var div = document.createElement('div');
@@ -761,11 +680,8 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 
   var params = new URLSearchParams(window.location.search);
   var planoBruto = (params.get('plano') || 'cadastro').toLowerCase();
-
   if (planoBruto === 'gratis') planoBruto = 'cadastro';
-
   var plano = planoBruto;
-  var ehPago = (plano === 'cadastro' || plano === 'profissional' || plano === 'destaque');
 
   var badge = document.getElementById('badge-plano');
   var subtitulo = document.getElementById('subtitulo-dinamico');
@@ -777,7 +693,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   var formArea = document.getElementById('form-area');
   var telaSucesso = document.getElementById('tela-sucesso');
   var headerTop = document.querySelector('.header-top');
-  var linkAvisoTexto = document.getElementById('link-aviso-texto');
+  var btnAcessarPainel = document.getElementById('btn-acessar-painel');
 
   if (plano === 'cadastro') {
     badge.className = 'badge-plano basico';
@@ -791,14 +707,9 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     subtitulo.textContent = 'Preencha seus dados com calma. Ao final, você vai direto para o pagamento seguro.';
     btnEnviar.classList.add('pago');
     btnEnviar.innerHTML = 'Ir para pagamento <i class="fa-solid fa-arrow-right"></i>';
-  } else {
-    badge.className = 'badge-plano basico';
-    badge.innerHTML = '<i class="fa-solid fa-link"></i> Cadastro Básico';
-    subtitulo.textContent = 'Preencha os dados abaixo. Seu perfil vai ao ar após a aprovação da nossa equipe.';
-    btnEnviar.classList.add('pago');
-    btnEnviar.innerHTML = 'Ir para pagamento <i class="fa-solid fa-arrow-right"></i>';
   }
 
+  // Copiar link do perfil
   var btnCopiar = document.getElementById('btn-copiar-link');
   if (btnCopiar) {
     btnCopiar.addEventListener('click', function() {
@@ -822,6 +733,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 
   var form = document.getElementById('form-cadastro');
 
+  // Máscaras
   document.getElementById('whatsapp').addEventListener('input', function() {
     var x = this.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
     this.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
@@ -850,6 +762,22 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     return true;
   }
 
+  // 🆕 Olhos das senhas
+  document.querySelectorAll('.campo-senha .olho').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var alvo = document.getElementById(this.getAttribute('data-alvo'));
+      if (!alvo) return;
+      if (alvo.type === 'password') {
+        alvo.type = 'text';
+        this.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
+      } else {
+        alvo.type = 'password';
+        this.innerHTML = '<i class="fa-solid fa-eye"></i>';
+      }
+    });
+  });
+
+  // COREN
   var campoCoren = document.getElementById('coren');
   if (campoCoren) {
     campoCoren.addEventListener('input', function() {
@@ -987,7 +915,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   atualizarContadorSubs();
 
   // BAIRROS
-  var BAIRROS = ["Abranches","Água Verde","Ahú","Alto Boqueirão","Alto da Glória","Alto da Rua XV","Atuba","Augusta","Bacacheri","Bairro Alto","Barreirinha","Batatzinho","Batel","Bigorrilho","Boa Vista","Bom Retiro","Boqueirão","Butiatuvinha","Cabral","Cachoeira","Cajuru","Campina do Siqueira","Campo Comprido","Campo de Santana","Capão Raso","Capão da Imbuia","Cascatinha","Caximba","Centro","Centro Cívico","Cidade Industrial","Cristo Rei","Fanny","Fazendinha","Ganchinho","Guabirotuba","Guaíra","Hauer","Hugo Lange","Jardim Botânico","Jardim Social","Jardim das Américas","Jardim dos Estados","Juvevê","Lamenha Pequena","Lindóia","Mercês","Mossunguê","Novo Mundo","Orleans","Padre Andrade","Parolin","Pilarzinho","Pinheirinho","Portão","Prado Velho","Rebouças","Riviera","Santa Cândida","Santa Felicidade","Santa Quitéria","Santo Inácio","São Braz","São Francisco","São João","São Lourenço","São Marcos","Sítio Cercado","Taboão","Tarumã","Tatuquara","Tingui","Uberaba","Umbará","Vila Isabel","Vista Alegre","Xaxim","Adrianópolis (RMC)","Agudos do Sul (RMC)","Almirante Tamandaré (RMC)","Araucária (RMC)","Balsa Nova (RMC)","Bocaiúva do Sul (RMC)","Campina Grande do Sul (RMC)","Campo do Tenente (RMC)","Campo Largo (RMC)","Campo Magro (RMC)","Cerro Azul (RMC)","Colombo (RMC)","Contenda (RMC)","Doutor Ulysses (RMC)","Fazenda Rio Grande (RMC)","Itaperuçu (RMC)","Lapa (RMC)","Mandirituba (RMC)","Piên (RMC)","Pinhais (RMC)","Piraquara (RMC)","Quatro Barras (RMC)","Quitandinha (RMC)","Rio Branco do Sul (RMC)","São José dos Pinhais (RMC)","Tijucas do Sul (RMC)","Tunas do Paraná (RMC)"];
+  var BAIRROS = ["Abranches","Água Verde","Ahú","Alto Boqueirão","Alto da Glória","Alto da Rua XV","Atuba","Augusta","Bacacheri","Bairro Alto","Barreirinha","Batatzinho","Batel","Bigorrilho","Boa Vista","Bom Retiro","Boqueirão","Butiatuvinha","Cabral","Cachoeira","Cajuru","Campina do Siqueira","Campo Comprido","Campo de Santana","Capão Raso","Capão da Imbuia","Cascatinha","Caximba","Centro","Centro Cívico","Cidade Industrial","Cristo Rei","Fanny","Fazendinha","Ganchinho","Guabirotuba","Guaíra","Hauer","Hugo Lange","Jardim Botânico","Jardim Social","Jardim das Américas","Jardim dos Estados","Juvevê","Lamenha Pequena","Lindóia","Mercês","Mossunguê","Novo Mundo","Orleans","Padre Andrade","Parolin","Pilarzinho","Pinheirinho","Portão","Prado Velho","Rebouças","Riviera","Santa Cândida","Santa Felicidade","Santa Quitéria","Santo Inácio","São Braz","São Francisco","São João","São Lourenço","São Marcos","Sítio Cercado","Taboão","Tarumã","Tatuquara","Tingui","Uberaba","Umbará","Vila Isabel","Vista Alegre","Xaxim"];
   var LIMITE_BAIRROS = 10;
   var bairrosSelecionados = [];
   var caixaBairros = document.getElementById('caixa-bairros');
@@ -1078,96 +1006,13 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   });
 
   // ========================================================================
-  // 💳 CHECKOUT ASAAS
+  // CHECKOUT
   // ========================================================================
-  var dadosCheckout = { recordId: null, plano: null, nome: null, cpf: null, cobrancaId: null, pixData: null, pago: false, precoBaseFmt: '9,90', periodo: '/mês', tokenCriarSenha: null };
+  var dadosCheckout = { recordId: null, plano: null, nome: null, cpf: null, cobrancaId: null, pixData: null, pago: false, precoBaseFmt: '9,90', periodo: '/mês' };
   var enviando = false;
 
   // ========================================================================
-  // 🔐 CRIAR SENHA
-  // ========================================================================
-  function inicializarCriarSenha() {
-    var bloco = document.getElementById('bloco-criar-senha');
-    var blocoPainel = document.getElementById('bloco-painel');
-    var senhaNova = document.getElementById('senha-nova');
-    var senhaConfirma = document.getElementById('senha-confirma');
-    var btnCriar = document.getElementById('btn-criar-senha');
-    var senhaErro = document.getElementById('senha-erro');
-
-    document.querySelectorAll('.bloco-criar-senha .olho').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        var alvo = document.getElementById(this.getAttribute('data-alvo'));
-        if (!alvo) return;
-        if (alvo.type === 'password') {
-          alvo.type = 'text';
-          this.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
-        } else {
-          alvo.type = 'password';
-          this.innerHTML = '<i class="fa-solid fa-eye"></i>';
-        }
-      });
-    });
-
-    btnCriar.addEventListener('click', async function() {
-      senhaErro.classList.remove('ativo');
-      senhaErro.textContent = '';
-
-      var s1 = senhaNova.value;
-      var s2 = senhaConfirma.value;
-
-      if (!s1 || s1.length < 6) {
-        senhaErro.textContent = 'A senha precisa ter pelo menos 6 caracteres.';
-        senhaErro.classList.add('ativo');
-        return;
-      }
-
-      if (s1 !== s2) {
-        senhaErro.textContent = 'As senhas não batem. Digite de novo.';
-        senhaErro.classList.add('ativo');
-        return;
-      }
-
-      btnCriar.disabled = true;
-      btnCriar.innerHTML = 'Criando... <i class="fa-solid fa-spinner fa-spin"></i>';
-
-      try {
-        var cpf = (dadosCheckout.cpf || document.getElementById('cpf').value || '').trim();
-
-        var resp = await fetch('/api/auth/criar-senha', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            cpf: cpf,
-            senha: s1,
-            token: dadosCheckout.tokenCriarSenha || ''
-          })
-        });
-
-        var data = await resp.json();
-
-        if (!resp.ok || !data.ok) {
-          senhaErro.textContent = data.error || 'Não foi possível criar sua senha. Tente novamente.';
-          senhaErro.classList.add('ativo');
-          btnCriar.disabled = false;
-          btnCriar.innerHTML = '<i class="fa-solid fa-check"></i> Criar senha e continuar';
-          return;
-        }
-
-        bloco.style.display = 'none';
-        blocoPainel.classList.add('ativo');
-
-      } catch (err) {
-        console.error('Erro criar senha:', err);
-        senhaErro.textContent = 'Erro de conexão. Tente novamente.';
-        senhaErro.classList.add('ativo');
-        btnCriar.disabled = false;
-        btnCriar.innerHTML = '<i class="fa-solid fa-check"></i> Criar senha e continuar';
-      }
-    });
-  }
-
-  // ========================================================================
-  // 🎟️ CUPOM DE DESCONTO
+  // CUPOM
   // ========================================================================
   var cupomAplicado = null;
 
@@ -1218,8 +1063,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       msg.innerHTML = '<i class="fa-solid fa-circle-check"></i> Cupom <strong>' + escapeHTML(codigo) + '</strong> aplicado! Você economiza R$ ' + (data.desconto || 0).toFixed(2).replace('.', ',');
 
       var valorFinal = data.valorFinal || 0;
-      var avisoEl = document.getElementById('checkout-desconto-aviso');
-      var valorFinalEl = document.getElementById('checkout-valor-final');
 
       if (valorFinal === 0) {
         document.getElementById('bloco-cupom').innerHTML =
@@ -1236,14 +1079,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
         document.getElementById('tab-pix').classList.remove('ativo');
         document.getElementById('tab-cartao').classList.remove('ativo');
         document.querySelector('.checkout-valor').innerHTML = 'R$ <span id="checkout-valor">0,00</span>';
-        avisoEl.style.display = 'block';
-        valorFinalEl.textContent = '0,00';
-
-        document.querySelector('.checkout-header h2').innerHTML = 'Cupom aplicado! 🎉';
-        var nomePlano = dadosCheckout.plano === 'cadastro' ? 'Cadastro Básico'
-                      : dadosCheckout.plano === 'destaque' ? 'Destaque'
-                      : 'Profissional';
-        document.getElementById('checkout-plano-nome').textContent = 'Plano ' + nomePlano + ' Afeto — Liberado';
 
         setTimeout(async function() {
           try {
@@ -1265,11 +1100,9 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
               pararPollingPagamento();
               document.getElementById('tela-checkout').classList.remove('ativo');
               document.body.style.overflow = '';
-              mostrarSucessoGratis(d.cupom);
+              mostrarSucesso(true, d.cupom);
             }
-          } catch (e) {
-            console.error(e);
-          }
+          } catch (e) { console.error(e); }
         }, 1500);
 
       } else {
@@ -1277,13 +1110,10 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
         document.getElementById('checkout-valor').textContent = valorFmt;
         document.getElementById('cartao-valor').textContent = valorFmt;
         dadosCheckout.precoBaseFmt = valorFmt;
-        avisoEl.style.display = 'block';
-        valorFinalEl.textContent = 'R$ ' + valorFmt;
 
         var regenerou = await regenerarPixComCupom();
-
         if (!regenerou) {
-          msg.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Cupom válido, mas houve erro ao atualizar o QR Code. Toque em "Aplicar" de novo.';
+          msg.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Erro ao atualizar QR Code. Toque em "Aplicar" de novo.';
           msg.style.color = '#d97706';
           btn.disabled = false;
           btn.textContent = 'Aplicar';
@@ -1294,7 +1124,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       btn.disabled = false;
       btn.textContent = 'Aplicado';
       btn.style.background = '#10b981';
-
     } catch (err) {
       console.error('Erro aplicar cupom:', err);
       msg.style.display = 'block';
@@ -1305,10 +1134,8 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     }
   };
 
-  // ⭐ Regenera o QR Code PIX com o cupom aplicado
   async function regenerarPixComCupom() {
     pararPollingPagamento();
-
     document.getElementById('pix-qrcode').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><p>Atualizando valor com desconto...</p>';
     document.getElementById('pix-codigo').value = '';
     document.getElementById('checkout-erro').style.display = 'none';
@@ -1322,7 +1149,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
           cpf: document.getElementById('cpf').value.trim(),
           whatsapp: document.getElementById('whatsapp').value.trim(),
           plano: dadosCheckout.plano,
-          recordIdAirtable: dadosCheckout.recordId,
+          cuidadorId: dadosCheckout.recordId,
           cupomCodigo: cupomAplicado,
           formaPagamento: 'PIX'
         })
@@ -1331,8 +1158,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       var data = await resp.json();
 
       if (!resp.ok || !data.ok) {
-        console.error('Erro regenerar PIX:', data.error, data.detalhe);
-        document.getElementById('pix-qrcode').innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color: #ef4444;"></i><p>Não foi possível atualizar o QR Code com o desconto.</p>';
+        document.getElementById('pix-qrcode').innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color: #ef4444;"></i><p>Não foi possível atualizar o QR Code.</p>';
         iniciarPollingPagamento();
         return false;
       }
@@ -1346,65 +1172,75 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       dadosCheckout.pixData = data.pix;
 
       iniciarPollingPagamento();
-
-      console.log('✅ PIX regenerado com desconto:', data.valorFinal);
       return true;
-
     } catch (err) {
-      console.error('Erro regenerar PIX (rede):', err);
       document.getElementById('pix-qrcode').innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color: #ef4444;"></i><p>Erro de conexão. Tente novamente.</p>';
       iniciarPollingPagamento();
       return false;
     }
   }
 
-  function mostrarSucessoGratis(cupomCodigo) {
+  // ========================================================================
+  // TELA DE SUCESSO SIMPLIFICADA
+  // ========================================================================
+  function mostrarSucesso(gratis, cupomCodigo) {
     pararPollingPagamento();
 
     if (formArea) formArea.style.display = 'none';
     if (headerTop) headerTop.style.display = 'none';
-    tituloSucesso.textContent = 'Acesso liberado! 🎉';
-    textoSucesso.innerHTML = 'Alguém muito especial indicou você — e a gente adorou te receber assim. Seu plano já está <strong>ativo e sem custo nenhum</strong>.';
-    blocoGratis.style.display = 'flex';
-    blocoGratis.className = 'bloco-info lilas';
-    blocoGratisTxt.innerHTML = '<strong>Você ganhou um presente 💜</strong> O cupom <strong>' + escapeHTML(cupomCodigo || '') + '</strong> liberou seu plano completo. Nossa equipe vai revisar seu perfil com carinho — e em até 48h úteis você estará no ar, pronta pra receber famílias.';
+
+    if (gratis) {
+      tituloSucesso.textContent = 'Acesso liberado! 🎉';
+      textoSucesso.innerHTML = 'Alguém muito especial indicou você — e a gente adorou te receber assim. Seu plano já está <strong>ativo e sem custo nenhum</strong>.';
+    } else {
+      tituloSucesso.textContent = 'Pagamento confirmado! 💜';
+      textoSucesso.innerHTML = 'Sua conta está criada e seu plano já está ativo. Use o botão abaixo para acessar seu painel.';
+    }
+
+    // 🆕 Configura o botão do painel com CPF pré-preenchido
+    var cpfLimpo = (document.getElementById('cpf').value || '').trim();
+    if (btnAcessarPainel) {
+      btnAcessarPainel.href = 'painel-login.html?cpf=' + encodeURIComponent(cpfLimpo);
+    }
+
+    // Mostra link do perfil
     var blocoLink = document.getElementById('bloco-link');
     if (blocoLink) blocoLink.style.display = 'block';
-    if (linkAvisoTexto) {
-      linkAvisoTexto.innerHTML = '<i class="fa-solid fa-circle-check" style="color: #10b981;"></i> Presente aplicado! Perfil em <strong>análise</strong> — em até 48h liberamos 💜';
-    }
+
     var linkSalvo = localStorage.getItem('afeto_link_perfil');
     var inputLink = document.getElementById('link-perfil-input');
     if (linkSalvo && inputLink) inputLink.value = linkSalvo;
+
+    blocoGratis.style.display = 'flex';
+    blocoGratis.className = 'bloco-info lilas';
+
+    var nomePlano = dadosCheckout.plano === 'cadastro' ? 'Cadastro Básico'
+                  : dadosCheckout.plano === 'destaque' ? 'Destaque'
+                  : 'Profissional';
+
+    blocoGratisTxt.innerHTML = '<strong>O próximo passo é com a gente 💜</strong> Sua conta já está criada. Nossa equipe vai revisar seu perfil com carinho. Em até 48h úteis ele estará no ar pras famílias te encontrarem. Avisamos pelo WhatsApp assim que estiver liberado.';
+
     telaSucesso.classList.add('ativo');
-
-    inicializarCriarSenha();
-
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   // ========================================================================
-  // 🔄 POLLING
+  // POLLING
   // ========================================================================
   var pollingTimer = null;
   var pollingTentativas = 0;
-  var MAX_TENTATIVAS = 200;
+  var MAX_TENTATIVAS = 200; // ~10 min
 
   function iniciarPollingPagamento() {
     pararPollingPagamento();
     pollingTentativas = 0;
-
     var bloco = document.getElementById('pix-aguardando');
     if (bloco) bloco.classList.add('ativo');
-
     pollingTimer = setInterval(verificarStatusPagamento, 3000);
   }
 
   function pararPollingPagamento() {
-    if (pollingTimer) {
-      clearInterval(pollingTimer);
-      pollingTimer = null;
-    }
+    if (pollingTimer) { clearInterval(pollingTimer); pollingTimer = null; }
     var bloco = document.getElementById('pix-aguardando');
     if (bloco) bloco.classList.remove('ativo');
   }
@@ -1412,12 +1248,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   async function verificarStatusPagamento() {
     if (!dadosCheckout.cobrancaId) return;
     if (dadosCheckout.pago) { pararPollingPagamento(); return; }
-    if (pollingTentativas >= MAX_TENTATIVAS) {
-      pararPollingPagamento();
-      console.warn('Polling timeout — parando de verificar');
-      return;
-    }
-
+    if (pollingTentativas >= MAX_TENTATIVAS) { pararPollingPagamento(); return; }
     pollingTentativas++;
 
     try {
@@ -1426,26 +1257,18 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 
       if (data.ok && data.pago) {
         dadosCheckout.pago = true;
-
-        // ⭐ Guarda o token de criar senha se o backend devolveu
-        if (data.token_criar_senha) {
-          dadosCheckout.tokenCriarSenha = data.token_criar_senha;
-        }
-
         pararPollingPagamento();
-
         document.getElementById('tela-checkout').classList.remove('ativo');
         document.body.style.overflow = '';
-
-        mostrarSucessoPago();
+        mostrarSucesso(false, null);
       }
     } catch (err) {
-      console.warn('Erro ao verificar status:', err);
+      console.warn('Erro polling:', err);
     }
   }
 
   // ========================================================================
-  // 🔓 ABRIR / FECHAR CHECKOUT
+  // ABRIR / FECHAR CHECKOUT
   // ========================================================================
   window.abrirCheckout = async function(recordId, planoParam, nomeParam) {
     if (dadosCheckout.recordId === recordId && dadosCheckout.cobrancaId) {
@@ -1457,8 +1280,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       return;
     }
 
-    var periodoLabel = '/mês';
-
     dadosCheckout = {
       recordId: recordId,
       plano: planoParam,
@@ -1468,29 +1289,25 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       pixData: null,
       pago: false,
       precoBaseFmt: '9,90',
-      periodo: periodoLabel,
-      tokenCriarSenha: null
+      periodo: '/mês'
     };
 
     cupomAplicado = null;
-    var avisoDescEl = document.getElementById('checkout-desconto-aviso');
-    if (avisoDescEl) avisoDescEl.style.display = 'none';
-    var blocoCupomEl = document.getElementById('bloco-cupom');
-    if (blocoCupomEl) {
-      blocoCupomEl.innerHTML = '<label style="font-size: 13px; font-weight: 800; color: var(--lilas-escuro); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-ticket"></i> Tem cupom de desconto?</label><div style="display: flex; gap: 8px; align-items: stretch;"><input type="text" id="cupom-input" placeholder="Digite seu código" maxlength="20" style="flex: 1; padding: 12px 14px; border-radius: 12px; border: 2px solid #e2e8f0; font-family: \'Nunito\', sans-serif; font-size: 14px; font-weight: 800; text-transform: uppercase; outline: none;"><button type="button" onclick="aplicarCupom()" id="cupom-btn" style="background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; border: none; padding: 12px 20px; border-radius: 12px; font-family: \'Nunito\', sans-serif; font-size: 13px; font-weight: 900; cursor: pointer; white-space: nowrap;">Aplicar</button></div><div id="cupom-msg" style="margin-top: 10px; font-size: 12.5px; font-weight: 800; display: none;"></div>';
-    }
     document.querySelector('.checkout-tabs').style.display = '';
-    document.querySelector('.checkout-header h2').innerHTML = 'Pagamento seguro';
 
     var nomePlano = planoParam === 'cadastro' ? 'Cadastro Básico'
                   : planoParam === 'destaque' ? 'Destaque'
                   : 'Profissional';
     document.getElementById('checkout-plano-nome').textContent = 'Plano ' + nomePlano + ' Afeto';
 
-    document.querySelector('.checkout-valor').innerHTML = 'R$ <span id="checkout-valor">...</span><small id="checkout-periodo">' + periodoLabel + '</small>';
+    document.querySelector('.checkout-valor').innerHTML = 'R$ <span id="checkout-valor">...</span><small id="checkout-periodo">/mês</small>';
     document.getElementById('cartao-valor').textContent = '...';
 
-    var precoReal = null;
+    // Busca preço real
+    var precoFmt = planoParam === 'cadastro' ? '9,90'
+                 : planoParam === 'destaque' ? '39,90'
+                 : '24,90';
+
     try {
       var cr = await fetch('/api/config-publica');
       var cd = await cr.json();
@@ -1498,20 +1315,9 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
         var chave = planoParam === 'cadastro' ? 'preco_cadastro'
                   : planoParam === 'destaque' ? 'preco_destaque'
                   : 'preco_profissional';
-        if (cd.precos[chave]) precoReal = cd.precos[chave];
+        if (cd.precos[chave]) precoFmt = cd.precos[chave].toFixed(2).replace('.', ',');
       }
-    } catch (e) {
-      console.warn('Não foi possível buscar preço dinâmico:', e);
-    }
-
-    var precoFmt;
-    if (precoReal) {
-      precoFmt = precoReal.toFixed(2).replace('.', ',');
-    } else {
-      precoFmt = planoParam === 'cadastro' ? '9,90'
-               : planoParam === 'destaque' ? '39,90'
-               : '24,90';
-    }
+    } catch (e) {}
 
     dadosCheckout.precoBaseFmt = precoFmt;
     document.getElementById('checkout-valor').textContent = precoFmt;
@@ -1529,15 +1335,12 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     document.getElementById('tela-checkout').classList.add('ativo');
     document.body.style.overflow = 'hidden';
 
-    gerarPix().then(function() {
-      iniciarPollingPagamento();
-    });
+    gerarPix().then(function() { iniciarPollingPagamento(); });
   };
 
   window.fecharCheckout = function() {
     document.getElementById('tela-checkout').classList.remove('ativo');
     document.body.style.overflow = '';
-
     var btn = document.getElementById('btn-enviar');
     if (btn && btn.disabled) {
       btn.disabled = false;
@@ -1551,9 +1354,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     document.getElementById('checkout-loading').style.display = 'block';
     dadosCheckout.cobrancaId = null;
     dadosCheckout.pixData = null;
-    gerarPix().then(function() {
-      iniciarPollingPagamento();
-    });
+    gerarPix().then(function() { iniciarPollingPagamento(); });
   };
 
   async function gerarPix() {
@@ -1566,44 +1367,32 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
           cpf: document.getElementById('cpf').value.trim(),
           whatsapp: document.getElementById('whatsapp').value.trim(),
           plano: dadosCheckout.plano,
-          recordIdAirtable: dadosCheckout.recordId,
+          cuidadorId: dadosCheckout.recordId,
           cupomCodigo: cupomAplicado || undefined,
           formaPagamento: 'PIX'
         })
       });
       var data = await resp.json();
       document.getElementById('checkout-loading').style.display = 'none';
+
       if (!resp.ok || !data.ok) {
-        console.error('Erro gerar PIX:', data.error, data.detalhe);
         document.getElementById('checkout-erro').style.display = 'block';
         document.getElementById('checkout-erro-text').textContent = 'Não conseguimos gerar o QR Code agora. Tente novamente em alguns instantes.';
         return;
-      }
-
-      var valorExibir = (data.valorFinal !== undefined && data.valorFinal !== null)
-        ? data.valorFinal
-        : data.valor;
-      if (valorExibir !== undefined && valorExibir !== null && !cupomAplicado) {
-        var vf = parseFloat(valorExibir);
-        if (!isNaN(vf)) {
-          var vfFmt = vf.toFixed(2).replace('.', ',');
-          document.getElementById('checkout-valor').textContent = vfFmt;
-          document.getElementById('cartao-valor').textContent = vfFmt;
-          dadosCheckout.precoBaseFmt = vfFmt;
-        }
       }
 
       if (data.pix && data.pix.qrCodeImage) {
         document.getElementById('pix-qrcode').innerHTML = '<img src="data:image/png;base64,' + data.pix.qrCodeImage + '" alt="QR Code Pix">';
         document.getElementById('pix-codigo').value = data.pix.copiaECola || '';
       }
+
       dadosCheckout.cobrancaId = data.cobrancaId;
       dadosCheckout.pixData = data.pix;
     } catch (err) {
-      console.error('Erro PIX (rede):', err);
+      console.error('Erro PIX:', err);
       document.getElementById('checkout-loading').style.display = 'none';
       document.getElementById('checkout-erro').style.display = 'block';
-      document.getElementById('checkout-erro-text').textContent = 'Verifique sua conexão e tente novamente em alguns instantes.';
+      document.getElementById('checkout-erro-text').textContent = 'Verifique sua conexão e tente novamente.';
     }
   }
 
@@ -1634,9 +1423,9 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     var btn = document.querySelector('.btn-pagar-cartao');
 
     pararPollingPagamento();
-
     btn.disabled = true;
     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processando...';
+
     try {
       var resp = await fetch('/api/asaas/checkout', {
         method: 'POST',
@@ -1646,7 +1435,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
           cpf: document.getElementById('cpf').value.trim(),
           whatsapp: document.getElementById('whatsapp').value.trim(),
           plano: dadosCheckout.plano,
-          recordIdAirtable: dadosCheckout.recordId,
+          cuidadorId: dadosCheckout.recordId,
           cupomCodigo: cupomAplicado || undefined,
           formaPagamento: 'CREDIT_CARD',
           creditCard: {
@@ -1667,18 +1456,19 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
         })
       });
       var data = await resp.json();
+
       if (!resp.ok || !data.ok) {
-        console.error('Erro cartão:', data.error, data.detalhe);
-        alert('Não conseguimos processar seu pagamento agora. Verifique os dados do cartão e tente novamente. Se persistir, fale com a gente pelo WhatsApp 💜');
+        alert('Não conseguimos processar seu pagamento agora. Verifique os dados do cartão e tente novamente.');
         return;
       }
+
       dadosCheckout.pago = true;
       document.getElementById('tela-checkout').classList.remove('ativo');
       document.body.style.overflow = '';
-      mostrarSucessoPago();
+      mostrarSucesso(false, null);
     } catch (err) {
-      console.error('Erro cartão (rede):', err);
-      alert('Não conseguimos processar seu pagamento agora. Verifique sua conexão e tente novamente. Se persistir, fale com a gente pelo WhatsApp 💜');
+      console.error('Erro cartão:', err);
+      alert('Erro ao processar. Tente novamente.');
     } finally {
       if (!dadosCheckout.pago) {
         btn.disabled = false;
@@ -1712,43 +1502,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     });
   }
 
-  function mostrarSucessoPago() {
-    pararPollingPagamento();
-
-    if (formArea) formArea.style.display = 'none';
-    if (headerTop) headerTop.style.display = 'none';
-    tituloSucesso.textContent = 'Pagamento confirmado! 💜';
-    textoSucesso.innerHTML = 'Seu cadastro foi enviado com sucesso. <strong>Em até 48h</strong> você estará no ar com todos os benefícios do seu plano.';
-    blocoGratis.style.display = 'flex';
-    blocoGratis.className = 'bloco-info lilas';
-
-    var nomePlano = dadosCheckout.plano === 'cadastro' ? 'Cadastro Básico'
-                  : dadosCheckout.plano === 'destaque' ? 'Destaque'
-                  : 'Profissional';
-
-    var msgBloco;
-    if (dadosCheckout.plano === 'cadastro') {
-      msgBloco = '<strong>O próximo passo é com a gente 💜</strong> Nossa equipe vai revisar seu perfil com carinho. Em até 48h úteis você estará no ar com seu <strong>Cadastro Básico ativo</strong> — link exclusivo e todos os recursos essenciais pra você divulgar e receber famílias. Avisamos pelo WhatsApp assim que estiver liberado.';
-    } else {
-      msgBloco = '<strong>O próximo passo é com a gente 💜</strong> Nossa equipe vai revisar seu perfil com carinho. Em até 48h úteis você estará no ar com <strong>todos os benefícios do plano ' + nomePlano + '</strong>: foto, bio, cursos, selo Verificada, aparecer nas buscas, e mais. Avisamos você pelo WhatsApp assim que estiver liberado.';
-    }
-    blocoGratisTxt.innerHTML = msgBloco;
-
-    var blocoLink = document.getElementById('bloco-link');
-    if (blocoLink) blocoLink.style.display = 'block';
-    if (linkAvisoTexto) {
-      linkAvisoTexto.innerHTML = '<i class="fa-solid fa-circle-check" style="color: #10b981;"></i> Pagamento recebido! Perfil em <strong>análise</strong> — em até 48h liberamos 💜';
-    }
-    var linkSalvo = localStorage.getItem('afeto_link_perfil');
-    var inputLink = document.getElementById('link-perfil-input');
-    if (linkSalvo && inputLink) inputLink.value = linkSalvo;
-    telaSucesso.classList.add('ativo');
-
-    inicializarCriarSenha();
-
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
   // ========== ENVIO ==========
   form.addEventListener('submit', async function(e) {
     e.preventDefault();
@@ -1768,6 +1521,22 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     if (!whats || whats.replace(/\D/g, '').length < 10) { alert('WhatsApp inválido.'); return; }
     var cpf = document.getElementById('cpf').value.trim();
     if (!cpf || !validarCPF(cpf)) { alert('CPF inválido.'); return; }
+
+    // 🆕 VALIDAÇÃO DE SENHA
+    var senhaValor = document.getElementById('senha-cadastro').value;
+    var senhaConfirma = document.getElementById('senha-confirma-cadastro').value;
+
+    if (!senhaValor || senhaValor.length < 6) {
+      alert('Sua senha precisa ter no mínimo 6 caracteres.');
+      document.getElementById('senha-cadastro').focus();
+      return;
+    }
+    if (senhaValor !== senhaConfirma) {
+      alert('As senhas não batem. Digite de novo.');
+      document.getElementById('senha-confirma-cadastro').focus();
+      return;
+    }
+
     var bio = document.getElementById('bio').value.trim();
     if (!bio) { alert('Escreva uma breve apresentação.'); return; }
     var prof = document.getElementById('profissao').value;
@@ -1787,7 +1556,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     enviando = true;
     btnEnviar.disabled = true;
     var textoOriginal = btnEnviar.innerHTML;
-    btnEnviar.innerHTML = 'Salvando e abrindo pagamento... <span style="display:inline-block;width:16px;height:16px;border:3px solid rgba(255,255,255,0.4);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite;"></span>';
+    btnEnviar.innerHTML = 'Salvando... <span style="display:inline-block;width:16px;height:16px;border:3px solid rgba(255,255,255,0.4);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite;"></span>';
 
     try {
       var dados = new FormData(form);
@@ -1797,6 +1566,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       dados.append('subespecialidades', subs.join(' | '));
       dados.append('plano', plano);
       dados.append('origem', 'cadastro');
+      // 🆕 A senha já vai no FormData automaticamente (name="senha")
 
       var envio = fetch('/api/cadastro', { method: 'POST', body: dados })
         .then(function(r) {
@@ -1818,25 +1588,22 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 
       if (!resultado.ok) {
         console.error('Erro no cadastro:', resultado.status, resultado.body);
-        alert('Algo deu errado ao salvar seu cadastro. Verifique sua conexão e tente novamente em alguns instantes. Se persistir, fale com a gente pelo WhatsApp 💜');
+        alert('Algo deu errado ao salvar seu cadastro. Verifique sua conexão e tente novamente.');
         throw new Error('Falha');
       }
 
-      var linkPerfil = '';
+      // Salva link do perfil
       if (resultado.data && resultado.data.recordId) {
-        linkPerfil = resultado.data.linkPerfil || ('https://afetocuidadores.pages.dev/perfil.html?id=' + resultado.data.recordId);
-      }
-
-      if (linkPerfil) {
+        var linkPerfil = resultado.data.linkPerfil || ('https://afetocuidadores.pages.dev/perfil.html?id=' + resultado.data.recordId);
         try {
           localStorage.setItem('afeto_link_perfil', linkPerfil);
           localStorage.setItem('afeto_plano', plano);
         } catch (e) {}
       }
+
       var nomeCuidadora = document.getElementById('nome').value.trim();
       abrirCheckout(resultado.data.recordId, plano, nomeCuidadora);
       return;
-
     } catch (err) {
       btnEnviar.disabled = false;
       btnEnviar.innerHTML = textoOriginal;
