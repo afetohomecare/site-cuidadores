@@ -10,6 +10,7 @@ const CAMPOS_RETORNO = [
   'verificada', 'disponivel', 'disponivel_atualizado_em',
   'plano_cadastro', 'plano_profissional', 'plano_destaque',
   'plano_inicio', 'plano_valido_ate', 'status_pagamento', 'aprovada',
+  'asaas_subscription_id',
   'excluido', 'criado_em', 'atualizado_em',
   'mostrar_bio', 'mostrar_habilidades', 'mostrar_cursos', 'mostrar_bairros',
   'mostrar_preco', 'mostrar_selo_identidade', 'mostrar_selo_coren',
@@ -71,10 +72,7 @@ export async function onRequestGet(context) {
 
   } catch (err) {
     console.error('Erro me:', err);
-    return jsonResp({
-      error: 'Falha no processamento.',
-      detalhe: String(err && err.message ? err.message : err)
-    }, 500);
+    return jsonResp({ error: 'Falha no processamento.' }, 500);
   }
 }
 

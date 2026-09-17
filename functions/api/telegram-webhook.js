@@ -17,6 +17,14 @@ export async function onRequestPost(context) {
     return jsonResp({ ok: false, motivo: 'Telegram não configurado' }, 200);
   }
 
+  const secret = env.TELEGRAM_WEBHOOK_SECRET;
+  if (secret) {
+    const recebido = request.headers.get('X-Telegram-Bot-Api-Secret-Token');
+    if (recebido !== secret) {
+      return jsonResp({ ok: false }, 401);
+    }
+  }
+
   try {
     const body = await request.json();
 
@@ -206,8 +214,5 @@ function headersSupabase(env, temBody) {
 }
 
 export async function onRequestGet() {
-  return new Response(JSON.stringify({ ok: true, message: 'Telegram webhook ativo.' }), {
-    status: 200,
-    headers: { 'Content-Type': 'application/json' }
-  });
+  return new Response(null, { status: 204 });
 }

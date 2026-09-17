@@ -271,7 +271,8 @@ export async function onRequestPost(context) {
       cobrancaData = await subResp.json();
 
       if (!subResp.ok) {
-        return jsonResp({ error: 'Falha ao criar assinatura', detalhe: cobrancaData }, 502);
+        console.error('Falha assinatura Asaas:', cobrancaData);
+        return jsonResp({ error: 'Não foi possível criar a assinatura. Tente novamente.' }, 502);
       }
     } else {
       const cobrancaBody = {
@@ -291,7 +292,8 @@ export async function onRequestPost(context) {
       cobrancaData = await cobrancaResp.json();
 
       if (!cobrancaResp.ok) {
-        return jsonResp({ error: 'Falha ao criar cobrança', detalhe: cobrancaData }, 502);
+        console.error('Falha cobrança Asaas:', cobrancaData);
+        return jsonResp({ error: 'Não foi possível criar a cobrança. Tente novamente.' }, 502);
       }
     }
 
@@ -385,7 +387,7 @@ export async function onRequestPost(context) {
 
   } catch (err) {
     console.error('Erro checkout:', err);
-    return jsonResp({ error: 'Falha no processamento', detalhe: String(err.message) }, 500);
+    return jsonResp({ error: 'Falha no processamento' }, 500);
   }
 }
 

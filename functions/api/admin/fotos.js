@@ -1,3 +1,5 @@
+import { ehAdmin } from '../../_lib/auth.js';
+
 // ============================================================
 // AFETO — API Admin: fotos pendentes de aprovação
 // ⭐ SEGURANÇA: só aceita user com role === 'admin'
@@ -24,8 +26,7 @@ async function validarToken(env, request) {
   if (!resp.ok) return false;
 
   const user = await resp.json();
-  const role = user && user.user_metadata && user.user_metadata.role;
-  if (role !== 'admin') return false;
+  if (!ehAdmin(user)) return false;
 
   return true;
 }

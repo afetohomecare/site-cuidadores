@@ -1,3 +1,5 @@
+import { ehAdmin } from '../../_lib/auth.js';
+
 // ============================================================
 // AFETO — API Admin: números do dashboard
 // ⭐ SEGURANÇA: só aceita user com role === 'admin'
@@ -25,9 +27,7 @@ async function validarToken(env, request) {
 
   const user = await resp.json();
 
-  // ⭐ VALIDA ROLE — só admin passa
-  const role = user && user.user_metadata && user.user_metadata.role;
-  if (role !== 'admin') return false;
+  if (!ehAdmin(user)) return false;
 
   return true;
 }

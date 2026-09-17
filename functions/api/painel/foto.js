@@ -32,8 +32,8 @@ export async function onRequestPost(context) {
       return jsonResp({ error: 'A foto precisa ter no máximo 5MB.' }, 400);
     }
 
-    if (!foto.type || !foto.type.startsWith('image/')) {
-      return jsonResp({ error: 'O arquivo precisa ser uma imagem.' }, 400);
+    if (!foto.type || !foto.type.startsWith('image/') || foto.type.indexOf('svg') !== -1) {
+      return jsonResp({ error: 'O arquivo precisa ser uma imagem JPG, PNG ou WEBP.' }, 400);
     }
 
     // ⭐ Gera upload_id único ANTES de nomear o arquivo
@@ -126,10 +126,7 @@ export async function onRequestPost(context) {
 
   } catch (err) {
     console.error('Erro foto:', err);
-    return jsonResp({
-      error: 'Falha no processamento.',
-      detalhe: String(err && err.message ? err.message : err)
-    }, 500);
+    return jsonResp({ error: 'Falha no processamento.' }, 500);
   }
 }
 

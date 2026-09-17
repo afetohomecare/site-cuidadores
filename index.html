@@ -537,6 +537,21 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
 (function() {
   "use strict";
 
+  function escapeHTML(txt) {
+    return String(txt == null ? '' : txt)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function urlSegura(u) {
+    var s = String(u || '');
+    if (s.indexOf('https://') === 0 || s.indexOf('http://') === 0) return s.replace(/"/g, '');
+    return '';
+  }
+
   function easeInOutQuint(t) {
     return t < 0.5 ? 16 * t * t * t * t * t : 1 - Math.pow(-2 * t + 2, 5) / 2;
   }
@@ -609,13 +624,14 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
   });
 
   function renderizarCard(cuidadora) {
-    var nome = cuidadora.nome || 'Sem nome';
-    var especialidade = cuidadora.especialidade || 'Cuidador(a)';
-    var bairro = cuidadora.bairro || 'Curitiba';
+    var nome = escapeHTML(cuidadora.nome || 'Sem nome');
+    var especialidade = escapeHTML(cuidadora.especialidade || 'Cuidador(a)');
+    var bairro = escapeHTML(cuidadora.bairro || 'Curitiba');
 
     var fotoHTML = '<i class="fa-solid fa-user"></i>';
-    if (cuidadora.foto_url) {
-      fotoHTML = '<img src="' + cuidadora.foto_url + '" alt="' + nome + '" loading="lazy" decoding="async" width="130" height="130">';
+    var fotoSrc = urlSegura(cuidadora.foto_url);
+    if (fotoSrc) {
+      fotoHTML = '<img src="' + fotoSrc + '" alt="' + nome + '" loading="lazy" decoding="async" width="130" height="130">';
     }
 
     var seloCategoria = '';
@@ -669,7 +685,7 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
       displayHoras = '<span class="cuidador-meta ' + (isDiamante ? 'meta-diamante' : '') + '">' + bairro + ' • <span class="texto-consultar"><span class="luz-offline"></span>Consultar disponibilidade</span></span>';
     }
 
-    return '<div class="cuidador-card ' + cardClassAdd + '" onclick="window.location.href=\'perfil.html?id=' + cuidadora.id + '\'">' +
+    return '<div class="cuidador-card ' + cardClassAdd + '" onclick="window.location.href=\'perfil.html?id=' + encodeURIComponent(cuidadora.id) + '\'">' +
       '<div class="card-top">' +
         '<div class="foto-anel ' + anelClassAdd + '">' + fotoHTML + '</div>' +
       '</div>' +

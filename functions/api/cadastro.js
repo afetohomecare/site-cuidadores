@@ -46,6 +46,26 @@ export async function onRequest(context) {
     const cpfLimpo   = cpf.replace(/\D/g, '');
     const whatsLimpo = whatsapp.replace(/\D/g, '');
 
+    if (cpfLimpo.length !== 11) {
+      return jsonResp({ error: 'CPF inválido.' }, 400);
+    }
+    if (whatsLimpo.length < 10 || whatsLimpo.length > 11) {
+      return jsonResp({ error: 'WhatsApp inválido.' }, 400);
+    }
+    if (senha && senha.length < 6) {
+      return jsonResp({ error: 'A senha precisa ter no mínimo 6 caracteres.' }, 400);
+    }
+
+    if (foto && foto.size > 0) {
+      if (foto.size > 5 * 1024 * 1024) {
+        return jsonResp({ error: 'A foto precisa ter no máximo 5MB.' }, 400);
+      }
+      const tipoFoto = String(foto.type || '').toLowerCase();
+      if (tipoFoto && tipoFoto.indexOf('image/') !== 0) {
+        return jsonResp({ error: 'O arquivo da foto precisa ser uma imagem.' }, 400);
+      }
+    }
+
     // ---------- STATUS INICIAL PELO PLANO ----------
     let statusPagamento   = 'AguardandoPagamento';
     let planoCadastro     = false;
@@ -108,7 +128,7 @@ export async function onRequest(context) {
     if (!buscaResp.ok) {
       const txt = await buscaResp.text();
       console.error('Erro ao buscar existente:', buscaResp.status, txt);
-      return jsonResp({ error: 'Falha ao consultar banco', detalhe: txt.substring(0, 300) }, 502);
+      return jsonResp({ error: 'Falha ao consultar banco' }, 502);
     }
 
     const encontrados = await buscaResp.json();
@@ -143,7 +163,7 @@ export async function onRequest(context) {
       if (!updateResp.ok) {
         const txt = await updateResp.text();
         console.error('Erro UPDATE:', updateResp.status, txt);
-        return jsonResp({ error: 'Falha ao atualizar', detalhe: txt.substring(0, 300) }, 502);
+        return jsonResp({ error: 'Falha ao atualizar' }, 502);
       }
     } else {
       const insertResp = await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores', {
@@ -180,13 +200,13 @@ export async function onRequest(context) {
                 body: JSON.stringify(campos)
               });
             } else {
-              return jsonResp({ error: 'Falha ao criar cadastro', detalhe: txt.substring(0, 300) }, 502);
+              return jsonResp({ error: 'Falha ao criar cadastro' }, 502);
             }
           } else {
-            return jsonResp({ error: 'Falha ao criar cadastro', detalhe: txt.substring(0, 300) }, 502);
+            return jsonResp({ error: 'Falha ao criar cadastro' }, 502);
           }
         } else {
-          return jsonResp({ error: 'Falha ao criar cadastro', detalhe: txt.substring(0, 300) }, 502);
+          return jsonResp({ error: 'Falha ao criar cadastro' }, 502);
         }
       } else {
         const criados = await insertResp.json();
@@ -280,7 +300,7 @@ export async function onRequest(context) {
 
         fotoUrl = env.SUPABASE_URL + '/storage/v1/object/public/' + caminho;
 
-        const patchUrl = env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadorId;
+        const patchUrl = env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(cuidadorId);
         const patchResp = await fetch(patchUrl, {
           method: 'PATCH',
           headers: headersSupabase(env, true),
@@ -325,9 +345,7 @@ export async function onRequest(context) {
       criado: foiCriado,
       linkPerfil: linkPerfil,
       fotoEnviada: fotoEnviada,
-      fotoErro: fotoErro,
       criouAuth: criouAuth,
-      authErro: authErro,
       precisaPagar: true
     }, 200);
 
@@ -335,8 +353,7 @@ export async function onRequest(context) {
     console.error('Erro cadastro:', err);
     return jsonResp({
       ok: false,
-      error: 'Falha no processamento',
-      detalhe: String(err && err.message ? err.message : err)
+      error: 'Falha no processamento'
     }, 500);
   }
 }

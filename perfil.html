@@ -499,6 +499,40 @@ var params = new URLSearchParams(window.location.search);
 var recordId = params.get('id');
 var todosCuidadores = [];
 
+function escapeHTML(txt) {
+    return String(txt == null ? '' : txt)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function urlSegura(u) {
+    var s = String(u || '');
+    if (s.indexOf('https://') === 0 || s.indexOf('http://') === 0) return s.replace(/"/g, '');
+    return '';
+}
+
+function soDigitos(v) {
+    return String(v || '').replace(/\D/g, '');
+}
+
+function numeroWhatsAppCuidadora(cuidadora) {
+    var n = soDigitos(cuidadora && (cuidadora.whatsapp || cuidadora.whatsapp_agencia));
+    if (!n) return '';
+    if (n.length === 10 || n.length === 11) n = '55' + n;
+    if (n.length < 12 || n.length > 13) return '';
+    return n;
+}
+
+function mensagemWhatsAppFamilia(primeiroNome, bairro) {
+    var nome = (primeiroNome || 'profissional').trim();
+    var texto =
+        'Olá, ' + nome + '! Vi seu perfil na Afeto e gostaria de um orçamento / mais detalhes sobre o cuidado.';
+    return encodeURIComponent(texto);
+}
+
 // Gera um nome de exibição curto e único.
 // Ex: "Maria Silva Santos" vira "Maria S." — se houver outra "Maria S.",
 // a segunda vira "Maria Silva S.", e assim por diante.
@@ -614,19 +648,21 @@ function renderizarPerfil(cuidadora) {
     // refiltrar. Só se a pessoa acessar um id inexistente é que cai no
     // "não encontrada" acima.
 
-    var wppCuidadora = cuidadora.whatsapp_agencia || cuidadora.whatsapp || '5541997674866';
+    var wppCuidadora = numeroWhatsAppCuidadora(cuidadora);
     var horasNum = parseInt(cuidadora.horas) || 0;
     var precoBase = parsePreco(cuidadora.preco);
 
     var estaDisponivel = cuidadora.disponivel === true;
 
     var todosNomes = todosCuidadores.map(function(c) { return c.nome || ''; });
-    var nomeExibicao = gerarNomeUnico(cuidadora.nome || 'Sem nome', todosNomes);
-    var primeiroNome = (cuidadora.nome || '').trim().split(/\s+/)[0] || 'profissional';
+    var nomeExibicao = escapeHTML(gerarNomeUnico(cuidadora.nome || 'Sem nome', todosNomes));
+    var primeiroNomeBruto = (cuidadora.nome || '').trim().split(/\s+/)[0] || 'profissional';
+    var primeiroNome = escapeHTML(primeiroNomeBruto);
 
     var fotoHTML = '<i class="fa-solid fa-user"></i>';
-    if (cuidadora.foto_url) {
-        fotoHTML = '<img src="' + cuidadora.foto_url + '" alt="' + nomeExibicao + '" loading="lazy" decoding="async">';
+    var fotoSrc = urlSegura(cuidadora.foto_url);
+    if (fotoSrc) {
+        fotoHTML = '<img src="' + fotoSrc + '" alt="' + nomeExibicao + '" loading="lazy" decoding="async">';
     }
 
     var seloCategoria = '';
@@ -650,7 +686,7 @@ function renderizarPerfil(cuidadora) {
     var seloCoren = cuidadora.coren ? '<span class="cuidador-badge badge-coren"><i class="fa-solid fa-id-card"></i> COREN</span>' : '';
 
     var apresentacaoHTML = cuidadora.apresentacao ? 
-        '<div class="bio-box reveal-item"><h4><i class="fa-solid fa-user-doctor"></i> Sobre a profissional</h4><p>' + cuidadora.apresentacao + '</p></div>' : '';
+        '<div class="bio-box reveal-item"><h4><i class="fa-solid fa-user-doctor"></i> Sobre a profissional</h4><p>' + escapeHTML(cuidadora.apresentacao) + '</p></div>' : '';
 
     // Subespecialidades: no Supabase é TEXT[] (array). No Airtable era multi-select.
     // Aqui aceitamos qualquer um dos dois formatos.
@@ -660,7 +696,7 @@ function renderizarPerfil(cuidadora) {
             ? cuidadora.subespecialidades
             : String(cuidadora.subespecialidades).split('|').map(function(s) { return s.trim(); }).filter(function(s) { return s; });
         if (listaSubs.length > 0) {
-            var badgesExp = listaSubs.map(function(sub) { return '<span class="tag-exp">✓ ' + sub + '</span>'; }).join('');
+            var badgesExp = listaSubs.map(function(sub) { return '<span class="tag-exp">✓ ' + escapeHTML(sub) + '</span>'; }).join('');
             tagsHTML = '<div class="experiencia-container reveal-item"><div class="experiencia-titulo">Especialidades:</div><div class="tags-exp">' + badgesExp + '</div></div>';
         }
     }
@@ -672,7 +708,7 @@ function renderizarPerfil(cuidadora) {
             ? cuidadora.cursos
             : String(cuidadora.cursos).split(/\n|;|•/).map(function(c) { return c.trim(); }).filter(function(c) { return c; });
         if (listaCursos.length > 0) {
-            var cursosTags = listaCursos.map(function(c) { return '<span class="tag-exp">🎓 ' + c + '</span>'; }).join('');
+            var cursosTags = listaCursos.map(function(c) { return '<span class="tag-exp">🎓 ' + escapeHTML(c) + '</span>'; }).join('');
             cursosHTML = '<div class="experiencia-container reveal-item"><div class="experiencia-titulo">Formação e Certificações:</div><div class="tags-exp">' + cursosTags + '</div></div>';
         }
     }
@@ -689,7 +725,7 @@ function renderizarPerfil(cuidadora) {
         }
     }
 
-    var notaTexto = cuidadora.nota || '5.0';
+    var notaTexto = escapeHTML(cuidadora.nota || '5.0');
 
     var precoHTML = '';
     if (precoBase > 0) {
@@ -721,16 +757,15 @@ function renderizarPerfil(cuidadora) {
     var comentariosHTML = '';
     if (comentarios.length > 0) {
         var cardsHTML = comentarios.map(function(c) {
-            return '<div class="comentario-card"><div class="comentario-texto">"' + c + '"</div></div>';
+            return '<div class="comentario-card"><div class="comentario-texto">"' + escapeHTML(c) + '"</div></div>';
         }).join('');
         comentariosHTML = '<div class="comentarios-secao reveal-item"><div class="comentarios-titulo"><i class="fa-solid fa-star" style="color: var(--lilas);"></i> O que as famílias dizem:</div>' + cardsHTML + '</div>';
     }
 
-    var iniciais = (cuidadora.nome || 'XX').split(' ').filter(function(p) { return p.length > 0; }).map(function(p) { return p[0]; }).slice(0, 2).join('').toUpperCase();
-    var codigoRef = iniciais;
-    var linkAtual = encodeURIComponent(window.location.href);
-
-    var mensagemWpp = 'Olá, ' + primeiroNome + '! Vi seu perfil na Afeto e gostaria de conversar sobre uma contratação.%0A%0A🔖 Ref: %23' + codigoRef + '%0A📍 ' + (cuidadora.bairro || 'Curitiba') + '%0A%0A📌 Perfil: ' + linkAtual;
+    var botaoWhats =
+        wppCuidadora
+            ? '<a href="https://wa.me/' + wppCuidadora + '?text=' + mensagemWhatsAppFamilia(primeiroNomeBruto, cuidadora.bairro) + '" target="_blank" rel="noopener" class="btn-acao"><i class="fa-brands fa-whatsapp"></i> Falar com ' + primeiroNome + '</a>'
+            : '';
 
     var estrelasHTML = '<span class="estrela-anim" data-delay="0">★</span><span class="estrela-anim" data-delay="200">★</span><span class="estrela-anim" data-delay="400">★</span><span class="estrela-anim" data-delay="600">★</span><span class="estrela-anim" data-delay="800">★</span><span class="nota-numero-anim" id="notaNumero">' + notaTexto + '</span>';
 
@@ -741,9 +776,9 @@ function renderizarPerfil(cuidadora) {
             '<div class="badges-container">' + seloCategoria + seloVerificada + seloCoren + '</div>' +
             '<h1 class="nome-profissional">' + nomeExibicao + '</h1>' +
             '<div class="tag-profissional">' +
-                '<span>' + (cuidadora.especialidade || 'Cuidador(a)') + '</span>' +
+                '<span>' + escapeHTML(cuidadora.especialidade || 'Cuidador(a)') + '</span>' +
                 '<span style="color: var(--cinza-azulado);">•</span>' +
-                '<span class="tag-bairro"><i class="fa-solid fa-location-dot"></i> ' + (cuidadora.bairro || 'Curitiba') + '</span>' +
+                '<span class="tag-bairro"><i class="fa-solid fa-location-dot"></i> ' + escapeHTML(cuidadora.bairro || 'Curitiba') + '</span>' +
             '</div>' +
             '<div style="text-align: center;">' + turnoHTML + '</div>' +
             apresentacaoHTML +
@@ -753,7 +788,7 @@ function renderizarPerfil(cuidadora) {
             '<div class="info-linha"><span>Avaliação Geral</span><div class="estrelas-container">' + estrelasHTML + '</div></div>' +
             linhaStatusHTML +
             comentariosHTML +
-            '<a href="https://wa.me/' + wppCuidadora + '?text=' + mensagemWpp + '" target="_blank" rel="noopener" class="btn-acao"><i class="fa-brands fa-whatsapp"></i> Falar com ' + primeiroNome + '</a>' +
+            botaoWhats +
             '<button onclick="compartilharPerfil()" class="btn-compartilhar"><i class="fa-solid fa-share-nodes"></i> Compartilhar Perfil</button>' +
         '</div>';
 
@@ -817,18 +852,19 @@ function renderizarVejaTambem(atual, todos) {
     var html = '';
 
     selecionados.forEach(function(c) {
-        var nomeExibicao = gerarNomeUnico(c.nome || '', todosNomes);
-        var nota = c.nota || '5.0';
-        var bairro = c.bairro || 'Curitiba';
-        var espec = c.especialidade || 'Cuidador(a)';
+        var nomeExibicao = escapeHTML(gerarNomeUnico(c.nome || '', todosNomes));
+        var nota = escapeHTML(c.nota || '5.0');
+        var bairro = escapeHTML(c.bairro || 'Curitiba');
+        var espec = escapeHTML(c.especialidade || 'Cuidador(a)');
 
         var fotoHTML = '<i class="fa-solid fa-user"></i>';
-        if (c.foto_url) {
-            fotoHTML = '<img src="' + c.foto_url + '" alt="' + nomeExibicao + '" loading="lazy" decoding="async">';
+        var fotoSrc = urlSegura(c.foto_url);
+        if (fotoSrc) {
+            fotoHTML = '<img src="' + fotoSrc + '" alt="' + nomeExibicao + '" loading="lazy" decoding="async">';
         }
 
         html += 
-            '<a href="perfil.html?id=' + c.id + '" class="mini-card">' +
+            '<a href="perfil.html?id=' + encodeURIComponent(c.id) + '" class="mini-card">' +
                 '<div class="mini-card-foto">' + fotoHTML + '</div>' +
                 '<div class="mini-card-nome">' + nomeExibicao + '</div>' +
                 '<div class="mini-card-nota">★ ' + nota + '</div>' +

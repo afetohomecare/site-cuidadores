@@ -1,3 +1,5 @@
+import { ehAdmin } from '../../_lib/auth.js';
+
 // ============================================================
 // AFETO — API Admin: gerenciar cuidadoras
 // 🛡️ BLINDAGEM: gera token ao marcar Pago manualmente
@@ -54,8 +56,7 @@ async function validarToken(env, request) {
   if (!resp.ok) return { ok: false, motivo: 'Token inválido ou expirado' };
   const user = await resp.json();
 
-  const role = user && user.user_metadata && user.user_metadata.role;
-  if (role !== 'admin') {
+  if (!ehAdmin(user)) {
     return { ok: false, motivo: 'Acesso restrito a administradores' };
   }
 

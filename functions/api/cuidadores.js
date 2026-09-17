@@ -6,6 +6,7 @@ import { headersSupabase, supabaseOk } from '../_lib/supabase.js';
 const CAMPOS_PUBLICOS = [
   'id',
   'nome',
+  'whatsapp',
   'whatsapp_agencia',
   'foto_url',
   'apresentacao',
@@ -40,6 +41,7 @@ const CAMPOS_PUBLICOS = [
 
 function perfilPublico(row) {
   const item = Object.assign({}, row);
+  item.whatsapp = item.whatsapp || item.whatsapp_agencia || null;
 
   if (item.mostrar_bio === false) item.apresentacao = null;
   if (item.mostrar_habilidades === false) item.subespecialidades = [];
@@ -74,19 +76,26 @@ export async function onRequestGet(context) {
 
   try {
     const hoje = new Date().toISOString();
-    const parametros = [
+    const baseFiltro = [
       'aprovada=eq.true',
       'status_pagamento=eq.Pago',
       'plano_valido_ate=gte.' + hoje,
       'or=(plano_profissional.eq.true,plano_destaque.eq.true)',
-      'select=' + CAMPOS_PUBLICOS.join(','),
       'order=criado_em.desc'
-    ].join('&');
+    ];
 
-    const resp = await fetch(
-      env.SUPABASE_URL + '/rest/v1/cuidadores?' + parametros,
+    let resp = await fetch(
+      env.SUPABASE_URL + '/rest/v1/cuidadores?' + baseFiltro.concat(['select=' + CAMPOS_PUBLICOS.join(',')]).join('&'),
       { headers: headersSupabase(env) }
     );
+
+    if (!resp.ok) {
+      const semFlags = CAMPOS_PUBLICOS.filter(function (c) { return c.indexOf('mostrar_') !== 0; });
+      resp = await fetch(
+        env.SUPABASE_URL + '/rest/v1/cuidadores?' + baseFiltro.concat(['select=' + semFlags.join(',')]).join('&'),
+        { headers: headersSupabase(env) }
+      );
+    }
 
     if (!resp.ok) {
       console.error('Erro listar vitrine:', await resp.text());

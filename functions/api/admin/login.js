@@ -1,15 +1,10 @@
+import { ehAdmin } from '../../_lib/auth.js';
+
 // ============================================================
 // AFETO — API: login do painel admin
 // ------------------------------------------------------------
-// Recebe email + senha, valida no Supabase Auth e devolve
-// o access_token (JWT) que será usado pelas outras rotas admin.
-//
-// ⭐ SEGURANÇA: só deixa passar se o user tiver
-//    user_metadata.role === 'admin'. Cuidadoras têm
-//    role === 'cuidadora' e NÃO conseguem logar aqui.
-//
-// O token expira em ~1 hora. Depois disso o admin precisa
-// logar de novo.
+// Só deixa passar se o user tiver role === 'admin'
+// (app_metadata ou user_metadata).
 // ============================================================
 
 export async function onRequestPost(context) {
@@ -48,10 +43,8 @@ export async function onRequestPost(context) {
     }
 
     // ⭐ VALIDA ROLE
-    const role = data.user && data.user.user_metadata && data.user.user_metadata.role;
-
-    if (role !== 'admin') {
-      console.warn('Tentativa de login admin sem role. Email:', email, 'Role:', role);
+    if (!ehAdmin(data.user)) {
+      console.warn('Tentativa de login admin sem role. Email:', email);
       // Mensagem genérica pra não vazar que o email existe
       return jsonResp({ error: 'Email ou senha incorretos.' }, 401);
     }

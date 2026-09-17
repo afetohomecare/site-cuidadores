@@ -59,10 +59,7 @@ export async function onRequestPost(context) {
 
   } catch (err) {
     console.error('Erro toggle-visibilidade:', err);
-    return jsonResp({
-      error: 'Falha no processamento.',
-      detalhe: String(err && err.message ? err.message : err)
-    }, 500);
+    return jsonResp({ error: 'Falha no processamento.' }, 500);
   }
 }
 
