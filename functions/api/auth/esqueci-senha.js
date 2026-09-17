@@ -1,10 +1,6 @@
 // ============================================================
-// AFETO — API: esqueci minha senha (versão com token)
-// ------------------------------------------------------------
-// 🛡️ Segurança:
-//   • Gera token aleatório (32 bytes) com expiração de 30 min
-//   • Nunca revela se CPF existe ou não (retorno sempre "ok")
-//   • Envia link pro WhatsApp via botão no Telegram
+// VERSÃO DE DEBUG — retorna diagnóstico completo no JSON
+// DEPOIS DE RESOLVER, VOLTE PRA VERSÃO DE PRODUÇÃO
 // ============================================================
 
 function gerarToken() {
@@ -22,60 +18,73 @@ function escaparHTML(s) {
 
 export async function onRequestPost(context) {
   const { request, env } = context;
+  const debug = { etapas: [] };
 
   if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_KEY) {
-    return jsonResp({ error: 'Configuração do servidor ausente.' }, 500);
+    return jsonResp({ error: 'Configuração Supabase ausente.', debug }, 500);
   }
+
+  debug.etapas.push('1. Supabase configurado');
 
   try {
     const body = await request.json();
     const identificador = (body.identificador || '').trim();
+    debug.identificador_recebido = identificador;
 
-    if (!identificador) {
-      return jsonResp({ error: 'Informe seu CPF ou WhatsApp.' }, 400);
-    }
+    if (!identificador) return jsonResp({ error: 'Informe CPF/WhatsApp.', debug }, 400);
 
     const idLimpo = identificador.replace(/\D/g, '');
+    debug.id_limpo = idLimpo;
 
     if (idLimpo.length < 10 || idLimpo.length > 11) {
-      return jsonResp({ error: 'CPF ou WhatsApp inválido.' }, 400);
+      return jsonResp({ error: 'CPF/WhatsApp inválido.', debug }, 400);
     }
 
     // ---------- BUSCA CUIDADORA ----------
     const filtro = 'or=(' +
       'cpf.eq.' + encodeURIComponent(idLimpo) + ',' +
-      'whatsapp.eq.' + encodeURIComponent(idLimpo) + ',' +
-      'whatsapp.eq.' + encodeURIComponent(identificador) +
+      'cpf.eq.' + encodeURIComponent(identificador) + ',' +
+      'whatsapp.eq.' + encodeURIComponent(identificador) + ',' +
+      'whatsapp.eq.' + encodeURIComponent(idLimpo) +
     ')';
 
     const buscaUrl = env.SUPABASE_URL + '/rest/v1/cuidadores?select=id,nome,whatsapp,cpf,auth_user_id&' + filtro + '&limit=1';
+    debug.busca_url = buscaUrl;
 
     const buscaResp = await fetch(buscaUrl, { headers: headersSupabase(env) });
-
-    // Retorno padrão (usado tanto quando achou quanto quando não achou)
-    const respostaPadrao = {
-      ok: true,
-      mensagem: 'Se esse CPF/WhatsApp estiver cadastrado, você vai receber o link de recuperação no WhatsApp em alguns instantes.'
-    };
+    debug.busca_status = buscaResp.status;
 
     if (!buscaResp.ok) {
-      console.error('Erro busca esqueci-senha:', await buscaResp.text());
-      return jsonResp(respostaPadrao, 200);
+      const txt = await buscaResp.text();
+      debug.busca_erro = txt.substring(0, 400);
+      return jsonResp({ error: 'Falha ao consultar banco.', debug }, 502);
     }
 
     const linhas = await buscaResp.json();
+    debug.cuidadoras_encontradas = linhas.length;
 
     if (!linhas || linhas.length === 0) {
-      // Não achou — retorna OK (não vaza) e não faz nada
-      return jsonResp(respostaPadrao, 200);
+      debug.motivo = 'NAO_ENCONTRADA';
+      return jsonResp({
+        ok: true,
+        debug,
+        mensagem: 'Se esse CPF estiver cadastrado, vai receber o link.'
+      }, 200);
     }
 
     const cuidadora = linhas[0];
+    debug.cuidadora_id = cuidadora.id;
+    debug.cuidadora_nome = cuidadora.nome;
+    debug.tem_auth_user_id = !!cuidadora.auth_user_id;
+    debug.auth_user_id = cuidadora.auth_user_id ? cuidadora.auth_user_id.substring(0, 8) + '...' : null;
 
     if (!cuidadora.auth_user_id) {
-      // Cadastro sem conta criada — avisa no Telegram pra você resolver manual
-      await notificarTelegramSemConta(env, cuidadora);
-      return jsonResp(respostaPadrao, 200);
+      debug.motivo = 'SEM_CONTA_CRIADA';
+      return jsonResp({
+        ok: true,
+        debug,
+        mensagem: 'Se esse CPF estiver cadastrado, vai receber o link.'
+      }, 200);
     }
 
     // ---------- GERA TOKEN E SALVA ----------
@@ -93,47 +102,42 @@ export async function onRequestPost(context) {
       })
     });
 
+    debug.patch_token_status = patchResp.status;
+
     if (!patchResp.ok) {
-      console.error('Erro ao salvar token:', await patchResp.text());
-      return jsonResp(respostaPadrao, 200);
+      const txt = await patchResp.text();
+      debug.patch_token_erro = txt.substring(0, 400);
+      debug.motivo = 'FALHA_SALVAR_TOKEN';
+      debug.dica = 'Provavelmente as colunas token_reset_senha NAO existem. Rode o SQL.';
+      return jsonResp({ ok: true, debug }, 200);
     }
 
-    // ---------- NOTIFICA NO TELEGRAM COM BOTÃO ----------
-    await notificarTelegramComBotao(env, cuidadora, token, expiraEm);
+    debug.etapas.push('2. Token salvo no banco');
+    debug.token_gerado = token.substring(0, 8) + '...';
 
-    return jsonResp(respostaPadrao, 200);
+    // ---------- TELEGRAM ----------
+    debug.tem_telegram_token = !!env.TELEGRAM_BOT_TOKEN;
+    debug.tem_telegram_chat = !!env.TELEGRAM_CHAT_ID;
+    debug.telegram_token_inicio = env.TELEGRAM_BOT_TOKEN ? env.TELEGRAM_BOT_TOKEN.substring(0, 10) + '...' : null;
 
-  } catch (err) {
-    console.error('Erro esqueci-senha:', err);
-    return jsonResp({
-      error: 'Falha no processamento.',
-      detalhe: String(err && err.message ? err.message : err)
-    }, 500);
-  }
-}
+    if (!env.TELEGRAM_BOT_TOKEN || !env.TELEGRAM_CHAT_ID) {
+      debug.motivo = 'TELEGRAM_NAO_CONFIGURADO';
+      return jsonResp({ ok: true, debug }, 200);
+    }
 
-// ============================================================
-// TELEGRAM — com botão de WhatsApp
-// ============================================================
-async function notificarTelegramComBotao(env, cuidadora, token, expiraEm) {
-  try {
-    const tgToken = env.TELEGRAM_BOT_TOKEN;
-    const chatId = env.TELEGRAM_CHAT_ID;
-    if (!tgToken || !chatId) return;
+    debug.etapas.push('3. Env vars Telegram OK');
 
+    // Monta mensagem
     const linkReset = 'https://afetocuidadores.pages.dev/painel-reset.html?token=' + token;
-
     const primeiroNome = (cuidadora.nome || '').trim().split(/\s+/)[0] || '';
     const saudacao = primeiroNome ? 'Oi, ' + primeiroNome + '! 💜' : 'Oi! 💜';
 
-    const mensagemWpp =
-      saudacao + '\n\n' +
+    const mensagemWpp = saudacao + '\n\n' +
       'Recebi seu pedido de recuperação de senha da Afeto.\n\n' +
       'Clique neste link pra criar uma nova senha (válido por 30 minutos):\n\n' +
       linkReset + '\n\n' +
-      'Se você não pediu isso, é só ignorar esta mensagem.';
+      'Se você não pediu isso, é só ignorar.';
 
-    // Normaliza número do WhatsApp (precisa começar com 55)
     const numeroLimpo = (cuidadora.whatsapp || '').replace(/\D/g, '');
     let numeroCompleto = numeroLimpo;
     if (numeroLimpo.length === 10 || numeroLimpo.length === 11) {
@@ -141,84 +145,58 @@ async function notificarTelegramComBotao(env, cuidadora, token, expiraEm) {
     }
 
     const waUrl = 'https://wa.me/' + numeroCompleto + '?text=' + encodeURIComponent(mensagemWpp);
-
-    const agora = new Date().toLocaleString('pt-BR', {
-      timeZone: 'America/Sao_Paulo',
-      day: '2-digit', month: '2-digit', year: 'numeric',
-      hour: '2-digit', minute: '2-digit'
-    });
-
-    const expiraFmt = expiraEm.toLocaleString('pt-BR', {
-      timeZone: 'America/Sao_Paulo',
-      hour: '2-digit', minute: '2-digit'
-    });
+    debug.whatsapp_numero = numeroCompleto;
 
     const msgHtml =
       '🔐 <b>Pedido de recuperação de senha</b>\n\n' +
       '👤 <b>Nome:</b> ' + escaparHTML(cuidadora.nome || '—') + '\n' +
       '📱 <b>WhatsApp:</b> ' + escaparHTML(cuidadora.whatsapp || '—') + '\n' +
       '🆔 <b>CPF:</b> ' + escaparHTML(cuidadora.cpf || '—') + '\n\n' +
-      '⏰ Token válido até <b>' + expiraFmt + '</b>\n\n' +
-      '👇 Clique no botão abaixo pra abrir o WhatsApp com a mensagem pronta. ' +
-      'É só apertar enviar.\n\n' +
-      '🕒 ' + agora;
+      '👇 Clique no botão abaixo pra enviar o link no WhatsApp dela:';
 
-    await fetch('https://api.telegram.org/bot' + tgToken + '/sendMessage', {
+    const telegramPayload = {
+      chat_id: env.TELEGRAM_CHAT_ID,
+      text: msgHtml,
+      parse_mode: 'HTML',
+      disable_web_page_preview: true,
+      reply_markup: {
+        inline_keyboard: [[
+          { text: '📲 Enviar link no WhatsApp', url: waUrl }
+        ]]
+      }
+    };
+
+    debug.telegram_chat_id_usado = String(env.TELEGRAM_CHAT_ID);
+
+    const tgResp = await fetch('https://api.telegram.org/bot' + env.TELEGRAM_BOT_TOKEN + '/sendMessage', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: msgHtml,
-        parse_mode: 'HTML',
-        disable_web_page_preview: true,
-        reply_markup: {
-          inline_keyboard: [[
-            { text: '📲 Enviar link no WhatsApp', url: waUrl }
-          ]]
-        }
-      })
-    });
-  } catch (e) {
-    console.error('Erro Telegram com botão:', e);
-  }
-}
-
-// ============================================================
-// TELEGRAM — caso especial: cadastro sem conta (auth_user_id null)
-// ============================================================
-async function notificarTelegramSemConta(env, cuidadora) {
-  try {
-    const tgToken = env.TELEGRAM_BOT_TOKEN;
-    const chatId = env.TELEGRAM_CHAT_ID;
-    if (!tgToken || !chatId) return;
-
-    const agora = new Date().toLocaleString('pt-BR', {
-      timeZone: 'America/Sao_Paulo',
-      day: '2-digit', month: '2-digit', year: 'numeric',
-      hour: '2-digit', minute: '2-digit'
+      body: JSON.stringify(telegramPayload)
     });
 
-    const msg =
-      '⚠️ <b>Reset de senha — cadastro sem conta</b>\n\n' +
-      '👤 <b>Nome:</b> ' + escaparHTML(cuidadora.nome || '—') + '\n' +
-      '📱 <b>WhatsApp:</b> ' + escaparHTML(cuidadora.whatsapp || '—') + '\n' +
-      '🆔 <b>CPF:</b> ' + escaparHTML(cuidadora.cpf || '—') + '\n\n' +
-      '❗ Essa cuidadora não tem conta criada no Auth. ' +
-      'Ela precisa refazer o cadastro.\n\n' +
-      '🕒 ' + agora;
+    debug.telegram_status_http = tgResp.status;
+    const tgData = await tgResp.json().catch(function() { return {}; });
+    debug.telegram_resposta = tgData;
 
-    await fetch('https://api.telegram.org/bot' + tgToken + '/sendMessage', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: msg,
-        parse_mode: 'HTML',
-        disable_web_page_preview: true
-      })
-    });
-  } catch (e) {
-    console.error('Erro Telegram sem conta:', e);
+    if (!tgResp.ok || !tgData.ok) {
+      debug.motivo = 'TELEGRAM_ERRO';
+      return jsonResp({ ok: true, debug }, 200);
+    }
+
+    debug.etapas.push('4. Telegram enviado com sucesso');
+    debug.motivo = 'SUCESSO';
+
+    return jsonResp({
+      ok: true,
+      debug,
+      mensagem: 'Se esse CPF estiver cadastrado, você vai receber o link no WhatsApp em alguns instantes.'
+    }, 200);
+
+  } catch (err) {
+    debug.motivo = 'EXCECAO';
+    debug.erro = String(err && err.message ? err.message : err);
+    debug.stack = String(err && err.stack ? err.stack : '').substring(0, 500);
+    return jsonResp({ error: 'Falha no processamento.', debug }, 500);
   }
 }
 
