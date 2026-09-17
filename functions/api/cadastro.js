@@ -2,9 +2,7 @@
 // AFETO — API: cadastro de cuidadora
 // ------------------------------------------------------------
 // 🆕 Opção B: cria conta + senha JUNTO com o cadastro.
-//    A cuidadora já tem login antes mesmo de pagar.
-//    O acesso ao "mundo real" (aparecer no site) só é liberado
-//    após pagamento + aprovação do admin.
+// 🛡️ BLOQUEIA segundo cadastro quando já existe auth_user_id.
 // ============================================================
 
 const BUCKET_FOTOS = 'fotos';
@@ -26,7 +24,7 @@ export async function onRequest(context) {
     const nome           = campo(form, 'nome');
     const whatsapp       = campo(form, 'whatsapp');
     const cpf            = campo(form, 'cpf');
-    const senha          = campo(form, 'senha');          // 🆕 NOVO
+    const senha          = campo(form, 'senha');
     const bio            = campo(form, 'bio');
     const motivacao      = campo(form, 'motivacao');
     const especialidade  = campo(form, 'profissao');
@@ -125,6 +123,16 @@ export async function onRequest(context) {
       cuidadorId = registroExistente.id;
       authUserId = registroExistente.auth_user_id || null;
 
+      // 🛡️ BLOQUEIO: se já existe conta criada (auth_user_id), não deixa recadastrar
+      if (authUserId) {
+        return jsonResp({
+          error: 'Você já tem uma conta na Afeto. Faça login ou use "Esqueci minha senha".',
+          codigo: 'CADASTRO_DUPLICADO',
+          cpf: cpfLimpo
+        }, 409);
+      }
+
+      // Cadastro antigo sem auth_user_id: permite completar (fluxo legado)
       const updateUrl = env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadorId;
       const updateResp = await fetch(updateUrl, {
         method: 'PATCH',
@@ -156,8 +164,16 @@ export async function onRequest(context) {
           if (busca2.ok) {
             const linhas2 = await busca2.json();
             if (linhas2.length > 0) {
+              // Se já tem auth, bloqueia também
+              if (linhas2[0].auth_user_id) {
+                return jsonResp({
+                  error: 'Você já tem uma conta na Afeto. Faça login ou use "Esqueci minha senha".',
+                  codigo: 'CADASTRO_DUPLICADO',
+                  cpf: cpfLimpo
+                }, 409);
+              }
               cuidadorId = linhas2[0].id;
-              authUserId = linhas2[0].auth_user_id || null;
+              authUserId = null;
               await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadorId, {
                 method: 'PATCH',
                 headers: headersSupabase(env, true),
@@ -183,7 +199,7 @@ export async function onRequest(context) {
     }
 
     // ============================================================
-    // 🆕 CRIA USUÁRIO NO SUPABASE AUTH (se tem senha e ainda não tem conta)
+    // CRIA USUÁRIO NO SUPABASE AUTH (se tem senha e ainda não tem conta)
     // ============================================================
     let criouAuth = false;
     let authErro = null;
@@ -220,7 +236,6 @@ export async function onRequest(context) {
           authUserId = criarUserData.id;
           criouAuth = true;
 
-          // Vincula auth_user_id no banco
           await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadorId, {
             method: 'PATCH',
             headers: headersSupabase(env, true),

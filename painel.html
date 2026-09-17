@@ -446,11 +446,41 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
     esconderLoader();
   }
 
+  // ============================================================
+  // 🆕 CARD DE STATUS — agora trata Inadimplente, Estornado, Excluído
+  // ============================================================
   function atualizarCardStatus() {
     var icone = document.getElementById('status-icone');
     var titulo = document.getElementById('status-titulo');
     var texto = document.getElementById('status-texto');
 
+    // ⚠️ INADIMPLÊNCIA
+    if (cuidadora.status_pagamento === 'Inadimplente') {
+      icone.innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color: #ef4444;"></i>';
+      titulo.textContent = '⚠️ Seu pagamento falhou';
+      texto.innerHTML = 'Não conseguimos cobrar sua assinatura. Regularize pra manter seu perfil no ar. ' +
+        '<a href="planos.html" style="color: var(--lilas-escuro); font-weight: 800; text-decoration: underline;">Regularizar agora</a>';
+      return;
+    }
+
+    // 🔄 ESTORNO
+    if (cuidadora.status_pagamento === 'Estornado') {
+      icone.innerHTML = '<i class="fa-solid fa-rotate-left" style="color: #ef4444;"></i>';
+      titulo.textContent = 'Pagamento estornado';
+      texto.innerHTML = 'Seu acesso foi suspenso porque houve estorno. ' +
+        '<a href="planos.html" style="color: var(--lilas-escuro); font-weight: 800; text-decoration: underline;">Reativar plano</a>';
+      return;
+    }
+
+    // 🗑️ EXCLUÍDO
+    if (cuidadora.excluido) {
+      icone.innerHTML = '<i class="fa-solid fa-user-slash" style="color: #94a3b8;"></i>';
+      titulo.textContent = 'Conta excluída';
+      texto.textContent = 'Sua conta foi removida. Fale com a gente pelo WhatsApp se isso foi um engano.';
+      return;
+    }
+
+    // Fluxo normal
     if (cuidadora.status_pagamento !== 'Pago') {
       icone.innerHTML = '<i class="fa-solid fa-clock"></i>';
       titulo.textContent = 'Aguardando confirmação de pagamento';
@@ -718,7 +748,11 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
     var taPago = cuidadora.status_pagamento === 'Pago';
 
     var statusBadge = '';
-    if (!taPago) {
+    if (cuidadora.status_pagamento === 'Inadimplente') {
+      statusBadge = '<span style="color: var(--vermelho); font-weight: 900;">Inadimplente</span>';
+    } else if (cuidadora.status_pagamento === 'Estornado') {
+      statusBadge = '<span style="color: var(--vermelho); font-weight: 900;">Estornado</span>';
+    } else if (!taPago) {
       statusBadge = '<span style="color: var(--cinza-fonte);">Aguardando pagamento / Inativo</span>';
     } else if (dias <= 0) {
       statusBadge = '<span style="color: var(--vermelho); font-weight: 900;">Vencido</span>';
@@ -738,10 +772,11 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
     var botoesHtml = '';
     if (isAssinatura && taPago) {
        botoesHtml = '<button id="btn-cancelar-assinatura" style="background: transparent; color: var(--vermelho); border: 2px solid var(--vermelho); padding: 10px 20px; border-radius: 50px; font-family: \'Nunito\', sans-serif; font-size: 13px; font-weight: 900; cursor: pointer; margin-top: 15px; transition: 0.3s;">Cancelar Assinatura</button>';
+    } else if (cuidadora.status_pagamento === 'Inadimplente' || cuidadora.status_pagamento === 'Estornado') {
+       botoesHtml = '<a href="planos.html" style="display: inline-block; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; padding: 10px 20px; border-radius: 50px; text-decoration: none; font-family: \'Nunito\', sans-serif; font-size: 13px; font-weight: 900; margin-top: 15px;">⚠️ Regularizar plano</a>';
     } else if (!isAssinatura && taPago && dias > 7) {
        botoesHtml = '';
     } else {
-       // 🆕 Agora aponta pra planos.html (checkout.html não existe)
        botoesHtml = '<a href="planos.html" style="display: inline-block; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; padding: 10px 20px; border-radius: 50px; text-decoration: none; font-family: \'Nunito\', sans-serif; font-size: 13px; font-weight: 900; margin-top: 15px;">✨ Ativar / Renovar Plano</a>';
     }
 
