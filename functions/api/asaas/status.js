@@ -1,21 +1,18 @@
 // functions/api/asaas/status.js
 // Consulta o status de uma cobrança no Asaas (usado no polling)
 //
-// Quando o pagamento está confirmado:
-//   • Se a cuidadora ainda não tem senha, GARANTE que existe um
-//     token válido — gera na hora se o webhook não tiver chegado.
-//   • Devolve o token pro frontend criar a senha.
+// 🛡️ BLINDAGENS:
+//   • Garante token de criar senha mesmo se o webhook falhar
+//   • Marca como Pago no banco (redundância do webhook)
+//   • Não sobrescreve token válido existente
 //
 // 🌍 AMBIENTE: controlado por env.ASAAS_AMBIENTE
 
 function getAsaasConfig(env) {
   const ambiente = (env.ASAAS_AMBIENTE || 'producao').toLowerCase();
   const isSandbox = ambiente === 'sandbox';
-
   return {
-    url: isSandbox
-      ? 'https://sandbox.asaas.com/api/v3'
-      : 'https://api.asaas.com/v3',
+    url: isSandbox ? 'https://sandbox.asaas.com/api/v3' : 'https://api.asaas.com/v3',
     apiKey: isSandbox
       ? (env.ASAAS_API_KEY_SANDBOX || env.ASAAS_API_KEY)
       : (env.ASAAS_API_KEY_PRODUCAO || env.ASAAS_API_KEY),
@@ -23,7 +20,6 @@ function getAsaasConfig(env) {
   };
 }
 
-// Gera token aleatório (mesmo formato do webhook.js)
 function gerarToken() {
   const bytes = new Uint8Array(16);
   crypto.getRandomValues(bytes);
@@ -37,7 +33,7 @@ export async function onRequestGet(context) {
   const ASAAS_URL = asaas.url;
 
   if (!ASAAS_API_KEY) {
-    return jsonResp({ error: 'Chave Asaas não configurada no ambiente: ' + (asaas.isSandbox ? 'SANDBOX' : 'PRODUCAO') }, 500);
+    return jsonResp({ error: 'Chave Asaas não configurada', ambiente: asaas.isSandbox ? 'sandbox' : 'producao' }, 500);
   }
 
   try {
@@ -57,7 +53,6 @@ export async function onRequestGet(context) {
     });
 
     const texto = await resp.text();
-
     let data = null;
     try {
       data = JSON.parse(texto);
@@ -80,6 +75,7 @@ export async function onRequestGet(context) {
     }
 
     const pago = data.status === 'RECEIVED' || data.status === 'CONFIRMED';
+    const estornado = data.status === 'REFUNDED' || data.status === 'CHARGEBACK_REQUESTED';
 
     const resposta = {
       ok: true,
@@ -87,16 +83,17 @@ export async function onRequestGet(context) {
       cobrancaId: data.id,
       status: data.status,
       pago: pago,
+      estornado: estornado,
       valor: data.value,
       formaPagamento: data.billingType
     };
 
-    // ⭐ Se pagou, garante que a cuidadora terá um token pra criar senha
+    // 🛡️ Se pagou → garante token + marca como Pago no banco
     if (pago && cuidadorId && env.SUPABASE_URL && env.SUPABASE_SERVICE_KEY) {
       try {
         const cResp = await fetch(
           env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(cuidadorId) +
-          '&select=token_criar_senha,token_criar_senha_expira_em,auth_user_id,status_pagamento,plano_cadastro,plano_profissional,plano_destaque&limit=1',
+          '&select=token_criar_senha,token_criar_senha_expira_em,auth_user_id,status_pagamento,plano_cadastro,plano_profissional,plano_destaque,plano_valido_ate&limit=1',
           {
             headers: {
               'apikey': env.SUPABASE_SERVICE_KEY,
@@ -110,50 +107,45 @@ export async function onRequestGet(context) {
           const linhas = await cResp.json();
           const c = linhas && linhas[0];
 
-          // Se já tem senha criada, não precisa de token
-          if (c && c.auth_user_id) {
-            // nada a fazer
-          }
-          else if (c) {
-            // ⭐ GARANTE: se a cuidadora já está "Pago" no banco mas ainda
-            //    não tem token válido (webhook pode ter falhado), gera agora.
-            let tokenAtual = c.token_criar_senha;
-            const expiraAtual = c.token_criar_senha_expira_em ? new Date(c.token_criar_senha_expira_em) : null;
+          if (c && !c.auth_user_id) {
             const agora = new Date();
+            const expiraAtual = c.token_criar_senha_expira_em ? new Date(c.token_criar_senha_expira_em) : null;
+            const tokenEhValido = c.token_criar_senha && expiraAtual && expiraAtual > agora;
 
-            const tokenEhValido = tokenAtual && expiraAtual && expiraAtual > agora;
-
-            // Marca como Pago no banco, caso ainda não esteja (fallback do webhook)
             const patchBody = {};
 
+            // Marca como Pago se ainda não estava
             if (c.status_pagamento !== 'Pago') {
               patchBody.status_pagamento = 'Pago';
 
-              // Aproveita e ajusta datas do plano se ainda não tiver
+              // Determina plano
               let planoDetectado = 'profissional';
               if (c.plano_cadastro) planoDetectado = 'cadastro';
               else if (c.plano_destaque) planoDetectado = 'destaque';
               else if (c.plano_profissional) planoDetectado = 'profissional';
 
-              const vence = new Date(agora);
-              vence.setDate(vence.getDate() + 30);
-
-              patchBody.plano_inicio = agora.toISOString();
-              patchBody.plano_valido_ate = vence.toISOString();
-              patchBody.proxima_cobranca = vence.toISOString();
+              // Só ajusta datas se ainda não estavam definidas
+              if (!c.plano_valido_ate) {
+                const vence = new Date(agora);
+                vence.setDate(vence.getDate() + 30);
+                patchBody.plano_inicio = agora.toISOString();
+                patchBody.plano_valido_ate = vence.toISOString();
+                patchBody.proxima_cobranca = vence.toISOString();
+              }
             }
 
-            // Gera token se não tiver um válido
+            // Gera token se não tem válido
+            let tokenParaDevolver = c.token_criar_senha;
+
             if (!tokenEhValido) {
-              tokenAtual = gerarToken();
+              tokenParaDevolver = gerarToken();
               const expiraNovo = new Date(agora);
               expiraNovo.setHours(expiraNovo.getHours() + 1);
 
-              patchBody.token_criar_senha = tokenAtual;
+              patchBody.token_criar_senha = tokenParaDevolver;
               patchBody.token_criar_senha_expira_em = expiraNovo.toISOString();
             }
 
-            // Só faz PATCH se tiver algo pra atualizar
             if (Object.keys(patchBody).length > 0) {
               await fetch(
                 env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(cuidadorId),
@@ -167,11 +159,10 @@ export async function onRequestGet(context) {
                   body: JSON.stringify(patchBody)
                 }
               );
-              console.log('🔐 Token de criar senha gerado/renovado via polling:', cuidadorId);
+              console.log('🛡️ Status garantiu dados de pagamento:', cuidadorId);
             }
 
-            // Devolve o token pro frontend
-            resposta.token_criar_senha = tokenAtual;
+            resposta.token_criar_senha = tokenParaDevolver;
           }
         }
       } catch (e) {

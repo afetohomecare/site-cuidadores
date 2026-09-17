@@ -5,19 +5,18 @@
 // Cartão = Assinatura Mensal (/subscriptions)
 //
 // 🌍 AMBIENTE: controlado por env.ASAAS_AMBIENTE
-//    • 'sandbox'  → testa no Asaas Sandbox
-//    • 'producao' → dinheiro de verdade (padrão)
+//
+// 🛡️ BLINDAGENS:
+//   • Gera token de criar senha quando cupom zera valor
+//   • Deleta cobrança antiga antes de criar nova
+//   • Evita duplicação de cobranças
 // ============================================================
 
-// 🔧 Lê a config do ambiente atual
 function getAsaasConfig(env) {
   const ambiente = (env.ASAAS_AMBIENTE || 'producao').toLowerCase();
   const isSandbox = ambiente === 'sandbox';
-
   return {
-    url: isSandbox
-      ? 'https://sandbox.asaas.com/api/v3'
-      : 'https://api.asaas.com/v3',
+    url: isSandbox ? 'https://sandbox.asaas.com/api/v3' : 'https://api.asaas.com/v3',
     apiKey: isSandbox
       ? (env.ASAAS_API_KEY_SANDBOX || env.ASAAS_API_KEY)
       : (env.ASAAS_API_KEY_PRODUCAO || env.ASAAS_API_KEY),
@@ -25,7 +24,6 @@ function getAsaasConfig(env) {
   };
 }
 
-// 🔧 Nome bonito do plano pra aparecer na fatura
 function nomeDoPlanoBonito(plano) {
   if (plano === 'cadastro') return 'Cadastro Básico';
   if (plano === 'destaque') return 'Destaque';
@@ -34,6 +32,12 @@ function nomeDoPlanoBonito(plano) {
 
 function diasDoPlano(plano) {
   return 30;
+}
+
+function gerarToken() {
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
 export async function onRequestPost(context) {
@@ -46,7 +50,7 @@ export async function onRequestPost(context) {
     return jsonResp({ error: 'Configuração do Supabase ausente' }, 500);
   }
 
-  console.log('🌍 Asaas em modo:', asaas.isSandbox ? 'SANDBOX' : 'PRODUÇÃO');
+  console.log('🌍 Checkout em modo:', asaas.isSandbox ? 'SANDBOX' : 'PRODUÇÃO');
 
   try {
     const body = await request.json();
@@ -71,7 +75,7 @@ export async function onRequestPost(context) {
       const valorBaseCheck = await lerPrecoPlano(env, plano);
       if (!valorBaseCheck) return jsonResp({ error: 'Preço não configurado' }, 500);
 
-      const resultado = await validarCupom(env, cupomCodigo, plano, valorBaseCheck);
+      const resultado = await validarCupom(env, cupomCodigo, plano, valorBaseCheck, cpfLimpo);
       if (!resultado.ok) return jsonResp({ error: resultado.erro }, 400);
 
       return jsonResp({
@@ -95,7 +99,7 @@ export async function onRequestPost(context) {
     let cupomObj = null;
 
     if (cupomCodigo) {
-      const resultado = await validarCupom(env, cupomCodigo, plano, valorBase);
+      const resultado = await validarCupom(env, cupomCodigo, plano, valorBase, cpfLimpo);
       if (!resultado.ok) return jsonResp({ error: resultado.erro }, 400);
       desconto = resultado.desconto;
       cupomObj = resultado.cupom;
@@ -103,22 +107,48 @@ export async function onRequestPost(context) {
 
     const valorFinal = Math.max(0, Math.round((valorBase - desconto) * 100) / 100);
 
-    // ---------- 3. SE 100% DESCONTO ----------
+    // ============================================================
+    // 🎁 CUPOM 100% → LIBERA SEM COBRANÇA (e gera token de senha!)
+    // ============================================================
     if (valorFinal === 0) {
       const agora = new Date();
       const vence = new Date(agora);
       vence.setDate(vence.getDate() + diasDoPlano(plano));
 
       if (cuidadorId) {
+        // Gera token de criar senha (a cuidadora vai precisar)
+        const token = gerarToken();
+        const expiraToken = new Date(agora);
+        expiraToken.setHours(expiraToken.getHours() + 1);
+
+        // Verifica se já tem senha criada — se sim, não gera token
+        const buscaCuidadora = await fetch(
+          env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadorId + '&select=auth_user_id&limit=1',
+          { headers: headersSupabase(env) }
+        );
+        let jaTemSenha = false;
+        if (buscaCuidadora.ok) {
+          const linhas = await buscaCuidadora.json();
+          jaTemSenha = !!(linhas[0] && linhas[0].auth_user_id);
+        }
+
+        const patchBody = {
+          status_pagamento: 'Pago',
+          cupom_usado: cupomObj ? cupomObj.codigo : null,
+          plano_inicio: agora.toISOString(),
+          plano_valido_ate: vence.toISOString(),
+          proxima_cobranca: vence.toISOString()
+        };
+
+        if (!jaTemSenha) {
+          patchBody.token_criar_senha = token;
+          patchBody.token_criar_senha_expira_em = expiraToken.toISOString();
+        }
+
         await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadorId, {
           method: 'PATCH',
           headers: headersSupabase(env, true, false),
-          body: JSON.stringify({
-            status_pagamento: 'Pago',
-            cupom_usado: cupomObj ? cupomObj.codigo : null,
-            plano_inicio: agora.toISOString(),
-            plano_valido_ate: vence.toISOString()
-          })
+          body: JSON.stringify(patchBody)
         });
 
         if (cupomObj) {
@@ -133,43 +163,57 @@ export async function onRequestPost(context) {
         cupom: cupomObj ? cupomObj.codigo : null,
         valorBase: valorBase,
         valorFinal: 0,
-        cuidadorId: cuidadorId
+        cuidadorId: cuidadorId,
+        jaTemSenha: false
       }, 200);
     }
 
-    // ---------- 4. FLUXO NORMAL ----------
+    // ---------- 3. FLUXO NORMAL ----------
     if (!formaPagamento) {
       return jsonResp({ error: 'Forma de pagamento obrigatória' }, 400);
     }
     if (!ASAAS_API_KEY) {
-      return jsonResp({ error: 'Chave do Asaas não configurada no ambiente: ' + (asaas.isSandbox ? 'SANDBOX' : 'PRODUCAO') }, 500);
+      return jsonResp({ error: 'Chave do Asaas não configurada' }, 500);
     }
 
-    // ⭐ DELETA COBRANÇA ANTIGA (se existir e não estiver paga)
+    // 🛡️ DELETA COBRANÇAS ANTIGAS NÃO PAGAS (evita duplicação)
     if (cuidadorId) {
-      try {
-        const cResp = await fetch(
-          env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadorId + '&select=asaas_cobranca_id,status_pagamento&limit=1',
-          { headers: headersSupabase(env) }
-        );
-        if (cResp.ok) {
-          const cData = await cResp.json();
-          const antigaCobrancaId = cData[0] && cData[0].asaas_cobranca_id;
-          const statusAtual = cData[0] && cData[0].status_pagamento;
+      await limparCobrancasAntigas(env, ASAAS_URL, ASAAS_API_KEY, cuidadorId);
+    }
 
-          if (antigaCobrancaId && statusAtual !== 'Pago') {
-            await fetch(ASAAS_URL + '/payments/' + antigaCobrancaId, {
-              method: 'DELETE',
-              headers: { 'User-Agent': 'Afeto/1.0', 'access_token': ASAAS_API_KEY }
-            });
-          }
+    // 🛡️ ANTES DE CRIAR NOVA COBRANÇA, VERIFICA SE JÁ TEM UMA ATIVA COM MESMO VALOR
+    if (cuidadorId) {
+      const cobrancaExistente = await verificarCobrancaAtiva(env, ASAAS_URL, ASAAS_API_KEY, cuidadorId, valorFinal);
+      if (cobrancaExistente) {
+        console.log('♻️ Reutilizando cobrança existente:', cobrancaExistente.id);
+
+        let pixData = null;
+        if (formaPagamento === 'PIX') {
+          const pixResp = await fetch(ASAAS_URL + '/payments/' + cobrancaExistente.id + '/pixQrCode', {
+            headers: { 'User-Agent': 'Afeto/1.0', 'access_token': ASAAS_API_KEY }
+          });
+          if (pixResp.ok) pixData = await pixResp.json();
         }
-      } catch (e) {
-        console.warn('Erro ao deletar cobrança antiga:', e);
+
+        return jsonResp({
+          ok: true,
+          gratis: false,
+          ambiente: asaas.isSandbox ? 'sandbox' : 'producao',
+          reutilizada: true,
+          cobrancaId: cobrancaExistente.id,
+          status: cobrancaExistente.status,
+          valorBase: valorBase,
+          valorFinal: valorFinal,
+          desconto: desconto,
+          pagoNaHora: false,
+          isSubscription: false,
+          pix: pixData ? {
+            qrCodeImage: pixData.encodedImage,
+            copiaECola: pixData.payload
+          } : null
+        }, 200);
       }
     }
-
-    console.log('Criando/buscando cliente no Asaas:', { cpfLimpo, nome });
 
     const customerId = await criarOuBuscarCliente(ASAAS_API_KEY, ASAAS_URL, {
       name: nome,
@@ -189,20 +233,14 @@ export async function onRequestPost(context) {
     vencimento.setDate(vencimento.getDate() + 1);
     const dataVencimento = vencimento.toISOString().split('T')[0];
 
-    // ⭐ Descrição profissional (antes era nome pessoal)
     const descricaoCobranca = 'Afeto — Plano ' + nomeDoPlanoBonito(plano);
 
     let cobrancaData;
     let isSubscription = false;
 
-    // ============================================================
-    // CARTÃO (Assinatura) vs PIX (Avulso)
-    // ============================================================
     if (formaPagamento === 'CREDIT_CARD') {
       isSubscription = true;
-      if (!creditCard) {
-        return jsonResp({ error: 'Dados do cartão obrigatórios' }, 400);
-      }
+      if (!creditCard) return jsonResp({ error: 'Dados do cartão obrigatórios' }, 400);
 
       const titularCartao = {
         name: nome,
@@ -257,7 +295,6 @@ export async function onRequestPost(context) {
       }
     }
 
-    // Salva os IDs no Supabase
     if (cuidadorId) {
       const updatePayload = {
         asaas_customer_id: customerId,
@@ -277,7 +314,6 @@ export async function onRequestPost(context) {
       });
     }
 
-    // Se for PIX, gera o QRCode
     let pixData = null;
     if (formaPagamento === 'PIX') {
       const pixResp = await fetch(ASAAS_URL + '/payments/' + cobrancaData.id + '/pixQrCode', {
@@ -292,15 +328,36 @@ export async function onRequestPost(context) {
       const vence = new Date(agora);
       vence.setDate(vence.getDate() + diasDoPlano(plano));
 
+      // Verifica se já tem senha
+      const buscaCuidadora = await fetch(
+        env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadorId + '&select=auth_user_id&limit=1',
+        { headers: headersSupabase(env) }
+      );
+      let jaTemSenha = false;
+      if (buscaCuidadora.ok) {
+        const linhas = await buscaCuidadora.json();
+        jaTemSenha = !!(linhas[0] && linhas[0].auth_user_id);
+      }
+
+      const patchBody = {
+        status_pagamento: 'Pago',
+        plano_inicio: agora.toISOString(),
+        plano_valido_ate: vence.toISOString(),
+        proxima_cobranca: vence.toISOString()
+      };
+
+      if (!jaTemSenha) {
+        const token = gerarToken();
+        const expiraToken = new Date(agora);
+        expiraToken.setHours(expiraToken.getHours() + 1);
+        patchBody.token_criar_senha = token;
+        patchBody.token_criar_senha_expira_em = expiraToken.toISOString();
+      }
+
       await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadorId, {
         method: 'PATCH',
         headers: headersSupabase(env, true, false),
-        body: JSON.stringify({
-          status_pagamento: 'Pago',
-          plano_inicio: agora.toISOString(),
-          plano_valido_ate: vence.toISOString(),
-          proxima_cobranca: vence.toISOString()
-        })
+        body: JSON.stringify(patchBody)
       });
 
       if (cupomObj) {
@@ -357,7 +414,8 @@ async function lerPrecoPlano(env, plano) {
   }
 }
 
-async function validarCupom(env, codigo, plano, valorBase) {
+// 🛡️ Valida cupom + verifica se o mesmo CPF já usou (evita fraude)
+async function validarCupom(env, codigo, plano, valorBase, cpfLimpo) {
   const codigoLimpo = codigo.trim().toUpperCase();
   const url = env.SUPABASE_URL + '/rest/v1/cupons?codigo=eq.' + encodeURIComponent(codigoLimpo) + '&select=*&limit=1';
   const resp = await fetch(url, { headers: headersSupabase(env) });
@@ -374,6 +432,36 @@ async function validarCupom(env, codigo, plano, valorBase) {
   if (cupom.plano_aplicavel && cupom.plano_aplicavel !== plano) {
     const nomes = { cadastro: 'Cadastro Básico', profissional: 'Profissional', destaque: 'Destaque' };
     return { ok: false, erro: 'Este cupom só vale pro plano ' + (nomes[cupom.plano_aplicavel] || cupom.plano_aplicavel) };
+  }
+
+  // 🛡️ Verifica se esse CPF já usou esse cupom (evita uso duplicado)
+  if (cpfLimpo && cupom.id) {
+    try {
+      // Busca cuidadores com esse CPF
+      const cpfComFormato = cpfLimpo.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+      const buscaCpf = await fetch(
+        env.SUPABASE_URL + '/rest/v1/cuidadores?or=(cpf.eq.' + encodeURIComponent(cpfLimpo) + ',cpf.eq.' + encodeURIComponent(cpfComFormato) + ')&select=id&limit=1',
+        { headers: headersSupabase(env) }
+      );
+      if (buscaCpf.ok) {
+        const linhasCpf = await buscaCpf.json();
+        if (linhasCpf && linhasCpf[0]) {
+          const cuidadorId = linhasCpf[0].id;
+          const jaUsouResp = await fetch(
+            env.SUPABASE_URL + '/rest/v1/cupons_usos?cupom_id=eq.' + cupom.id + '&cuidador_id=eq.' + cuidadorId + '&limit=1',
+            { headers: headersSupabase(env) }
+          );
+          if (jaUsouResp.ok) {
+            const usos = await jaUsouResp.json();
+            if (usos && usos.length > 0) {
+              return { ok: false, erro: 'Você já usou esse cupom' };
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('Erro ao verificar uso de cupom:', e);
+    }
   }
 
   let desconto;
@@ -408,6 +496,68 @@ async function registrarUsoCupom(env, cupom, cuidadorId, plano, valorBase, desco
       body: JSON.stringify({ usos_atuais: (cupom.usos_atuais || 0) + 1 })
     });
   } catch (err) { console.warn('Erro uso cupom:', err); }
+}
+
+// 🛡️ Deleta todas as cobranças antigas NÃO PAGAS do Asaas (evita duplicação)
+async function limparCobrancasAntigas(env, ASAAS_URL, ASAAS_API_KEY, cuidadorId) {
+  try {
+    const cResp = await fetch(
+      env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadorId + '&select=asaas_cobranca_id,status_pagamento&limit=1',
+      { headers: headersSupabase(env) }
+    );
+    if (!cResp.ok) return;
+
+    const cData = await cResp.json();
+    const antigaCobrancaId = cData[0] && cData[0].asaas_cobranca_id;
+    const statusAtual = cData[0] && cData[0].status_pagamento;
+
+    if (antigaCobrancaId && statusAtual !== 'Pago') {
+      await fetch(ASAAS_URL + '/payments/' + antigaCobrancaId, {
+        method: 'DELETE',
+        headers: { 'User-Agent': 'Afeto/1.0', 'access_token': ASAAS_API_KEY }
+      });
+
+      await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadorId, {
+        method: 'PATCH',
+        headers: headersSupabase(env, true, false),
+        body: JSON.stringify({ asaas_cobranca_id: null })
+      });
+    }
+  } catch (e) {
+    console.warn('Erro ao limpar cobranças antigas:', e);
+  }
+}
+
+// 🛡️ Verifica se já existe cobrança pendente com mesmo valor (evita duplicação)
+async function verificarCobrancaAtiva(env, ASAAS_URL, ASAAS_API_KEY, cuidadorId, valorEsperado) {
+  try {
+    const cResp = await fetch(
+      env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadorId + '&select=asaas_cobranca_id&limit=1',
+      { headers: headersSupabase(env) }
+    );
+    if (!cResp.ok) return null;
+
+    const cData = await cResp.json();
+    const cobrancaId = cData[0] && cData[0].asaas_cobranca_id;
+    if (!cobrancaId) return null;
+
+    const asaasResp = await fetch(ASAAS_URL + '/payments/' + cobrancaId, {
+      headers: { 'User-Agent': 'Afeto/1.0', 'access_token': ASAAS_API_KEY }
+    });
+    if (!asaasResp.ok) return null;
+
+    const cobranca = await asaasResp.json();
+
+    // Só reutiliza se ainda está pendente E tem o mesmo valor
+    const statusValidos = ['PENDING', 'AWAITING_RISK_ANALYSIS'];
+    if (statusValidos.indexOf(cobranca.status) === -1) return null;
+    if (Math.abs(cobranca.value - valorEsperado) > 0.01) return null;
+
+    return cobranca;
+  } catch (e) {
+    console.warn('Erro ao verificar cobrança ativa:', e);
+    return null;
+  }
 }
 
 async function criarOuBuscarCliente(apiKey, baseUrl, dados) {

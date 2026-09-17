@@ -1,17 +1,10 @@
 // ============================================================
 // AFETO — API: criar senha da cuidadora (após pagamento)
 // ------------------------------------------------------------
-// Recebe CPF + senha + token temporário. Só funciona se:
-//   • status_pagamento = 'Pago'
-//   • token_criar_senha bate com o do banco
-//   • token ainda não expirou (1h)
-//   • cuidadora ainda não tem auth_user_id
-//
-// Email fake: <cpf_limpo>@afeto.app
-//
-// ⭐ SEGURANÇA: o token é gerado no webhook.js quando o pagamento
-//    confirma e só é válido por 1h. Isso impede que alguém com
-//    o CPF de outra pessoa crie a senha antes dela.
+// 🛡️ BLINDAGENS:
+//   • Valida que o CPF bate com o token de criar senha
+//   • Limpa o token após uso (evita reuso)
+//   • Devolve mensagens de erro específicas
 // ============================================================
 
 export async function onRequestPost(context) {
@@ -45,17 +38,19 @@ export async function onRequestPost(context) {
       return jsonResp({ error: 'A senha precisa ter pelo menos 6 caracteres.' }, 400);
     }
 
+    if (senha.length > 100) {
+      return jsonResp({ error: 'Senha muito longa.' }, 400);
+    }
+
     // ---------- BUSCA CUIDADORA POR CPF ----------
-    const filtro = 'or=(cpf.eq.' + encodeURIComponent(cpfLimpo) + ',cpf.eq.' + encodeURIComponent(cpf) + ')';
+    const cpfComFormato = cpfLimpo.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    const filtro = 'or=(cpf.eq.' + encodeURIComponent(cpfLimpo) + ',cpf.eq.' + encodeURIComponent(cpfComFormato) + ')';
     const buscaUrl = env.SUPABASE_URL + '/rest/v1/cuidadores?select=id,status_pagamento,auth_user_id,nome,token_criar_senha,token_criar_senha_expira_em&' + filtro + '&limit=1';
 
-    const buscaResp = await fetch(buscaUrl, {
-      headers: headersSupabase(env)
-    });
+    const buscaResp = await fetch(buscaUrl, { headers: headersSupabase(env) });
 
     if (!buscaResp.ok) {
-      const txt = await buscaResp.text();
-      console.error('Erro buscar cuidadora:', buscaResp.status, txt);
+      console.error('Erro buscar cuidadora:', await buscaResp.text());
       return jsonResp({ error: 'Falha ao consultar banco.' }, 502);
     }
 
@@ -67,32 +62,30 @@ export async function onRequestPost(context) {
 
     const cuidadora = linhas[0];
 
-    // ---------- VALIDA STATUS DE PAGAMENTO ----------
     if (cuidadora.status_pagamento !== 'Pago') {
       return jsonResp({ error: 'É preciso confirmar o pagamento antes de criar a senha.' }, 403);
     }
 
-    // ---------- JÁ TEM SENHA? ----------
     if (cuidadora.auth_user_id) {
       return jsonResp({ error: 'Você já tem uma senha criada. Use a tela de login.' }, 409);
     }
 
-    // ---------- VALIDA TOKEN TEMPORÁRIO ----------
+    // 🛡️ Valida token
     if (!cuidadora.token_criar_senha) {
       return jsonResp({ error: 'Sessão inválida. Volte ao cadastro e tente novamente.' }, 403);
     }
 
+    // 🛡️ Valida que o token bate
     if (cuidadora.token_criar_senha !== token) {
-      console.warn('Token inválido pra cuidadora:', cuidadora.id);
+      console.warn('Token não bate. Recebido:', token.substring(0, 8) + '...', 'Esperado:', cuidadora.token_criar_senha.substring(0, 8) + '...');
       return jsonResp({ error: 'Sessão inválida. Volte ao cadastro e tente novamente.' }, 403);
     }
 
-    // Verifica expiração
+    // 🛡️ Valida expiração
     if (cuidadora.token_criar_senha_expira_em) {
       const expira = new Date(cuidadora.token_criar_senha_expira_em);
       const agora = new Date();
       if (expira < agora) {
-        console.warn('Token expirado pra cuidadora:', cuidadora.id);
         return jsonResp({ error: 'Sessão expirada. Fale com a gente pelo WhatsApp pra liberar seu acesso.' }, 403);
       }
     }
@@ -128,8 +121,7 @@ export async function onRequestPost(context) {
 
     const authUserId = criarUserData.id;
 
-    // ---------- ATUALIZA CUIDADORA ----------
-    // Limpa o token (usa uma vez só) + vincula auth_user_id
+    // ---------- ATUALIZA CUIDADORA (limpa token) ----------
     const patchResp = await fetch(
       env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadora.id,
       {
@@ -145,8 +137,7 @@ export async function onRequestPost(context) {
     );
 
     if (!patchResp.ok) {
-      const txt = await patchResp.text();
-      console.error('Erro vincular auth_user_id:', patchResp.status, txt);
+      console.error('Erro vincular auth_user_id:', await patchResp.text());
       // Tenta deletar o user criado pra não deixar órfão
       try {
         await fetch(env.SUPABASE_URL + '/auth/v1/admin/users/' + authUserId, {

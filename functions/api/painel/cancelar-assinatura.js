@@ -1,16 +1,13 @@
 // ============================================================
-// AFETO — API Painel: Cancelar Assinatura (Cartão)
-// 🌍 AMBIENTE: controlado por env.ASAAS_AMBIENTE
+// AFETO — API Painel: Cancelar Assinatura
+// 🛡️ BLINDAGEM: idempotente + fallback se Asaas falhar
 // ============================================================
 
 function getAsaasConfig(env) {
   const ambiente = (env.ASAAS_AMBIENTE || 'producao').toLowerCase();
   const isSandbox = ambiente === 'sandbox';
-
   return {
-    url: isSandbox
-      ? 'https://sandbox.asaas.com/api/v3'
-      : 'https://api.asaas.com/v3',
+    url: isSandbox ? 'https://sandbox.asaas.com/api/v3' : 'https://api.asaas.com/v3',
     apiKey: isSandbox
       ? (env.ASAAS_API_KEY_SANDBOX || env.ASAAS_API_KEY)
       : (env.ASAAS_API_KEY_PRODUCAO || env.ASAAS_API_KEY),
@@ -24,18 +21,14 @@ export async function onRequestPost(context) {
   const ASAAS_URL = asaas.url;
   const ASAAS_API_KEY = asaas.apiKey;
 
-  if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_KEY || !ASAAS_API_KEY) {
+  if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_KEY) {
     return jsonResp({ error: 'Configuração do servidor ausente.' }, 500);
   }
 
   try {
-    // 1. Valida o Token da Cuidadora
     const cuidadora = await validarToken(env, request);
-    if (!cuidadora) {
-      return jsonResp({ error: 'Não autenticado.' }, 401);
-    }
+    if (!cuidadora) return jsonResp({ error: 'Não autenticado.' }, 401);
 
-    // 2. Busca o ID da assinatura no Supabase
     const respBd = await fetch(
       env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadora.id + '&select=asaas_subscription_id&limit=1',
       { headers: headersSupabase(env) }
@@ -43,26 +36,41 @@ export async function onRequestPost(context) {
     const dadosBd = await respBd.json();
     const subId = dadosBd[0] && dadosBd[0].asaas_subscription_id;
 
+    // 🛡️ Idempotente: se já não tem assinatura, retorna OK
     if (!subId) {
-      return jsonResp({ error: 'Nenhuma assinatura ativa encontrada.' }, 400);
+      return jsonResp({
+        ok: true,
+        mensagem: 'Nenhuma assinatura ativa (já estava cancelada ou é plano PIX).',
+        jaCancelada: true
+      }, 200);
     }
 
-    // 3. Deleta a assinatura no Asaas
-    const asaasResp = await fetch(`${ASAAS_URL}/subscriptions/${subId}`, {
-      method: 'DELETE',
-      headers: {
-        'User-Agent': 'Afeto/1.0',
-        'access_token': ASAAS_API_KEY
+    let asaasSucesso = false;
+
+    if (ASAAS_API_KEY) {
+      try {
+        const asaasResp = await fetch(`${ASAAS_URL}/subscriptions/${subId}`, {
+          method: 'DELETE',
+          headers: {
+            'User-Agent': 'Afeto/1.0',
+            'access_token': ASAAS_API_KEY
+          }
+        });
+
+        // 🛡️ 404 = já não existe no Asaas. Considera sucesso.
+        if (asaasResp.ok || asaasResp.status === 404) {
+          asaasSucesso = true;
+        } else {
+          const errData = await asaasResp.text();
+          console.error('Erro ao cancelar no Asaas:', errData);
+        }
+      } catch (e) {
+        console.error('Erro de rede ao cancelar no Asaas:', e);
       }
-    });
-
-    if (!asaasResp.ok) {
-      const errData = await asaasResp.text();
-      console.error('Erro ao cancelar no Asaas:', errData);
-      return jsonResp({ error: 'Falha ao comunicar com o Asaas.' }, 502);
     }
 
-    // 4. Remove o ID da assinatura do Supabase
+    // 🛡️ Mesmo se o Asaas falhou, limpamos a referência local.
+    //    Assim a cuidadora sai do ciclo de cobrança automática no site.
     await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadora.id, {
       method: 'PATCH',
       headers: headersSupabase(env, true),
@@ -75,7 +83,10 @@ export async function onRequestPost(context) {
     return jsonResp({
       ok: true,
       ambiente: asaas.isSandbox ? 'sandbox' : 'producao',
-      mensagem: 'Assinatura cancelada com sucesso.'
+      asaasCancelou: asaasSucesso,
+      mensagem: asaasSucesso
+        ? 'Assinatura cancelada com sucesso.'
+        : 'Assinatura removida do painel. Se houver cobrança futura, entre em contato.'
     }, 200);
 
   } catch (err) {
@@ -84,9 +95,6 @@ export async function onRequestPost(context) {
   }
 }
 
-// ============================================================
-// HELPERS
-// ============================================================
 async function validarToken(env, request) {
   const auth = request.headers.get('Authorization') || '';
   const token = auth.replace('Bearer ', '').trim();
