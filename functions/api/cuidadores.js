@@ -9,8 +9,6 @@ import { idSeguro } from '../_lib/auth.js';
 const CAMPOS_PUBLICOS = [
   'id',
   'nome',
-  'whatsapp',
-  'whatsapp_agencia',
   'foto_url',
   'apresentacao',
   'motivacao',
@@ -45,7 +43,6 @@ const CAMPOS_PUBLICOS = [
 
 function perfilPublico(row) {
   const item = Object.assign({}, row);
-  item.whatsapp = item.whatsapp || item.whatsapp_agencia || null;
 
   if (item.mostrar_bio === false) item.apresentacao = null;
   if (item.mostrar_habilidades === false) item.subespecialidades = [];

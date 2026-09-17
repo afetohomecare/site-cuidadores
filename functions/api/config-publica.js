@@ -52,7 +52,11 @@ export async function onRequestGet(context) {
       if (!isNaN(v)) precos[l.chave] = v;
     });
 
-    return new Response(JSON.stringify({ ok: true, precos: precos }), {
+    return new Response(JSON.stringify({
+      ok: true,
+      precos: precos,
+      turnstileSiteKey: env.TURNSTILE_SITE_KEY || null
+    }), {
       status: 200,
       headers: {
         'Content-Type': 'application/json; charset=utf-8',

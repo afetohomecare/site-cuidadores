@@ -228,6 +228,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
     <li class="menu-item ativo" data-tab="dashboard"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></li>
     <li class="menu-item" data-tab="cuidadoras"><i class="fa-solid fa-users"></i><span>Cuidadoras</span></li>
     <li class="menu-item" data-tab="mensagens"><i class="fa-solid fa-comments"></i><span>Mensagens</span></li>
+    <li class="menu-item" data-tab="solicitacoes"><i class="fa-solid fa-inbox"></i><span>Atendimentos</span><span class="badge-alerta" id="badge-solicitacoes" style="display:none;">0</span></li>
     <li class="menu-item" data-tab="resets"><i class="fa-solid fa-key"></i><span>Recuperar senha</span><span class="badge-alerta" id="badge-resets" style="display:none;">0</span></li>
     <li class="menu-item" onclick="window.location.href='exclusoes.html'"><i class="fa-solid fa-trash"></i><span>Exclusões</span><span class="badge-alerta" id="badge-exclusoes" style="display:none;">0</span></li>
     <li class="menu-item" onclick="window.location.href='fotos.html'"><i class="fa-solid fa-camera"></i><span>Fotos</span><span class="badge-alerta" id="badge-fotos" style="display:none;">0</span></li>
@@ -346,6 +347,18 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
     </div>
 
     <div id="lista-templates"><div class="loader"><i class="fa-solid fa-spinner fa-spin"></i> Carregando...</div></div>
+  </div>
+
+  <div id="tab-solicitacoes" class="tab-content">
+    <div class="page-header">
+      <div>
+        <h1>Solicitações de atendimento</h1>
+        <p>Pedidos das famílias. Encaminhe só quando a família autorizou, para quem atende o mesmo bairro.</p>
+      </div>
+    </div>
+    <div id="lista-atendimentos">
+      <div class="loader"><i class="fa-solid fa-spinner fa-spin"></i> Carregando...</div>
+    </div>
   </div>
 
   <div id="tab-resets" class="tab-content">
@@ -519,6 +532,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
       if (tab === 'cuidadoras') carregarCuidadoras();
       if (tab === 'mensagens') carregarTemplates();
       if (tab === 'resets') carregarResets();
+      if (tab === 'solicitacoes') carregarAtendimentos();
     });
   });
 
@@ -674,6 +688,93 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
       console.warn('Erro ao carregar badge resets:', err);
     }
   }
+
+  function fmtPeriodosAdmin(lista) {
+    if (!lista || !lista.length) return '—';
+    return lista.map(function(p) {
+      var d = String(p.data || '').split('-');
+      var data = d.length === 3 ? (d[2] + '/' + d[1]) : p.data;
+      return data + ' ' + (p.inicio || '') + '–' + (p.fim || '');
+    }).join(' · ');
+  }
+
+  async function carregarAtendimentos() {
+    var el = document.getElementById('lista-atendimentos');
+    el.innerHTML = '<div class="loader"><i class="fa-solid fa-spinner fa-spin"></i> Carregando...</div>';
+    try {
+      var resp = await api('/api/admin/solicitacoes');
+      if (!resp.ok) throw new Error('falha');
+      var data = await resp.json();
+      var pedidos = data.pedidos || [];
+      var badge = document.getElementById('badge-solicitacoes');
+      if (badge) {
+        if (pedidos.length) { badge.textContent = pedidos.length; badge.style.display = 'inline-block'; }
+        else badge.style.display = 'none';
+      }
+      if (!pedidos.length) {
+        el.innerHTML = '<p class="mini-vazio">Nenhuma solicitação ainda</p>';
+        return;
+      }
+      el.innerHTML = pedidos.map(function(p) {
+        var tags = (p.necessidades || []).map(function(t) { return esc(t); }).join(', ');
+        var btn = p.encaminharOutras
+          ? '<button class="btn-acao btn-aprovar" onclick="encaminharPedido(\'' + p.id + '\')">Encaminhar no bairro ' + esc(p.bairro) + '</button>'
+          : '<span class="mini-vazio">Sem autorização para encaminhar</span>';
+        var wa = p.waUrl
+          ? '<a class="btn-acao btn-whats" href="' + esc(p.waUrl) + '" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> Família</a>'
+          : '';
+        return '<div class="reset-card" style="align-items:flex-start;">' +
+          '<div class="reset-info">' +
+            '<div class="reset-nome">' + esc(p.pacienteNome) + ' · ' + esc(String(p.pacienteIdade || '')) + ' anos</div>' +
+            '<div class="reset-meta">' +
+              '<span>Perfil: ' + esc(p.perfilNome) + '</span>' +
+              '<span>Família: ' + esc(p.nomeSolicitante) + '</span>' +
+              '<span>' + esc(p.bairro) + '</span>' +
+              '<span>' + esc(fmtPeriodosAdmin(p.periodos)) + '</span>' +
+            '</div>' +
+            (tags ? '<div class="reset-meta" style="margin-top:6px;">' + tags + '</div>' : '') +
+            (p.infoPaciente ? '<div class="reset-meta" style="margin-top:6px;">' + esc(p.infoPaciente) + '</div>' : '') +
+            (p.complemento ? '<div class="reset-meta">' + esc(p.complemento) + '</div>' : '') +
+          '</div>' +
+          '<div style="display:flex;flex-direction:column;gap:8px;">' + wa + btn + '</div>' +
+        '</div>';
+      }).join('');
+    } catch (err) {
+      el.innerHTML = '<p class="mini-vazio">Não foi possível carregar.</p>';
+    }
+  }
+
+  async function carregarBadgeAtendimentos() {
+    try {
+      var resp = await api('/api/admin/solicitacoes');
+      if (!resp.ok) return;
+      var data = await resp.json();
+      var qtd = (data.pedidos || []).length;
+      var badge = document.getElementById('badge-solicitacoes');
+      if (!badge) return;
+      if (qtd > 0) { badge.textContent = qtd; badge.style.display = 'inline-block'; }
+      else badge.style.display = 'none';
+    } catch (e) {}
+  }
+
+  window.encaminharPedido = async function(id) {
+    if (!confirm('Enviar este pedido para outras profissionais que atuam neste bairro?')) return;
+    try {
+      var resp = await api('/api/admin/solicitacoes', {
+        method: 'POST',
+        body: JSON.stringify({ solicitacaoId: id })
+      });
+      var data = await resp.json();
+      if (!resp.ok) {
+        mostrarToast(data.error || 'Não foi possível encaminhar', true);
+        return;
+      }
+      mostrarToast(data.mensagem || 'Encaminhado');
+      carregarAtendimentos();
+    } catch (e) {
+      mostrarToast('Erro ao encaminhar', true);
+    }
+  };
 
   async function carregarCuidadoras() {
     var listaEl = document.getElementById('lista-cuidadoras');
@@ -1274,6 +1375,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
   carregarBadgeExclusoes();
   carregarBadgeFotos();
   carregarBadgeResets();
+  carregarBadgeAtendimentos();
 
 })();
 </script>

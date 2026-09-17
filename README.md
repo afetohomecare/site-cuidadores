@@ -29,6 +29,13 @@ O Cloudflare publica a pasta inteira. **Não mova os HTML da raiz** sem atualiza
 - `ASAAS_WEBHOOK_TOKEN_PRODUCAO` (ou `ASAAS_WEBHOOK_TOKEN`) — **obrigatório** para o webhook aceitar pagamentos
 - `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`
 - Opcional: `TELEGRAM_WEBHOOK_SECRET` (se configurar no BotFather, o webhook exige esse header)
+- Opcional: `TURNSTILE_SITE_KEY` e `TURNSTILE_SECRET_KEY` (formulário de solicitar atendimento)
+
+## Solicitações de atendimento
+
+1. No Supabase (SQL Editor), rode `sql/solicitacoes_atendimento.sql` uma vez.
+2. No perfil da cuidadora o botão passa a ser **Solicitar atendimento** (WhatsApp só depois do envio).
+3. Os pedidos aparecem no painel da profissional e em **Admin → Atendimentos**.
 
 ## Vitrine
 

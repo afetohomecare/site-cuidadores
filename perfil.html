@@ -450,6 +450,60 @@ header {
 }
 .voltar-link:hover { transform: translateX(-3px); color: var(--lilas); }
 
+.btn-acao.btn-solicitar {
+    background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro));
+    box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3);
+}
+.btn-acao.btn-solicitar:hover {
+    background: var(--lilas-escuro);
+    box-shadow: 0 15px 35px rgba(139, 92, 246, 0.4);
+}
+
+.modal-sol {
+    display: none; position: fixed; inset: 0; z-index: 4000;
+    background: rgba(31, 31, 31, 0.55); align-items: flex-end; justify-content: center;
+}
+.modal-sol.ativo { display: flex; }
+.modal-sol-box {
+    background: white; width: 100%; max-width: 560px; max-height: 94vh;
+    border-radius: 28px 28px 0 0; overflow: auto; padding: 22px 20px 36px;
+}
+.modal-sol-box h2 { font-size: 22px; font-weight: 900; margin-bottom: 6px; }
+.modal-sol-box .sub { font-size: 14px; color: var(--cinza-fonte); font-weight: 700; line-height: 1.5; margin-bottom: 18px; }
+.sol-campo { margin-bottom: 14px; }
+.sol-campo label { display: block; font-size: 13px; font-weight: 800; margin-bottom: 6px; }
+.sol-campo input, .sol-campo select, .sol-campo textarea {
+    width: 100%; padding: 12px 14px; border: 2px solid #e2e8f0; border-radius: 14px;
+    font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 700; outline: none;
+}
+.sol-campo textarea { min-height: 90px; resize: vertical; }
+.sol-campo input:focus, .sol-campo select:focus, .sol-campo textarea:focus { border-color: var(--lilas); }
+.sol-ajuda { font-size: 12px; color: var(--cinza-azulado); font-weight: 700; margin-top: 6px; line-height: 1.45; }
+.sol-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.sol-tag {
+    border: 2px solid #e2e8f0; background: white; border-radius: 50px; padding: 8px 12px;
+    font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 800; cursor: pointer;
+}
+.sol-tag.ativo { background: #f5f3ff; border-color: var(--lilas); color: var(--lilas-escuro); }
+.cal-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-weight: 900; }
+.cal-nav button { background: #f5f3ff; border: none; border-radius: 10px; width: 36px; height: 36px; cursor: pointer; color: var(--lilas-escuro); }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
+.cal-dow { font-size: 11px; font-weight: 900; color: var(--cinza-azulado); padding: 4px 0; }
+.cal-dia {
+    border: none; background: #f8f9fc; border-radius: 10px; padding: 10px 0; font-weight: 800;
+    font-family: 'Nunito', sans-serif; cursor: pointer;
+}
+.cal-dia:disabled { opacity: 0.3; cursor: default; }
+.cal-dia.sel { background: var(--lilas); color: white; }
+.periodo-linha { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 8px; align-items: center; margin-top: 8px; }
+.aviso-6h { background: #f5f3ff; border-left: 4px solid var(--lilas); padding: 12px 14px; border-radius: 12px; font-size: 13px; font-weight: 700; color: #6d28d9; margin: 10px 0 14px; }
+.sol-check { display: flex; gap: 10px; align-items: flex-start; font-size: 13.5px; font-weight: 700; line-height: 1.45; }
+.sol-check input { margin-top: 3px; }
+.sol-hp { position: absolute; left: -9999px; }
+.sol-erro { color: #b91c1c; font-weight: 800; font-size: 13px; margin-bottom: 10px; display: none; }
+.sol-sucesso { text-align: center; padding: 20px 8px; display: none; }
+.sol-sucesso h3 { font-size: 20px; font-weight: 900; margin: 10px 0; }
+
 @media (max-width: 600px) {
     .veja-tambem-grid { gap: 8px; }
     .mini-card { padding: 12px 6px; }
@@ -774,9 +828,7 @@ function renderizarPerfil(cuidadora) {
     }
 
     var botaoWhats =
-        wppCuidadora
-            ? '<a href="https://wa.me/' + wppCuidadora + '?text=' + mensagemWhatsAppFamilia(primeiroNomeBruto, cuidadora.bairro) + '" target="_blank" rel="noopener" class="btn-acao"><i class="fa-brands fa-whatsapp"></i> Falar com ' + primeiroNome + '</a>'
-            : '';
+        '<button type="button" class="btn-acao btn-solicitar" onclick="abrirSolicitacao()"><i class="fa-solid fa-hand-holding-heart"></i> Solicitar atendimento</button>';
 
     var estrelasHTML = '<span class="estrela-anim" data-delay="0">★</span><span class="estrela-anim" data-delay="200">★</span><span class="estrela-anim" data-delay="400">★</span><span class="estrela-anim" data-delay="600">★</span><span class="estrela-anim" data-delay="800">★</span><span class="nota-numero-anim" id="notaNumero">' + notaTexto + '</span>';
 
@@ -964,6 +1016,311 @@ carregarTudo();
         
     </div>
 </footer>
+
+<div class="modal-sol" id="modal-sol" role="dialog" aria-modal="true">
+  <div class="modal-sol-box">
+    <button type="button" onclick="fecharSolicitacao()" style="float:right;border:none;background:transparent;font-size:22px;cursor:pointer;color:#94a3b8;">×</button>
+    <div id="sol-form-wrap">
+      <h2>Solicitar atendimento</h2>
+      <p class="sub">Seu pedido vai para o painel desta profissional e para a Afeto. Se você autorizar, podemos encaminhar também para outras que atuam no mesmo bairro.</p>
+      <div class="sol-erro" id="sol-erro"></div>
+      <form id="form-solicitacao">
+        <input class="sol-hp" type="text" name="website" tabindex="-1" autocomplete="off">
+        <div class="sol-campo"><label>Seu nome</label><input type="text" id="sol-nome" required maxlength="80" placeholder="Como devemos te chamar"></div>
+        <div class="sol-campo"><label>WhatsApp (com DDD)</label><input type="tel" id="sol-whats" required placeholder="(41) 99999-9999"></div>
+        <div class="sol-campo"><label>E-mail (opcional)</label><input type="email" id="sol-email" placeholder="voce@email.com"></div>
+        <div class="sol-campo"><label>Bairro do atendimento</label><select id="sol-bairro" required><option value="">Carregando...</option></select></div>
+        <div class="sol-campo">
+          <label>Do que a pessoa precisa? (até 10)</label>
+          <div class="sol-tags" id="sol-tags"></div>
+        </div>
+        <div class="sol-campo">
+          <label>Primeiro nome de quem vai receber o cuidado</label>
+          <input type="text" id="sol-pac-nome" required maxlength="40" placeholder="Só o primeiro nome">
+        </div>
+        <div class="sol-campo"><label>Idade</label><input type="number" id="sol-pac-idade" required min="1" max="120" placeholder="Ex: 82"></div>
+        <div class="sol-campo"><label>Sexo</label>
+          <select id="sol-pac-sexo" required>
+            <option value="">Selecione</option>
+            <option>Feminino</option>
+            <option>Masculino</option>
+            <option>Outro</option>
+          </select>
+        </div>
+        <div class="sol-campo">
+          <label>Informações do paciente</label>
+          <textarea id="sol-info" placeholder="Mobilidade, medicação, se mora sozinho, se já tem cuidador..."></textarea>
+        </div>
+        <div class="sol-campo">
+          <label>Cuidados especiais / observações</label>
+          <textarea id="sol-comp"></textarea>
+          <div class="sol-ajuda">Pode apagar o texto de exemplo e escrever do seu jeito.</div>
+        </div>
+        <div class="aviso-6h">O período mínimo de atendimento é de <strong>6 horas por dia</strong> — padrão do mercado para plantão domiciliar.</div>
+        <div class="sol-campo">
+          <label>Quando precisa?</label>
+          <div class="cal-nav">
+            <button type="button" id="cal-prev"><i class="fa-solid fa-chevron-left"></i></button>
+            <span id="cal-titulo"></span>
+            <button type="button" id="cal-next"><i class="fa-solid fa-chevron-right"></i></button>
+          </div>
+          <div class="cal-grid" id="cal-grid"></div>
+          <div id="sol-periodos"></div>
+        </div>
+        <label class="sol-check" style="margin:16px 0;">
+          <input type="checkbox" id="sol-encaminhar">
+          <span>Autorizo a Afeto a encaminhar este pedido para outras profissionais que atuam neste bairro, caso faça sentido.</span>
+        </label>
+        <label class="sol-check" style="margin-bottom:16px;">
+          <input type="checkbox" id="sol-lgpd" required>
+          <span>Li e concordo com o uso dos meus dados para este pedido, conforme a <a href="privacidade.html" target="_blank">Política de Privacidade</a>.</span>
+        </label>
+        <div id="sol-turnstile" style="margin-bottom:14px;"></div>
+        <button type="submit" class="btn-acao btn-solicitar" id="sol-enviar" style="margin-top:0;">Enviar solicitação</button>
+      </form>
+    </div>
+    <div class="sol-sucesso" id="sol-sucesso">
+      <div style="font-size:42px;">💜</div>
+      <h3>Solicitação enviada</h3>
+      <p class="sub" id="sol-sucesso-txt">O pedido já está no painel da profissional. Se quiser, você também pode mandar uma mensagem agora no WhatsApp.</p>
+      <a class="btn-acao" id="sol-wa" href="#" target="_blank" rel="noopener" style="display:none;"><i class="fa-brands fa-whatsapp"></i> Chamar no WhatsApp</a>
+      <button type="button" class="btn-compartilhar" onclick="fecharSolicitacao()">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var catalogo = { bairros: [], habilidades: [], minHorasDia: 6 };
+  var turnstileKey = null;
+  var calMes = new Date();
+  calMes.setDate(1);
+  var periodos = {};
+  var necSel = [];
+
+  window.abrirSolicitacao = function() {
+    document.getElementById('sol-form-wrap').style.display = 'block';
+    document.getElementById('sol-sucesso').style.display = 'none';
+    document.getElementById('sol-erro').style.display = 'none';
+    document.getElementById('modal-sol').classList.add('ativo');
+    document.body.style.overflow = 'hidden';
+    carregarCatalogoSol();
+  };
+  window.fecharSolicitacao = function() {
+    document.getElementById('modal-sol').classList.remove('ativo');
+    document.body.style.overflow = '';
+  };
+
+  function iso(d) {
+    var m = (d.getMonth() + 1);
+    var day = d.getDate();
+    return d.getFullYear() + '-' + (m < 10 ? '0' : '') + m + '-' + (day < 10 ? '0' : '') + day;
+  }
+  function fmtBR(isoStr) {
+    var p = isoStr.split('-');
+    return p[2] + '/' + p[1];
+  }
+  function horas(ini, fim) {
+    var a = ini.split(':'); var b = fim.split(':');
+    return (parseInt(b[0],10)*60 + parseInt(b[1],10) - parseInt(a[0],10)*60 - parseInt(a[1],10)) / 60;
+  }
+
+  async function carregarCatalogoSol() {
+    try {
+      var r = await fetch('/api/solicitacoes');
+      var d = await r.json();
+      if (d.ok) {
+        catalogo.bairros = d.bairros || [];
+        catalogo.habilidades = d.habilidades || [];
+        catalogo.minHorasDia = d.minHorasDia || 6;
+      }
+    } catch (e) {}
+    try {
+      var c = await fetch('/api/config-publica');
+      var cd = await c.json();
+      if (cd && cd.turnstileSiteKey) turnstileKey = cd.turnstileSiteKey;
+    } catch (e) {}
+    montarBairros();
+    montarTags();
+    montarCal();
+    var ta = document.getElementById('sol-comp');
+    if (ta && !ta.value) {
+      ta.value = 'Ex.: Mamãe tem 78 anos, Alzheimer moderado, anda com apoio, toma medicação às 8h e 20h. Precisa de ajuda no banho, nas refeições e companhia durante o dia. Evitar deixar sozinha.';
+    }
+    montarTurnstile();
+  }
+
+  function montarTurnstile() {
+    var box = document.getElementById('sol-turnstile');
+    box.innerHTML = '';
+    if (!turnstileKey) return;
+    if (!window.turnstile) {
+      var s = document.createElement('script');
+      s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
+      s.async = true;
+      document.head.appendChild(s);
+    }
+    box.innerHTML = '<div class="cf-turnstile" data-sitekey="' + turnstileKey + '"></div>';
+    if (window.turnstile) window.turnstile.render(box.firstChild, { sitekey: turnstileKey });
+  }
+
+  function montarBairros() {
+    var sel = document.getElementById('sol-bairro');
+    var atual = sel.value;
+    sel.innerHTML = '<option value="">Selecione o bairro</option>' +
+      catalogo.bairros.map(function(b) { return '<option>' + b + '</option>'; }).join('');
+    if (atual) sel.value = atual;
+  }
+
+  function montarTags() {
+    var el = document.getElementById('sol-tags');
+    el.innerHTML = catalogo.habilidades.map(function(h) {
+      return '<button type="button" class="sol-tag' + (necSel.indexOf(h) !== -1 ? ' ativo' : '') + '" data-h="' + h.replace(/"/g, '') + '">' + h + '</button>';
+    }).join('');
+    el.querySelectorAll('.sol-tag').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var h = btn.getAttribute('data-h');
+        var i = necSel.indexOf(h);
+        if (i !== -1) necSel.splice(i, 1);
+        else if (necSel.length < 10) necSel.push(h);
+        montarTags();
+      });
+    });
+  }
+
+  function montarCal() {
+    var meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+    document.getElementById('cal-titulo').textContent = meses[calMes.getMonth()] + ' ' + calMes.getFullYear();
+    var grid = document.getElementById('cal-grid');
+    var html = ['D','S','T','Q','Q','S','S'].map(function(d) { return '<div class="cal-dow">' + d + '</div>'; }).join('');
+    var first = new Date(calMes.getFullYear(), calMes.getMonth(), 1);
+    var start = first.getDay();
+    var last = new Date(calMes.getFullYear(), calMes.getMonth() + 1, 0).getDate();
+    var hoje = new Date(); hoje.setHours(0,0,0,0);
+    for (var i = 0; i < start; i++) html += '<div></div>';
+    for (var d = 1; d <= last; d++) {
+      var dt = new Date(calMes.getFullYear(), calMes.getMonth(), d);
+      var key = iso(dt);
+      var passado = dt < hoje;
+      html += '<button type="button" class="cal-dia' + (periodos[key] ? ' sel' : '') + '" data-iso="' + key + '"' + (passado ? ' disabled' : '') + '>' + d + '</button>';
+    }
+    grid.innerHTML = html;
+    grid.querySelectorAll('.cal-dia:not(:disabled)').forEach(function(b) {
+      b.addEventListener('click', function() {
+        var k = b.getAttribute('data-iso');
+        if (periodos[k]) delete periodos[k];
+        else {
+          var n = 0; for (var x in periodos) n++;
+          if (n >= 14) return;
+          periodos[k] = { inicio: '08:00', fim: '20:00' };
+        }
+        montarCal();
+        montarPeriodos();
+      });
+    });
+  }
+
+  function montarPeriodos() {
+    var el = document.getElementById('sol-periodos');
+    var keys = Object.keys(periodos).sort();
+    el.innerHTML = keys.map(function(k) {
+      var p = periodos[k];
+      var h = horas(p.inicio, p.fim);
+      var aviso = h < catalogo.minHorasDia ? ' <span style="color:#b91c1c;font-size:12px;">mín. ' + catalogo.minHorasDia + 'h</span>' : '';
+      return '<div class="periodo-linha"><strong>' + fmtBR(k) + aviso + '</strong>' +
+        '<input type="time" data-k="' + k + '" data-c="inicio" value="' + p.inicio + '">' +
+        '<input type="time" data-k="' + k + '" data-c="fim" value="' + p.fim + '">' +
+        '<button type="button" data-rm="' + k + '" style="border:none;background:transparent;cursor:pointer;color:#94a3b8;">×</button></div>';
+    }).join('');
+    el.querySelectorAll('input[type=time]').forEach(function(inp) {
+      inp.addEventListener('change', function() {
+        periodos[inp.getAttribute('data-k')][inp.getAttribute('data-c')] = inp.value;
+        montarPeriodos();
+      });
+    });
+    el.querySelectorAll('[data-rm]').forEach(function(b) {
+      b.addEventListener('click', function() {
+        delete periodos[b.getAttribute('data-rm')];
+        montarCal();
+        montarPeriodos();
+      });
+    });
+  }
+
+  document.getElementById('cal-prev').addEventListener('click', function() {
+    calMes.setMonth(calMes.getMonth() - 1);
+    montarCal();
+  });
+  document.getElementById('cal-next').addEventListener('click', function() {
+    calMes.setMonth(calMes.getMonth() + 1);
+    montarCal();
+  });
+
+  document.getElementById('form-solicitacao').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    var erro = document.getElementById('sol-erro');
+    erro.style.display = 'none';
+    var lista = [];
+    Object.keys(periodos).forEach(function(k) {
+      lista.push({ data: k, inicio: periodos[k].inicio, fim: periodos[k].fim });
+    });
+    if (lista.length === 0) {
+      erro.textContent = 'Escolha pelo menos um dia no calendário.';
+      erro.style.display = 'block';
+      return;
+    }
+    var tokenEl = document.querySelector('[name="cf-turnstile-response"]');
+    var btn = document.getElementById('sol-enviar');
+    btn.disabled = true;
+    try {
+      var resp = await fetch('/api/solicitacoes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          cuidadorId: new URLSearchParams(location.search).get('id'),
+          nomeSolicitante: document.getElementById('sol-nome').value.trim(),
+          whatsapp: document.getElementById('sol-whats').value.trim(),
+          email: document.getElementById('sol-email').value.trim(),
+          bairro: document.getElementById('sol-bairro').value,
+          necessidades: necSel,
+          complemento: document.getElementById('sol-comp').value.trim(),
+          pacienteNome: document.getElementById('sol-pac-nome').value.trim(),
+          pacienteIdade: document.getElementById('sol-pac-idade').value,
+          pacienteSexo: document.getElementById('sol-pac-sexo').value,
+          infoPaciente: document.getElementById('sol-info').value.trim(),
+          periodos: lista,
+          encaminharOutras: document.getElementById('sol-encaminhar').checked,
+          turnstileToken: tokenEl ? tokenEl.value : '',
+          website: document.querySelector('#form-solicitacao [name=website]').value
+        })
+      });
+      var data = await resp.json();
+      if (!resp.ok || !data.ok) {
+        erro.textContent = data.error || 'Não foi possível enviar.';
+        erro.style.display = 'block';
+        return;
+      }
+      document.getElementById('sol-form-wrap').style.display = 'none';
+      document.getElementById('sol-sucesso').style.display = 'block';
+      var nomeP = data.nomeProfissional || 'a profissional';
+      document.getElementById('sol-sucesso-txt').textContent =
+        'A solicitação já está no painel de ' + nomeP + '. Se quiser, você também pode mandar uma mensagem agora no WhatsApp.';
+      var wa = document.getElementById('sol-wa');
+      if (data.waUrl) {
+        wa.href = data.waUrl;
+        wa.style.display = 'flex';
+      } else {
+        wa.style.display = 'none';
+      }
+    } catch (err) {
+      erro.textContent = 'Verifique sua conexão e tente de novo.';
+      erro.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+    }
+  });
+})();
+</script>
 
 </body>
 </html>

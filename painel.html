@@ -35,6 +35,14 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
 .menu a:hover { background: var(--fundo-site); color: var(--lilas-escuro); }
 .menu a.ativo { background: linear-gradient(135deg, #f5f3ff, #ede9fe); color: var(--lilas-escuro); }
 .menu a i { width: 18px; font-size: 15px; }
+.menu a .badge-n { margin-left: auto; background: #ef4444; color: white; font-size: 10px; font-weight: 900; padding: 2px 7px; border-radius: 20px; display: none; }
+
+.sol-item { background: white; border: 1px solid #e2e8f0; border-radius: 20px; padding: 20px; margin-bottom: 14px; }
+.sol-item h3 { font-size: 16px; font-weight: 900; margin-bottom: 8px; }
+.sol-meta { font-size: 13.5px; color: var(--cinza-fonte); font-weight: 700; line-height: 1.6; }
+.sol-tags-mini { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+.sol-tags-mini span { background: #f5f3ff; color: var(--lilas-escuro); padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 800; }
+.btn-wa-mini { display: inline-flex; align-items: center; gap: 8px; background: #25D366; color: white; text-decoration: none; padding: 10px 16px; border-radius: 50px; font-weight: 900; font-size: 13px; margin-top: 10px; }
 
 .menu-separador { margin: 20px 0 12px; padding: 0 14px; font-size: 10.5px; font-weight: 900; text-transform: uppercase; letter-spacing: 1.2px; color: var(--cinza-azulado); }
 
@@ -178,6 +186,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
 
     <ul class="menu">
       <li><a href="#" class="ativo" data-secao="inicio"><i class="fa-solid fa-house"></i> Início</a></li>
+      <li><a href="#" data-secao="solicitacoes"><i class="fa-solid fa-inbox"></i> Solicitações <span class="badge-n" id="badge-sol">0</span></a></li>
       <li><a href="#" data-secao="editar"><i class="fa-solid fa-pen-to-square"></i> Editar meu perfil</a></li>
       <li><a href="#" data-secao="plano"><i class="fa-solid fa-crown"></i> Meu plano</a></li>
       <li><a href="#" data-secao="plantoes"><i class="fa-solid fa-heart-pulse"></i> Meus plantões</a></li>
@@ -203,6 +212,16 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
           <h3 id="status-titulo">Carregando...</h3>
           <p id="status-texto">—</p>
         </div>
+      </div>
+    </section>
+
+    <section class="secao" id="secao-solicitacoes">
+      <div class="main-header">
+        <h1>Solicitações</h1>
+        <p>Famílias que pediram atendimento no seu perfil (ou que a Afeto encaminhou para você). Só o primeiro nome de quem recebe o cuidado aparece aqui.</p>
+      </div>
+      <div id="lista-solicitacoes">
+        <p style="color: var(--cinza-fonte); font-weight: 700;">Carregando...</p>
       </div>
     </section>
 
@@ -395,6 +414,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
 
     document.getElementById('sidebar').classList.remove('aberto');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (nome === 'solicitacoes') carregarSolicitacoes();
   }
 
   document.querySelectorAll('.menu a[data-secao]').forEach(function(link) {
@@ -442,8 +462,59 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
     renderizarPerfil();
     renderizarPlano();
     renderizarConfig();
+    carregarSolicitacoes();
 
     esconderLoader();
+  }
+
+  function fmtPeriodos(lista) {
+    if (!lista || !lista.length) return '—';
+    return lista.map(function(p) {
+      var d = String(p.data || '').split('-');
+      var data = d.length === 3 ? (d[2] + '/' + d[1]) : p.data;
+      return data + ' · ' + (p.inicio || '') + '–' + (p.fim || '');
+    }).join(' · ');
+  }
+
+  async function carregarSolicitacoes() {
+    var box = document.getElementById('lista-solicitacoes');
+    var badge = document.getElementById('badge-sol');
+    try {
+      var data = await api('/api/painel/solicitacoes');
+      var lista = data.solicitacoes || [];
+      if (badge) {
+        if (lista.length > 0) {
+          badge.textContent = lista.length;
+          badge.style.display = 'inline-block';
+        } else {
+          badge.style.display = 'none';
+        }
+      }
+      if (!box) return;
+      if (lista.length === 0) {
+        box.innerHTML = '<div class="status-card"><div class="icone"><i class="fa-solid fa-inbox"></i></div><div class="texto"><h3>Nenhuma solicitação ainda</h3><p>Quando uma família pedir atendimento no seu perfil, o pedido aparece aqui.</p></div></div>';
+        return;
+      }
+      box.innerHTML = lista.map(function(s) {
+        var tags = (s.necessidades || []).map(function(t) { return '<span>' + escapeHTML(t) + '</span>'; }).join('');
+        var via = s.via === 'encaminhamento' ? 'Encaminhada pela Afeto' : 'Pediu no seu perfil';
+        var wa = s.waUrl
+          ? '<a class="btn-wa-mini" href="' + escapeHTML(s.waUrl) + '" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> Chamar ' + escapeHTML(s.nomeFamilia) + '</a>'
+          : '';
+        return '<div class="sol-item">' +
+          '<h3>' + escapeHTML(s.pacienteNome) + ', ' + escapeHTML(String(s.pacienteIdade || '')) + ' anos · ' + escapeHTML(s.pacienteSexo || '') + '</h3>' +
+          '<div class="sol-meta">' + escapeHTML(via) + ' · bairro ' + escapeHTML(s.bairro || '') + '<br>' +
+          'Família: ' + escapeHTML(s.nomeFamilia) + (s.email ? ' · ' + escapeHTML(s.email) : '') + '<br>' +
+          'Agenda: ' + escapeHTML(fmtPeriodos(s.periodos)) + '</div>' +
+          (tags ? '<div class="sol-tags-mini">' + tags + '</div>' : '') +
+          (s.infoPaciente ? '<div class="sol-meta" style="margin-top:8px;">' + escapeHTML(s.infoPaciente) + '</div>' : '') +
+          (s.complemento ? '<div class="sol-meta" style="margin-top:6px;">' + escapeHTML(s.complemento) + '</div>' : '') +
+          wa +
+        '</div>';
+      }).join('');
+    } catch (err) {
+      if (box) box.innerHTML = '<p style="color:var(--cinza-fonte);font-weight:700;">Não foi possível carregar as solicitações agora.</p>';
+    }
   }
 
   // ============================================================
