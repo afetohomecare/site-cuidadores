@@ -1427,7 +1427,18 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
         return;
       }
 
+      // Só libera sucesso se o backend marcou como pago de verdade
+      if (!data.pagoNaHora) {
+        alert(
+          'Recebemos os dados do cartão, mas a confirmação ainda não chegou.\n\n' +
+          'Aguarde alguns minutos e tente de novo, ou pague por Pix nesta mesma tela.\n' +
+          'Se o valor for cobrado e o plano não liberar, fale com a Afeto no WhatsApp.'
+        );
+        return;
+      }
+
       dadosCheckout.pago = true;
+      dadosCheckout.cobrancaId = data.cobrancaId || dadosCheckout.cobrancaId;
       document.getElementById('tela-checkout').classList.remove('ativo');
       document.body.style.overflow = '';
       mostrarSucesso(false, null);

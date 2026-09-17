@@ -619,18 +619,29 @@ async function carregarTudo() {
     }
 
     try {
-        var response = await fetch('/api/cuidadores');
+        var response = await fetch('/api/cuidadores?id=' + encodeURIComponent(recordId));
         var data = await response.json();
 
-        if (!response.ok || !data || !data.cuidadores) throw new Error('Sem dados');
-
-        todosCuidadores = data.cuidadores;
-        var perfilAtual = todosCuidadores.find(function(c) { return c.id === recordId; });
-
-        if (!perfilAtual) {
+        if (response.status === 404 || !data || !data.cuidadora) {
             container.innerHTML = '<div style="padding: 60px; text-align: center;"><h2>Profissional não encontrada</h2></div>';
             return;
         }
+
+        if (!response.ok) throw new Error('Sem dados');
+
+        var perfilAtual = data.cuidadora;
+        todosCuidadores = [perfilAtual];
+
+        try {
+            var listaResp = await fetch('/api/cuidadores');
+            var listaData = await listaResp.json();
+            if (listaResp.ok && listaData && listaData.cuidadores) {
+                todosCuidadores = listaData.cuidadores;
+                if (!todosCuidadores.some(function(c) { return c.id === perfilAtual.id; })) {
+                    todosCuidadores = [perfilAtual].concat(todosCuidadores);
+                }
+            }
+        } catch (e) {}
 
         renderizarPerfil(perfilAtual);
         renderizarVejaTambem(perfilAtual, todosCuidadores);

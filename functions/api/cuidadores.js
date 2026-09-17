@@ -1,7 +1,10 @@
-// API pública da vitrine. Admin usa /api/admin/cuidadoras.
+// API pública da vitrine + perfil por link.
+// GET sem id → lista (só Profissional/Destaque)
+// GET ?id= → um perfil (inclui Cadastro Básico, se pago e aprovado)
 
 import { jsonResp, metodoNaoPermitido } from '../_lib/http.js';
 import { headersSupabase, supabaseOk } from '../_lib/supabase.js';
+import { idSeguro } from '../_lib/auth.js';
 
 const CAMPOS_PUBLICOS = [
   'id',
@@ -24,6 +27,7 @@ const CAMPOS_PUBLICOS = [
   'horas',
   'verificada',
   'disponivel',
+  'plano_cadastro',
   'plano_profissional',
   'plano_destaque',
   'coren',
@@ -67,16 +71,68 @@ function perfilPublico(row) {
   return item;
 }
 
+async function buscarSupabase(env, filtros) {
+  let resp = await fetch(
+    env.SUPABASE_URL + '/rest/v1/cuidadores?' + filtros.concat(['select=' + CAMPOS_PUBLICOS.join(',')]).join('&'),
+    { headers: headersSupabase(env) }
+  );
+
+  if (!resp.ok) {
+    const semFlags = CAMPOS_PUBLICOS.filter(function (c) { return c.indexOf('mostrar_') !== 0; });
+    resp = await fetch(
+      env.SUPABASE_URL + '/rest/v1/cuidadores?' + filtros.concat(['select=' + semFlags.join(',')]).join('&'),
+      { headers: headersSupabase(env) }
+    );
+  }
+
+  return resp;
+}
+
 export async function onRequestGet(context) {
-  const { env } = context;
+  const { request, env } = context;
 
   if (!supabaseOk(env)) {
     return jsonResp({ error: 'Configuração do servidor ausente.' }, 500);
   }
 
   try {
+    const url = new URL(request.url);
+    const id = idSeguro(url.searchParams.get('id'));
     const hoje = new Date().toISOString();
-    const baseFiltro = [
+
+    // Perfil por link exclusivo (Cadastro Básico, Profissional ou Destaque)
+    if (id) {
+      const filtrosId = [
+        'id=eq.' + encodeURIComponent(id),
+        'aprovada=eq.true',
+        'status_pagamento=eq.Pago',
+        'plano_valido_ate=gte.' + hoje,
+        'or=(plano_cadastro.eq.true,plano_profissional.eq.true,plano_destaque.eq.true)',
+        'limit=1'
+      ];
+
+      const resp = await buscarSupabase(env, filtrosId);
+      if (!resp.ok) {
+        console.error('Erro buscar perfil:', await resp.text());
+        return jsonResp({ error: 'Falha ao buscar perfil' }, 502);
+      }
+
+      const linhas = await resp.json();
+      if (!linhas || linhas.length === 0) {
+        return jsonResp({ error: 'Profissional não encontrada' }, 404);
+      }
+
+      return new Response(JSON.stringify({ cuidadora: perfilPublico(linhas[0]) }), {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Cache-Control': 'public, max-age=60, s-maxage=60'
+        }
+      });
+    }
+
+    // Lista da home: só planos de visibilidade
+    const filtrosLista = [
       'aprovada=eq.true',
       'status_pagamento=eq.Pago',
       'plano_valido_ate=gte.' + hoje,
@@ -84,19 +140,7 @@ export async function onRequestGet(context) {
       'order=criado_em.desc'
     ];
 
-    let resp = await fetch(
-      env.SUPABASE_URL + '/rest/v1/cuidadores?' + baseFiltro.concat(['select=' + CAMPOS_PUBLICOS.join(',')]).join('&'),
-      { headers: headersSupabase(env) }
-    );
-
-    if (!resp.ok) {
-      const semFlags = CAMPOS_PUBLICOS.filter(function (c) { return c.indexOf('mostrar_') !== 0; });
-      resp = await fetch(
-        env.SUPABASE_URL + '/rest/v1/cuidadores?' + baseFiltro.concat(['select=' + semFlags.join(',')]).join('&'),
-        { headers: headersSupabase(env) }
-      );
-    }
-
+    const resp = await buscarSupabase(env, filtrosLista);
     if (!resp.ok) {
       console.error('Erro listar vitrine:', await resp.text());
       return jsonResp({ error: 'Falha ao listar' }, 502);
@@ -113,7 +157,7 @@ export async function onRequestGet(context) {
       }
     });
   } catch (err) {
-    console.error('Erro GET vitrine:', err);
+    console.error('Erro GET cuidadores:', err);
     return jsonResp({ error: 'Falha no processamento' }, 500);
   }
 }
