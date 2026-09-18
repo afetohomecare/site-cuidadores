@@ -3,7 +3,7 @@
 // ============================================================
 
 const CAMPOS_RETORNO = [
-  'id', 'nome', 'whatsapp', 'foto_url', 'foto_url_pendente', 'foto_pendente',
+  'id', 'slug', 'nome', 'whatsapp', 'foto_url', 'foto_url_pendente', 'foto_pendente',
   'apresentacao', 'motivacao',
   'especialidade', 'experiencia', 'bairro', 'bairros', 'preco', 'turno',
   'cursos', 'subespecialidades', 'coren', 'categoria', 'nota', 'horas',
@@ -51,9 +51,25 @@ export async function onRequestGet(context) {
                      '&select=' + CAMPOS_RETORNO.join(',') +
                      '&limit=1';
 
-    const buscaResp = await fetch(buscaUrl, {
+    let buscaResp = await fetch(buscaUrl, {
       headers: headersSupabase(env)
     });
+
+    if (!buscaResp.ok) {
+      const txt = await buscaResp.text();
+      if (/slug|column|schema/i.test(txt)) {
+        const semSlug = CAMPOS_RETORNO.filter(function (c) { return c !== 'slug'; });
+        buscaResp = await fetch(
+          env.SUPABASE_URL + '/rest/v1/cuidadores?auth_user_id=eq.' +
+          encodeURIComponent(authUserId) +
+          '&select=' + semSlug.join(',') +
+          '&limit=1',
+          { headers: headersSupabase(env) }
+        );
+      } else {
+        return jsonResp({ error: 'Falha ao buscar dados.' }, 502);
+      }
+    }
 
     if (!buscaResp.ok) {
       return jsonResp({ error: 'Falha ao buscar dados.' }, 502);

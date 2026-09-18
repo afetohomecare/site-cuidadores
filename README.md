@@ -10,9 +10,24 @@ Vitrine e cadastro das cuidadoras parceiras. Publicado em [afetocuidadores.pages
 | `painel.html`, `painel-login.html` | Área da cuidadora |
 | `admin/` | Painel interno |
 | `functions/api/` | APIs (Cloudflare Pages Functions) |
-| `functions/_lib/` | Código compartilhado (auth, HTTP, Supabase) |
+| `functions/_lib/` | Código compartilhado (auth, HTTP, Supabase, slug) |
+| `supabase/` | Scripts SQL opcionais (ex.: coluna `slug`) |
 
 O Cloudflare publica a pasta inteira. **Não mova os HTML da raiz** sem atualizar todos os links.
+
+## Link do perfil (slug)
+
+O UUID interno continua no banco. O link público usa um **slug** gerado a partir do nome (ex.: `perfil.html?id=maria-silva`).
+
+Rode uma vez no Supabase (SQL Editor):
+
+```sql
+-- ver arquivo supabase/add-slug-cuidadores.sql
+ALTER TABLE cuidadores ADD COLUMN IF NOT EXISTS slug text;
+CREATE UNIQUE INDEX IF NOT EXISTS cuidadores_slug_unique ON cuidadores (slug) WHERE slug IS NOT NULL;
+```
+
+Sem essa coluna, o site continua funcionando com o UUID no link.
 
 ## Publicar
 

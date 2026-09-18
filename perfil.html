@@ -875,7 +875,7 @@ function renderizarVejaTambem(atual, todos) {
         }
 
         html += 
-            '<a href="perfil.html?id=' + encodeURIComponent(c.id) + '" class="mini-card">' +
+            '<a href="perfil.html?id=' + encodeURIComponent(c.slug || c.id) + '" class="mini-card">' +
                 '<div class="mini-card-foto">' + fotoHTML + '</div>' +
                 '<div class="mini-card-nome">' + nomeExibicao + '</div>' +
                 '<div class="mini-card-nota">★ ' + nota + '</div>' +

@@ -674,7 +674,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
           '<div class="card-acoes">' +
             '<button class="btn-acao btn-whats" onclick="event.stopPropagation();abrirWpp(\'' + c.id + '\')"><i class="fa-brands fa-whatsapp"></i></button>' +
             btnPago + btnAprov +
-            '<a class="btn-acao btn-ver" href="https://afetocuidadores.pages.dev/perfil.html?id=' + c.id + '" target="_blank" onclick="event.stopPropagation();"><i class="fa-solid fa-eye"></i></a>' +
+            '<a class="btn-acao btn-ver" href="https://afetocuidadores.pages.dev/perfil.html?id=' + (c.slug || c.id) + '" target="_blank" onclick="event.stopPropagation();"><i class="fa-solid fa-eye"></i></a>' +
           '</div>' +
         '</div>';
     });
@@ -821,7 +821,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
 
     var msg = t.mensagem
       .replace(/\{\{nome\}\}/g, primeiroNome(c.nome))
-      .replace(/\{\{link\}\}/g, 'https://afetocuidadores.pages.dev/perfil.html?id=' + c.id)
+      .replace(/\{\{link\}\}/g, 'https://afetocuidadores.pages.dev/perfil.html?id=' + (c.slug || c.id))
       .replace(/\{\{plano\}\}/g, c.plano_destaque ? 'Destaque' : c.plano_profissional ? 'Profissional' : 'Grátis')
       .replace(/\{\{dias\}\}/g, diasRestantes)
       .replace(/\{\{link_pagamento\}\}/g, 'https://wa.me/5541997674866');
@@ -1006,7 +1006,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
       : '<i class="fa-solid fa-user"></i>';
 
     var whatsLink = 'https://wa.me/' + (c.whatsapp || '').replace(/\D/g, '');
-    var perfilLink = 'https://afetocuidadores.pages.dev/perfil.html?id=' + c.id;
+    var perfilLink = 'https://afetocuidadores.pages.dev/perfil.html?id=' + (c.slug || c.id);
 
     var tagsHTML = '';
     if (c.subespecialidades) {

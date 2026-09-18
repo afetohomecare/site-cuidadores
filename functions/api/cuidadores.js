@@ -1,13 +1,14 @@
 // API pública da vitrine + perfil por link.
 // GET sem id → lista (só Profissional/Destaque)
-// GET ?id= → um perfil (inclui Cadastro Básico, se pago e aprovado)
+// GET ?id= → um perfil por UUID ou slug (inclui Cadastro Básico, se pago e aprovado)
 
 import { jsonResp, metodoNaoPermitido } from '../_lib/http.js';
 import { headersSupabase, supabaseOk } from '../_lib/supabase.js';
-import { idSeguro } from '../_lib/auth.js';
+import { refPerfilSegura } from '../_lib/slug.js';
 
 const CAMPOS_PUBLICOS = [
   'id',
+  'slug',
   'nome',
   'whatsapp',
   'whatsapp_agencia',
@@ -71,18 +72,28 @@ function perfilPublico(row) {
   return item;
 }
 
-async function buscarSupabase(env, filtros) {
+function camposSelect(comSlug) {
+  if (comSlug) return CAMPOS_PUBLICOS.slice();
+  return CAMPOS_PUBLICOS.filter(function (c) { return c !== 'slug'; });
+}
+
+async function buscarSupabase(env, filtros, comSlug) {
+  const usarSlug = comSlug !== false;
   let resp = await fetch(
-    env.SUPABASE_URL + '/rest/v1/cuidadores?' + filtros.concat(['select=' + CAMPOS_PUBLICOS.join(',')]).join('&'),
+    env.SUPABASE_URL + '/rest/v1/cuidadores?' + filtros.concat(['select=' + camposSelect(usarSlug).join(',')]).join('&'),
     { headers: headersSupabase(env) }
   );
 
   if (!resp.ok) {
-    const semFlags = CAMPOS_PUBLICOS.filter(function (c) { return c.indexOf('mostrar_') !== 0; });
+    const txt = await resp.text();
+    const semFlags = camposSelect(usarSlug).filter(function (c) { return c.indexOf('mostrar_') !== 0; });
     resp = await fetch(
       env.SUPABASE_URL + '/rest/v1/cuidadores?' + filtros.concat(['select=' + semFlags.join(',')]).join('&'),
       { headers: headersSupabase(env) }
     );
+    if (!resp.ok && usarSlug && /slug|column|schema/i.test(txt)) {
+      return buscarSupabase(env, filtros, false);
+    }
   }
 
   return resp;
@@ -100,16 +111,19 @@ export async function onRequestGet(context) {
     const rawId = url.searchParams.get('id');
     const hoje = new Date().toISOString();
 
-    // Perfil por link exclusivo (Cadastro Básico, Profissional ou Destaque)
+    // Perfil por link exclusivo (UUID legado ou slug do nome)
     if (rawId !== null && String(rawId).trim() !== '') {
-      const id = idSeguro(rawId);
-      const isUuid = !!id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
-      if (!isUuid) {
+      const ref = refPerfilSegura(rawId);
+      if (!ref) {
         return jsonResp({ error: 'ID inválido' }, 400);
       }
 
+      const filtroChave = ref.tipo === 'slug'
+        ? 'slug=eq.' + encodeURIComponent(ref.valor)
+        : 'id=eq.' + encodeURIComponent(ref.valor);
+
       const filtrosId = [
-        'id=eq.' + encodeURIComponent(id),
+        filtroChave,
         'aprovada=eq.true',
         'status_pagamento=eq.Pago',
         'plano_valido_ate=gte.' + hoje,
@@ -117,7 +131,13 @@ export async function onRequestGet(context) {
         'limit=1'
       ];
 
-      const resp = await buscarSupabase(env, filtrosId);
+      let resp = await buscarSupabase(env, filtrosId, true);
+      if (!resp.ok && ref.tipo === 'slug') {
+        // Coluna slug pode não existir ainda
+        const txt = await resp.text();
+        console.error('Erro buscar perfil por slug:', txt);
+        return jsonResp({ error: 'Perfil não encontrado' }, 404);
+      }
       if (!resp.ok) {
         console.error('Erro buscar perfil:', await resp.text());
         return jsonResp({ error: 'Falha ao buscar perfil' }, 502);
@@ -146,7 +166,7 @@ export async function onRequestGet(context) {
       'order=criado_em.desc'
     ];
 
-    const resp = await buscarSupabase(env, filtrosLista);
+    const resp = await buscarSupabase(env, filtrosLista, true);
     if (!resp.ok) {
       console.error('Erro listar vitrine:', await resp.text());
       return jsonResp({ error: 'Falha ao listar' }, 502);
