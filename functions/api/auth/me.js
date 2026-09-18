@@ -3,7 +3,7 @@
 // ============================================================
 
 const CAMPOS_RETORNO = [
-  'id', 'nome', 'whatsapp', 'foto_url', 'foto_url_pendente', 'foto_pendente',
+  'id', 'slug', 'nome', 'whatsapp', 'foto_url', 'foto_url_pendente', 'foto_pendente',
   'apresentacao', 'motivacao',
   'especialidade', 'experiencia', 'bairro', 'bairros', 'preco', 'turno',
   'cursos', 'subespecialidades', 'coren', 'categoria', 'nota', 'horas',
@@ -46,14 +46,24 @@ export async function onRequestGet(context) {
     const userData = await userResp.json();
     const authUserId = userData.id;
 
-    const buscaUrl = env.SUPABASE_URL + '/rest/v1/cuidadores?auth_user_id=eq.' +
-                     encodeURIComponent(authUserId) +
-                     '&select=' + CAMPOS_RETORNO.join(',') +
-                     '&limit=1';
+    let buscaResp = await fetch(
+      env.SUPABASE_URL + '/rest/v1/cuidadores?auth_user_id=eq.' +
+      encodeURIComponent(authUserId) +
+      '&select=' + CAMPOS_RETORNO.join(',') +
+      '&limit=1',
+      { headers: headersSupabase(env) }
+    );
 
-    const buscaResp = await fetch(buscaUrl, {
-      headers: headersSupabase(env)
-    });
+    if (!buscaResp.ok) {
+      const semSlug = CAMPOS_RETORNO.filter(function (c) { return c !== 'slug'; });
+      buscaResp = await fetch(
+        env.SUPABASE_URL + '/rest/v1/cuidadores?auth_user_id=eq.' +
+        encodeURIComponent(authUserId) +
+        '&select=' + semSlug.join(',') +
+        '&limit=1',
+        { headers: headersSupabase(env) }
+      );
+    }
 
     if (!buscaResp.ok) {
       return jsonResp({ error: 'Falha ao buscar dados.' }, 502);

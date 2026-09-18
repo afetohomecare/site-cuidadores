@@ -685,7 +685,7 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
       displayHoras = '<span class="cuidador-meta ' + (isDiamante ? 'meta-diamante' : '') + '">' + bairro + ' • <span class="texto-consultar"><span class="luz-offline"></span>Consultar disponibilidade</span></span>';
     }
 
-    return '<div class="cuidador-card ' + cardClassAdd + '" onclick="window.location.href=\'perfil.html?id=' + encodeURIComponent(cuidadora.id) + '\'">' +
+    return '<div class="cuidador-card ' + cardClassAdd + '" onclick="window.location.href=\'perfil.html?id=' + encodeURIComponent(cuidadora.slug || cuidadora.id) + '\'">' +
       '<div class="card-top">' +
         '<div class="foto-anel ' + anelClassAdd + '">' + fotoHTML + '</div>' +
       '</div>' +

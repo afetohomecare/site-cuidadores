@@ -668,7 +668,7 @@ async function carregarTudo() {
     var container = document.getElementById('cardPerfil');
 
     if (!recordId) {
-        container.innerHTML = '<div style="padding: 60px; text-align: center;"><h2>Profissional não encontrada</h2></div>';
+        container.innerHTML = '<div style="padding: 60px; text-align: center;"><h2>Perfil não encontrado</h2></div>';
         return;
     }
 
@@ -676,8 +676,8 @@ async function carregarTudo() {
         var response = await fetch('/api/cuidadores?id=' + encodeURIComponent(recordId));
         var data = await response.json();
 
-        if (response.status === 404 || !data || !data.cuidadora) {
-            container.innerHTML = '<div style="padding: 60px; text-align: center;"><h2>Profissional não encontrada</h2></div>';
+        if (response.status === 404 || response.status === 400 || !data || !data.cuidadora) {
+            container.innerHTML = '<div style="padding: 60px; text-align: center;"><h2>Perfil não encontrado</h2></div>';
             return;
         }
 
@@ -751,7 +751,7 @@ function renderizarPerfil(cuidadora) {
     var seloCoren = cuidadora.coren ? '<span class="cuidador-badge badge-coren"><i class="fa-solid fa-id-card"></i> COREN</span>' : '';
 
     var apresentacaoHTML = cuidadora.apresentacao ? 
-        '<div class="bio-box reveal-item"><h4><i class="fa-solid fa-user-doctor"></i> Sobre a profissional</h4><p>' + escapeHTML(cuidadora.apresentacao) + '</p></div>' : '';
+        '<div class="bio-box reveal-item"><h4><i class="fa-solid fa-user-doctor"></i> Sobre</h4><p>' + escapeHTML(cuidadora.apresentacao) + '</p></div>' : '';
 
     // Subespecialidades: no Supabase é TEXT[] (array). No Airtable era multi-select.
     // Aqui aceitamos qualquer um dos dois formatos.
@@ -798,7 +798,7 @@ function renderizarPerfil(cuidadora) {
             '<div class="preco-bloco reveal-item">' +
                 '<div class="preco-titulo">12h de cuidado</div>' +
                 '<div class="preco-linha">A partir de <strong>R$ ' + precoBase.toFixed(0) + '</strong></div>' +
-                '<div class="preco-obs">Valor final negociado direto com a profissional, conforme complexidade e horário do cuidado.</div>' +
+                '<div class="preco-obs">Valor final negociado direto no WhatsApp, conforme complexidade e horário do cuidado.</div>' +
             '</div>';
     }
 
@@ -927,7 +927,7 @@ function renderizarVejaTambem(atual, todos) {
         }
 
         html += 
-            '<a href="perfil.html?id=' + encodeURIComponent(c.id) + '" class="mini-card">' +
+            '<a href="perfil.html?id=' + encodeURIComponent(c.slug || c.id) + '" class="mini-card">' +
                 '<div class="mini-card-foto">' + fotoHTML + '</div>' +
                 '<div class="mini-card-nome">' + nomeExibicao + '</div>' +
                 '<div class="mini-card-nota">★ ' + nota + '</div>' +

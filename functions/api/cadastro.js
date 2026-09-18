@@ -5,6 +5,8 @@
 // 🛡️ BLOQUEIA segundo cadastro quando já existe auth_user_id.
 // ============================================================
 
+import { garantirSlugUnico, linkPerfilPublico } from '../_lib/slug.js';
+
 const BUCKET_FOTOS = 'fotos';
 
 export async function onRequest(context) {
@@ -124,14 +126,23 @@ export async function onRequest(context) {
       'whatsapp.eq.' + encodeURIComponent(whatsLimpo) +
     ')';
 
-    const buscaUrl = env.SUPABASE_URL + '/rest/v1/cuidadores?select=id,auth_user_id&' + filtro + '&limit=1';
-
-    const buscaResp = await fetch(buscaUrl, { headers: headersSupabase(env) });
+    let buscaResp = await fetch(
+      env.SUPABASE_URL + '/rest/v1/cuidadores?select=id,auth_user_id,slug&' + filtro + '&limit=1',
+      { headers: headersSupabase(env) }
+    );
 
     if (!buscaResp.ok) {
       const txt = await buscaResp.text();
-      console.error('Erro ao buscar existente:', buscaResp.status, txt);
-      return jsonResp({ error: 'Falha ao consultar banco' }, 502);
+      if (String(txt).toLowerCase().indexOf('slug') !== -1) {
+        buscaResp = await fetch(
+          env.SUPABASE_URL + '/rest/v1/cuidadores?select=id,auth_user_id&' + filtro + '&limit=1',
+          { headers: headersSupabase(env) }
+        );
+      }
+      if (!buscaResp.ok) {
+        console.error('Erro ao buscar existente:', buscaResp.status, txt);
+        return jsonResp({ error: 'Falha ao consultar banco' }, 502);
+      }
     }
 
     const encontrados = await buscaResp.json();
@@ -141,10 +152,12 @@ export async function onRequest(context) {
     let cuidadorId;
     let foiCriado = false;
     let authUserId = null;
+    let slugGravado = null;
 
     if (registroExistente) {
       cuidadorId = registroExistente.id;
       authUserId = registroExistente.auth_user_id || null;
+      slugGravado = registroExistente.slug || null;
 
       // 🛡️ BLOQUEIO: se já existe conta criada (auth_user_id), não deixa recadastrar
       if (authUserId) {
@@ -181,11 +194,17 @@ export async function onRequest(context) {
 
         if (txt.indexOf('duplicate key') !== -1 || txt.indexOf('already exists') !== -1) {
           const busca2 = await fetch(
-            env.SUPABASE_URL + '/rest/v1/cuidadores?cpf=eq.' + encodeURIComponent(cpfLimpo) + '&select=id,auth_user_id&limit=1',
+            env.SUPABASE_URL + '/rest/v1/cuidadores?cpf=eq.' + encodeURIComponent(cpfLimpo) + '&select=id,auth_user_id,slug&limit=1',
             { headers: headersSupabase(env) }
           );
-          if (busca2.ok) {
-            const linhas2 = await busca2.json();
+          const busca2ok = busca2.ok
+            ? busca2
+            : await fetch(
+                env.SUPABASE_URL + '/rest/v1/cuidadores?cpf=eq.' + encodeURIComponent(cpfLimpo) + '&select=id,auth_user_id&limit=1',
+                { headers: headersSupabase(env) }
+              );
+          if (busca2ok.ok) {
+            const linhas2 = await busca2ok.json();
             if (linhas2.length > 0) {
               // Se já tem auth, bloqueia também
               if (linhas2[0].auth_user_id) {
@@ -197,6 +216,7 @@ export async function onRequest(context) {
               }
               cuidadorId = linhas2[0].id;
               authUserId = null;
+              slugGravado = linhas2[0].slug || null;
               await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(cuidadorId), {
                 method: 'PATCH',
                 headers: headersSupabase(env, true),
@@ -315,6 +335,25 @@ export async function onRequest(context) {
       }, 503);
     }
 
+    if (!slugGravado) {
+      try {
+        const slugNovo = await garantirSlugUnico(env, nome, cuidadorId);
+        if (slugNovo) {
+          const slugResp = await fetch(
+            env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(cuidadorId),
+            {
+              method: 'PATCH',
+              headers: headersSupabase(env, true),
+              body: JSON.stringify({ slug: slugNovo })
+            }
+          );
+          if (slugResp.ok) slugGravado = slugNovo;
+        }
+      } catch (err) {
+        console.warn('Slug não gravado (cadastro segue sem ele):', err);
+      }
+    }
+
     // ---------- UPLOAD DA FOTO ----------
     let fotoEnviada = false;
     let fotoErro = null;
@@ -362,7 +401,7 @@ export async function onRequest(context) {
       }
     }
 
-    const linkPerfil = 'https://afetocuidadores.pages.dev/perfil.html?id=' + cuidadorId;
+    const linkPerfil = linkPerfilPublico({ id: cuidadorId, slug: slugGravado });
 
     await notificarTelegram(env, {
       titulo: foiCriado
