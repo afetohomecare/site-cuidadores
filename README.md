@@ -55,3 +55,9 @@ Sem essa coluna, o site continua funcionando com o UUID no link.
 ## Vitrine
 
 Só entram profissionais **aprovadas**, com **pagamento em dia**, plano **Profissional ou Destaque** e data de validade futura. Cadastro básico não aparece na lista.
+
+## Pagamentos
+
+- Cadastro/checkout do site: **somente Pix** (Asaas).
+- Cartão: opcional no **painel**, via **Checkout hospedado do Asaas** (sem formulário de cartão no domínio Afeto).
+- Webhook Asaas continua sincronizando pagamento/assinatura.

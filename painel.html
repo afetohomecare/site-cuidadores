@@ -108,6 +108,30 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
 
 .btn-editar-bloco { display: inline-flex; align-items: center; gap: 6px; background: transparent; color: var(--lilas-escuro); border: 2px solid var(--lilas); padding: 6px 14px; border-radius: 50px; font-family: 'Nunito', sans-serif; font-size: 12px; font-weight: 900; cursor: pointer; transition: 0.3s; }
 .btn-editar-bloco:hover { background: var(--lilas); color: white; }
+.btn-pag-acao {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 12px 18px; border-radius: 50px; font-family: 'Nunito', sans-serif;
+  font-size: 13px; font-weight: 900; cursor: pointer; border: none; text-decoration: none;
+  transition: 0.2s; margin-top: 10px; margin-right: 8px;
+}
+.btn-pag-pix { background: linear-gradient(135deg, #10b981, #059669); color: white; box-shadow: 0 8px 18px rgba(16,185,129,0.25); }
+.btn-pag-cartao { background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; box-shadow: 0 8px 18px rgba(139,92,246,0.25); }
+.btn-pag-acao:disabled { opacity: 0.65; cursor: not-allowed; }
+.pag-hint { margin-top: 14px; font-size: 13px; color: var(--cinza-fonte); font-weight: 700; line-height: 1.55; }
+.modal-pix-painel {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 9999;
+  align-items: center; justify-content: center; padding: 20px;
+}
+.modal-pix-painel.ativo { display: flex; }
+.modal-pix-box {
+  background: white; border-radius: 24px; padding: 26px 22px; max-width: 400px; width: 100%;
+  text-align: center; box-shadow: 0 24px 60px rgba(0,0,0,0.3);
+}
+.modal-pix-box img { max-width: 220px; width: 100%; border-radius: 12px; margin: 12px 0; }
+.modal-pix-box .copia { display: flex; gap: 8px; margin-top: 10px; }
+.modal-pix-box .copia input {
+  flex: 1; min-width: 0; padding: 12px; border-radius: 12px; border: 2px solid #e2e8f0; font-size: 11px; font-weight: 700;
+}
 
 .bloco-conteudo { font-size: 14.5px; color: var(--cinza-fonte); font-weight: 700; line-height: 1.65; }
 .bloco-conteudo.tags { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -267,6 +291,19 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
       </div>
     </section>
 
+    <div id="modal-pix-painel" class="modal-pix-painel" onclick="if(event.target===this)this.classList.remove('ativo')">
+      <div class="modal-pix-box">
+        <h3 style="font-size:18px;font-weight:900;margin-bottom:6px;">Pagar com Pix</h3>
+        <p style="font-size:13px;color:var(--cinza-fonte);font-weight:700;line-height:1.5;margin-bottom:8px;">Escaneie o QR Code ou copie o código. A confirmação é automática.</p>
+        <div id="modal-pix-qr"><i class="fa-solid fa-spinner fa-spin"></i></div>
+        <div class="copia">
+          <input type="text" id="modal-pix-codigo" readonly value="">
+          <button type="button" class="btn-pag-acao btn-pag-pix" style="margin:0" onclick="copiarPixPainel()">Copiar</button>
+        </div>
+        <button type="button" class="btn-editar-bloco" style="margin-top:16px" onclick="document.getElementById('modal-pix-painel').classList.remove('ativo')">Fechar</button>
+      </div>
+    </div>
+
     <section class="secao" id="secao-plantoes">
       <div class="main-header">
         <h1>Meus plantões</h1>
@@ -424,6 +461,13 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
     });
   });
 
+  document.addEventListener('click', function(e) {
+    var a = e.target && e.target.closest ? e.target.closest('[data-ir-plano]') : null;
+    if (!a) return;
+    e.preventDefault();
+    irParaSecao('plano');
+  });
+
   document.getElementById('btn-sidebar-toggle').addEventListener('click', function() {
     document.getElementById('sidebar').classList.toggle('aberto');
   });
@@ -465,6 +509,26 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
     carregarSolicitacoes();
 
     esconderLoader();
+    processarRetornoPagamento();
+  }
+
+  function processarRetornoPagamento() {
+    try {
+      var params = new URLSearchParams(window.location.search);
+      var pag = params.get('pagamento');
+      if (!pag) return;
+      irParaSecao('plano');
+      if (pag === 'cartao_ok') {
+        alert('Cartão enviado no Asaas. Em alguns minutos a assinatura deve aparecer aqui — atualize a página se precisar.');
+      } else if (pag === 'cartao_cancelado') {
+        alert('Cadastro de cartão cancelado. Você pode tentar de novo quando quiser, ou pagar no Pix.');
+      } else if (pag === 'cartao_expirado') {
+        alert('O link do Asaas expirou. Gere um novo pelo botão de cartão no seu plano.');
+      }
+      if (window.history && window.history.replaceState) {
+        window.history.replaceState({}, '', 'painel.html');
+      }
+    } catch (e) {}
   }
 
   function fmtPeriodos(lista) {
@@ -529,8 +593,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
     if (cuidadora.status_pagamento === 'Inadimplente') {
       icone.innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color: #ef4444;"></i>';
       titulo.textContent = '⚠️ Seu pagamento falhou';
-      texto.innerHTML = 'Não conseguimos cobrar sua assinatura. Regularize pra manter seu perfil no ar. ' +
-        '<a href="planos.html" style="color: var(--lilas-escuro); font-weight: 800; text-decoration: underline;">Regularizar agora</a>';
+      texto.innerHTML = 'Não conseguimos cobrar sua assinatura. Regularize com Pix ou cartão (Asaas) em <a href="#plano" data-ir-plano="1" style="color: var(--lilas-escuro); font-weight: 800; text-decoration: underline;">Meu plano</a>.';
       return;
     }
 
@@ -538,8 +601,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
     if (cuidadora.status_pagamento === 'Estornado') {
       icone.innerHTML = '<i class="fa-solid fa-rotate-left" style="color: #ef4444;"></i>';
       titulo.textContent = 'Pagamento estornado';
-      texto.innerHTML = 'Seu acesso foi suspenso porque houve estorno. ' +
-        '<a href="planos.html" style="color: var(--lilas-escuro); font-weight: 800; text-decoration: underline;">Reativar plano</a>';
+      texto.innerHTML = 'Seu acesso foi suspenso porque houve estorno. Reative em <a href="#plano" data-ir-plano="1" style="color: var(--lilas-escuro); font-weight: 800; text-decoration: underline;">Meu plano</a>.';
       return;
     }
 
@@ -805,8 +867,59 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
   }
 
   // ==========================================
-  // PLANO
+  // PLANO + PAGAMENTOS (PIX no painel / cartão no Asaas)
   // ==========================================
+  function planoVencidoOuIrregular() {
+    if (cuidadora.status_pagamento === 'Inadimplente' || cuidadora.status_pagamento === 'Estornado') return true;
+    if (cuidadora.status_pagamento !== 'Pago') return true;
+    var dias = diasRestantes(cuidadora.plano_valido_ate);
+    return dias <= 0;
+  }
+
+  async function iniciarPixPainel() {
+    var btn = document.getElementById('btn-pix-painel');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Gerando Pix...'; }
+    try {
+      var data = await api('/api/painel/pagamento', { method: 'POST', body: { acao: 'pix' } });
+      if (!data || !data.ok || !data.pix) throw new Error((data && data.error) || 'Falha ao gerar Pix');
+      var qr = document.getElementById('modal-pix-qr');
+      qr.innerHTML = data.pix.qrCodeImage
+        ? '<img alt="QR Code Pix" src="data:image/png;base64,' + data.pix.qrCodeImage + '">'
+        : '<p>QR indisponível — use o copia e cola.</p>';
+      document.getElementById('modal-pix-codigo').value = data.pix.copiaECola || '';
+      document.getElementById('modal-pix-painel').classList.add('ativo');
+    } catch (err) {
+      alert(err.message || 'Não foi possível gerar o Pix agora.');
+    } finally {
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-brands fa-pix"></i> Pagar agora no Pix'; }
+    }
+  }
+
+  window.copiarPixPainel = function() {
+    var input = document.getElementById('modal-pix-codigo');
+    if (!input || !input.value) return;
+    input.select();
+    try { document.execCommand('copy'); alert('Código Pix copiado!'); } catch (e) {}
+  };
+
+  async function iniciarCartaoAsaas() {
+    var btn = document.getElementById('btn-cartao-asaas');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Abrindo Asaas...'; }
+    try {
+      var data = await api('/api/painel/pagamento', { method: 'POST', body: { acao: 'cartao' } });
+      if (!data || !data.ok || !data.link) throw new Error((data && data.error) || 'Falha ao abrir Asaas');
+      window.location.href = data.link;
+    } catch (err) {
+      alert(err.message || 'Não foi possível abrir o cadastro de cartão agora.');
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = planoVencidoOuIrregular()
+          ? '<i class="fa-solid fa-credit-card"></i> Cadastrar cartão no Asaas'
+          : '<i class="fa-solid fa-credit-card"></i> Adicionar cartão para próximas cobranças';
+      }
+    }
+  }
+
   function renderizarPlano() {
     var container = document.getElementById('plano-conteudo');
     var planoLabel = planoAtual === 'destaque' ? 'Destaque'
@@ -814,6 +927,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
                    : 'Cadastro Básico';
     var dias = diasRestantes(cuidadora.plano_valido_ate);
     var vencendo = dias > 0 && dias <= 7;
+    var irregular = planoVencidoOuIrregular();
 
     var isAssinatura = !!cuidadora.asaas_subscription_id;
     var taPago = cuidadora.status_pagamento === 'Pago';
@@ -834,21 +948,33 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
     }
 
     var infoPagamento = '';
-    if (isAssinatura && taPago) {
+    if (isAssinatura && taPago && !irregular) {
        infoPagamento = '<strong>Próxima cobrança:</strong> ' + formatarData(cuidadora.proxima_cobranca);
     } else {
        infoPagamento = '<strong>Válido até:</strong> ' + (cuidadora.plano_valido_ate ? formatarData(cuidadora.plano_valido_ate) : '--/--/----');
     }
 
     var botoesHtml = '';
-    if (isAssinatura && taPago) {
-       botoesHtml = '<button id="btn-cancelar-assinatura" style="background: transparent; color: var(--vermelho); border: 2px solid var(--vermelho); padding: 10px 20px; border-radius: 50px; font-family: \'Nunito\', sans-serif; font-size: 13px; font-weight: 900; cursor: pointer; margin-top: 15px; transition: 0.3s;">Cancelar Assinatura</button>';
-    } else if (cuidadora.status_pagamento === 'Inadimplente' || cuidadora.status_pagamento === 'Estornado') {
-       botoesHtml = '<a href="planos.html" style="display: inline-block; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; padding: 10px 20px; border-radius: 50px; text-decoration: none; font-family: \'Nunito\', sans-serif; font-size: 13px; font-weight: 900; margin-top: 15px;">⚠️ Regularizar plano</a>';
-    } else if (!isAssinatura && taPago && dias > 7) {
-       botoesHtml = '';
+    if (irregular) {
+      botoesHtml =
+        '<div style="margin-top: 8px;">' +
+          '<p class="pag-hint">Seu plano precisa de regularização. Pague agora no Pix ou cadastre um cartão na página segura do Asaas pra ficar em dia e não se preocupar com as próximas cobranças.</p>' +
+          '<button type="button" class="btn-pag-acao btn-pag-pix" id="btn-pix-painel"><i class="fa-brands fa-pix"></i> Pagar agora no Pix</button>' +
+          '<button type="button" class="btn-pag-acao btn-pag-cartao" id="btn-cartao-asaas"><i class="fa-solid fa-credit-card"></i> Cadastrar cartão no Asaas</button>' +
+        '</div>';
+    } else if (isAssinatura && taPago) {
+      botoesHtml =
+        '<p class="pag-hint"><i class="fa-solid fa-shield-halved"></i> Cartão cadastrado no Asaas para cobranças automáticas.</p>' +
+        '<button id="btn-cancelar-assinatura" style="background: transparent; color: var(--vermelho); border: 2px solid var(--vermelho); padding: 10px 20px; border-radius: 50px; font-family: \'Nunito\', sans-serif; font-size: 13px; font-weight: 900; cursor: pointer; margin-top: 15px; transition: 0.3s;">Cancelar Assinatura</button>';
     } else {
-       botoesHtml = '<a href="planos.html" style="display: inline-block; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; padding: 10px 20px; border-radius: 50px; text-decoration: none; font-family: \'Nunito\', sans-serif; font-size: 13px; font-weight: 900; margin-top: 15px;">✨ Ativar / Renovar Plano</a>';
+      botoesHtml =
+        '<div style="margin-top: 8px;">' +
+          '<p class="pag-hint">Quer comodidade? Cadastre um cartão na página segura do Asaas para as próximas cobranças. O cartão não é digitado neste site.</p>' +
+          '<button type="button" class="btn-pag-acao btn-pag-cartao" id="btn-cartao-asaas"><i class="fa-solid fa-credit-card"></i> Adicionar cartão para próximas cobranças</button>' +
+          (dias <= 7
+            ? '<button type="button" class="btn-pag-acao btn-pag-pix" id="btn-pix-painel"><i class="fa-brands fa-pix"></i> Renovar agora no Pix</button>'
+            : '') +
+        '</div>';
     }
 
     container.innerHTML = '' +
@@ -868,6 +994,11 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
             '<a href="planos.html" class="btn-editar-bloco" style="padding: 12px 24px; font-size: 14px; text-decoration: none;"><i class="fa-solid fa-arrow-up"></i> Ver planos</a>' +
           '</div>'
         : '');
+
+    var btnPix = document.getElementById('btn-pix-painel');
+    if (btnPix) btnPix.addEventListener('click', iniciarPixPainel);
+    var btnCartao = document.getElementById('btn-cartao-asaas');
+    if (btnCartao) btnCartao.addEventListener('click', iniciarCartaoAsaas);
 
     var btnCancelar = document.getElementById('btn-cancelar-assinatura');
     if (btnCancelar) {

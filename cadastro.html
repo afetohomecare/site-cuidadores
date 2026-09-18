@@ -559,20 +559,13 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     </button>
 
     <div class="checkout-header">
-      <div class="checkout-icone"><i class="fa-solid fa-lock"></i></div>
-      <h2>Pagamento seguro</h2>
+      <div class="checkout-icone"><i class="fa-brands fa-pix"></i></div>
+      <h2>Pagamento via Pix</h2>
       <p id="checkout-plano-nome">Plano Cadastro Básico Afeto</p>
       <div class="checkout-valor">R$ <span id="checkout-valor">9,90</span><small id="checkout-periodo">/mês</small></div>
-    </div>
-
-    <div class="checkout-tabs">
-      <button type="button" class="tab-btn ativo" data-tab="pix">
-        <i class="fa-solid fa-qrcode"></i> Pix
-        <span class="tab-badge">Rápido</span>
-      </button>
-      <button type="button" class="tab-btn" data-tab="cartao">
-        <i class="fa-solid fa-credit-card"></i> Cartão
-      </button>
+      <p style="margin-top: 10px; font-size: 12.5px; color: var(--cinza-fonte); font-weight: 700; line-height: 1.5;">
+        Cartão fica opcional depois, no seu painel — em página segura do Asaas.
+      </p>
     </div>
 
     <div id="bloco-cupom" style="margin-bottom: 18px; padding: 16px; background: #f8f9fc; border-radius: 14px; border: 2px dashed #c4b5fd;">
@@ -610,33 +603,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
           <div class="titulo">Aguardando confirmação...</div>
           <div class="sub">Não feche esta tela. Assim que o banco confirmar, seu acesso será liberado automaticamente.</div>
         </div>
-      </div>
-    </div>
-
-    <div id="tab-cartao" class="tab-content">
-      <div class="cartao-form">
-        <div class="campo-cartao">
-          <label>Número do cartão</label>
-          <input type="text" id="card-number" placeholder="0000 0000 0000 0000" maxlength="19">
-        </div>
-        <div class="campo-cartao">
-          <label>Nome impresso no cartão</label>
-          <input type="text" id="card-name" placeholder="Como está no cartão">
-        </div>
-        <div class="cartao-row">
-          <div class="campo-cartao">
-            <label>Validade</label>
-            <input type="text" id="card-expiry" placeholder="MM/AA" maxlength="5">
-          </div>
-          <div class="campo-cartao">
-            <label>CVV</label>
-            <input type="text" id="card-cvv" placeholder="123" maxlength="4">
-          </div>
-        </div>
-        <button type="button" class="btn-pagar-cartao" onclick="pagarCartao()">
-          <i class="fa-solid fa-lock"></i> Pagar R$ <span id="cartao-valor">9,90</span>
-        </button>
-        <p class="cartao-aviso"><i class="fa-solid fa-shield-halved"></i> Seus dados são criptografados e processados pelo Asaas.</p>
       </div>
     </div>
 
@@ -1059,9 +1025,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
             '</p>' +
           '</div>';
 
-        document.querySelector('.checkout-tabs').style.display = 'none';
-        document.getElementById('tab-pix').classList.remove('ativo');
-        document.getElementById('tab-cartao').classList.remove('ativo');
+        document.getElementById('tab-pix').style.display = 'none';
         document.querySelector('.checkout-valor').innerHTML = 'R$ <span id="checkout-valor">0,00</span>';
 
         setTimeout(async function() {
@@ -1092,7 +1056,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       } else {
         var valorFmt = valorFinal.toFixed(2).replace('.', ',');
         document.getElementById('checkout-valor').textContent = valorFmt;
-        document.getElementById('cartao-valor').textContent = valorFmt;
         dadosCheckout.precoBaseFmt = valorFmt;
 
         var regenerou = await regenerarPixComCupom();
@@ -1270,7 +1233,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     };
 
     cupomAplicado = null;
-    document.querySelector('.checkout-tabs').style.display = '';
 
     var nomePlano = planoParam === 'cadastro' ? 'Cadastro Básico'
                   : planoParam === 'destaque' ? 'Destaque'
@@ -1278,7 +1240,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     document.getElementById('checkout-plano-nome').textContent = 'Plano ' + nomePlano + ' Afeto';
 
     document.querySelector('.checkout-valor').innerHTML = 'R$ <span id="checkout-valor">...</span><small id="checkout-periodo">/mês</small>';
-    document.getElementById('cartao-valor').textContent = '...';
 
     var precoFmt = planoParam === 'cadastro' ? '9,90'
                  : planoParam === 'destaque' ? '39,90'
@@ -1297,13 +1258,9 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 
     dadosCheckout.precoBaseFmt = precoFmt;
     document.getElementById('checkout-valor').textContent = precoFmt;
-    document.getElementById('cartao-valor').textContent = precoFmt;
 
     document.getElementById('tab-pix').classList.add('ativo');
-    document.getElementById('tab-cartao').classList.remove('ativo');
-    document.querySelectorAll('.tab-btn').forEach(function(b) {
-      b.classList.toggle('ativo', b.getAttribute('data-tab') === 'pix');
-    });
+    document.getElementById('tab-pix').style.display = '';
 
     document.getElementById('pix-qrcode').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><p>Gerando QR Code...</p>';
     document.getElementById('checkout-loading').style.display = 'block';
@@ -1388,109 +1345,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       setTimeout(function() { btn.innerHTML = html; btn.classList.remove('copiado'); }, 2000);
     } catch (e) {}
   };
-
-  window.pagarCartao = async function() {
-    var cardNumber = document.getElementById('card-number').value.replace(/\s/g, '');
-    var cardName = document.getElementById('card-name').value.trim();
-    var cardExpiry = document.getElementById('card-expiry').value;
-    var cardCvv = document.getElementById('card-cvv').value;
-    if (!cardNumber || cardNumber.length < 13) { alert('Número do cartão inválido.'); return; }
-    if (!cardName) { alert('Digite o nome no cartão.'); return; }
-    if (!cardExpiry || cardExpiry.length < 5) { alert('Validade inválida.'); return; }
-    if (!cardCvv || cardCvv.length < 3) { alert('CVV inválido.'); return; }
-    var ma = cardExpiry.split('/');
-    var btn = document.querySelector('.btn-pagar-cartao');
-
-    pararPollingPagamento();
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processando...';
-
-    try {
-      var resp = await fetch('/api/asaas/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          nome: dadosCheckout.nome,
-          cpf: document.getElementById('cpf').value.trim(),
-          whatsapp: document.getElementById('whatsapp').value.trim(),
-          plano: dadosCheckout.plano,
-          cuidadorId: dadosCheckout.recordId,
-          cupomCodigo: cupomAplicado || undefined,
-          formaPagamento: 'CREDIT_CARD',
-          creditCard: {
-            holderName: cardName,
-            number: cardNumber,
-            expiryMonth: ma[0],
-            expiryYear: '20' + ma[1],
-            ccv: cardCvv
-          },
-          creditCardHolderInfo: {
-            name: cardName,
-            email: 'afetohomecareoficial@gmail.com',
-            cpfCnpj: document.getElementById('cpf').value.replace(/\D/g, ''),
-            postalCode: '80000000',
-            addressNumber: '0',
-            phone: document.getElementById('whatsapp').value.replace(/\D/g, '')
-          }
-        })
-      });
-      var data = await resp.json();
-
-      if (!resp.ok || !data.ok) {
-        alert('Não conseguimos processar seu pagamento agora. Verifique os dados do cartão e tente novamente.');
-        return;
-      }
-
-      // Só libera sucesso se o backend marcou como pago de verdade
-      if (!data.pagoNaHora) {
-        alert(
-          'Recebemos os dados do cartão, mas a confirmação ainda não chegou.\n\n' +
-          'Aguarde alguns minutos e tente de novo, ou pague por Pix nesta mesma tela.\n' +
-          'Se o valor for cobrado e o plano não liberar, fale com a Afeto no WhatsApp.'
-        );
-        return;
-      }
-
-      dadosCheckout.pago = true;
-      dadosCheckout.cobrancaId = data.cobrancaId || dadosCheckout.cobrancaId;
-      document.getElementById('tela-checkout').classList.remove('ativo');
-      document.body.style.overflow = '';
-      mostrarSucesso(false, null);
-    } catch (err) {
-      console.error('Erro cartão:', err);
-      alert('Erro ao processar. Tente novamente.');
-    } finally {
-      if (!dadosCheckout.pago) {
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fa-solid fa-lock"></i> Pagar R$ ' + dadosCheckout.precoBaseFmt;
-      }
-    }
-  };
-
-  document.querySelectorAll('.tab-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      var tab = this.getAttribute('data-tab');
-      document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('ativo'); });
-      this.classList.add('ativo');
-      document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('ativo'); });
-      document.getElementById('tab-' + tab).classList.add('ativo');
-    });
-  });
-
-  var cardNumberInput = document.getElementById('card-number');
-  if (cardNumberInput) {
-    cardNumberInput.addEventListener('input', function() {
-      this.value = this.value.replace(/\D/g, '').replace(/(\d{4})(?=\d)/g, '$1 ').substring(0, 19);
-    });
-  }
-  var cardExpiryInput = document.getElementById('card-expiry');
-  if (cardExpiryInput) {
-    cardExpiryInput.addEventListener('input', function() {
-      var v = this.value.replace(/\D/g, '');
-      if (v.length >= 2) v = v.substring(0, 2) + '/' + v.substring(2, 4);
-      this.value = v;
-    });
-  }
 
   form.addEventListener('submit', async function(e) {
     e.preventDefault();
