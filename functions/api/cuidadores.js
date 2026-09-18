@@ -97,11 +97,17 @@ export async function onRequestGet(context) {
 
   try {
     const url = new URL(request.url);
-    const id = idSeguro(url.searchParams.get('id'));
+    const rawId = url.searchParams.get('id');
     const hoje = new Date().toISOString();
 
     // Perfil por link exclusivo (Cadastro Básico, Profissional ou Destaque)
-    if (id) {
+    if (rawId !== null && String(rawId).trim() !== '') {
+      const id = idSeguro(rawId);
+      const isUuid = !!id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+      if (!isUuid) {
+        return jsonResp({ error: 'ID inválido' }, 400);
+      }
+
       const filtrosId = [
         'id=eq.' + encodeURIComponent(id),
         'aprovada=eq.true',
@@ -119,7 +125,7 @@ export async function onRequestGet(context) {
 
       const linhas = await resp.json();
       if (!linhas || linhas.length === 0) {
-        return jsonResp({ error: 'Profissional não encontrada' }, 404);
+        return jsonResp({ error: 'Perfil não encontrado' }, 404);
       }
 
       return new Response(JSON.stringify({ cuidadora: perfilPublico(linhas[0]) }), {
