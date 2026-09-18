@@ -119,6 +119,10 @@ export async function onRequestPost(context) {
         proxima_cobranca: vence.toISOString()
       };
 
+      if (payment.subscription) {
+        patchBody.asaas_subscription_id = String(payment.subscription);
+      }
+
       await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(cuidadorId), {
         method: 'PATCH',
         headers: headersSupabase(env, true, false),

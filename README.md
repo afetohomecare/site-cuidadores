@@ -10,7 +10,7 @@ Vitrine e cadastro das cuidadoras parceiras. Publicado em [afetocuidadores.pages
 | `painel.html`, `painel-login.html` | Área da cuidadora |
 | `admin/` | Painel interno |
 | `functions/api/` | APIs (Cloudflare Pages Functions) |
-| `functions/_lib/` | Código compartilhado (auth, HTTP, Supabase) |
+| `functions/_lib/` | Código compartilhado (auth, HTTP, Supabase, slug) |
 
 O Cloudflare publica a pasta inteira. **Não mova os HTML da raiz** sem atualizar todos os links.
 
@@ -40,3 +40,19 @@ O Cloudflare publica a pasta inteira. **Não mova os HTML da raiz** sem atualiza
 ## Vitrine
 
 Só entram profissionais **aprovadas**, com **pagamento em dia**, plano **Profissional ou Destaque** e data de validade futura. Cadastro básico não aparece na lista.
+
+## Link do perfil (slug)
+
+O UUID interno da cuidadora **não muda**. O link público prefere um slug legível (`maria-silva`, `maria-silva-2` se colidir).
+
+1. No Supabase (SQL Editor), rode `supabase/add-slug-cuidadores.sql` uma vez.
+2. Cadastros novos geram e gravam o slug. Se a coluna ainda não existir, o cadastro **não quebra** (segue sem slug).
+3. O perfil resolve por slug **ou** UUID. Links antigos com UUID continuam funcionando.
+4. Palavras reservadas (`api`, `admin`, `painel`, `perfil`, etc.) não viram slug.
+
+## Pagamentos
+
+- **Cadastro:** só Pix (QR + copia-e-cola). Cartão **não** é digitado no domínio da Afeto.
+- **Painel → Meu plano:** Pix de regularização; cartão opcional em **página hospedada do Asaas** (Checkout `CREDIT_CARD` + `RECURRENT`).
+- Retorno do Asaas: `painel.html?pagamento=cartao_ok` | `cartao_cancelado` | `cartao_expirado`.
+- Quem está irregular (Inadimplente, Estornado, não Pago ou plano vencido) vê os dois botões no painel. Quem está em dia pode só cadastrar o cartão para as próximas cobranças.

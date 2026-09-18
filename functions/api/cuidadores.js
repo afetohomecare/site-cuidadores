@@ -4,10 +4,11 @@
 
 import { jsonResp, metodoNaoPermitido } from '../_lib/http.js';
 import { headersSupabase, supabaseOk } from '../_lib/supabase.js';
-import { idSeguro } from '../_lib/auth.js';
+import { ehUuid, filtroPerfilPorRef, refPerfilSegura } from '../_lib/slug.js';
 
 const CAMPOS_PUBLICOS = [
   'id',
+  'slug',
   'nome',
   'foto_url',
   'apresentacao',
@@ -69,17 +70,19 @@ function perfilPublico(row) {
 }
 
 async function buscarSupabase(env, filtros) {
-  let resp = await fetch(
-    env.SUPABASE_URL + '/rest/v1/cuidadores?' + filtros.concat(['select=' + CAMPOS_PUBLICOS.join(',')]).join('&'),
-    { headers: headersSupabase(env) }
-  );
+  const tentativas = [
+    CAMPOS_PUBLICOS,
+    CAMPOS_PUBLICOS.filter(function (c) { return c.indexOf('mostrar_') !== 0; }),
+    CAMPOS_PUBLICOS.filter(function (c) { return c !== 'slug' && c.indexOf('mostrar_') !== 0; })
+  ];
 
-  if (!resp.ok) {
-    const semFlags = CAMPOS_PUBLICOS.filter(function (c) { return c.indexOf('mostrar_') !== 0; });
+  let resp;
+  for (let i = 0; i < tentativas.length; i++) {
     resp = await fetch(
-      env.SUPABASE_URL + '/rest/v1/cuidadores?' + filtros.concat(['select=' + semFlags.join(',')]).join('&'),
+      env.SUPABASE_URL + '/rest/v1/cuidadores?' + filtros.concat(['select=' + tentativas[i].join(',')]).join('&'),
       { headers: headersSupabase(env) }
     );
+    if (resp.ok) return resp;
   }
 
   return resp;
@@ -94,13 +97,18 @@ export async function onRequestGet(context) {
 
   try {
     const url = new URL(request.url);
-    const id = idSeguro(url.searchParams.get('id'));
+    const idBruto = url.searchParams.get('id');
     const hoje = new Date().toISOString();
 
-    // Perfil por link exclusivo (Cadastro Básico, Profissional ou Destaque)
-    if (id) {
+    // Perfil por link exclusivo (slug público ou UUID interno)
+    if (idBruto !== null && String(idBruto).trim() !== '') {
+      const ref = refPerfilSegura(idBruto);
+      if (!ref) {
+        return jsonResp({ error: 'ID inválido' }, 400);
+      }
+
       const filtrosId = [
-        'id=eq.' + encodeURIComponent(id),
+        filtroPerfilPorRef(ref),
         'aprovada=eq.true',
         'status_pagamento=eq.Pago',
         'plano_valido_ate=gte.' + hoje,
@@ -110,13 +118,17 @@ export async function onRequestGet(context) {
 
       const resp = await buscarSupabase(env, filtrosId);
       if (!resp.ok) {
-        console.error('Erro buscar perfil:', await resp.text());
+        const txt = await resp.text();
+        console.error('Erro buscar perfil:', txt);
+        if (!ehUuid(ref)) {
+          return jsonResp({ error: 'Perfil não encontrado' }, 404);
+        }
         return jsonResp({ error: 'Falha ao buscar perfil' }, 502);
       }
 
       const linhas = await resp.json();
       if (!linhas || linhas.length === 0) {
-        return jsonResp({ error: 'Profissional não encontrada' }, 404);
+        return jsonResp({ error: 'Perfil não encontrado' }, 404);
       }
 
       return new Response(JSON.stringify({ cuidadora: perfilPublico(linhas[0]) }), {

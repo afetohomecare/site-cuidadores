@@ -14,7 +14,7 @@ const CAMPOS_PERMITIDOS = [
 ];
 
 const CAMPOS_LISTA = [
-  'id', 'nome', 'whatsapp', 'whatsapp_agencia', 'email', 'cpf', 'coren',
+  'id', 'slug', 'nome', 'whatsapp', 'whatsapp_agencia', 'email', 'cpf', 'coren',
   'foto_url', 'foto_url_pendente', 'foto_pendente',
   'apresentacao', 'motivacao', 'especialidade', 'experiencia',
   'bairro', 'bairros', 'preco', 'turno', 'cursos', 'subespecialidades',
