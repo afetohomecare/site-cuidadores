@@ -487,6 +487,11 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
         </div>
       </div>
 
+      <div id="cadastro-turnstile-wrap" style="margin-top: 18px;">
+        <p class="ajuda" style="margin-bottom: 10px;">💜 Um instantinho para confirmar que você é gente de verdade.</p>
+        <div id="cadastro-turnstile"></div>
+      </div>
+
       <button type="submit" id="btn-enviar" class="btn-enviar">
         Continuar <i class="fa-solid fa-arrow-right"></i>
       </button>
@@ -747,6 +752,36 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     });
     return lista;
   }
+
+  var turnstileKey = null;
+  function montarTurnstileCadastro() {
+    var box = document.getElementById('cadastro-turnstile');
+    var wrap = document.getElementById('cadastro-turnstile-wrap');
+    if (!box) return;
+    box.innerHTML = '';
+    if (!turnstileKey) {
+      if (wrap) wrap.style.display = 'none';
+      return;
+    }
+    if (wrap) wrap.style.display = 'block';
+    if (!window.turnstile) {
+      var s = document.createElement('script');
+      s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
+      s.async = true;
+      document.head.appendChild(s);
+    }
+    box.innerHTML = '<div class="cf-turnstile" data-sitekey="' + turnstileKey + '"></div>';
+    if (window.turnstile) window.turnstile.render(box.firstChild, { sitekey: turnstileKey });
+  }
+
+  (async function carregarChaveTurnstile() {
+    try {
+      var c = await fetch('/api/config-publica');
+      var cd = await c.json();
+      if (cd && cd.turnstileSiteKey) turnstileKey = cd.turnstileSiteKey;
+    } catch (e) {}
+    montarTurnstileCadastro();
+  })();
 
   document.getElementById('whatsapp').addEventListener('input', function() {
     var x = this.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
@@ -1443,6 +1478,14 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     if (!document.getElementById('termo2').checked) { alert('Autorize o tratamento dos dados (LGPD).'); return; }
     if (!document.getElementById('termo3').checked) { alert('Declare que as informações são verdadeiras.'); return; }
     if (!document.getElementById('termo4').checked) { alert('Declare que não possui antecedentes criminais.'); return; }
+    if (turnstileKey) {
+      var tokenEl = document.querySelector('#cadastro-turnstile [name="cf-turnstile-response"]')
+        || document.querySelector('[name="cf-turnstile-response"]');
+      if (!tokenEl || !tokenEl.value) {
+        alert('Confirme que você não é um robô, bem aqui embaixo dos termos, e envie de novo.');
+        return;
+      }
+    }
 
     enviando = true;
     btnEnviar.disabled = true;
@@ -1493,6 +1536,11 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
             window.location.href = 'painel-login.html?cpf=' + encodeURIComponent(cpfDigitado);
           }
           return;
+        }
+
+        if (resultado.data && resultado.data.codigo === 'TURNSTILE') {
+          alert(resultado.data.error || 'Confirme que você não é um robô e tente de novo.');
+          throw new Error('Falha');
         }
 
         if (resultado.data && resultado.data.codigo === 'CONTA_NAO_CRIADA') {

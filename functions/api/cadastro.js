@@ -6,6 +6,7 @@
 // ============================================================
 
 import { garantirSlugUnico, linkPerfilPublico } from '../_lib/slug.js';
+import { verificarTurnstile, ipDoPedido } from '../_lib/turnstile.js';
 
 const BUCKET_FOTOS = 'fotos';
 
@@ -22,6 +23,18 @@ export async function onRequest(context) {
 
   try {
     const form = await context.request.formData();
+
+    const turnstile = await verificarTurnstile(
+      env,
+      campo(form, 'cf-turnstile-response') || campo(form, 'turnstileToken'),
+      ipDoPedido(context.request)
+    );
+    if (!turnstile.ok) {
+      return jsonResp({
+        error: 'Confirme que você não é um robô e tente de novo.',
+        codigo: 'TURNSTILE'
+      }, 400);
+    }
 
     const nome           = campo(form, 'nome');
     const whatsapp       = campo(form, 'whatsapp');

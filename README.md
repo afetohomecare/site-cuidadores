@@ -29,7 +29,7 @@ O Cloudflare publica a pasta inteira. **Não mova os HTML da raiz** sem atualiza
 - `ASAAS_WEBHOOK_TOKEN_PRODUCAO` (ou `ASAAS_WEBHOOK_TOKEN`) — **obrigatório** para o webhook aceitar pagamentos
 - `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`
 - Opcional: `TELEGRAM_WEBHOOK_SECRET` (se configurar no BotFather, o webhook exige esse header)
-- Opcional: `TURNSTILE_SITE_KEY` e `TURNSTILE_SECRET_KEY` (formulário de solicitar atendimento)
+- Opcional: `TURNSTILE_SITE_KEY` e `TURNSTILE_SECRET_KEY` (cadastro da profissional e solicitar atendimento)
 
 ## Solicitações de atendimento
 
