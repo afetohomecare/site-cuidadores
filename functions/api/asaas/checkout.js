@@ -208,12 +208,10 @@ export async function onRequestPost(context) {
         console.log('♻️ Reutilizando cobrança existente:', cobrancaExistente.id);
 
         let pixData = null;
-        if (formaPagamento === 'PIX') {
-          const pixResp = await fetch(ASAAS_URL + '/payments/' + cobrancaExistente.id + '/pixQrCode', {
-            headers: { 'User-Agent': 'Afeto/1.0', 'access_token': ASAAS_API_KEY }
-          });
-          if (pixResp.ok) pixData = await pixResp.json();
-        }
+        const pixResp = await fetch(ASAAS_URL + '/payments/' + cobrancaExistente.id + '/pixQrCode', {
+          headers: { 'User-Agent': 'Afeto/1.0', 'access_token': ASAAS_API_KEY }
+        });
+        if (pixResp.ok) pixData = await pixResp.json();
 
         return jsonResp({
           ok: true,
