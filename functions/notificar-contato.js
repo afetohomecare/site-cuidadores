@@ -2,7 +2,7 @@
 
 import { jsonResp } from './_lib/http.js';
 import { headersSupabase, supabaseOk } from './_lib/supabase.js';
-import { idSeguro } from './_lib/auth.js';
+import { refPerfilSegura } from './_lib/slug.js';
 
 export async function onRequest(context) {
   if (context.request.method !== 'POST') {
@@ -16,14 +16,17 @@ export async function onRequest(context) {
 
   try {
     const dados = await context.request.json();
-    const ref = idSeguro(dados.ref || dados.id);
+    const ref = refPerfilSegura(dados.ref || dados.id);
     if (!ref) {
       return jsonResp({ ok: false, motivo: 'ref_invalida' }, 400);
     }
 
     const hoje = new Date().toISOString();
+    const filtroChave = ref.tipo === 'slug'
+      ? 'slug=eq.' + encodeURIComponent(ref.valor)
+      : 'id=eq.' + encodeURIComponent(ref.valor);
     const resp = await fetch(
-      env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(ref) +
+      env.SUPABASE_URL + '/rest/v1/cuidadores?' + filtroChave +
       '&aprovada=eq.true&status_pagamento=eq.Pago&plano_valido_ate=gte.' + hoje +
       '&select=id,nome,bairro,especialidade&limit=1',
       { headers: headersSupabase(env) }
