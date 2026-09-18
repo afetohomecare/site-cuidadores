@@ -5,6 +5,8 @@
 // 🛡️ BLOQUEIA segundo cadastro quando já existe auth_user_id.
 // ============================================================
 
+import { garantirSlugUnico, linkPublicoPerfil } from '../_lib/slug.js';
+
 const BUCKET_FOTOS = 'fotos';
 
 export async function onRequest(context) {
@@ -124,9 +126,22 @@ export async function onRequest(context) {
       'whatsapp.eq.' + encodeURIComponent(whatsLimpo) +
     ')';
 
-    const buscaUrl = env.SUPABASE_URL + '/rest/v1/cuidadores?select=id,auth_user_id&' + filtro + '&limit=1';
+    const buscaUrl = env.SUPABASE_URL + '/rest/v1/cuidadores?select=id,auth_user_id,slug&' + filtro + '&limit=1';
 
-    const buscaResp = await fetch(buscaUrl, { headers: headersSupabase(env) });
+    let buscaResp = await fetch(buscaUrl, { headers: headersSupabase(env) });
+
+    if (!buscaResp.ok) {
+      const txt = await buscaResp.text();
+      if (/slug|column|schema/i.test(txt)) {
+        buscaResp = await fetch(
+          env.SUPABASE_URL + '/rest/v1/cuidadores?select=id,auth_user_id&' + filtro + '&limit=1',
+          { headers: headersSupabase(env) }
+        );
+      } else {
+        console.error('Erro ao buscar existente:', buscaResp.status, txt);
+        return jsonResp({ error: 'Falha ao consultar banco' }, 502);
+      }
+    }
 
     if (!buscaResp.ok) {
       const txt = await buscaResp.text();
@@ -141,6 +156,17 @@ export async function onRequest(context) {
     let cuidadorId;
     let foiCriado = false;
     let authUserId = null;
+    let slugPublico = registroExistente && registroExistente.slug ? registroExistente.slug : null;
+
+    if (!slugPublico) {
+      const slugGerado = await garantirSlugUnico(env, headersSupabase, nome, registroExistente ? registroExistente.id : null);
+      if (slugGerado.slug) {
+        slugPublico = slugGerado.slug;
+        campos.slug = slugPublico;
+      } else if (slugGerado.semColuna) {
+        console.warn('Coluna slug ausente — rode supabase/add-slug-cuidadores.sql');
+      }
+    }
 
     if (registroExistente) {
       cuidadorId = registroExistente.id;
@@ -157,11 +183,27 @@ export async function onRequest(context) {
 
       // Cadastro antigo sem auth_user_id: permite completar (fluxo legado)
       const updateUrl = env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(cuidadorId);
-      const updateResp = await fetch(updateUrl, {
+      let updateResp = await fetch(updateUrl, {
         method: 'PATCH',
         headers: headersSupabase(env, true),
         body: JSON.stringify(campos)
       });
+
+      if (!updateResp.ok && campos.slug) {
+        const txtSlug = await updateResp.text();
+        if (/slug|column|schema/i.test(txtSlug)) {
+          delete campos.slug;
+          slugPublico = null;
+          updateResp = await fetch(updateUrl, {
+            method: 'PATCH',
+            headers: headersSupabase(env, true),
+            body: JSON.stringify(campos)
+          });
+        } else {
+          console.error('Erro UPDATE:', updateResp.status, txtSlug);
+          return jsonResp({ error: 'Falha ao atualizar' }, 502);
+        }
+      }
 
       if (!updateResp.ok) {
         const txt = await updateResp.text();
@@ -169,7 +211,7 @@ export async function onRequest(context) {
         return jsonResp({ error: 'Falha ao atualizar' }, 502);
       }
     } else {
-      const insertResp = await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores', {
+      let insertResp = await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores', {
         method: 'POST',
         headers: headersSupabase(env, true, true),
         body: JSON.stringify(campos)
@@ -179,9 +221,24 @@ export async function onRequest(context) {
         const txt = await insertResp.text();
         console.error('Erro INSERT:', insertResp.status, txt);
 
-        if (txt.indexOf('duplicate key') !== -1 || txt.indexOf('already exists') !== -1) {
+        if (campos.slug && /slug|column|schema/i.test(txt)) {
+          delete campos.slug;
+          slugPublico = null;
+          insertResp = await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores', {
+            method: 'POST',
+            headers: headersSupabase(env, true, true),
+            body: JSON.stringify(campos)
+          });
+          if (insertResp.ok) {
+            // segue no else abaixo via re-check
+          } else {
+            const txt2 = await insertResp.text();
+            console.error('Erro INSERT (sem slug):', insertResp.status, txt2);
+            return jsonResp({ error: 'Falha ao criar cadastro' }, 502);
+          }
+        } else if (txt.indexOf('duplicate key') !== -1 || txt.indexOf('already exists') !== -1) {
           const busca2 = await fetch(
-            env.SUPABASE_URL + '/rest/v1/cuidadores?cpf=eq.' + encodeURIComponent(cpfLimpo) + '&select=id,auth_user_id&limit=1',
+            env.SUPABASE_URL + '/rest/v1/cuidadores?cpf=eq.' + encodeURIComponent(cpfLimpo) + '&select=id,auth_user_id,slug&limit=1',
             { headers: headersSupabase(env) }
           );
           if (busca2.ok) {
@@ -196,6 +253,7 @@ export async function onRequest(context) {
                 }, 409);
               }
               cuidadorId = linhas2[0].id;
+              if (linhas2[0].slug) slugPublico = linhas2[0].slug;
               authUserId = null;
               await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(cuidadorId), {
                 method: 'PATCH',
@@ -211,13 +269,18 @@ export async function onRequest(context) {
         } else {
           return jsonResp({ error: 'Falha ao criar cadastro' }, 502);
         }
-      } else {
+      }
+
+      if (insertResp.ok && !cuidadorId) {
         const criados = await insertResp.json();
         if (!criados || !criados[0] || !criados[0].id) {
           return jsonResp({ error: 'Banco não retornou o id do cadastro' }, 502);
         }
         cuidadorId = criados[0].id;
+        if (criados[0].slug) slugPublico = criados[0].slug;
         foiCriado = true;
+      } else if (!cuidadorId) {
+        return jsonResp({ error: 'Falha ao criar cadastro' }, 502);
       }
     }
 
@@ -362,7 +425,7 @@ export async function onRequest(context) {
       }
     }
 
-    const linkPerfil = 'https://afetocuidadores.pages.dev/perfil.html?id=' + cuidadorId;
+    const linkPerfil = linkPublicoPerfil(slugPublico || cuidadorId);
 
     await notificarTelegram(env, {
       titulo: foiCriado
@@ -386,6 +449,7 @@ export async function onRequest(context) {
     return jsonResp({
       ok: true,
       recordId: cuidadorId,
+      slug: slugPublico || null,
       criado: foiCriado,
       linkPerfil: linkPerfil,
       fotoEnviada: fotoEnviada,
