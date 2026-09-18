@@ -347,9 +347,9 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
         <label for="profissao">Você atua como:</label>
         <select id="profissao" name="profissao" required>
           <option value="">Selecione...</option>
-          <option value="Cuidadora de Idosos">Cuidadora de Idosos</option>
-          <option value="Técnica de Enfermagem">Técnica de Enfermagem</option>
-          <option value="Enfermeira">Enfermeira</option>
+          <option value="Cuidador(a) de Idosos">Cuidador(a) de Idosos</option>
+          <option value="Técnico(a) de Enfermagem">Técnico(a) de Enfermagem</option>
+          <option value="Enfermeiro(a)">Enfermeiro(a)</option>
           <option value="Acompanhante Hospitalar">Acompanhante Hospitalar</option>
           <option value="Estudante da área da saúde">Estudante da área da saúde</option>
           <option value="Outro">Outro</option>
@@ -362,7 +362,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
           <input type="text" id="coren" name="coren" placeholder="Ex: 123456-PR" maxlength="10" autocomplete="off">
           <div class="aviso-coren">
             <span style="font-size: 18px;">💜</span>
-            <span>Enfermeiras e Técnicas de Enfermagem precisam ter <strong>COREN ativo</strong> para atuar.</span>
+            <span>Enfermeiros(as) e Técnicos(as) de Enfermagem precisam ter <strong>COREN ativo</strong> para atuar.</span>
           </div>
         </div>
       </div>
@@ -970,9 +970,16 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 
   var campoProfissao = document.getElementById('profissao');
   var blocoCoren = document.getElementById('bloco-coren');
+  function exigeCoren(prof) {
+    return prof === 'Técnico(a) de Enfermagem'
+      || prof === 'Enfermeiro(a)'
+      || prof === 'Técnica de Enfermagem'
+      || prof === 'Enfermeira';
+  }
+
   campoProfissao.addEventListener('change', function() {
     var v = this.value;
-    if (v === 'Técnica de Enfermagem' || v === 'Enfermeira') {
+    if (exigeCoren(v)) {
       blocoCoren.classList.add('ativo');
       if (campoCoren) campoCoren.required = true;
     } else {
@@ -1522,7 +1529,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     if (!bio) { alert('Escreva uma breve apresentação.'); return; }
     var prof = document.getElementById('profissao').value;
     if (!prof) { alert('Selecione como você atua.'); return; }
-    if ((prof === 'Técnica de Enfermagem' || prof === 'Enfermeira') && (!campoCoren || !campoCoren.value.trim())) {
+    if (exigeCoren(prof) && (!campoCoren || !campoCoren.value.trim())) {
       alert('Informe seu COREN.'); return;
     }
     var valor = document.getElementById('valor-plantao').value;
