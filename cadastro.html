@@ -84,6 +84,17 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 .contador-subs { display: inline-block; font-size: 12px; font-weight: 900; padding: 4px 12px; border-radius: 50px; margin-left: 8px; background: #f5f3ff; color: var(--lilas-escuro); border: 1px solid #ddd6fe; transition: 0.3s; }
 .contador-subs.completo { background: linear-gradient(135deg, #ecfdf5, #d1fae5); color: #059669; border-color: #a7f3d0; }
 
+.badge-opcional { display: inline-block; font-size: 11px; font-weight: 800; color: var(--lilas-escuro); background: #f5f3ff; border: 1px solid #ddd6fe; padding: 3px 10px; border-radius: 50px; margin-left: 8px; vertical-align: middle; letter-spacing: 0; text-transform: none; }
+
+.cursos-lista { display: flex; flex-direction: column; gap: 10px; }
+.curso-linha { display: flex; gap: 8px; align-items: center; }
+.curso-linha input { flex: 1; min-width: 0; }
+.btn-remover-curso { flex-shrink: 0; width: 42px; height: 42px; border: 2px solid #fecaca; background: #fef2f2; color: #dc2626; border-radius: 14px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
+.btn-remover-curso:hover { background: #fee2e2; }
+.btn-add-curso { margin-top: 10px; background: white; color: var(--lilas-escuro); border: 2px dashed #c4b5fd; padding: 12px 16px; border-radius: 16px; font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 800; cursor: pointer; width: 100%; }
+.btn-add-curso:hover { background: #f5f3ff; }
+.btn-add-curso:disabled { opacity: 0.45; cursor: not-allowed; }
+
 .wrap-bairros { position: relative; margin-top: 6px; }
 .caixa-bairros { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px; border: 2px solid #e2e8f0; border-radius: 16px; min-height: 52px; background: var(--fundo-site); align-items: center; transition: 0.3s; }
 .caixa-bairros:focus-within { border-color: var(--lilas); background: white; box-shadow: 0 0 0 4px rgba(139,92,246,0.12); }
@@ -312,10 +323,10 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       <div class="secao-titulo"><i class="fa-solid fa-camera"></i> Sua foto</div>
 
       <div class="campo">
-        <label>Foto profissional:</label>
+        <label>Foto profissional: <span class="badge-opcional">opcional</span></label>
         <div class="foto-instrucoes">
           <h4><i class="fa-solid fa-camera-retro"></i> Sua foto é o primeiro olhar das famílias</h4>
-          <p>É através dela que a família vai sentir quem você é antes mesmo do primeiro contato. Escolha com carinho — uma foto nítida, bem iluminada e com o rosto visível transmite <strong>confiança e profissionalismo</strong>. 💜</p>
+          <p>Não é obrigatório agora. Se quiser, você envia depois, com calma, no <strong>seu painel</strong>. Quando for escolher: uma foto nítida, bem iluminada e com o rosto visível transmite <strong>confiança e carinho</strong>. 💜</p>
         </div>
         <label class="foto-upload" id="foto-upload">
           <input type="file" id="foto" name="foto" accept="image/*">
@@ -336,8 +347,8 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       </div>
 
       <div class="campo">
-        <label for="motivacao">Conte um pouco sobre você:</label>
-        <span class="ajuda">💜 Queremos conhecer você de verdade. O que te moveu para o cuidado?</span>
+        <label for="motivacao">Conte um pouco sobre você: <span class="badge-opcional">opcional</span></label>
+        <span class="ajuda">💜 Pode deixar em branco se preferir. Depois você escreve isso no seu painel, no seu tempo. Se quiser contar agora: o que te moveu para o cuidado?</span>
         <textarea id="motivacao" name="motivacao" placeholder="Ex: Sempre tive uma ligação muito forte com meus avós..."></textarea>
       </div>
 
@@ -448,9 +459,11 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       </div>
 
       <div class="campo">
-        <label for="cursos">Cursos e certificações:</label>
-        <span class="ajuda">💜 Compartilhe os cursos e formações que fazem parte da sua trajetória.</span>
-        <textarea id="cursos" name="cursos" placeholder="Ex:&#10;Curso de Cuidador de Idosos (120h) — SENAC&#10;Primeiros Socorros (40h) — Cruz Vermelha"></textarea>
+        <label>Cursos e certificações: <span class="badge-opcional">opcional</span></label>
+        <span class="ajuda">💜 Um curso por caixinha, bem certinho. Se tiver mais, toque em adicionar — até 10. Também dá pra completar depois no seu painel.</span>
+        <div class="cursos-lista" id="lista-cursos"></div>
+        <button type="button" class="btn-add-curso" id="btn-add-curso"><i class="fa-solid fa-plus"></i> Adicionar outro curso</button>
+        <input type="hidden" name="cursos" id="cursos-valor">
       </div>
 
       <div class="termos">
@@ -685,6 +698,55 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   }
 
   var form = document.getElementById('form-cadastro');
+
+  var MAX_CURSOS = 10;
+  var listaCursos = document.getElementById('lista-cursos');
+  var btnAddCurso = document.getElementById('btn-add-curso');
+
+  function atualizarBotoesCursos() {
+    var qtd = listaCursos.querySelectorAll('.curso-linha').length;
+    btnAddCurso.disabled = qtd >= MAX_CURSOS;
+    listaCursos.querySelectorAll('.btn-remover-curso').forEach(function(btn) {
+      btn.style.visibility = qtd > 1 ? 'visible' : 'hidden';
+    });
+  }
+
+  function adicionarCaixaCurso(valor) {
+    if (listaCursos.querySelectorAll('.curso-linha').length >= MAX_CURSOS) return;
+    var linha = document.createElement('div');
+    linha.className = 'curso-linha';
+    var n = listaCursos.querySelectorAll('.curso-linha').length + 1;
+    linha.innerHTML =
+      '<input type="text" class="curso-input" maxlength="120" placeholder="Ex: Curso de Cuidador de Idosos (120h) — SENAC" value="' + (valor ? String(valor).replace(/"/g, '&quot;') : '') + '" aria-label="Curso ' + n + '">' +
+      '<button type="button" class="btn-remover-curso" aria-label="Remover curso"><i class="fa-solid fa-xmark"></i></button>';
+    linha.querySelector('.btn-remover-curso').addEventListener('click', function() {
+      if (listaCursos.querySelectorAll('.curso-linha').length <= 1) return;
+      linha.remove();
+      atualizarBotoesCursos();
+    });
+    listaCursos.appendChild(linha);
+    atualizarBotoesCursos();
+  }
+
+  if (listaCursos) {
+    adicionarCaixaCurso('');
+    if (btnAddCurso) {
+      btnAddCurso.addEventListener('click', function() {
+        adicionarCaixaCurso('');
+        var inputs = listaCursos.querySelectorAll('.curso-input');
+        if (inputs.length) inputs[inputs.length - 1].focus();
+      });
+    }
+  }
+
+  function coletarCursos() {
+    var lista = [];
+    document.querySelectorAll('#lista-cursos .curso-input').forEach(function(inp) {
+      var v = (inp.value || '').trim();
+      if (v) lista.push(v);
+    });
+    return lista;
+  }
 
   document.getElementById('whatsapp').addEventListener('input', function() {
     var x = this.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
@@ -1011,7 +1073,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
             '<h3 style="font-size: 22px; font-weight: 900; color: var(--lilas-escuro); margin-bottom: 10px;">Que alegria!</h3>' +
             '<p style="font-size: 15px; font-weight: 700; color: var(--cinza-fonte); line-height: 1.6; margin-bottom: 0;">' +
               'Alguém muito especial te indicou — e a gente adorou te receber assim. ' +
-              'Seu acesso já está liberado <strong>sem custo nenhum</strong>. 💜' +
+              'Seu acesso já está liberado <strong>sem custo nenhum</strong>. Em breve você terá o seu link exclusivo. 💜' +
             '</p>' +
           '</div>';
 
@@ -1124,8 +1186,8 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     if (headerTop) headerTop.style.display = 'none';
 
     if (gratis) {
-      tituloSucesso.textContent = 'Acesso liberado! 🎉';
-      textoSucesso.innerHTML = 'Alguém muito especial indicou você — e a gente adorou te receber assim. Seu plano já está <strong>ativo e sem custo nenhum</strong>.';
+      tituloSucesso.textContent = 'Que alegria ter você aqui! 💜';
+      textoSucesso.innerHTML = 'Alguém muito especial indicou você — e a gente adorou te receber assim. Seu acesso já está liberado <strong>sem custo nenhum</strong>.';
     } else {
       tituloSucesso.textContent = 'Pagamento confirmado! 💜';
       textoSucesso.innerHTML = 'Sua conta está criada e seu plano já está ativo. Use o botão abaixo para acessar seu painel.';
@@ -1137,7 +1199,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     }
 
     var blocoLink = document.getElementById('bloco-link');
-    if (blocoLink) blocoLink.style.display = 'block';
+    if (blocoLink) blocoLink.style.display = gratis ? 'none' : 'block';
 
     var linkSalvo = localStorage.getItem('afeto_link_perfil');
     var inputLink = document.getElementById('link-perfil-input');
@@ -1146,11 +1208,11 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     blocoGratis.style.display = 'flex';
     blocoGratis.className = 'bloco-info lilas';
 
-    var nomePlano = dadosCheckout.plano === 'cadastro' ? 'Cadastro Básico'
-                  : dadosCheckout.plano === 'destaque' ? 'Destaque'
-                  : 'Profissional';
-
-    blocoGratisTxt.innerHTML = '<strong>O próximo passo é com a gente 💜</strong> Sua conta já está criada. Nossa equipe vai revisar seu perfil com carinho. Em até 48h úteis ele estará no ar pras famílias te encontrarem. Avisamos pelo WhatsApp assim que estiver liberado.';
+    if (gratis) {
+      blocoGratisTxt.innerHTML = '<strong>Em breve você terá o seu link exclusivo 💜</strong> Nossa equipe vai olhar seu perfil com carinho. Assim que ele estiver no ar pras famílias te encontrarem, a gente avisa no WhatsApp. Enquanto isso, você já pode entrar no seu painel.';
+    } else {
+      blocoGratisTxt.innerHTML = '<strong>O próximo passo é com a gente 💜</strong> Sua conta já está criada. Nossa equipe vai revisar seu perfil com carinho. Em até 48h úteis ele estará no ar pras famílias te encontrarem. Avisamos pelo WhatsApp assim que estiver liberado.';
+    }
 
     telaSucesso.classList.add('ativo');
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1393,6 +1455,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       var subs = [];
       document.querySelectorAll('#subespecialidades input:checked').forEach(function(cb) { subs.push(cb.value); });
       dados.append('subespecialidades', subs.join(' | '));
+      dados.set('cursos', coletarCursos().join('\n'));
       dados.append('plano', plano);
       dados.append('origem', 'cadastro');
 
