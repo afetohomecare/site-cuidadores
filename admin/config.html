@@ -41,6 +41,11 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
 .campo .prefixo span { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); font-weight: 800; color: var(--lilas-escuro); font-size: 14px; pointer-events: none; }
 .campo .prefixo input { padding-left: 48px; }
 .campo-linha { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.campo-linha-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+.plano-preview { margin-top: 8px; padding: 12px 14px; background: #f8f9fc; border-radius: 12px; font-size: 13px; font-weight: 800; color: var(--cinza); line-height: 1.5; }
+.plano-preview strong { color: var(--lilas-escuro); }
+.btn-sugerido { background: #f1f5f9; color: var(--cinza); border: none; padding: 10px 16px; border-radius: 50px; font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 800; cursor: pointer; margin-bottom: 18px; }
+.btn-sugerido:hover { background: #e2e8f0; }
 .btn-salvar { padding: 15px 28px; border-radius: 50px; border: none; font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 900; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; box-shadow: 0 8px 20px rgba(139,92,246,0.3); }
 .btn-salvar:hover:not(:disabled) { transform: translateY(-2px); }
 .btn-salvar:disabled { background: #cbd5e1; box-shadow: none; cursor: not-allowed; }
@@ -56,7 +61,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
   .sidebar-logo { justify-content: center; padding: 0 0 20px; }
   .menu-item { justify-content: center; padding: 14px; }
   .main { margin-left: 70px; padding: 20px 16px; }
-  .campo-linha { grid-template-columns: 1fr; }
+  .campo-linha, .campo-linha-3 { grid-template-columns: 1fr; }
   .painel-section { padding: 22px 20px; }
 }
 </style>
@@ -85,7 +90,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
 <main class="main">
   <div class="page-header">
     <h1>Configurações</h1>
-    <p>Edite preços e informações que aparecem no site</p>
+    <p>Preços dos 3 planos. O site e o Asaas usam o que você salvar aqui, já com cupom se ela aplicar.</p>
   </div>
   <div id="area-config">
     <div class="loader"><i class="fa-solid fa-spinner fa-spin"></i> Carregando...</div>
@@ -145,53 +150,122 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
       var mapa = {};
       data.config.forEach(function(item) { mapa[item.chave] = item.valor; });
       area.innerHTML = montarFormulario(mapa);
+      ligarPreviews();
+      atualizarPreviews();
     } catch (err) {
       area.innerHTML = '<div class="loader" style="color:red;">Erro ao carregar.</div>';
     }
   }
+  var SUGERIDOS = {
+    preco_cadastro: '79.90',
+    preco_cadastro_pos: '119.90',
+    preco_cadastro_cartao: '119.90',
+    preco_cadastro_cartao_pos: '119.90',
+    preco_profissional: '59.90',
+    preco_prof_pos: '79.90',
+    preco_destaque: '69.90',
+    preco_destaque_pos: '89.90'
+  };
+
   function montarFormulario(v) {
-    function val(chave) { return (v[chave] || '').replace(/"/g, '&quot;'); }
+    function val(chave) {
+      var atual = (v[chave] || '').trim();
+      if (atual) return atual.replace(/"/g, '&quot;');
+      if (SUGERIDOS[chave]) return SUGERIDOS[chave];
+      return '';
+    }
     return (
       '<div class="info-box"><i class="fa-solid fa-circle-info"></i>' +
-        '<div>Ao salvar, os valores são atualizados <strong>na hora</strong>. O próximo cadastro já usa os preços novos. Nenhum arquivo precisa ser alterado.</div>' +
+        '<div>Os números abaixo são os que o site está usando agora. Ao salvar, a vitrine, o Pix e o link do Asaas passam a usar esses valores. Se ela aplicar cupom, o desconto entra em cima do preço salvo, antes de gerar o QR ou o checkout.</div>' +
       '</div>' +
+      '<button type="button" class="btn-sugerido" onclick="preencherSugeridos()"><i class="fa-solid fa-wand-magic-sparkles"></i> Preencher os preços sugeridos dos 3 planos</button>' +
+
       '<div class="painel-section">' +
-        '<h2><i class="fa-solid fa-dollar-sign"></i> Preços atuais (Fundadora)</h2>' +
-        '<p class="desc">Essencial é anual (Pix oferta / cartão parcelado). Profissional e Destaque são mensais, sem fidelidade.</p>' +
-        '<div class="campo-linha">' +
-          '<div class="campo"><label>Essencial Pix (oferta)</label><div class="prefixo"><span>R$</span><input type="number" id="preco_cadastro" step="0.01" min="0" value="' + val('preco_cadastro') + '"></div><div class="ajuda">Padrão 79,90 — cobrança única no ano</div></div>' +
-          '<div class="campo"><label>Essencial cartão (até 12x)</label><div class="prefixo"><span>R$</span><input type="number" id="preco_cadastro_cartao" step="0.01" min="0" value="' + val('preco_cadastro_cartao') + '"></div><div class="ajuda">Padrão 119,90 — não é recorrente</div></div>' +
+        '<h2><i class="fa-solid fa-link"></i> Essencial — anual, cobrança única</h2>' +
+        '<p class="desc">Cria perfil e painel. Pix é oferta. Cartão é o valor cheio, parcelado em até 12x no Asaas — sem assinatura mensal.</p>' +
+        '<div class="campo-linha-3">' +
+          '<div class="campo"><label>Oferta no Pix (o que ela paga)</label><div class="prefixo"><span>R$</span><input type="number" id="preco_cadastro" step="0.01" min="0" value="' + val('preco_cadastro') + '"></div><div class="ajuda">Vai para o QR Code Pix</div></div>' +
+          '<div class="campo"><label>Preço riscado</label><div class="prefixo"><span>R$</span><input type="number" id="preco_cadastro_pos" step="0.01" min="0" value="' + val('preco_cadastro_pos') + '"></div><div class="ajuda">Só aparece “De R$ …” na vitrine</div></div>' +
+          '<div class="campo"><label>Cartão até 12x</label><div class="prefixo"><span>R$</span><input type="number" id="preco_cadastro_cartao" step="0.01" min="0" value="' + val('preco_cadastro_cartao') + '"></div><div class="ajuda">Vai para o link do Asaas</div></div>' +
         '</div>' +
-        '<div class="campo-linha">' +
-          '<div class="campo"><label>Profissional mensal no Pix</label><div class="prefixo"><span>R$</span><input type="number" id="preco_profissional" step="0.01" min="0" value="' + val('preco_profissional') + '"></div><div class="ajuda">Oferta 59,90/mês. Cartão no Asaas é recorrente</div></div>' +
-          '<div class="campo"><label>Destaque mensal no Pix</label><div class="prefixo"><span>R$</span><input type="number" id="preco_destaque" step="0.01" min="0" value="' + val('preco_destaque') + '"></div><div class="ajuda">Oferta 69,90/mês. Cartão no Asaas é recorrente</div></div>' +
-        '</div>' +
+        '<input type="hidden" id="preco_cadastro_cartao_pos" value="' + val('preco_cadastro_cartao_pos') + '">' +
+        '<div class="plano-preview" id="preview-essencial"></div>' +
       '</div>' +
+
       '<div class="painel-section">' +
-        '<h2><i class="fa-solid fa-arrow-up"></i> Preços pós-fundadora</h2>' +
-        '<p class="desc">Preço cheio (riscado na vitrine). Essencial riscado = 119,90. Profissional 79,90. Destaque 89,90.</p>' +
+        '<h2><i class="fa-solid fa-user-check"></i> Profissional — mensal, sem fidelidade</h2>' +
+        '<p class="desc">Aparece na vitrine. Pix no site/painel. Cartão no Asaas é recorrente todo mês, no mesmo valor da oferta.</p>' +
         '<div class="campo-linha">' +
-          '<div class="campo"><label>Essencial Pix (cheio / riscado)</label><div class="prefixo"><span>R$</span><input type="number" id="preco_cadastro_pos" step="0.01" min="0" value="' + val('preco_cadastro_pos') + '"></div></div>' +
-          '<div class="campo"><label>Essencial cartão (cheio)</label><div class="prefixo"><span>R$</span><input type="number" id="preco_cadastro_cartao_pos" step="0.01" min="0" value="' + val('preco_cadastro_cartao_pos') + '"></div></div>' +
+          '<div class="campo"><label>Oferta no Pix / cartão (o que ela paga)</label><div class="prefixo"><span>R$</span><input type="number" id="preco_profissional" step="0.01" min="0" value="' + val('preco_profissional') + '"></div><div class="ajuda">Vai para o Pix e para a assinatura no Asaas</div></div>' +
+          '<div class="campo"><label>Preço riscado</label><div class="prefixo"><span>R$</span><input type="number" id="preco_prof_pos" step="0.01" min="0" value="' + val('preco_prof_pos') + '"></div><div class="ajuda">Só aparece “De R$ …” na vitrine</div></div>' +
         '</div>' +
-        '<div class="campo-linha">' +
-          '<div class="campo"><label>Profissional mensal (cheio / riscado)</label><div class="prefixo"><span>R$</span><input type="number" id="preco_prof_pos" step="0.01" min="0" value="' + val('preco_prof_pos') + '"></div></div>' +
-          '<div class="campo"><label>Destaque mensal (cheio / riscado)</label><div class="prefixo"><span>R$</span><input type="number" id="preco_destaque_pos" step="0.01" min="0" value="' + val('preco_destaque_pos') + '"></div></div>' +
-        '</div>' +
+        '<div class="plano-preview" id="preview-prof"></div>' +
       '</div>' +
+
+      '<div class="painel-section">' +
+        '<h2><i class="fa-solid fa-gem"></i> Destaque — mensal, sem fidelidade</h2>' +
+        '<p class="desc">Topo da vitrine. Mesma lógica do Profissional: Pix avulso ou cartão recorrente no Asaas.</p>' +
+        '<div class="campo-linha">' +
+          '<div class="campo"><label>Oferta no Pix / cartão (o que ela paga)</label><div class="prefixo"><span>R$</span><input type="number" id="preco_destaque" step="0.01" min="0" value="' + val('preco_destaque') + '"></div><div class="ajuda">Vai para o Pix e para a assinatura no Asaas</div></div>' +
+          '<div class="campo"><label>Preço riscado</label><div class="prefixo"><span>R$</span><input type="number" id="preco_destaque_pos" step="0.01" min="0" value="' + val('preco_destaque_pos') + '"></div><div class="ajuda">Só aparece “De R$ …” na vitrine</div></div>' +
+        '</div>' +
+        '<div class="plano-preview" id="preview-dest"></div>' +
+      '</div>' +
+
       '<div class="painel-section">' +
         '<h2><i class="fa-solid fa-bullhorn"></i> Informações do site</h2>' +
-        '<div class="campo"><label>Vagas fundadora</label><input type="number" id="vagas_fundadora" min="1" value="' + val('vagas_fundadora') + '"><div class="ajuda">Depois de preencher, o site passa a usar os preços pós-fundadora.</div></div>' +
+        '<div class="campo"><label>Vagas fundadora</label><input type="number" id="vagas_fundadora" min="1" value="' + val('vagas_fundadora') + '"><div class="ajuda">Controle interno. Os preços acima já são os oficiais do site e do Asaas — não mudam sozinhos por essa vaga.</div></div>' +
         '<div class="campo"><label>Texto do banner da home</label><input type="text" id="texto_banner_home" maxlength="100" value="' + val('texto_banner_home') + '"></div>' +
         '<div class="campo"><label>WhatsApp da Afeto</label><input type="text" id="whatsapp_afeto" placeholder="5541997674866" value="' + val('whatsapp_afeto') + '"><div class="ajuda">Só números, com código do país.</div></div>' +
       '</div>' +
-      '<button class="btn-salvar" id="btn-salvar" onclick="salvar()"><i class="fa-solid fa-check"></i> Salvar alterações</button>'
+      '<button class="btn-salvar" id="btn-salvar" onclick="salvar()"><i class="fa-solid fa-check"></i> Salvar e publicar no site</button>'
     );
   }
+
+  function num(id) {
+    var el = document.getElementById(id);
+    return el ? parseFloat(el.value) : NaN;
+  }
+  function brl(n) {
+    if (isNaN(n)) return '—';
+    return 'R$ ' + n.toFixed(2).replace('.', ',');
+  }
+  function atualizarPreviews() {
+    var essPix = num('preco_cadastro');
+    var essDe = num('preco_cadastro_pos');
+    var essCard = num('preco_cadastro_cartao');
+    var elE = document.getElementById('preview-essencial');
+    if (elE) elE.innerHTML = 'Vitrine: De <s>' + brl(essDe) + '</s> por <strong>' + brl(essPix) + '/ano no Pix</strong>. Cartão: <strong>' + brl(essCard) + '</strong> em até 12x (cobrança única). Cupom desconta esses valores antes do Asaas.';
+    var pPix = num('preco_profissional');
+    var pDe = num('preco_prof_pos');
+    var elP = document.getElementById('preview-prof');
+    if (elP) elP.innerHTML = 'Vitrine: De <s>' + brl(pDe) + '</s> por <strong>' + brl(pPix) + '/mês</strong>. Pix e cartão recorrente usam <strong>' + brl(pPix) + '</strong>.';
+    var dPix = num('preco_destaque');
+    var dDe = num('preco_destaque_pos');
+    var elD = document.getElementById('preview-dest');
+    if (elD) elD.innerHTML = 'Vitrine: De <s>' + brl(dDe) + '</s> por <strong>' + brl(dPix) + '/mês</strong>. Pix e cartão recorrente usam <strong>' + brl(dPix) + '</strong>.';
+  }
+  window.atualizarPreviews = atualizarPreviews;
+  function ligarPreviews() {
+    ['preco_cadastro', 'preco_cadastro_pos', 'preco_cadastro_cartao', 'preco_profissional', 'preco_prof_pos', 'preco_destaque', 'preco_destaque_pos'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.addEventListener('input', atualizarPreviews);
+    });
+  }
+  window.preencherSugeridos = function() {
+    Object.keys(SUGERIDOS).forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.value = SUGERIDOS[id];
+    });
+    atualizarPreviews();
+  };
   window.salvar = async function() {
     var btn = document.getElementById('btn-salvar');
     btn.disabled = true;
     btn.innerHTML = 'Salvando... <i class="fa-solid fa-spinner fa-spin"></i>';
+    var cartao = document.getElementById('preco_cadastro_cartao');
+    var cartaoPos = document.getElementById('preco_cadastro_cartao_pos');
+    if (cartao && cartaoPos) cartaoPos.value = cartao.value.trim();
     var valores = {};
     ['preco_cadastro', 'preco_cadastro_cartao', 'preco_profissional', 'preco_destaque', 'preco_cadastro_pos', 'preco_cadastro_cartao_pos', 'preco_prof_pos', 'preco_destaque_pos', 'vagas_fundadora', 'texto_banner_home', 'whatsapp_afeto'].forEach(function(id) {
       var el = document.getElementById(id);
@@ -199,14 +273,14 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
     });
     try {
       var resp = await api('/api/admin/config', { method: 'PATCH', body: JSON.stringify({ valores: valores }) });
-      if (!resp.ok) { mostrarToast('Erro ao salvar', true); btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-check"></i> Salvar alterações'; return; }
-      mostrarToast('Salvo! Site já usando os valores novos.');
+      if (!resp.ok) { mostrarToast('Erro ao salvar', true); btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-check"></i> Salvar e publicar no site'; return; }
+      mostrarToast('Salvo. O site e o Asaas já usam esses preços.');
       btn.disabled = false;
-      btn.innerHTML = '<i class="fa-solid fa-check"></i> Salvar alterações';
+      btn.innerHTML = '<i class="fa-solid fa-check"></i> Salvar e publicar no site';
     } catch (err) {
       mostrarToast('Erro de rede', true);
       btn.disabled = false;
-      btn.innerHTML = '<i class="fa-solid fa-check"></i> Salvar alterações';
+      btn.innerHTML = '<i class="fa-solid fa-check"></i> Salvar e publicar no site';
     }
   };
   carregar();

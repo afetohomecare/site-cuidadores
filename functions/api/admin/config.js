@@ -49,6 +49,20 @@ var CHAVES_PERMITIDAS = [
   'vagas_fundadora', 'texto_banner_home', 'whatsapp_afeto'
 ];
 
+var DESCRICOES = {
+  preco_cadastro: 'Essencial anual — oferta no Pix (o que ela paga)',
+  preco_cadastro_pos: 'Essencial anual — preço riscado na vitrine',
+  preco_cadastro_cartao: 'Essencial anual — cartão até 12x no Asaas (cobrança única)',
+  preco_cadastro_cartao_pos: 'Essencial anual — valor cheio do cartão (interno)',
+  preco_profissional: 'Profissional mensal — oferta Pix/cartão recorrente',
+  preco_prof_pos: 'Profissional mensal — preço riscado na vitrine',
+  preco_destaque: 'Destaque mensal — oferta Pix/cartão recorrente',
+  preco_destaque_pos: 'Destaque mensal — preço riscado na vitrine',
+  vagas_fundadora: 'Controle interno de vagas fundadora (não troca o preço sozinho)',
+  texto_banner_home: 'Texto do banner da home',
+  whatsapp_afeto: 'WhatsApp da Afeto (só números, com DDI)'
+};
+
 export async function onRequestGet(context) {
   const { request, env } = context;
   if (!(await validarToken(env, request))) return jsonResp({ error: 'Não autorizado' }, 401);
@@ -102,7 +116,11 @@ export async function onRequestPatch(context) {
           {
             method: 'POST',
             headers: headersSupabase(env, true, false),
-            body: JSON.stringify({ chave: chave, valor: valor })
+            body: JSON.stringify({
+              chave: chave,
+              valor: valor,
+              descricao: DESCRICOES[chave] || chave
+            })
           }
         );
       }

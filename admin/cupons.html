@@ -143,8 +143,8 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
       <select id="c-plano">
         <option value="">Todos os planos</option>
         <option value="cadastro">Só Essencial (anual)</option>
-        <option value="profissional">Só Profissional</option>
-        <option value="destaque">Só Destaque</option>
+        <option value="profissional">Só Profissional (mensal)</option>
+        <option value="destaque">Só Destaque (mensal)</option>
       </select>
     </div>
     <div class="campo-linha">
@@ -232,9 +232,9 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
       el.innerHTML = cupons.map(function(c) {
         var valorTexto = c.tipo === 'percentual' ? c.valor + '% OFF' : 'R$ ' + parseFloat(c.valor).toFixed(2).replace('.', ',') + ' OFF';
         var planoTexto = 'Todos os planos';
-        if (c.plano_aplicavel === 'cadastro') planoTexto = 'Só Essencial';
-        else if (c.plano_aplicavel === 'profissional') planoTexto = 'Só Profissional';
-        else if (c.plano_aplicavel === 'destaque') planoTexto = 'Só Destaque';
+        if (c.plano_aplicavel === 'cadastro') planoTexto = 'Só Essencial (anual)';
+        else if (c.plano_aplicavel === 'profissional') planoTexto = 'Só Profissional (mensal)';
+        else if (c.plano_aplicavel === 'destaque') planoTexto = 'Só Destaque (mensal)';
         var usosTexto = c.usos_maximos ? c.usos_atuais + ' / ' + c.usos_maximos : c.usos_atuais + ' (sem limite)';
         var validadeTexto = 'Sem validade';
         if (c.valido_ate) validadeTexto = new Date(c.valido_ate).toLocaleDateString('pt-BR');

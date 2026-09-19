@@ -2,7 +2,7 @@
 // AFETO — API pública: preços para o site
 // ------------------------------------------------------------
 // Sem auth. Devolve apenas preços que aparecem na vitrine.
-// Cache curto (30s) para não sobrecarregar o Supabase.
+// Cache curto (10s) para o site refletir o painel admin rápido.
 //
 // Devolve preços da vitrine:
 //   • preco_cadastro = Essencial anual no Pix
@@ -63,7 +63,7 @@ export async function onRequestGet(context) {
       status: 200,
       headers: {
         'Content-Type': 'application/json; charset=utf-8',
-        'Cache-Control': 'public, max-age=30, s-maxage=30'
+        'Cache-Control': 'public, max-age=10, s-maxage=10'
       }
     });
 
