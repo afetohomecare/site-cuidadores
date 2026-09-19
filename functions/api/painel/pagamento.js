@@ -4,6 +4,7 @@
 import { jsonResp, metodoNaoPermitido } from '../../_lib/http.js';
 import { headersSupabase, supabaseOk } from '../../_lib/supabase.js';
 import { validarCuidadora } from '../../_lib/auth.js';
+import { validarCupom, registrarUsoCupom } from '../../_lib/cupom.js';
 
 const CAMPOS = [
   'id', 'nome', 'cpf', 'whatsapp',
@@ -78,13 +79,9 @@ export async function onRequestPost(context) {
       return jsonResp({ error: 'Ação inválida. Use pix ou cartao.' }, 400);
     }
 
-    if (!asaas.apiKey) {
-      return jsonResp({ error: 'Pagamento temporariamente indisponível.' }, 500);
-    }
-
     const plano = planoDaCuidadora(c);
-    const valor = await lerPrecoPlano(env, plano);
-    if (!valor || valor <= 0) {
+    const valorBase = await lerPrecoPlano(env, plano);
+    if (!valorBase || valorBase <= 0) {
       return jsonResp({ error: 'Preço do plano não configurado.' }, 500);
     }
 
@@ -92,6 +89,49 @@ export async function onRequestPost(context) {
     const whatsLimpo = String(c.whatsapp || '').replace(/\D/g, '');
     if (cpfLimpo.length !== 11) {
       return jsonResp({ error: 'CPF do cadastro inválido. Fale com a Afeto.' }, 400);
+    }
+
+    let desconto = 0;
+    let cupomObj = null;
+    const cupomCodigo = String(body.cupomCodigo || '').trim();
+    if (cupomCodigo) {
+      const resultado = await validarCupom(env, cupomCodigo, plano, valorBase, cpfLimpo);
+      if (!resultado.ok) return jsonResp({ error: resultado.erro }, 400);
+      desconto = resultado.desconto;
+      cupomObj = resultado.cupom;
+    }
+    const valor = Math.max(0, Math.round((valorBase - desconto) * 100) / 100);
+
+    if (valor === 0) {
+      const agora = new Date();
+      const vence = new Date(agora);
+      vence.setDate(vence.getDate() + 30);
+      await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(c.id), {
+        method: 'PATCH',
+        headers: headersSupabase(env, true),
+        body: JSON.stringify({
+          status_pagamento: 'Pago',
+          cupom_usado: cupomObj ? cupomObj.codigo : null,
+          plano_inicio: agora.toISOString(),
+          plano_valido_ate: vence.toISOString(),
+          proxima_cobranca: vence.toISOString()
+        })
+      });
+      if (cupomObj) {
+        await registrarUsoCupom(env, cupomObj, c.id, plano, valorBase, desconto, 0, null);
+      }
+      return jsonResp({
+        ok: true,
+        gratis: true,
+        acao: acao,
+        valorBase: valorBase,
+        valorFinal: 0,
+        cupom: cupomObj ? cupomObj.codigo : null
+      }, 200);
+    }
+
+    if (!asaas.apiKey) {
+      return jsonResp({ error: 'Pagamento temporariamente indisponível.' }, 500);
     }
 
     const customerId = c.asaas_customer_id || await criarOuBuscarCliente(asaas.apiKey, asaas.url, {
@@ -114,16 +154,16 @@ export async function onRequestPost(context) {
     }
 
     if (acao === 'pix') {
-      return await criarPixRegularizacao(env, asaas, c, customerId, plano, valor);
+      return await criarPixRegularizacao(env, asaas, c, customerId, plano, valor, cupomObj);
     }
-    return await criarCheckoutCartao(request, env, asaas, c, customerId, plano, valor, cpfLimpo, whatsLimpo);
+    return await criarCheckoutCartao(request, env, asaas, c, customerId, plano, valor, cpfLimpo, whatsLimpo, cupomObj);
   } catch (err) {
     console.error('Erro painel/pagamento:', err);
     return jsonResp({ error: 'Falha no processamento.' }, 500);
   }
 }
 
-async function criarPixRegularizacao(env, asaas, c, customerId, plano, valor) {
+async function criarPixRegularizacao(env, asaas, c, customerId, plano, valor, cupomObj) {
   const existente = await verificarCobrancaAtiva(env, asaas.url, asaas.apiKey, c.id, valor);
   if (existente) {
     const pix = await buscarPix(asaas.url, asaas.apiKey, existente.id);
@@ -152,7 +192,7 @@ async function criarPixRegularizacao(env, asaas, c, customerId, plano, valor) {
       billingType: 'PIX',
       value: valor,
       dueDate: ymd(vencimento),
-      description: 'Afeto — Regularização Plano ' + nomeDoPlanoBonito(plano),
+      description: 'Afeto — Regularização Plano ' + nomeDoPlanoBonito(plano) + (cupomObj ? ' (cupom ' + cupomObj.codigo + ')' : ''),
       externalReference: c.id
     })
   });
@@ -162,10 +202,12 @@ async function criarPixRegularizacao(env, asaas, c, customerId, plano, valor) {
     return jsonResp({ error: 'Não foi possível criar a cobrança Pix.' }, 502);
   }
 
+  const patchPix = { asaas_cobranca_id: cobrancaData.id };
+  if (cupomObj) patchPix.cupom_usado = cupomObj.codigo;
   await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(c.id), {
     method: 'PATCH',
     headers: headersSupabase(env, true),
-    body: JSON.stringify({ asaas_cobranca_id: cobrancaData.id })
+    body: JSON.stringify(patchPix)
   });
 
   const pix = await buscarPix(asaas.url, asaas.apiKey, cobrancaData.id);
@@ -175,11 +217,12 @@ async function criarPixRegularizacao(env, asaas, c, customerId, plano, valor) {
     ok: true,
     acao: 'pix',
     cobrancaId: cobrancaData.id,
+    valorFinal: valor,
     pix: pix
   }, 200);
 }
 
-async function criarCheckoutCartao(request, env, asaas, c, customerId, plano, valor, cpfLimpo, whatsLimpo) {
+async function criarCheckoutCartao(request, env, asaas, c, customerId, plano, valor, cpfLimpo, whatsLimpo, cupomObj) {
   const origem = origemPublica(request);
   const hoje = new Date();
   let nextDue = ymd(hoje);
@@ -200,7 +243,9 @@ async function criarCheckoutCartao(request, env, asaas, c, customerId, plano, va
     },
     items: [{
       name: 'Plano ' + nomeDoPlanoBonito(plano) + ' Afeto',
-      description: 'Assinatura mensal Afeto Cuidadores',
+      description: cupomObj
+        ? 'Assinatura mensal Afeto (cupom ' + cupomObj.codigo + ')'
+        : 'Assinatura mensal Afeto Cuidadores',
       quantity: 1,
       value: valor
     }],
@@ -230,11 +275,21 @@ async function criarCheckoutCartao(request, env, asaas, c, customerId, plano, va
     return jsonResp({ error: 'Não foi possível abrir o cadastro de cartão no Asaas.' }, 502);
   }
 
+  if (cupomObj) {
+    await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(c.id), {
+      method: 'PATCH',
+      headers: headersSupabase(env, true),
+      body: JSON.stringify({ cupom_usado: cupomObj.codigo })
+    });
+  }
+
   return jsonResp({
     ok: true,
     acao: 'cartao',
     link: data.link,
-    checkoutId: data.id || null
+    checkoutId: data.id || null,
+    valorFinal: valor,
+    cupom: cupomObj ? cupomObj.codigo : null
   }, 200);
 }
 

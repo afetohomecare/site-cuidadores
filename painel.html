@@ -902,6 +902,11 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
           '<h3 style="margin-bottom: 8px;">Plano ' + planoLabel + '</h3>' +
           '<p style="margin-bottom: 4px;">Status: ' + statusBadge + '</p>' +
           '<p>' + infoPagamento + '</p>' +
+          '<div style="margin-top:14px;padding:14px;background:#f8f9fc;border-radius:14px;border:2px dashed #c4b5fd;">' +
+            '<label style="display:block;font-size:13px;font-weight:800;color:var(--lilas-escuro);margin-bottom:8px;"><i class="fa-solid fa-ticket"></i> Tem cupom? Aplique antes de pagar</label>' +
+            '<p style="font-size:12px;font-weight:700;color:var(--cinza-fonte);margin-bottom:8px;line-height:1.45;">O desconto entra no Pix e também no valor que vai para a página do Asaas.</p>' +
+            '<input type="text" id="cupom-painel" maxlength="20" placeholder="Digite seu código" style="width:100%;padding:12px 14px;border-radius:12px;border:2px solid #e2e8f0;font-family:Nunito,sans-serif;font-size:14px;font-weight:800;text-transform:uppercase;">' +
+          '</div>' +
           botoesHtml +
         '</div>' +
       '</div>' +
@@ -940,11 +945,24 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
     if (btnCartao) btnCartao.addEventListener('click', cadastrarCartaoAsaas);
   }
 
+  function cupomDoPainel() {
+    var el = document.getElementById('cupom-painel');
+    return el ? String(el.value || '').trim().toUpperCase() : '';
+  }
+
   async function pagarPixPainel() {
     var btn = document.getElementById('btn-pagar-pix');
     if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Gerando Pix...'; }
     try {
-      var data = await api('/api/painel/pagamento', { method: 'POST', body: { acao: 'pix' } });
+      var body = { acao: 'pix' };
+      var cupom = cupomDoPainel();
+      if (cupom) body.cupomCodigo = cupom;
+      var data = await api('/api/painel/pagamento', { method: 'POST', body: body });
+      if (data.gratis) {
+        alert('Alguém especial te indicou 💜 Seu plano foi liberado sem custo. Em breve seu link estará no ar.');
+        await carregarPerfil();
+        return;
+      }
       var qr = document.getElementById('painel-pix-qr');
       var input = document.getElementById('painel-pix-codigo');
       if (data.pix && data.pix.qrCodeImage) {
@@ -970,7 +988,15 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
     var btn = document.getElementById('btn-cartao-asaas');
     if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Abrindo Asaas...'; }
     try {
-      var data = await api('/api/painel/pagamento', { method: 'POST', body: { acao: 'cartao' } });
+      var body = { acao: 'cartao' };
+      var cupom = cupomDoPainel();
+      if (cupom) body.cupomCodigo = cupom;
+      var data = await api('/api/painel/pagamento', { method: 'POST', body: body });
+      if (data.gratis) {
+        alert('Alguém especial te indicou 💜 Seu plano foi liberado sem custo. Em breve seu link estará no ar.');
+        await carregarPerfil();
+        return;
+      }
       if (!data.link) throw new Error('Link do Asaas não retornado');
       window.location.href = data.link;
     } catch (err) {
