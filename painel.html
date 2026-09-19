@@ -287,7 +287,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
           <div class="icone"><i class="fa-solid fa-hourglass-half"></i></div>
           <div class="texto">
             <h3>Em breve</h3>
-            <p>Estamos finalizando esse recurso. Você vai poder reportar plantões e ganhar selo de horas verificadas.</p>
+            <p>Estamos finalizando esse recurso. Você vai poder reportar plantões e ganhar Horas certificadas Afeto.</p>
           </div>
         </div>
       </div>
@@ -549,8 +549,8 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
     if (cuidadora.plano_profissional) planoAtual = 'profissional';
     else planoAtual = 'basico';
 
-    var nomeCurto = (cuidadora.nome || '').split(' ')[0] || 'Cuidadora';
-    document.getElementById('user-nome').textContent = cuidadora.nome || 'Cuidadora';
+    var nomeCurto = (cuidadora.nome || '').split(' ')[0] || 'Profissional';
+    document.getElementById('user-nome').textContent = cuidadora.nome || 'Profissional';
 
     var avatarEl = document.getElementById('user-avatar');
     if (cuidadora.foto_url) {
@@ -607,7 +607,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
       }
       box.innerHTML = lista.map(function(s) {
         var tags = (s.necessidades || []).map(function(t) { return '<span>' + escapeHTML(t) + '</span>'; }).join('');
-        var via = s.via === 'encaminhamento' ? 'Encaminhada pela Afeto' : 'Pediu no seu perfil';
+        var via = s.via === 'encaminhamento' ? 'Encaminhado pela Afeto' : 'Pediu no seu perfil';
         var wa = s.waUrl
           ? '<a class="btn-wa-mini" href="' + escapeHTML(s.waUrl) + '" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> Chamar ' + escapeHTML(s.nomeFamilia) + '</a>'
           : '';
@@ -703,7 +703,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
     }
 
     document.getElementById('perfil-nome').textContent = cuidadora.nome || '—';
-    document.getElementById('perfil-especialidade').textContent = cuidadora.especialidade || 'Cuidadora';
+    document.getElementById('perfil-especialidade').textContent = cuidadora.especialidade || 'Cuidado';
     document.getElementById('perfil-bairro').textContent = cuidadora.bairro || 'Curitiba';
 
     atualizarBotaoStatus();
@@ -1047,19 +1047,19 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
       html += '' +
         '<div class="extra-destaque">' +
           '<h3><i class="fa-solid fa-gem"></i> Destaque ativo</h3>' +
-          '<p>Você aparece destacada na plataforma: selo dourado e prioridade na vitrine.</p>' +
+          '<p>Seu perfil aparece em Destaque na plataforma: prioridade na vitrine.</p>' +
         '</div>';
     } else if (irregular) {
       html += '' +
         '<div class="extra-destaque">' +
-          '<h3><i class="fa-solid fa-gem"></i> Extra: aparecer destacada</h3>' +
-          '<p>Por <strong>R$ 9,90 / mês</strong> você ganha selo dourado e prioridade na vitrine. Regularize seu plano primeiro para ativar.</p>' +
+          '<h3><i class="fa-solid fa-gem"></i> Extra: perfil em Destaque</h3>' +
+          '<p>Por <strong>R$ 9,90 / mês</strong> o extra Destaque dá prioridade na vitrine. Regularize seu plano primeiro para ativar.</p>' +
         '</div>';
     } else {
       html += '' +
         '<div class="extra-destaque">' +
-          '<h3><i class="fa-solid fa-gem"></i> Extra: aparecer destacada</h3>' +
-          '<p>Produto à parte do seu plano. Selo dourado e prioridade na vitrine da Afeto.</p>' +
+          '<h3><i class="fa-solid fa-gem"></i> Extra: perfil em Destaque</h3>' +
+          '<p>Produto à parte do seu plano. O extra Destaque dá prioridade na vitrine da Afeto.</p>' +
           '<div class="preco-extra">R$ 9,90 <span>/ mês</span></div>' +
           '<button type="button" id="btn-destaque-pix" style="' + estiloBtnPlano(true) + '"><i class="fa-solid fa-qrcode"></i> Ativar no Pix</button>' +
           '<button type="button" id="btn-destaque-cartao" style="' + estiloBtnPlano(false) + '"><i class="fa-solid fa-credit-card"></i> Ativar no cartão</button>' +
