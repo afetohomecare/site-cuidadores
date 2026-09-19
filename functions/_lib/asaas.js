@@ -62,9 +62,10 @@ export async function criarCheckoutCartaoAnual(opts) {
   const pagina = opts.paginaRetorno || 'cadastro.html';
   const n = parcelasDoCartao(opts.parcelas);
   const cupomObj = opts.cupomObj;
+  const nomePlano = opts.nomePlano || 'Essencial';
   const descricao = cupomObj
-    ? 'Plano Essencial anual (cupom ' + cupomObj.codigo + ')'
-    : 'Plano Essencial anual Afeto';
+    ? 'Plano ' + nomePlano + ' anual (cupom ' + cupomObj.codigo + ')'
+    : 'Plano ' + nomePlano + ' anual Afeto';
 
   const checkoutBody = {
     billingTypes: ['CREDIT_CARD'],
@@ -77,7 +78,7 @@ export async function criarCheckoutCartaoAnual(opts) {
       expiredUrl: origem + '/' + pagina + '?pagamento=cartao_expirado'
     },
     items: [{
-      name: 'Plano Essencial Afeto — 12 meses',
+      name: 'Plano ' + nomePlano + ' Afeto — 12 meses',
       description: descricao + (n > 1 ? ' · até ' + n + 'x' : ' · à vista'),
       quantity: 1,
       value: opts.valor

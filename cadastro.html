@@ -679,6 +679,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   var planoBruto = (params.get('plano') || 'cadastro').toLowerCase();
   if (planoBruto === 'gratis') planoBruto = 'cadastro';
   var plano = planoBruto;
+  if (plano !== 'profissional' && plano !== 'destaque') plano = 'cadastro';
 
   var badge = document.getElementById('badge-plano');
   var subtitulo = document.getElementById('subtitulo-dinamico');
@@ -692,14 +693,26 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   var headerTop = document.querySelector('.header-top');
   var btnAcessarPainel = document.getElementById('btn-acessar-painel');
 
-  if (plano === 'profissional' || plano === 'destaque') plano = 'cadastro';
+  function nomePlanoCheckout(p) {
+    if (p === 'destaque') return 'Destaque';
+    if (p === 'profissional') return 'Profissional';
+    return 'Essencial';
+  }
 
   if (badge) {
-    badge.className = 'badge-plano basico';
-    badge.innerHTML = '<i class="fa-solid fa-link"></i> Essencial';
+    if (plano === 'destaque') {
+      badge.className = 'badge-plano';
+      badge.innerHTML = '<i class="fa-solid fa-gem"></i> Destaque';
+    } else if (plano === 'profissional') {
+      badge.className = 'badge-plano';
+      badge.innerHTML = '<i class="fa-solid fa-star"></i> Profissional';
+    } else {
+      badge.className = 'badge-plano basico';
+      badge.innerHTML = '<i class="fa-solid fa-link"></i> Essencial';
+    }
   }
   if (subtitulo) {
-    subtitulo.textContent = 'Preencha seus dados com calma. Ao final você escolhe Pix (mais barato) ou cartão em até 12x — o cartão é só na página do Asaas.';
+    subtitulo.textContent = 'Preencha seus dados com calma. Ao final você paga o ano no Pix (mais barato) ou no cartão em até 12x — o cartão é só na página do Asaas.';
   }
   btnEnviar.classList.add('pago');
   btnEnviar.innerHTML = 'Ir para pagamento <i class="fa-solid fa-arrow-right"></i>';
@@ -1168,7 +1181,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
           nome: dadosCheckout.nome,
           cpf: document.getElementById('cpf').value.trim(),
           whatsapp: document.getElementById('whatsapp').value.trim(),
-          plano: 'cadastro',
+          plano: dadosCheckout.plano,
           cuidadorId: dadosCheckout.recordId,
           cupomCodigo: codigo,
           validarApenas: true,
@@ -1222,7 +1235,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
                 nome: dadosCheckout.nome,
                 cpf: document.getElementById('cpf').value.trim(),
                 whatsapp: document.getElementById('whatsapp').value.trim(),
-                plano: 'cadastro',
+                plano: dadosCheckout.plano,
                 cuidadorId: dadosCheckout.recordId,
                 cupomCodigo: codigo
               })
@@ -1279,7 +1292,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
           nome: dadosCheckout.nome,
           cpf: document.getElementById('cpf').value.trim(),
           whatsapp: document.getElementById('whatsapp').value.trim(),
-          plano: 'cadastro',
+          plano: dadosCheckout.plano,
           cuidadorId: dadosCheckout.recordId,
           cupomCodigo: cupomAplicado,
           formaPagamento: 'PIX'
@@ -1404,9 +1417,10 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       return;
     }
 
+    var planoEscolhido = (planoParam === 'profissional' || planoParam === 'destaque') ? planoParam : 'cadastro';
     dadosCheckout = {
       recordId: recordId,
-      plano: 'cadastro',
+      plano: planoEscolhido,
       nome: nomeParam,
       cpf: document.getElementById('cpf').value.trim(),
       cobrancaId: null,
@@ -1420,20 +1434,21 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 
     cupomAplicado = null;
     abaCheckout = 'pix';
-    document.getElementById('checkout-plano-nome').textContent = 'Plano Essencial Afeto — 12 meses';
+    document.getElementById('checkout-plano-nome').textContent = 'Plano ' + nomePlanoCheckout(planoEscolhido) + ' Afeto — 12 meses';
 
     try {
       var cr = await fetch('/api/config-publica');
       var cd = await cr.json();
       if (cd && cd.ok && cd.precos) {
-        if (cd.precos.preco_cadastro) {
-          dadosCheckout.precoPix = cd.precos.preco_cadastro;
-          dadosCheckout.valorPixFinal = cd.precos.preco_cadastro;
-        }
-        if (cd.precos.preco_cadastro_cartao) {
-          dadosCheckout.precoCartao = cd.precos.preco_cadastro_cartao;
-          dadosCheckout.valorCartaoFinal = cd.precos.preco_cadastro_cartao;
-        }
+        var essPix = cd.precos.preco_cadastro || 79.9;
+        var essCard = cd.precos.preco_cadastro_cartao || 119.9;
+        var extra = 0;
+        if (planoEscolhido === 'profissional' && cd.precos.preco_profissional) extra = cd.precos.preco_profissional;
+        if (planoEscolhido === 'destaque' && cd.precos.preco_destaque) extra = cd.precos.preco_destaque;
+        dadosCheckout.precoPix = Math.round((essPix + extra * 12) * 100) / 100;
+        dadosCheckout.precoCartao = Math.round((essCard + extra * 12) * 100) / 100;
+        dadosCheckout.valorPixFinal = dadosCheckout.precoPix;
+        dadosCheckout.valorCartaoFinal = dadosCheckout.precoCartao;
       }
     } catch (e) {}
 
@@ -1463,7 +1478,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
           nome: dadosCheckout.nome,
           cpf: document.getElementById('cpf').value.trim(),
           whatsapp: document.getElementById('whatsapp').value.trim(),
-          plano: 'cadastro',
+          plano: dadosCheckout.plano,
           cuidadorId: dadosCheckout.recordId,
           cupomCodigo: cupomAplicado || undefined,
           formaPagamento: 'CREDIT_CARD',
@@ -1519,7 +1534,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
           nome: dadosCheckout.nome,
           cpf: document.getElementById('cpf').value.trim(),
           whatsapp: document.getElementById('whatsapp').value.trim(),
-          plano: 'cadastro',
+          plano: dadosCheckout.plano,
           cuidadorId: dadosCheckout.recordId,
           cupomCodigo: cupomAplicado || undefined,
           formaPagamento: 'PIX'
@@ -1635,7 +1650,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       document.querySelectorAll('#subespecialidades input:checked').forEach(function(cb) { subs.push(cb.value); });
       dados.append('subespecialidades', subs.join(' | '));
       dados.set('cursos', coletarCursos().join('\n'));
-      dados.append('plano', 'cadastro');
+      dados.append('plano', plano);
       dados.append('origem', 'cadastro');
 
       var envio = fetch('/api/cadastro', { method: 'POST', body: dados })
@@ -1703,7 +1718,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       }
 
       var nomeCuidadora = document.getElementById('nome').value.trim();
-      abrirCheckout(resultado.data.recordId, 'cadastro', nomeCuidadora);
+      abrirCheckout(resultado.data.recordId, plano, nomeCuidadora);
       return;
     } catch (err) {
       btnEnviar.disabled = false;
@@ -1716,7 +1731,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   if (pagRetorno === 'cartao_ok') {
     mostrarSucesso(false, null);
     if (tituloSucesso) tituloSucesso.textContent = 'Pagamento no cartão enviado 💜';
-    if (textoSucesso) textoSucesso.innerHTML = 'Se o Asaas confirmou, seu Essencial anual já está a caminho. Entre no painel — em instantes o status atualiza sozinho.';
+    if (textoSucesso) textoSucesso.innerHTML = 'Se o Asaas confirmou, seu plano anual já está a caminho. Entre no painel — em instantes o status atualiza sozinho.';
   } else if (pagRetorno === 'cartao_cancelado') {
     alert('Pagamento no cartão cancelado. Você pode concluir pelo Pix ou abrir o Asaas de novo.');
   } else if (pagRetorno === 'cartao_expirado') {

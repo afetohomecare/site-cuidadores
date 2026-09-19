@@ -104,9 +104,9 @@ export async function onRequestPost(context) {
 
       let planoDetectado = 'cadastro';
       if (cuidador) {
-        if (cuidador.plano_cadastro) planoDetectado = 'cadastro';
-        else if (cuidador.plano_destaque) planoDetectado = 'destaque';
+        if (cuidador.plano_destaque) planoDetectado = 'destaque';
         else if (cuidador.plano_profissional) planoDetectado = 'profissional';
+        else planoDetectado = 'cadastro';
       }
 
       const agora = new Date();

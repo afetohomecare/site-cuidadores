@@ -10,7 +10,8 @@ import {
   nomeDoPlanoBonito,
   dataValidadePlano,
   parcelasDoCartao,
-  valorParcela
+  valorParcela,
+  planoDaCuidadora
 } from '../../_lib/planos.js';
 import {
   getAsaasConfig,
@@ -45,7 +46,7 @@ export async function onRequestPost(context) {
       return jsonResp({ error: 'Ação inválida. Use pix ou cartao.' }, 400);
     }
 
-    const plano = 'cadastro';
+    const plano = planoDaCuidadora(c);
     const forma = acao === 'cartao' ? 'CREDIT_CARD' : 'PIX';
     const parcelas = parcelasDoCartao(body.parcelas);
     const valorBase = await lerPrecoPlano(env, plano, forma);
@@ -123,7 +124,7 @@ export async function onRequestPost(context) {
     if (acao === 'pix') {
       return await criarPixRegularizacao(env, asaas, c, customerId, plano, valor, cupomObj);
     }
-    return await criarCheckoutCartaoPainel(request, env, asaas, c, customerId, valor, cpfLimpo, whatsLimpo, cupomObj, parcelas);
+    return await criarCheckoutCartaoPainel(request, env, asaas, c, customerId, valor, cpfLimpo, whatsLimpo, cupomObj, parcelas, plano);
   } catch (err) {
     console.error('Erro painel/pagamento:', err);
     return jsonResp({ error: 'Falha no processamento.' }, 500);
@@ -189,7 +190,7 @@ async function criarPixRegularizacao(env, asaas, c, customerId, plano, valor, cu
   }, 200);
 }
 
-async function criarCheckoutCartaoPainel(request, env, asaas, c, customerId, valor, cpfLimpo, whatsLimpo, cupomObj, parcelas) {
+async function criarCheckoutCartaoPainel(request, env, asaas, c, customerId, valor, cpfLimpo, whatsLimpo, cupomObj, parcelas, plano) {
   const checkout = await criarCheckoutCartaoAnual({
     asaas: asaas,
     origem: origemPublica(request),
@@ -200,7 +201,8 @@ async function criarCheckoutCartaoPainel(request, env, asaas, c, customerId, val
     whatsLimpo: whatsLimpo,
     valor: valor,
     parcelas: parcelas,
-    cupomObj: cupomObj
+    cupomObj: cupomObj,
+    nomePlano: nomeDoPlanoBonito(plano)
   });
   if (!checkout) {
     return jsonResp({ error: 'Não foi possível abrir o cadastro de cartão no Asaas.' }, 502);

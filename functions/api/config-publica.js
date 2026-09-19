@@ -7,7 +7,7 @@
 // Devolve preços da vitrine:
 //   • preco_cadastro = Essencial anual no Pix
 //   • preco_cadastro_cartao = Essencial anual no cartão (até 12x)
-//   • preco_profissional / preco_destaque = extras
+//   • preco_profissional / preco_destaque = extra MENSAL da vitrine (no pagamento: Essencial + extra×12)
 //   • *_pos = preço cheio (riscado, "De R$ X por")
 // ============================================================
 

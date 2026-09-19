@@ -191,7 +191,8 @@ export async function onRequestPost(context) {
         whatsLimpo: telefoneAsaas,
         valor: valorFinal,
         parcelas: parcelas,
-        cupomObj: cupomObj
+        cupomObj: cupomObj,
+        nomePlano: nomeDoPlanoBonito(plano)
       });
       if (!checkout) {
         return jsonResp({ error: 'Não foi possível abrir o pagamento no cartão. Tente o Pix ou tente de novo.' }, 502);

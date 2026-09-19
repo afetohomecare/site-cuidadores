@@ -75,8 +75,8 @@ function headersSupabase(env, temBody, querRetorno) {
   return h;
 }
 
-function planoParaValidade(campos) {
-  return campos && campos.plano_cadastro ? 'cadastro' : 'profissional';
+function planoParaValidade() {
+  return 'cadastro';
 }
 
 // 🛡️ Gera token se o admin está marcando como Pago manualmente

@@ -157,14 +157,14 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
       '</div>' +
       '<div class="painel-section">' +
         '<h2><i class="fa-solid fa-dollar-sign"></i> Preços atuais (Fundadora)</h2>' +
-        '<p class="desc">Válidos para as primeiras ' + val('vagas_fundadora') + ' cuidadoras. Essencial é anual (perfil + painel). Profissional e Destaque são extras.</p>' +
+        '<p class="desc">Todos os planos são anuais. Profissional e Destaque = Essencial + (valor mensal da vitrine × 12).</p>' +
         '<div class="campo-linha">' +
-          '<div class="campo"><label>Essencial anual no Pix</label><div class="prefixo"><span>R$</span><input type="number" id="preco_cadastro" step="0.01" min="0" value="' + val('preco_cadastro') + '"></div><div class="ajuda">Hoje costuma ser 79,90 — você muda quando quiser</div></div>' +
-          '<div class="campo"><label>Essencial anual no cartão</label><div class="prefixo"><span>R$</span><input type="number" id="preco_cadastro_cartao" step="0.01" min="0" value="' + val('preco_cadastro_cartao') + '"></div><div class="ajuda">Parcelável em até 12x no Asaas</div></div>' +
+          '<div class="campo"><label>Essencial anual no Pix</label><div class="prefixo"><span>R$</span><input type="number" id="preco_cadastro" step="0.01" min="0" value="' + val('preco_cadastro') + '"></div><div class="ajuda">Hoje costuma ser 79,90</div></div>' +
+          '<div class="campo"><label>Essencial anual no cartão</label><div class="prefixo"><span>R$</span><input type="number" id="preco_cadastro_cartao" step="0.01" min="0" value="' + val('preco_cadastro_cartao') + '"></div><div class="ajuda">Parcelável em até 12x</div></div>' +
         '</div>' +
         '<div class="campo-linha">' +
-          '<div class="campo"><label>Extra Profissional</label><div class="prefixo"><span>R$</span><input type="number" id="preco_profissional" step="0.01" min="0" value="' + val('preco_profissional') + '"></div><div class="ajuda">Não cria perfil sozinho</div></div>' +
-          '<div class="campo"><label>Extra Destaque</label><div class="prefixo"><span>R$</span><input type="number" id="preco_destaque" step="0.01" min="0" value="' + val('preco_destaque') + '"></div><div class="ajuda">Não cria perfil sozinho</div></div>' +
+          '<div class="campo"><label>Profissional — mensal da vitrine</label><div class="prefixo"><span>R$</span><input type="number" id="preco_profissional" step="0.01" min="0" value="' + val('preco_profissional') + '"></div><div class="ajuda">Ex.: 19,90/mês. No Pix vira Essencial + (19,90 × 12)</div></div>' +
+          '<div class="campo"><label>Destaque — mensal da vitrine</label><div class="prefixo"><span>R$</span><input type="number" id="preco_destaque" step="0.01" min="0" value="' + val('preco_destaque') + '"></div><div class="ajuda">Mesma conta: Essencial + (mensal × 12)</div></div>' +
         '</div>' +
       '</div>' +
       '<div class="painel-section">' +
@@ -175,8 +175,8 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
           '<div class="campo"><label>Essencial cartão (cheio)</label><div class="prefixo"><span>R$</span><input type="number" id="preco_cadastro_cartao_pos" step="0.01" min="0" value="' + val('preco_cadastro_cartao_pos') + '"></div></div>' +
         '</div>' +
         '<div class="campo-linha">' +
-          '<div class="campo"><label>Extra Profissional</label><div class="prefixo"><span>R$</span><input type="number" id="preco_prof_pos" step="0.01" min="0" value="' + val('preco_prof_pos') + '"></div></div>' +
-          '<div class="campo"><label>Extra Destaque</label><div class="prefixo"><span>R$</span><input type="number" id="preco_destaque_pos" step="0.01" min="0" value="' + val('preco_destaque_pos') + '"></div></div>' +
+          '<div class="campo"><label>Profissional mensal (cheio)</label><div class="prefixo"><span>R$</span><input type="number" id="preco_prof_pos" step="0.01" min="0" value="' + val('preco_prof_pos') + '"></div></div>' +
+          '<div class="campo"><label>Destaque mensal (cheio)</label><div class="prefixo"><span>R$</span><input type="number" id="preco_destaque_pos" step="0.01" min="0" value="' + val('preco_destaque_pos') + '"></div></div>' +
         '</div>' +
       '</div>' +
       '<div class="painel-section">' +

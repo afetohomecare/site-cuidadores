@@ -7,6 +7,7 @@
 
 import { garantirSlugUnico, linkPerfilPublico } from '../_lib/slug.js';
 import { verificarTurnstile, ipDoPedido } from '../_lib/turnstile.js';
+import { flagsDoPlano } from '../_lib/planos.js';
 
 const BUCKET_FOTOS = 'fotos';
 
@@ -84,11 +85,11 @@ export async function onRequest(context) {
       }
     }
 
-    // Essencial anual cria perfil + painel. Profissional e Destaque são extras depois.
+    const flags = flagsDoPlano(plano);
     let statusPagamento   = 'AguardandoPagamento';
-    let planoCadastro     = true;
-    let planoProfissional = false;
-    let planoDestaque     = false;
+    let planoCadastro     = flags.plano_cadastro;
+    let planoProfissional = flags.plano_profissional;
+    let planoDestaque     = flags.plano_destaque;
 
     // ---------- MONTA O OBJETO ----------
     const bairrosArray = bairrosStr
