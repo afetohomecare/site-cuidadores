@@ -14,6 +14,7 @@ const CAMPOS_PUBLICOS = [
   'apresentacao',
   'motivacao',
   'especialidade',
+  'como_aparecer',
   'experiencia',
   'bairro',
   'bairros',
@@ -72,8 +73,10 @@ function perfilPublico(row) {
 async function buscarSupabase(env, filtros) {
   const tentativas = [
     CAMPOS_PUBLICOS,
+    CAMPOS_PUBLICOS.filter(function (c) { return c !== 'como_aparecer'; }),
     CAMPOS_PUBLICOS.filter(function (c) { return c.indexOf('mostrar_') !== 0; }),
-    CAMPOS_PUBLICOS.filter(function (c) { return c !== 'slug' && c.indexOf('mostrar_') !== 0; })
+    CAMPOS_PUBLICOS.filter(function (c) { return c !== 'como_aparecer' && c.indexOf('mostrar_') !== 0; }),
+    CAMPOS_PUBLICOS.filter(function (c) { return c !== 'slug' && c !== 'como_aparecer' && c.indexOf('mostrar_') !== 0; })
   ];
 
   let resp;

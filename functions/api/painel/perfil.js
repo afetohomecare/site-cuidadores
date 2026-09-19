@@ -9,7 +9,8 @@ const CAMPOS_PERMITIDOS = [
   'cursos',
   'bairros',
   'bairro',
-  'preco'
+  'preco',
+  'como_aparecer'
 ];
 
 // Limites de tamanho
@@ -80,6 +81,15 @@ export async function onRequestPatch(context) {
           return jsonResp({ error: 'O valor do plantão precisa estar entre R$ 50 e R$ 5.000.' }, 400);
         }
         campos.preco = String(precoNum);
+      }
+
+      else if (chave === 'como_aparecer') {
+        var pref = String(valor || '').trim().toLowerCase();
+        if (pref === '') pref = 'neutro';
+        if (pref !== 'feminino' && pref !== 'masculino' && pref !== 'neutro') {
+          return jsonResp({ error: 'Escolha como prefere aparecer: feminino, masculino ou neutro.' }, 400);
+        }
+        campos.como_aparecer = pref;
       }
     }
 

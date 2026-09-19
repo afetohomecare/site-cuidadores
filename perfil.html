@@ -560,6 +560,7 @@ header {
 
 <a href="https://afetohomecare.pages.dev" class="voltar-link"><i class="fa-solid fa-arrow-left"></i> Voltar</a>
 
+<script src="js/rotulo-especialidade.js"></script>
 <script>
 
 var params = new URLSearchParams(window.location.search);
@@ -853,7 +854,11 @@ function renderizarPerfil(cuidadora) {
             '<div class="badges-container">' + seloDestaque + seloCategoria + seloVerificada + seloCoren + '</div>' +
             '<h1 class="nome-profissional">' + nomeExibicao + '</h1>' +
             '<div class="tag-profissional">' +
-                '<span>' + escapeHTML(cuidadora.especialidade || 'Cuidador(a)') + '</span>' +
+                '<span>' + escapeHTML(
+                    typeof rotuloEspecialidade === 'function'
+                        ? rotuloEspecialidade(cuidadora.especialidade, cuidadora.como_aparecer, 'perfil')
+                        : (cuidadora.especialidade || 'Cuidador(a)')
+                ) + '</span>' +
                 '<span style="color: var(--cinza-azulado);">•</span>' +
                 '<span class="tag-bairro"><i class="fa-solid fa-location-dot"></i> ' + escapeHTML(cuidadora.bairro || 'Curitiba') + '</span>' +
             '</div>' +
@@ -888,6 +893,24 @@ function renderizarPerfil(cuidadora) {
     document.querySelectorAll('.reveal-item').forEach(function(el) { observer.observe(el); });
 }
 
+function mesmaEspecialidadeCanon(a, b) {
+    if (typeof chaveEspecialidade === 'function') {
+        var ka = chaveEspecialidade(a);
+        var kb = chaveEspecialidade(b);
+        if (ka && kb && ka !== 'outro' && kb !== 'outro') return ka === kb;
+        if (ka === 'outro' || kb === 'outro') return String(a || '') === String(b || '');
+        return ka === kb && !!ka;
+    }
+    return String(a || '') === String(b || '');
+}
+
+function rotuloCard(c) {
+    if (typeof rotuloEspecialidade === 'function') {
+        return rotuloEspecialidade(c.especialidade, c.como_aparecer, 'vitrine');
+    }
+    return c.especialidade || 'Cuidador(a)';
+}
+
 function renderizarVejaTambem(atual, todos) {
     var bairroAtual = atual.bairro || '';
     var especAtual = atual.especialidade || '';
@@ -897,7 +920,7 @@ function renderizarVejaTambem(atual, todos) {
     });
 
     var match1 = outros.filter(function(c) {
-        return c.bairro === bairroAtual && c.especialidade === especAtual;
+        return c.bairro === bairroAtual && mesmaEspecialidadeCanon(c.especialidade, especAtual);
     });
     var selecionados = match1.slice(0, 3);
 
@@ -910,7 +933,7 @@ function renderizarVejaTambem(atual, todos) {
 
     if (selecionados.length < 3) {
         var mesmaEspec = outros.filter(function(c) {
-            return c.especialidade === especAtual && selecionados.indexOf(c) === -1;
+            return mesmaEspecialidadeCanon(c.especialidade, especAtual) && selecionados.indexOf(c) === -1;
         });
         for (var j = 0; j < mesmaEspec.length && selecionados.length < 3; j++) selecionados.push(mesmaEspec[j]);
     }
@@ -932,7 +955,7 @@ function renderizarVejaTambem(atual, todos) {
         var nomeExibicao = escapeHTML(gerarNomeUnico(c.nome || '', todosNomes));
         var nota = escapeHTML(c.nota || '5.0');
         var bairro = escapeHTML(c.bairro || 'Curitiba');
-        var espec = escapeHTML(c.especialidade || 'Cuidador(a)');
+        var espec = escapeHTML(rotuloCard(c));
 
         var fotoHTML = '<i class="fa-solid fa-user"></i>';
         var fotoSrc = urlSegura(c.foto_url);

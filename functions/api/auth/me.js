@@ -5,7 +5,7 @@
 const CAMPOS_RETORNO = [
   'id', 'slug', 'nome', 'whatsapp', 'foto_url', 'foto_url_pendente', 'foto_pendente',
   'apresentacao', 'motivacao',
-  'especialidade', 'experiencia', 'bairro', 'bairros', 'preco', 'turno',
+  'especialidade', 'como_aparecer', 'experiencia', 'bairro', 'bairros', 'preco', 'turno',
   'cursos', 'subespecialidades', 'coren', 'categoria', 'nota', 'horas',
   'verificada', 'disponivel', 'disponivel_atualizado_em',
   'plano_cadastro', 'plano_profissional', 'plano_destaque',
@@ -55,8 +55,21 @@ export async function onRequestGet(context) {
     );
 
     if (!buscaResp.ok) {
+      const semComoAparecer = CAMPOS_RETORNO.filter(function (c) {
+        return c !== 'como_aparecer';
+      });
+      buscaResp = await fetch(
+        env.SUPABASE_URL + '/rest/v1/cuidadores?auth_user_id=eq.' +
+        encodeURIComponent(authUserId) +
+        '&select=' + semComoAparecer.join(',') +
+        '&limit=1',
+        { headers: headersSupabase(env) }
+      );
+    }
+
+    if (!buscaResp.ok) {
       const semNovos = CAMPOS_RETORNO.filter(function (c) {
-        return c !== 'slug' && c !== 'mp_preapproval_id';
+        return c !== 'slug' && c !== 'mp_preapproval_id' && c !== 'como_aparecer';
       });
       buscaResp = await fetch(
         env.SUPABASE_URL + '/rest/v1/cuidadores?auth_user_id=eq.' +

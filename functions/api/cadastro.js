@@ -44,6 +44,7 @@ export async function onRequest(context) {
     const bio            = campo(form, 'bio');
     const motivacao      = campo(form, 'motivacao');
     const especialidade  = campo(form, 'profissao');
+    const comoAparecer   = whitelistComoAparecer(campo(form, 'como_aparecer'));
     const coren          = campo(form, 'coren');
     const experiencia    = campo(form, 'experiencia');
     const bairrosStr     = campo(form, 'bairros');
@@ -111,6 +112,7 @@ export async function onRequest(context) {
       apresentacao:       bio,
       motivacao:          motivacao,
       especialidade:      especialidade,
+      como_aparecer:      comoAparecer,
       experiencia:        experiencia,
       bairro:             bairroPrincipal,
       bairros:            bairrosArray,
@@ -335,6 +337,7 @@ export async function onRequest(context) {
         whatsapp: whatsapp,
         cpf: cpf,
         profissao: especialidade,
+        comoAparecer: comoAparecer,
         plano: plano,
         authErro: authErro || 'auth_user_id ausente'
       });
@@ -421,6 +424,7 @@ export async function onRequest(context) {
       whatsapp: whatsapp,
       cpf: cpf,
       profissao: especialidade,
+      comoAparecer: comoAparecer,
       plano: plano,
       bio: bio,
       subespecialidades: subespecialStr,
@@ -457,6 +461,12 @@ export async function onRequest(context) {
 function campo(form, nome) {
   const v = form.get(nome);
   return v ? String(v).trim() : '';
+}
+
+function whitelistComoAparecer(valor) {
+  const v = String(valor || '').trim().toLowerCase();
+  if (v === 'feminino' || v === 'masculino' || v === 'neutro') return v;
+  return 'neutro';
 }
 
 function jsonResp(obj, status) {
@@ -525,6 +535,7 @@ async function notificarTelegram(env, dados) {
     if (dados.whatsapp) msg += '📱 *WhatsApp:* ' + dados.whatsapp + '\n';
     if (dados.cpf) msg += '🆔 *CPF:* ' + dados.cpf + '\n';
     if (dados.profissao) msg += '💼 *Atuação:* ' + dados.profissao + '\n';
+    if (dados.comoAparecer) msg += '✨ *Como aparece:* ' + dados.comoAparecer + '\n';
     if (dados.plano) msg += '⭐ *Plano:* ' + planoTexto + '\n';
     if (dados.bio) msg += '\n📝 *Bio:* ' + dados.bio.substring(0, 180) + (dados.bio.length > 180 ? '...' : '') + '\n';
     if (dados.subespecialidades) msg += '\n🏷️ *Especialidades:* ' + dados.subespecialidades + '\n';

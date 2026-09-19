@@ -368,6 +368,18 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
         </select>
       </div>
 
+      <div class="campo">
+        <label for="como_aparecer">Como você prefere aparecer? <span class="badge-opcional">opcional</span></label>
+        <span class="ajuda">Isso só muda o texto da profissão no seu perfil. Se não escolher, aparece de forma neutra.</span>
+        <select id="como_aparecer" name="como_aparecer">
+          <option value="">Não informar (neutro)</option>
+          <option value="feminino">Feminino (cuidadora, enfermeira)</option>
+          <option value="masculino">Masculino (cuidador, enfermeiro)</option>
+          <option value="neutro">Neutro (cuidado, enfermagem)</option>
+        </select>
+        <span class="ajuda" id="preview-como-aparecer" style="margin-top:8px;margin-bottom:0;"></span>
+      </div>
+
       <div class="campo-oculto" id="bloco-coren">
         <div class="campo">
           <label for="coren">Número do COREN (obrigatório):</label>
@@ -679,6 +691,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 </div>
 
 <script src="https://sdk.mercadopago.com/js/v2"></script>
+<script src="js/rotulo-especialidade.js"></script>
 <script>
 (function() {
   "use strict";
@@ -1089,7 +1102,21 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   });
 
   var campoProfissao = document.getElementById('profissao');
+  var campoComoAparecer = document.getElementById('como_aparecer');
   var blocoCoren = document.getElementById('bloco-coren');
+
+  function atualizarPreviewComoAparecer() {
+    var el = document.getElementById('preview-como-aparecer');
+    if (!el) return;
+    var prof = campoProfissao ? campoProfissao.value : '';
+    if (!prof || typeof rotuloEspecialidade !== 'function') {
+      el.textContent = '';
+      return;
+    }
+    var pref = campoComoAparecer ? campoComoAparecer.value : '';
+    el.textContent = 'No perfil vai aparecer: ' + rotuloEspecialidade(prof, pref || 'neutro', 'vitrine');
+  }
+
   campoProfissao.addEventListener('change', function() {
     var v = this.value;
     if (v === 'Técnico(a) de Enfermagem' || v === 'Enfermeiro(a)') {
@@ -1099,7 +1126,9 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       blocoCoren.classList.remove('ativo');
       if (campoCoren) { campoCoren.required = false; campoCoren.value = ''; }
     }
+    atualizarPreviewComoAparecer();
   });
+  if (campoComoAparecer) campoComoAparecer.addEventListener('change', atualizarPreviewComoAparecer);
 
   var campoTurno = document.getElementById('turno');
   var avisoNoturno = document.getElementById('aviso-noturno');

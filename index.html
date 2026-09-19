@@ -533,6 +533,7 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
   </div>
 </footer>
 
+<script src="js/rotulo-especialidade.js"></script>
 <script>
 (function() {
   "use strict";
@@ -625,7 +626,11 @@ input[type=range]::-webkit-slider-thumb { height: 32px; width: 32px; border-radi
 
   function renderizarCard(cuidadora) {
     var nome = escapeHTML(cuidadora.nome || 'Sem nome');
-    var especialidade = escapeHTML(cuidadora.especialidade || 'Cuidador(a)');
+    var especialidade = escapeHTML(
+      typeof rotuloEspecialidade === 'function'
+        ? rotuloEspecialidade(cuidadora.especialidade, cuidadora.como_aparecer, 'vitrine')
+        : (cuidadora.especialidade || 'Cuidador(a)')
+    );
     var bairro = escapeHTML(cuidadora.bairro || 'Curitiba');
 
     var fotoHTML = '<i class="fa-solid fa-user"></i>';

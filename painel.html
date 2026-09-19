@@ -357,6 +357,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
 </div>
 
 <script src="https://sdk.mercadopago.com/js/v2"></script>
+<script src="js/rotulo-especialidade.js"></script>
 <script>
 (function() {
   "use strict";
@@ -703,7 +704,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
     }
 
     document.getElementById('perfil-nome').textContent = cuidadora.nome || '—';
-    document.getElementById('perfil-especialidade').textContent = cuidadora.especialidade || 'Cuidado';
+    document.getElementById('perfil-especialidade').textContent = rotuloPainel();
     document.getElementById('perfil-bairro').textContent = cuidadora.bairro || 'Curitiba';
 
     atualizarBotaoStatus();
@@ -779,9 +780,36 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
     input.click();
   });
 
+  function rotuloPainel() {
+    if (typeof rotuloEspecialidade === 'function') {
+      return rotuloEspecialidade(cuidadora.especialidade, cuidadora.como_aparecer, 'painel');
+    }
+    return cuidadora.especialidade || 'Cuidado';
+  }
+
+  function textoPreferencia() {
+    var p = String(cuidadora.como_aparecer || '').toLowerCase();
+    if (p === 'feminino') return 'Feminino (cuidadora, enfermeira)';
+    if (p === 'masculino') return 'Masculino (cuidador, enfermeiro)';
+    if (p === 'neutro') return 'Neutro (cuidado, enfermagem)';
+    return 'Não informado — no perfil aparece: ' + rotuloPainel();
+  }
+
   function renderizarBlocos() {
     var container = document.getElementById('blocos-editaveis');
     container.innerHTML = '';
+
+    container.innerHTML +=
+      '<div class="bloco-edit">' +
+        '<div class="bloco-header">' +
+          '<div class="titulo"><i class="fa-solid fa-id-badge"></i> Como você prefere aparecer?</div>' +
+          '<button class="btn-editar-bloco" data-campo="como_aparecer"><i class="fa-solid fa-pen"></i> Editar</button>' +
+        '</div>' +
+        '<div class="bloco-conteudo">' +
+          '<p style="margin-bottom:6px;"><strong>' + escapeHTML(rotuloPainel()) + '</strong></p>' +
+          '<p style="font-size:13px;color:var(--cinza-fonte);font-weight:700;">' + escapeHTML(textoPreferencia()) + '</p>' +
+        '</div>' +
+      '</div>';
 
     container.innerHTML += blocoSimples({
       id: 'bio', titulo: 'Sobre mim', icone: 'fa-user-doctor',
@@ -881,6 +909,22 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
     } else if (campo === 'preco') {
       titulo = 'Editar valor do plantão'; subtitulo = 'Valor pro plantão de 12h.';
       campoInput = '<input type="number" id="input-edicao" value="' + escapeHTML(cuidadora.preco || '') + '" min="50" max="2000" step="10">';
+    } else if (campo === 'como_aparecer') {
+      titulo = 'Como você prefere aparecer?';
+      subtitulo = 'Isso só muda o texto da profissão no seu perfil público.';
+      var atualPref = String(cuidadora.como_aparecer || '').toLowerCase();
+      if (atualPref !== 'feminino' && atualPref !== 'masculino' && atualPref !== 'neutro') {
+        atualPref = (typeof preferenciaEfetiva === 'function')
+          ? preferenciaEfetiva(cuidadora.como_aparecer, cuidadora.especialidade)
+          : 'neutro';
+      }
+      campoInput =
+        '<select id="input-edicao">' +
+          '<option value="feminino"' + (atualPref === 'feminino' ? ' selected' : '') + '>Feminino (cuidadora, enfermeira)</option>' +
+          '<option value="masculino"' + (atualPref === 'masculino' ? ' selected' : '') + '>Masculino (cuidador, enfermeiro)</option>' +
+          '<option value="neutro"' + (atualPref === 'neutro' ? ' selected' : '') + '>Neutro (cuidado, enfermagem)</option>' +
+        '</select>' +
+        '<span class="ajuda" id="preview-como-aparecer-painel" style="margin-top:10px;margin-bottom:0;"></span>';
     }
 
     html = '<div class="modal ativo" id="modal-edicao"><div class="modal-box"><h2>' + titulo + '</h2><p class="subtitulo">' + subtitulo + '</p><div class="campo">' + campoInput + '</div><div class="modal-acoes"><button class="btn-modal btn-cancelar" id="btn-modal-cancelar">Cancelar</button><button class="btn-modal btn-salvar" id="btn-modal-salvar">Salvar</button></div></div></div>';
@@ -889,6 +933,18 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
     document.querySelectorAll('#grid-habilidades input[type="checkbox"]').forEach(function(cb) {
       cb.addEventListener('change', function() { this.closest('.checkbox-item').classList.toggle('ativo', this.checked); });
     });
+
+    function atualizarPreviewPainel() {
+      var el = document.getElementById('preview-como-aparecer-painel');
+      var sel = document.getElementById('input-edicao');
+      if (!el || !sel || typeof rotuloEspecialidade !== 'function') return;
+      el.textContent = 'No perfil vai aparecer: ' + rotuloEspecialidade(cuidadora.especialidade, sel.value || 'neutro', 'vitrine');
+    }
+    if (campo === 'como_aparecer') {
+      atualizarPreviewPainel();
+      var selPref = document.getElementById('input-edicao');
+      if (selPref) selPref.addEventListener('change', atualizarPreviewPainel);
+    }
 
     document.getElementById('btn-modal-cancelar').addEventListener('click', function() { document.getElementById('modal-edicao').remove(); });
     document.getElementById('btn-modal-salvar').addEventListener('click', async function() {
@@ -906,6 +962,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
         body.bairros = b; body.bairro = b[0] || '';
       }
       else if (campo === 'preco') { body.preco = document.getElementById('input-edicao').value; }
+      else if (campo === 'como_aparecer') { body.como_aparecer = document.getElementById('input-edicao').value || 'neutro'; }
 
       try {
         await api('/api/painel/perfil', { method: 'PATCH', body: body });
@@ -1242,7 +1299,8 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
         '<div class="bloco-conteudo">' +
           '<p style="margin-bottom: 10px;"><strong>Nome:</strong> ' + escapeHTML(cuidadora.nome || '—') + '</p>' +
           '<p style="margin-bottom: 10px;"><strong>WhatsApp:</strong> ' + escapeHTML(cuidadora.whatsapp || '—') + '</p>' +
-          '<p><strong>Especialidade:</strong> ' + escapeHTML(cuidadora.especialidade || '—') + '</p>' +
+          '<p><strong>Especialidade:</strong> ' + escapeHTML(rotuloPainel()) + '</p>' +
+          '<p style="margin-top: 10px;"><strong>Como prefere aparecer:</strong> ' + escapeHTML(textoPreferencia()) + '</p>' +
           '<p style="margin-top: 14px; font-size: 13px; color: var(--cinza-azulado);">' +
             'Precisa alterar algum dado? Fale com a gente pelo WhatsApp.' +
           '</p>' +

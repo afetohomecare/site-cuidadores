@@ -17,7 +17,7 @@ const CAMPOS_PERMITIDOS = [
 const CAMPOS_LISTA = [
   'id', 'slug', 'nome', 'whatsapp', 'whatsapp_agencia', 'email', 'cpf', 'coren',
   'foto_url', 'foto_url_pendente', 'foto_pendente',
-  'apresentacao', 'motivacao', 'especialidade', 'experiencia',
+  'apresentacao', 'motivacao', 'especialidade', 'como_aparecer', 'experiencia',
   'bairro', 'bairros', 'preco', 'turno', 'cursos', 'subespecialidades',
   'categoria', 'nota', 'horas', 'verificada', 'disponivel',
   'plano_cadastro', 'plano_profissional', 'plano_destaque',
@@ -134,10 +134,17 @@ export async function onRequestGet(context) {
     const cpf = url.searchParams.get('cpf');
 
     if (id) {
-      const resp = await fetch(
+      let resp = await fetch(
         env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + id + '&select=' + CAMPOS_LISTA.join(','),
         { headers: headersSupabase(env) }
       );
+      if (!resp.ok) {
+        const semComo = CAMPOS_LISTA.filter(function (c) { return c !== 'como_aparecer'; });
+        resp = await fetch(
+          env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + id + '&select=' + semComo.join(','),
+          { headers: headersSupabase(env) }
+        );
+      }
       const linhas = await resp.json();
       if (!resp.ok) return jsonResp({ error: 'Falha ao buscar' }, 502);
       if (linhas.length === 0) return jsonResp({ error: 'Não encontrada' }, 404);
@@ -168,14 +175,24 @@ export async function onRequestGet(context) {
     else if (plano === 'profissional') params.push('plano_profissional=eq.true');
     else if (plano === 'destaque') params.push('plano_destaque=eq.true');
 
-    const resp = await fetch(
+    let resp = await fetch(
       env.SUPABASE_URL + '/rest/v1/cuidadores?' + params.join('&'),
       { headers: headersSupabase(env) }
     );
 
     if (!resp.ok) {
-      console.error('Erro listar:', await resp.text());
-      return jsonResp({ error: 'Falha ao listar' }, 502);
+      const txt = await resp.text();
+      const semComo = CAMPOS_LISTA.filter(function (c) { return c !== 'como_aparecer'; });
+      const paramsSem = params.slice();
+      paramsSem[0] = 'select=' + semComo.join(',');
+      resp = await fetch(
+        env.SUPABASE_URL + '/rest/v1/cuidadores?' + paramsSem.join('&'),
+        { headers: headersSupabase(env) }
+      );
+      if (!resp.ok) {
+        console.error('Erro listar:', txt);
+        return jsonResp({ error: 'Falha ao listar' }, 502);
+      }
     }
 
     const linhas = await resp.json();

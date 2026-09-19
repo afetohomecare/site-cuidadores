@@ -1206,6 +1206,14 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
     return esc(v);
   }
 
+  function fmtComoAparecer(v) {
+    var p = String(v || '').toLowerCase();
+    if (p === 'feminino') return 'Feminino';
+    if (p === 'masculino') return 'Masculino';
+    if (p === 'neutro') return 'Neutro';
+    return 'Não informado (neutro)';
+  }
+
   function fmtData(iso) {
     if (!iso) return '—';
     try {
@@ -1270,6 +1278,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
           '</div>' +
           '<div class="modal-detalhes-item"><div class="label">E-mail</div><div class="valor">' + fmtValor(c.email) + '</div></div>' +
           '<div class="modal-detalhes-item"><div class="label">COREN</div><div class="valor">' + fmtValor(c.coren) + '</div></div>' +
+          '<div class="modal-detalhes-item"><div class="label">Como prefere aparecer</div><div class="valor">' + fmtComoAparecer(c.como_aparecer) + '</div></div>' +
         '</div>' +
       '</div>' +
 
