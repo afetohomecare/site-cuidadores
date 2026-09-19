@@ -1,4 +1,5 @@
-// Cadastro: Pix do Essencial anual OU cartão em Checkout hospedado do Asaas.
+// Cadastro: Pix e cartão no Checkout Pro do Mercado Pago (domínio deles).
+// Asaas permanece no código, desativado por flag, como fallback.
 // Cartão NUNCA é digitado no domínio da Afeto.
 
 import { idSeguro } from '../../_lib/auth.js';
@@ -11,7 +12,7 @@ import {
   parcelasDoCartao,
   valorParcela,
   planoEhEssencial,
-  normalizarPlano
+  planoPermitidoNoCadastro
 } from '../../_lib/planos.js';
 import {
   getAsaasConfig,
@@ -19,6 +20,12 @@ import {
   criarOuBuscarCliente,
   criarCheckoutCartao
 } from '../../_lib/asaas.js';
+import {
+  asaasDesativado,
+  fallbackAsaasAtivo,
+  gatewayAtivo
+} from '../../_lib/pagamento.js';
+import { criarCheckoutMp } from '../../_lib/mercadopago.js';
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -36,7 +43,7 @@ export async function onRequestPost(context) {
       cupomCodigo
     } = body;
 
-    const plano = normalizarPlano(body.plano || 'cadastro');
+    const plano = planoPermitidoNoCadastro(body.plano || 'cadastro');
     const parcelas = parcelasDoCartao(body.parcelas);
     const forma = formaEhCartao(formaPagamento) ? 'CREDIT_CARD' : (formaPagamento || '');
 
@@ -165,8 +172,52 @@ export async function onRequestPost(context) {
     if (forma !== 'PIX' && forma !== 'CREDIT_CARD') {
       return jsonResp({ error: 'Forma de pagamento inválida.' }, 400);
     }
-    if (!asaas.apiKey) {
-      return jsonResp({ error: 'Chave do Asaas não configurada' }, 500);
+
+    const gateway = gatewayAtivo(env);
+    if (gateway === 'mercadopago') {
+      const checkoutMp = await criarCheckoutMp({
+        env: env,
+        request: request,
+        origem: origemPublica(request),
+        paginaRetorno: 'cadastro.html',
+        cuidadorId: cuidadorId,
+        nome: nomeAsaas,
+        cpfLimpo: cpfLimpo,
+        whatsLimpo: telefoneAsaas,
+        valor: valorFinal,
+        parcelas: planoEhEssencial(plano) ? parcelas : 1,
+        cupomObj: cupomObj,
+        nomePlano: nomeDoPlanoBonito(plano),
+        plano: plano,
+        forma: forma,
+        recorrente: !planoEhEssencial(plano) && forma === 'CREDIT_CARD'
+      });
+      if (checkoutMp && checkoutMp.link) {
+        return jsonResp({
+          ok: true,
+          gratis: false,
+          acao: forma === 'CREDIT_CARD' ? 'cartao' : 'pix',
+          gateway: 'mercadopago',
+          ambiente: checkoutMp.gateway,
+          link: checkoutMp.link,
+          checkoutId: checkoutMp.preferenceId || checkoutMp.preapprovalId || null,
+          valorBase: valorBase,
+          valorFinal: valorFinal,
+          desconto: desconto,
+          parcelas: checkoutMp.parcelas,
+          valorParcela: valorParcela(valorFinal, checkoutMp.parcelas),
+          cupom: cupomObj ? cupomObj.codigo : null
+        }, 200);
+      }
+      if (!fallbackAsaasAtivo(env)) {
+        return jsonResp({
+          error: 'Não foi possível abrir o pagamento no Mercado Pago. Tente de novo em instantes.'
+        }, 502);
+      }
+    }
+
+    if (!asaas.apiKey || asaasDesativado(env)) {
+      return jsonResp({ error: 'Pagamento temporariamente indisponível.' }, 500);
     }
 
     const customerId = await criarOuBuscarCliente(asaas.apiKey, asaas.url, {
@@ -213,6 +264,7 @@ export async function onRequestPost(context) {
         ok: true,
         gratis: false,
         acao: 'cartao',
+        gateway: 'asaas',
         ambiente: asaas.isSandbox ? 'sandbox' : 'producao',
         link: checkout.link,
         checkoutId: checkout.checkoutId,
@@ -237,6 +289,7 @@ export async function onRequestPost(context) {
         return jsonResp({
           ok: true,
           gratis: false,
+          gateway: 'asaas',
           ambiente: asaas.isSandbox ? 'sandbox' : 'producao',
           reutilizada: true,
           cobrancaId: cobrancaExistente.id,
@@ -304,6 +357,7 @@ export async function onRequestPost(context) {
     return jsonResp({
       ok: true,
       gratis: false,
+      gateway: 'asaas',
       ambiente: asaas.isSandbox ? 'sandbox' : 'producao',
       cobrancaId: cobrancaData.id,
       invoiceUrl: cobrancaData.invoiceUrl || '',

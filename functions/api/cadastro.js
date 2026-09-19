@@ -7,7 +7,7 @@
 
 import { garantirSlugUnico, linkPerfilPublico } from '../_lib/slug.js';
 import { verificarTurnstile, ipDoPedido } from '../_lib/turnstile.js';
-import { flagsDoPlano } from '../_lib/planos.js';
+import { flagsDoPlano, planoPermitidoNoCadastro } from '../_lib/planos.js';
 
 const BUCKET_FOTOS = 'fotos';
 
@@ -52,7 +52,7 @@ export async function onRequest(context) {
     const subespecialStr = campo(form, 'subespecialidades');
     const cursosStr      = campo(form, 'cursos');
     const indicadoPor    = campo(form, 'indicadoPor');
-    const plano          = (campo(form, 'plano') || 'cadastro').toLowerCase();
+    const plano          = planoPermitidoNoCadastro(campo(form, 'plano') || 'cadastro');
     const foto           = form.get('foto');
 
     if (!nome || !whatsapp || !cpf) {

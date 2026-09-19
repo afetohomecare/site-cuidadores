@@ -146,7 +146,7 @@ export async function onRequestGet(context) {
       'status_pagamento=eq.Pago',
       'plano_valido_ate=gte.' + hoje,
       'or=(plano_profissional.eq.true,plano_destaque.eq.true)',
-      'order=criado_em.desc'
+      'order=plano_destaque.desc,criado_em.desc'
     ];
 
     const resp = await buscarSupabase(env, filtrosLista);

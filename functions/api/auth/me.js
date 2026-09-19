@@ -10,7 +10,7 @@ const CAMPOS_RETORNO = [
   'verificada', 'disponivel', 'disponivel_atualizado_em',
   'plano_cadastro', 'plano_profissional', 'plano_destaque',
   'plano_inicio', 'plano_valido_ate', 'status_pagamento', 'aprovada',
-  'asaas_subscription_id',
+  'asaas_subscription_id', 'mp_preapproval_id',
   'excluido', 'criado_em', 'atualizado_em',
   'mostrar_bio', 'mostrar_habilidades', 'mostrar_cursos', 'mostrar_bairros',
   'mostrar_preco', 'mostrar_selo_identidade', 'mostrar_selo_coren',
@@ -55,11 +55,13 @@ export async function onRequestGet(context) {
     );
 
     if (!buscaResp.ok) {
-      const semSlug = CAMPOS_RETORNO.filter(function (c) { return c !== 'slug'; });
+      const semNovos = CAMPOS_RETORNO.filter(function (c) {
+        return c !== 'slug' && c !== 'mp_preapproval_id';
+      });
       buscaResp = await fetch(
         env.SUPABASE_URL + '/rest/v1/cuidadores?auth_user_id=eq.' +
         encodeURIComponent(authUserId) +
-        '&select=' + semSlug.join(',') +
+        '&select=' + semNovos.join(',') +
         '&limit=1',
         { headers: headersSupabase(env) }
       );

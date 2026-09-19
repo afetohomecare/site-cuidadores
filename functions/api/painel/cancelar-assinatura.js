@@ -29,15 +29,23 @@ export async function onRequestPost(context) {
     const cuidadora = await validarToken(env, request);
     if (!cuidadora) return jsonResp({ error: 'Não autenticado.' }, 401);
 
-    const respBd = await fetch(
-      env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadora.id + '&select=asaas_subscription_id&limit=1',
+    let respBd = await fetch(
+      env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadora.id +
+      '&select=asaas_subscription_id,mp_preapproval_id&limit=1',
       { headers: headersSupabase(env) }
     );
+    if (!respBd.ok) {
+      respBd = await fetch(
+        env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadora.id +
+        '&select=asaas_subscription_id&limit=1',
+        { headers: headersSupabase(env) }
+      );
+    }
     const dadosBd = await respBd.json();
     const subId = dadosBd[0] && dadosBd[0].asaas_subscription_id;
+    const mpSubId = dadosBd[0] && dadosBd[0].mp_preapproval_id;
 
-    // 🛡️ Idempotente: se já não tem assinatura, retorna OK
-    if (!subId) {
+    if (!subId && !mpSubId) {
       return jsonResp({
         ok: true,
         mensagem: 'Nenhuma assinatura ativa (já estava cancelada ou é plano PIX).',
@@ -46,8 +54,9 @@ export async function onRequestPost(context) {
     }
 
     let asaasSucesso = false;
+    let mpSucesso = false;
 
-    if (ASAAS_API_KEY) {
+    if (subId && ASAAS_API_KEY) {
       try {
         const asaasResp = await fetch(`${ASAAS_URL}/subscriptions/${subId}`, {
           method: 'DELETE',
@@ -57,7 +66,6 @@ export async function onRequestPost(context) {
           }
         });
 
-        // 🛡️ 404 = já não existe no Asaas. Considera sucesso.
         if (asaasResp.ok || asaasResp.status === 404) {
           asaasSucesso = true;
         } else {
@@ -69,22 +77,29 @@ export async function onRequestPost(context) {
       }
     }
 
-    // 🛡️ Mesmo se o Asaas falhou, limpamos a referência local.
-    //    Assim a cuidadora sai do ciclo de cobrança automática no site.
-    await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadora.id, {
-      method: 'PATCH',
-      headers: headersSupabase(env, true),
-      body: JSON.stringify({
-        asaas_subscription_id: null,
-        proxima_cobranca: null
-      })
+    if (mpSubId) {
+      try {
+        const { cancelarPreapprovalMp } = await import('../../_lib/mercadopago.js');
+        mpSucesso = await cancelarPreapprovalMp(env, mpSubId);
+      } catch (e) {
+        console.error('Erro ao cancelar no Mercado Pago:', e);
+      }
+    }
+
+    const { patchCuidador } = await import('../../_lib/pagamento.js');
+    await patchCuidador(env, cuidadora.id, {
+      asaas_subscription_id: null,
+      mp_preapproval_id: null,
+      proxima_cobranca: null
     });
 
+    const cancelou = (!subId || asaasSucesso) && (!mpSubId || mpSucesso);
     return jsonResp({
       ok: true,
       ambiente: asaas.isSandbox ? 'sandbox' : 'producao',
       asaasCancelou: asaasSucesso,
-      mensagem: asaasSucesso
+      mpCancelou: mpSucesso,
+      mensagem: cancelou
         ? 'Assinatura cancelada com sucesso.'
         : 'Assinatura removida do painel. Se houver cobrança futura, entre em contato.'
     }, 200);

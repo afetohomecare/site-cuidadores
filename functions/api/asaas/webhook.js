@@ -7,7 +7,7 @@
 // ============================================================
 
 import { idSeguro } from '../../_lib/auth.js';
-import { dataValidadePlano } from '../../_lib/planos.js';
+import { dataValidadePlano, pagamentoEhDestaqueExtra } from '../../_lib/planos.js';
 
 function getWebhookToken(env) {
   const ambiente = (env.ASAAS_AMBIENTE || 'producao').toLowerCase();
@@ -42,14 +42,24 @@ export async function onRequestPost(context) {
     if (evento === 'PAYMENT_OVERDUE') {
       const cuidadorId = idSeguro(payment.externalReference);
       if (cuidadorId && env.SUPABASE_URL && env.SUPABASE_SERVICE_KEY) {
-        await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(cuidadorId), {
-          method: 'PATCH',
-          headers: headersSupabase(env, true, false),
-          body: JSON.stringify({ status_pagamento: 'Inadimplente' })
-        });
+        if (pagamentoEhDestaqueExtra(payment)) {
+          await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(cuidadorId), {
+            method: 'PATCH',
+            headers: headersSupabase(env, true, false),
+            body: JSON.stringify({ plano_destaque: false })
+          });
+        } else {
+          await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(cuidadorId), {
+            method: 'PATCH',
+            headers: headersSupabase(env, true, false),
+            body: JSON.stringify({ status_pagamento: 'Inadimplente' })
+          });
+        }
 
         if (env.TELEGRAM_BOT_TOKEN && env.TELEGRAM_CHAT_ID) {
-          await notificarTelegram(env, '⚠️ *Assinatura Vencida/Atrasada!*\n\nCuidadora ID `' + cuidadorId + '` não pagou.');
+          await notificarTelegram(env, pagamentoEhDestaqueExtra(payment)
+            ? '⚠️ *Destaque extra atrasado*\n\nCuidadora ID `' + cuidadorId + '` — o extra foi desligado.'
+            : '⚠️ *Assinatura Vencida/Atrasada!*\n\nCuidadora ID `' + cuidadorId + '` não pagou.');
         }
       }
       return jsonResp({ received: true }, 200);
@@ -61,17 +71,26 @@ export async function onRequestPost(context) {
     if (evento === 'PAYMENT_REFUNDED' || evento === 'PAYMENT_CHARGEBACK_REQUESTED' || evento === 'PAYMENT_CHARGEBACK_DISPUTE') {
       const cuidadorId = idSeguro(payment.externalReference);
       if (cuidadorId && env.SUPABASE_URL && env.SUPABASE_SERVICE_KEY) {
-        await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(cuidadorId), {
-          method: 'PATCH',
-          headers: headersSupabase(env, true, false),
-          body: JSON.stringify({
-            status_pagamento: 'Estornado',
-            plano_valido_ate: new Date().toISOString()
-          })
-        });
+        if (pagamentoEhDestaqueExtra(payment)) {
+          await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(cuidadorId), {
+            method: 'PATCH',
+            headers: headersSupabase(env, true, false),
+            body: JSON.stringify({ plano_destaque: false })
+          });
+        } else {
+          await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(cuidadorId), {
+            method: 'PATCH',
+            headers: headersSupabase(env, true, false),
+            body: JSON.stringify({
+              status_pagamento: 'Estornado',
+              plano_valido_ate: new Date().toISOString()
+            })
+          });
+        }
 
         if (env.TELEGRAM_BOT_TOKEN && env.TELEGRAM_CHAT_ID) {
-          await notificarTelegram(env, '🔄 *' + evento + '*\n\nCuidadora ID `' + cuidadorId + '` teve pagamento estornado.');
+          await notificarTelegram(env, '🔄 *' + evento + '*\n\nCuidadora ID `' + cuidadorId + '` ' +
+            (pagamentoEhDestaqueExtra(payment) ? 'teve o Destaque extra estornado.' : 'teve pagamento estornado.'));
         }
       }
       return jsonResp({ received: true }, 200);
@@ -104,27 +123,28 @@ export async function onRequestPost(context) {
 
       let planoDetectado = 'cadastro';
       if (cuidador) {
-        if (cuidador.plano_destaque) planoDetectado = 'destaque';
-        else if (cuidador.plano_profissional) planoDetectado = 'profissional';
+        if (cuidador.plano_profissional) planoDetectado = 'profissional';
         else planoDetectado = 'cadastro';
       }
 
+      const extraDestaque = pagamentoEhDestaqueExtra(payment);
       const agora = new Date();
       const nParcela = parseInt(payment.installmentNumber, 10);
       const ehParcelaSeguinte = !!(payment.installment && nParcela > 1);
 
-      const patchBody = {
-        status_pagamento: 'Pago'
-      };
+      const patchBody = extraDestaque
+        ? { plano_destaque: true }
+        : { status_pagamento: 'Pago' };
 
-      if (!ehParcelaSeguinte) {
-        const vence = dataValidadePlano(planoDetectado, agora);
+      let vence = null;
+      if (!extraDestaque && !ehParcelaSeguinte) {
+        vence = dataValidadePlano(planoDetectado, agora);
         patchBody.plano_inicio = agora.toISOString();
         patchBody.plano_valido_ate = vence.toISOString();
         patchBody.proxima_cobranca = vence.toISOString();
       }
 
-      if (payment.subscription) {
+      if (!extraDestaque && payment.subscription) {
         patchBody.asaas_subscription_id = String(payment.subscription);
       }
 
@@ -186,10 +206,10 @@ export async function onRequestPost(context) {
         const valor = payment.value ? 'R$ ' + payment.value.toFixed(2).replace('.', ',') : '';
 
         const mensagem = '[' + ambienteLabel + '] ' + isSubscription + ' *recebida!*\n\n' + forma + ' — ' + valor + '\n\n' +
-          'Plano: *' + planoDetectado + '*\n' +
+          (extraDestaque ? 'Produto: *Destaque extra*\n' : 'Plano: *' + planoDetectado + '*\n') +
           'ID: `' + cuidadorId + '`\n\n' +
-          '✅ Pago\n' +
-          '✅ Válido até ' + vence.toLocaleDateString('pt-BR');
+          (extraDestaque ? '✅ Destaque ligado' : '✅ Pago') +
+          (vence ? '\n✅ Válido até ' + vence.toLocaleDateString('pt-BR') : '');
 
         await notificarTelegram(env, mensagem);
       }

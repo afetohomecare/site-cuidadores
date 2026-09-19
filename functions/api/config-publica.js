@@ -7,10 +7,13 @@
 // Devolve preços da vitrine:
 //   • preco_cadastro = Essencial anual no Pix
 //   • preco_cadastro_cartao = Essencial anual no cartão (até 12x)
-//   • preco_profissional / preco_destaque = oferta mensal no Pix
+//   • preco_profissional = oferta mensal no Pix/cartão
+//   • preco_destaque = extra mensal no painel (não entra no cadastro)
 //   • preco_prof_pos / preco_destaque_pos = preço cheio riscado
 //   • *_pos = preço cheio (riscado, "De R$ X por")
 // ============================================================
+
+import { gatewayAtivo, asaasDisponivelParaNovos, getMpAccessToken } from '../_lib/pagamento.js';
 
 const CHAVES_PUBLICAS = [
   'preco_cadastro',
@@ -55,10 +58,17 @@ export async function onRequestGet(context) {
       if (!isNaN(v)) precos[l.chave] = v;
     });
 
+    const gateway = gatewayAtivo(env);
+
     return new Response(JSON.stringify({
       ok: true,
       precos: precos,
-      turnstileSiteKey: env.TURNSTILE_SITE_KEY || null
+      turnstileSiteKey: env.TURNSTILE_SITE_KEY || null,
+      pagamento: {
+        gateway: gateway,
+        mpAtivo: gateway === 'mercadopago' && !!getMpAccessToken(env),
+        asaasAtivo: asaasDisponivelParaNovos(env)
+      }
     }), {
       status: 200,
       headers: {

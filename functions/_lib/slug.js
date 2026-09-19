@@ -1,7 +1,7 @@
 const RESERVADAS = {
   api: true, admin: true, painel: true, perfil: true, cadastro: true,
   planos: true, login: true, index: true, termos: true, privacidade: true,
-  config: true, checkout: true, asaas: true, auth: true, cuidadores: true,
+  config: true, checkout: true, asaas: true, mercadopago: true, auth: true, cuidadores: true,
   solicitacoes: true, www: true, static: true, assets: true, favicon: true
 };
 

@@ -65,6 +65,16 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
 
 .perfil-preview { background: white; border-radius: 28px; padding: 32px; box-shadow: 0 20px 50px rgba(139,92,246,0.08); border: 1px solid #e2e8f0; }
 
+.extra-destaque {
+  margin-top: 20px; padding: 20px 18px; border-radius: 20px;
+  background: linear-gradient(135deg, #fffbeb, #fef3c7); border: 1px solid #fde68a;
+}
+.extra-destaque h3 { font-size: 16px; font-weight: 900; color: #92400e; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+.extra-destaque p { font-size: 13.5px; color: #78350f; font-weight: 700; line-height: 1.55; margin-bottom: 14px; }
+.extra-destaque .preco-extra { font-size: 22px; font-weight: 900; color: #92400e; margin-bottom: 12px; }
+.extra-destaque .preco-extra span { font-size: 14px; font-weight: 800; }
+.extra-destaque button { margin: 6px 8px 0 0; }
+
 .perfil-foto-bloco { display: flex; flex-direction: column; align-items: center; gap: 14px; margin-bottom: 22px; }
 .perfil-foto-wrapper { position: relative; width: 130px; height: 130px; }
 .perfil-foto { width: 130px; height: 130px; border-radius: 50%; object-fit: cover; border: 5px solid white; box-shadow: 0 12px 30px rgba(0,0,0,0.15); transition: filter 0.3s, transform 0.3s; }
@@ -472,8 +482,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
     var data = await api('/api/auth/me');
     cuidadora = data.cuidadora;
 
-    if (cuidadora.plano_destaque) planoAtual = 'destaque';
-    else if (cuidadora.plano_profissional) planoAtual = 'profissional';
+    if (cuidadora.plano_profissional) planoAtual = 'profissional';
     else planoAtual = 'basico';
 
     var nomeCurto = (cuidadora.nome || '').split(' ')[0] || 'Cuidadora';
@@ -486,9 +495,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
       avatarEl.textContent = nomeCurto.charAt(0).toUpperCase();
     }
 
-    var planoLabel = planoAtual === 'destaque' ? 'Destaque'
-                   : planoAtual === 'profissional' ? 'Profissional'
-                   : 'Essencial';
+    var planoLabel = rotuloPlano();
     document.getElementById('user-plano').textContent = planoLabel;
 
     document.getElementById('titulo-inicio').textContent = 'Olá, ' + nomeCurto + ' 💜';
@@ -844,15 +851,19 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
   // ==========================================
   // PLANO
   // ==========================================
+  function rotuloPlano() {
+    var base = planoAtual === 'profissional' ? 'Profissional' : 'Essencial';
+    if (cuidadora && cuidadora.plano_destaque) return base + ' + Destaque';
+    return base;
+  }
+
   function renderizarPlano() {
     var container = document.getElementById('plano-conteudo');
-    var planoLabel = planoAtual === 'destaque' ? 'Destaque'
-                   : planoAtual === 'profissional' ? 'Profissional'
-                   : 'Essencial';
+    var planoLabel = rotuloPlano();
     var dias = diasRestantes(cuidadora.plano_valido_ate);
     var vencendo = dias > 0 && dias <= 7;
 
-    var isAssinatura = !!cuidadora.asaas_subscription_id;
+    var isAssinatura = !!(cuidadora.asaas_subscription_id || cuidadora.mp_preapproval_id);
     var taPago = cuidadora.status_pagamento === 'Pago';
 
     var statusBadge = '';
@@ -877,7 +888,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
        infoPagamento = '<strong>Válido até:</strong> ' + (cuidadora.plano_valido_ate ? formatarData(cuidadora.plano_valido_ate) : '--/--/----');
     }
 
-    var ehEssencial = planoAtual === 'basico' || planoAtual === 'cadastro' || (!cuidadora.plano_profissional && !cuidadora.plano_destaque);
+    var ehEssencial = planoAtual === 'basico' || planoAtual === 'cadastro' || !cuidadora.plano_profissional;
     var botoesHtml = '';
     if (planoIrregular(cuidadora)) {
       if (ehEssencial) {
@@ -929,19 +940,13 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
           '<p>' + infoPagamento + '</p>' +
           '<div style="margin-top:14px;padding:14px;background:#f8f9fc;border-radius:14px;border:2px dashed #c4b5fd;">' +
             '<label style="display:block;font-size:13px;font-weight:800;color:var(--lilas-escuro);margin-bottom:8px;"><i class="fa-solid fa-ticket"></i> Tem cupom? Aplique antes de pagar</label>' +
-            '<p style="font-size:12px;font-weight:700;color:var(--cinza-fonte);margin-bottom:8px;line-height:1.45;">O desconto entra no Pix e também no valor que vai para a página do Asaas.</p>' +
+            '<p style="font-size:12px;font-weight:700;color:var(--cinza-fonte);margin-bottom:8px;line-height:1.45;">O desconto entra no valor antes de abrir o pagamento seguro (Mercado Pago).</p>' +
             '<input type="text" id="cupom-painel" maxlength="20" placeholder="Digite seu código" style="width:100%;padding:12px 14px;border-radius:12px;border:2px solid #e2e8f0;font-family:Nunito,sans-serif;font-size:14px;font-weight:800;text-transform:uppercase;">' +
           '</div>' +
           botoesHtml +
         '</div>' +
       '</div>' +
-      (planoAtual !== 'destaque'
-        ? '<div style="margin-top: 20px;">' +
-            '<h3 style="font-size: 16px; font-weight: 900; margin-bottom: 10px;">Quer mais visibilidade?</h3>' +
-            '<p style="font-size: 14px; color: var(--cinza-fonte); font-weight: 700; line-height: 1.6; margin-bottom: 16px;">Profissional e Destaque são mensais, sem fidelidade, e fazem você aparecer na vitrine.</p>' +
-            '<a href="planos.html" class="btn-editar-bloco" style="padding: 12px 24px; font-size: 14px; text-decoration: none;"><i class="fa-solid fa-arrow-up"></i> Ver planos</a>' +
-          '</div>'
-        : '');
+      blocoDestaqueExtra();
 
     var btnCancelar = document.getElementById('btn-cancelar-assinatura');
     if (btnCancelar) {
@@ -953,6 +958,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
                 await api('/api/painel/cancelar-assinatura', { method: 'POST' });
                 alert('✅ Assinatura cancelada com sucesso! Não haverá novas cobranças no seu cartão.');
                 cuidadora.asaas_subscription_id = null;
+                cuidadora.mp_preapproval_id = null;
                 renderizarPlano();
              } catch(e) {
                 alert('Falha ao cancelar: ' + e.message);
@@ -968,6 +974,89 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
 
     var btnCartao = document.getElementById('btn-cartao-asaas');
     if (btnCartao) btnCartao.addEventListener('click', cadastrarCartaoAsaas);
+
+    var btnDestPix = document.getElementById('btn-destaque-pix');
+    if (btnDestPix) btnDestPix.addEventListener('click', function() { pagarExtraDestaque('pix', btnDestPix); });
+    var btnDestCard = document.getElementById('btn-destaque-cartao');
+    if (btnDestCard) btnDestCard.addEventListener('click', function() { pagarExtraDestaque('cartao', btnDestCard); });
+  }
+
+  function blocoDestaqueExtra() {
+    var ativo = !!cuidadora.plano_destaque;
+    var irregular = planoIrregular(cuidadora);
+    var html = '';
+    if (ativo) {
+      html += '' +
+        '<div class="extra-destaque">' +
+          '<h3><i class="fa-solid fa-gem"></i> Destaque ativo</h3>' +
+          '<p>Você aparece destacada na plataforma: selo dourado e prioridade na vitrine.</p>' +
+        '</div>';
+    } else if (irregular) {
+      html += '' +
+        '<div class="extra-destaque">' +
+          '<h3><i class="fa-solid fa-gem"></i> Extra: aparecer destacada</h3>' +
+          '<p>Por <strong>R$ 9,90 / mês</strong> você ganha selo dourado e prioridade na vitrine. Regularize seu plano primeiro para ativar.</p>' +
+        '</div>';
+    } else {
+      html += '' +
+        '<div class="extra-destaque">' +
+          '<h3><i class="fa-solid fa-gem"></i> Extra: aparecer destacada</h3>' +
+          '<p>Produto à parte do seu plano. Selo dourado e prioridade na vitrine da Afeto.</p>' +
+          '<div class="preco-extra">R$ 9,90 <span>/ mês</span></div>' +
+          '<button type="button" id="btn-destaque-pix" style="' + estiloBtnPlano(true) + '"><i class="fa-solid fa-qrcode"></i> Ativar no Pix</button>' +
+          '<button type="button" id="btn-destaque-cartao" style="' + estiloBtnPlano(false) + '"><i class="fa-solid fa-credit-card"></i> Ativar no cartão</button>' +
+        '</div>';
+    }
+    if (planoAtual !== 'profissional') {
+      html += '' +
+        '<div style="margin-top: 18px;">' +
+          '<h3 style="font-size: 16px; font-weight: 900; margin-bottom: 8px;">Quer aparecer nas buscas?</h3>' +
+          '<p style="font-size: 14px; color: var(--cinza-fonte); font-weight: 700; line-height: 1.6; margin-bottom: 14px;">O Profissional é mensal, sem fidelidade: de R$ 79,90 por apenas R$ 49,90 / mês.</p>' +
+          '<a href="planos.html" class="btn-editar-bloco" style="padding: 12px 24px; font-size: 14px; text-decoration: none;"><i class="fa-solid fa-arrow-up"></i> Ver plano Profissional</a>' +
+        '</div>';
+    }
+    return html;
+  }
+
+  async function pagarExtraDestaque(acao, btn) {
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Abrindo...'; }
+    try {
+      var body = { acao: acao, produto: 'destaque' };
+      var cupom = cupomDoPainel();
+      if (cupom) body.cupomCodigo = cupom;
+      var data = await api('/api/painel/pagamento', { method: 'POST', body: body });
+      if (data.gratis) {
+        alert('Destaque liberado 💜');
+        await carregarPerfil();
+        return;
+      }
+      if (acao === 'pix') {
+        var qr = document.getElementById('painel-pix-qr');
+        var input = document.getElementById('painel-pix-codigo');
+        if (data.pix && data.pix.qrCodeImage) {
+          qr.innerHTML = '<img src="data:image/png;base64,' + data.pix.qrCodeImage + '" alt="QR Code Pix" style="max-width:240px;width:100%;border-radius:12px;">';
+          input.value = data.pix.copiaECola || '';
+        } else if (data.link) {
+          window.location.href = data.link;
+          return;
+        } else {
+          throw new Error('QR Code não retornado');
+        }
+        document.getElementById('modal-pix-painel').classList.add('ativo');
+      } else {
+        if (!data.link) throw new Error('Link de pagamento não retornado');
+        window.location.href = data.link;
+      }
+    } catch (err) {
+      alert(err.message || 'Não foi possível ativar o Destaque agora.');
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = acao === 'pix'
+          ? '<i class="fa-solid fa-qrcode"></i> Ativar no Pix'
+          : '<i class="fa-solid fa-credit-card"></i> Ativar no cartão';
+      }
+    }
   }
 
   function opcoesParcelasPainel() {
@@ -1006,6 +1095,10 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
         await carregarPerfil();
         return;
       }
+      if (data.link) {
+        window.location.href = data.link;
+        return;
+      }
       var qr = document.getElementById('painel-pix-qr');
       var input = document.getElementById('painel-pix-codigo');
       if (data.pix && data.pix.qrCodeImage) {
@@ -1020,7 +1113,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
     } finally {
       if (btn) {
         btn.disabled = false;
-        var mensal = planoAtual === 'profissional' || planoAtual === 'destaque';
+        var mensal = planoAtual === 'profissional';
         if (mensal) {
           btn.innerHTML = planoIrregular(cuidadora)
             ? '<i class="fa-solid fa-qrcode"></i> Pagar o mês no Pix'
@@ -1036,7 +1129,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
 
   async function cadastrarCartaoAsaas() {
     var btn = document.getElementById('btn-cartao-asaas');
-    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Abrindo Asaas...'; }
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Abrindo pagamento...'; }
     try {
       var body = { acao: 'cartao', parcelas: parcelasDoPainel() };
       var cupom = cupomDoPainel();
@@ -1047,13 +1140,13 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
         await carregarPerfil();
         return;
       }
-      if (!data.link) throw new Error('Link do Asaas não retornado');
+      if (!data.link) throw new Error('Link de pagamento não retornado');
       window.location.href = data.link;
     } catch (err) {
       alert(err.message || 'Não foi possível abrir o cadastro de cartão.');
       if (btn) {
         btn.disabled = false;
-        var mensal = planoAtual === 'profissional' || planoAtual === 'destaque';
+        var mensal = planoAtual === 'profissional';
         if (mensal) {
           btn.innerHTML = '<i class="fa-solid fa-credit-card"></i> Assinar no cartão (recorrente)';
         } else {
@@ -1170,13 +1263,16 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
     var qs = new URLSearchParams(window.location.search);
     var pag = qs.get('pagamento');
     if (pag === 'cartao_ok') {
-      alert('Pagamento no cartão enviado. Se o Asaas confirmou, o Essencial anual entra em instantes.');
+      alert('Pagamento enviado. Se o Mercado Pago confirmou, o plano entra em instantes.');
+      irParaSecao('plano');
+    } else if (pag === 'pix_pendente') {
+      alert('Pix pendente no Mercado Pago. Quando o banco confirmar, o plano libera sozinho.');
       irParaSecao('plano');
     } else if (pag === 'cartao_cancelado') {
-      alert('Pagamento no cartão cancelado. Você pode tentar de novo em Meu plano.');
+      alert('Pagamento cancelado. Você pode tentar de novo em Meu plano.');
       irParaSecao('plano');
     } else if (pag === 'cartao_expirado') {
-      alert('O link do Asaas expirou. Gere um novo em Meu plano.');
+      alert('O link de pagamento expirou. Gere um novo em Meu plano.');
       irParaSecao('plano');
     }
     if (pag && window.history && window.history.replaceState) {

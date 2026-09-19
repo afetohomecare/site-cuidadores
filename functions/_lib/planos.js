@@ -2,10 +2,10 @@ import { headersSupabase } from './supabase.js';
 
 export const PRECO_ESSENCIAL_PIX = 79.9;
 export const PRECO_ESSENCIAL_CARTAO = 119.9;
-export const PRECO_PROF_PIX = 59.9;
+export const PRECO_PROF_PIX = 49.9;
 export const PRECO_PROF_CHEIO = 79.9;
-export const PRECO_DEST_PIX = 69.9;
-export const PRECO_DEST_CHEIO = 89.9;
+export const PRECO_DEST_PIX = 9.9;
+export const PRECO_DEST_CHEIO = 9.9;
 export const PARCELAS_CARTAO_MAX = 12;
 
 function arred2(n) {
@@ -21,27 +21,50 @@ export function normalizarPlano(plano) {
   return 'cadastro';
 }
 
+export function planoPermitidoNoCadastro(plano) {
+  return normalizarPlano(plano) === 'profissional' ? 'profissional' : 'cadastro';
+}
+
 export function nomeDoPlanoBonito(plano) {
   const p = normalizarPlano(plano);
   if (p === 'cadastro') return 'Essencial';
-  if (p === 'destaque') return 'Destaque';
+  if (p === 'destaque') return 'Destaque extra';
   return 'Profissional';
 }
 
 export function planoDaCuidadora(c) {
   if (!c) return 'cadastro';
-  if (c.plano_destaque) return 'destaque';
   if (c.plano_profissional) return 'profissional';
   return 'cadastro';
 }
 
+export function temDestaqueExtra(c) {
+  return !!(c && c.plano_destaque);
+}
+
 export function flagsDoPlano(plano) {
-  const p = normalizarPlano(plano);
+  const p = planoPermitidoNoCadastro(plano);
   return {
     plano_cadastro: true,
-    plano_profissional: p === 'profissional' || p === 'destaque',
-    plano_destaque: p === 'destaque'
+    plano_profissional: p === 'profissional',
+    plano_destaque: false
   };
+}
+
+export function pagamentoEhDestaqueExtra(payment) {
+  const pedacos = [
+    payment && payment.description,
+    payment && payment.externalReference
+  ];
+  const items = payment && payment.items;
+  if (Array.isArray(items)) {
+    for (let i = 0; i < items.length; i++) {
+      pedacos.push(items[i] && items[i].name);
+      pedacos.push(items[i] && items[i].description);
+    }
+  }
+  const texto = pedacos.filter(Boolean).join(' ').toLowerCase();
+  return texto.indexOf('destaque extra') !== -1;
 }
 
 export function planoEhEssencial(plano) {

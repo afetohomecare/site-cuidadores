@@ -56,8 +56,8 @@ var DESCRICOES = {
   preco_cadastro_cartao_pos: 'Essencial anual — valor cheio do cartão (interno)',
   preco_profissional: 'Profissional mensal — oferta Pix/cartão recorrente',
   preco_prof_pos: 'Profissional mensal — preço riscado na vitrine',
-  preco_destaque: 'Destaque mensal — oferta Pix/cartão recorrente',
-  preco_destaque_pos: 'Destaque mensal — preço riscado na vitrine',
+  preco_destaque: 'Destaque extra no painel — R$/mês para aparecer destacada',
+  preco_destaque_pos: 'Destaque extra — preço riscado (se houver)',
   vagas_fundadora: 'Controle interno de vagas fundadora (não troca o preço sozinho)',
   texto_banner_home: 'Texto do banner da home',
   whatsapp_afeto: 'WhatsApp da Afeto (só números, com DDI)'

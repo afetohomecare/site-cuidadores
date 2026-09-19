@@ -64,9 +64,16 @@ export async function criarCheckoutCartao(opts) {
   const cupomObj = opts.cupomObj;
   const nomePlano = opts.nomePlano || 'Essencial';
   const recorrente = !!opts.recorrente;
+  const extra = !!opts.extra;
+  const rotuloPeriodo = extra || recorrente ? ' mensal' : ' anual';
   const descricao = cupomObj
-    ? 'Plano ' + nomePlano + (recorrente ? ' mensal' : ' anual') + ' (cupom ' + cupomObj.codigo + ')'
-    : 'Plano ' + nomePlano + (recorrente ? ' mensal' : ' anual') + ' Afeto';
+    ? (extra ? 'Destaque extra' : 'Plano ' + nomePlano) + rotuloPeriodo + ' (cupom ' + cupomObj.codigo + ')'
+    : (extra ? 'Destaque extra mensal Afeto' : 'Plano ' + nomePlano + rotuloPeriodo + ' Afeto');
+  const nomeItem = opts.itemNome || (extra
+    ? 'Destaque extra Afeto — mensal'
+    : (recorrente
+      ? 'Plano ' + nomePlano + ' Afeto — mensal'
+      : 'Plano ' + nomePlano + ' Afeto — 12 meses'));
 
   const checkoutBody = {
     billingTypes: ['CREDIT_CARD'],
@@ -79,9 +86,7 @@ export async function criarCheckoutCartao(opts) {
       expiredUrl: origem + '/' + pagina + '?pagamento=cartao_expirado'
     },
     items: [{
-      name: recorrente
-        ? 'Plano ' + nomePlano + ' Afeto — mensal'
-        : 'Plano ' + nomePlano + ' Afeto — 12 meses',
+      name: nomeItem,
       description: descricao + (recorrente ? ' · recorrente' : (n > 1 ? ' · até ' + n + 'x' : ' · à vista')),
       quantity: 1,
       value: opts.valor

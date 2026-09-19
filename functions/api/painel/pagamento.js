@@ -1,4 +1,4 @@
-// Painel: Pix de regularização do Essencial anual + cartão só em Checkout hospedado do Asaas.
+// Painel: Pix/cartão no Mercado Pago (Checkout Pro). Asaas só como fallback.
 // Cartão NUNCA é digitado no domínio da Afeto.
 
 import { jsonResp, metodoNaoPermitido } from '../../_lib/http.js';
@@ -21,6 +21,12 @@ import {
   criarOuBuscarCliente,
   criarCheckoutCartao
 } from '../../_lib/asaas.js';
+import {
+  asaasDesativado,
+  fallbackAsaasAtivo,
+  gatewayAtivo
+} from '../../_lib/pagamento.js';
+import { criarCheckoutMp } from '../../_lib/mercadopago.js';
 
 const CAMPOS = [
   'id', 'nome', 'cpf', 'whatsapp',
@@ -47,12 +53,21 @@ export async function onRequestPost(context) {
       return jsonResp({ error: 'Ação inválida. Use pix ou cartao.' }, 400);
     }
 
-    const plano = planoDaCuidadora(c);
+    const extraDestaque = String(body.produto || '').trim().toLowerCase() === 'destaque';
+    const plano = extraDestaque ? 'destaque' : planoDaCuidadora(c);
     const forma = acao === 'cartao' ? 'CREDIT_CARD' : 'PIX';
-    const parcelas = parcelasDoCartao(body.parcelas);
+    const parcelas = extraDestaque ? 1 : parcelasDoCartao(body.parcelas);
     const valorBase = await lerPrecoPlano(env, plano, forma);
     if (!valorBase || valorBase <= 0) {
       return jsonResp({ error: 'Preço do plano não configurado.' }, 500);
+    }
+
+    if (extraDestaque) {
+      const taPago = c.status_pagamento === 'Pago';
+      const vence = c.plano_valido_ate ? new Date(c.plano_valido_ate).getTime() : 0;
+      if (!taPago || vence <= Date.now()) {
+        return jsonResp({ error: 'Regularize seu plano antes de ativar o Destaque extra.' }, 400);
+      }
     }
 
     const cpfLimpo = String(c.cpf || '').replace(/\D/g, '');
@@ -74,18 +89,29 @@ export async function onRequestPost(context) {
 
     if (valor === 0) {
       const agora = new Date();
-      const vence = dataValidadePlano(plano, agora);
-      await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(c.id), {
-        method: 'PATCH',
-        headers: headersSupabase(env, true),
-        body: JSON.stringify({
-          status_pagamento: 'Pago',
-          cupom_usado: cupomObj ? cupomObj.codigo : null,
-          plano_inicio: agora.toISOString(),
-          plano_valido_ate: vence.toISOString(),
-          proxima_cobranca: vence.toISOString()
-        })
-      });
+      if (extraDestaque) {
+        await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(c.id), {
+          method: 'PATCH',
+          headers: headersSupabase(env, true),
+          body: JSON.stringify({
+            plano_destaque: true,
+            cupom_usado: cupomObj ? cupomObj.codigo : null
+          })
+        });
+      } else {
+        const vence = dataValidadePlano(plano, agora);
+        await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(c.id), {
+          method: 'PATCH',
+          headers: headersSupabase(env, true),
+          body: JSON.stringify({
+            status_pagamento: 'Pago',
+            cupom_usado: cupomObj ? cupomObj.codigo : null,
+            plano_inicio: agora.toISOString(),
+            plano_valido_ate: vence.toISOString(),
+            proxima_cobranca: vence.toISOString()
+          })
+        });
+      }
       if (cupomObj) {
         await registrarUsoCupom(env, cupomObj, c.id, plano, valorBase, desconto, 0, null);
       }
@@ -93,13 +119,52 @@ export async function onRequestPost(context) {
         ok: true,
         gratis: true,
         acao: acao,
+        produto: extraDestaque ? 'destaque' : plano,
         valorBase: valorBase,
         valorFinal: 0,
         cupom: cupomObj ? cupomObj.codigo : null
       }, 200);
     }
 
-    if (!asaas.apiKey) {
+    const gateway = gatewayAtivo(env);
+    if (gateway === 'mercadopago') {
+      const checkoutMp = await criarCheckoutMp({
+        env: env,
+        request: request,
+        origem: origemPublica(request),
+        paginaRetorno: 'painel.html',
+        cuidadorId: c.id,
+        nome: c.nome,
+        cpfLimpo: cpfLimpo,
+        whatsLimpo: whatsLimpo,
+        valor: valor,
+        parcelas: extraDestaque ? 1 : (planoEhEssencial(plano) ? parcelas : 1),
+        cupomObj: cupomObj,
+        nomePlano: extraDestaque ? 'Destaque extra' : nomeDoPlanoBonito(plano),
+        plano: plano,
+        forma: forma,
+        extra: extraDestaque,
+        recorrente: extraDestaque ? acao === 'cartao' : (!planoEhEssencial(plano) && acao === 'cartao')
+      });
+      if (checkoutMp && checkoutMp.link) {
+        return jsonResp({
+          ok: true,
+          acao: acao,
+          gateway: 'mercadopago',
+          link: checkoutMp.link,
+          checkoutId: checkoutMp.preferenceId || checkoutMp.preapprovalId || null,
+          valorFinal: valor,
+          parcelas: checkoutMp.parcelas,
+          valorParcela: valorParcela(valor, checkoutMp.parcelas),
+          cupom: cupomObj ? cupomObj.codigo : null
+        }, 200);
+      }
+      if (!fallbackAsaasAtivo(env)) {
+        return jsonResp({ error: 'Não foi possível abrir o pagamento no Mercado Pago.' }, 502);
+      }
+    }
+
+    if (!asaas.apiKey || asaasDesativado(env)) {
       return jsonResp({ error: 'Pagamento temporariamente indisponível.' }, 500);
     }
 
@@ -123,16 +188,16 @@ export async function onRequestPost(context) {
     }
 
     if (acao === 'pix') {
-      return await criarPixRegularizacao(env, asaas, c, customerId, plano, valor, cupomObj);
+      return await criarPixRegularizacao(env, asaas, c, customerId, plano, valor, cupomObj, extraDestaque);
     }
-    return await criarCheckoutCartaoPainel(request, env, asaas, c, customerId, valor, cpfLimpo, whatsLimpo, cupomObj, parcelas, plano);
+    return await criarCheckoutCartaoPainel(request, env, asaas, c, customerId, valor, cpfLimpo, whatsLimpo, cupomObj, parcelas, plano, extraDestaque);
   } catch (err) {
     console.error('Erro painel/pagamento:', err);
     return jsonResp({ error: 'Falha no processamento.' }, 500);
   }
 }
 
-async function criarPixRegularizacao(env, asaas, c, customerId, plano, valor, cupomObj) {
+async function criarPixRegularizacao(env, asaas, c, customerId, plano, valor, cupomObj, extraDestaque) {
   const existente = await verificarCobrancaAtiva(env, asaas.url, asaas.apiKey, c.id, valor);
   if (existente) {
     const pix = await buscarPix(asaas.url, asaas.apiKey, existente.id);
@@ -140,6 +205,8 @@ async function criarPixRegularizacao(env, asaas, c, customerId, plano, valor, cu
     return jsonResp({
       ok: true,
       acao: 'pix',
+      produto: extraDestaque ? 'destaque' : plano,
+      gateway: 'asaas',
       reutilizada: true,
       cobrancaId: existente.id,
       pix: pix
@@ -161,7 +228,9 @@ async function criarPixRegularizacao(env, asaas, c, customerId, plano, valor, cu
       billingType: 'PIX',
       value: valor,
       dueDate: ymd(vencimento),
-      description: 'Afeto — Regularização Plano ' + nomeDoPlanoBonito(plano) + (planoEhEssencial(plano) ? ' anual' : ' mensal') + (cupomObj ? ' (cupom ' + cupomObj.codigo + ')' : ''),
+      description: extraDestaque
+        ? 'Afeto — Destaque extra mensal' + (cupomObj ? ' (cupom ' + cupomObj.codigo + ')' : '')
+        : 'Afeto — Regularização Plano ' + nomeDoPlanoBonito(plano) + (planoEhEssencial(plano) ? ' anual' : ' mensal') + (cupomObj ? ' (cupom ' + cupomObj.codigo + ')' : ''),
       externalReference: c.id
     })
   });
@@ -185,15 +254,17 @@ async function criarPixRegularizacao(env, asaas, c, customerId, plano, valor, cu
   return jsonResp({
     ok: true,
     acao: 'pix',
+    produto: extraDestaque ? 'destaque' : plano,
+    gateway: 'asaas',
     cobrancaId: cobrancaData.id,
     valorFinal: valor,
     pix: pix
   }, 200);
 }
 
-async function criarCheckoutCartaoPainel(request, env, asaas, c, customerId, valor, cpfLimpo, whatsLimpo, cupomObj, parcelas, plano) {
+async function criarCheckoutCartaoPainel(request, env, asaas, c, customerId, valor, cpfLimpo, whatsLimpo, cupomObj, parcelas, plano, extraDestaque) {
   let nextDue = ymd(new Date());
-  if (!planoEhEssencial(plano) && c.plano_valido_ate) {
+  if (!extraDestaque && !planoEhEssencial(plano) && c.plano_valido_ate) {
     const vence = new Date(c.plano_valido_ate);
     if (vence.getTime() > Date.now()) nextDue = ymd(vence);
   }
@@ -206,10 +277,11 @@ async function criarCheckoutCartaoPainel(request, env, asaas, c, customerId, val
     cpfLimpo: cpfLimpo,
     whatsLimpo: whatsLimpo,
     valor: valor,
-    parcelas: planoEhEssencial(plano) ? parcelas : 1,
+    parcelas: extraDestaque ? 1 : (planoEhEssencial(plano) ? parcelas : 1),
     cupomObj: cupomObj,
-    nomePlano: nomeDoPlanoBonito(plano),
-    recorrente: !planoEhEssencial(plano),
+    nomePlano: extraDestaque ? 'Destaque extra' : nomeDoPlanoBonito(plano),
+    recorrente: extraDestaque ? true : !planoEhEssencial(plano),
+    extra: extraDestaque,
     nextDueDate: nextDue
   });
   if (!checkout) {
@@ -227,6 +299,8 @@ async function criarCheckoutCartaoPainel(request, env, asaas, c, customerId, val
   return jsonResp({
     ok: true,
     acao: 'cartao',
+    produto: extraDestaque ? 'destaque' : plano,
+    gateway: 'asaas',
     link: checkout.link,
     checkoutId: checkout.checkoutId,
     valorFinal: valor,
