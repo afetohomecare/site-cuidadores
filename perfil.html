@@ -566,6 +566,7 @@ header {
 var params = new URLSearchParams(window.location.search);
 var recordId = params.get('id');
 var todosCuidadores = [];
+window.__perfilId = '';
 
 function escapeHTML(txt) {
     return String(txt == null ? '' : txt)
@@ -698,6 +699,7 @@ async function carregarTudo() {
         if (!response.ok) throw new Error('Sem dados');
 
         var perfilAtual = data.cuidadora;
+        window.__perfilId = perfilAtual.id || recordId || '';
         todosCuidadores = [perfilAtual];
 
         try {
@@ -1418,7 +1420,7 @@ carregarTudo();
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          cuidadorId: new URLSearchParams(location.search).get('id'),
+          cuidadorId: window.__perfilId || new URLSearchParams(location.search).get('id'),
           nomeSolicitante: document.getElementById('sol-nome').value.trim(),
           whatsapp: document.getElementById('sol-whats').value.trim(),
           email: document.getElementById('sol-email').value.trim(),

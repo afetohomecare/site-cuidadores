@@ -1,6 +1,6 @@
 import { jsonResp } from '../_lib/http.js';
 import { headersSupabase, supabaseOk } from '../_lib/supabase.js';
-import { idSeguro } from '../_lib/auth.js';
+import { ehUuid, filtroPerfilPorRef, refPerfilSegura } from '../_lib/slug.js';
 import { HABILIDADES, BAIRROS, MIN_HORAS_DIA, MAX_PERIODOS, TEXTO_SUGESTAO_CUIDADOS } from '../_lib/catalogo.js';
 import { verificarTurnstile, ipDoPedido, hashIp } from '../_lib/turnstile.js';
 
@@ -57,6 +57,46 @@ function validarPeriodos(lista) {
   return { ok: true, periodos: limpos };
 }
 
+function colunaAusente(texto) {
+  const t = String(texto || '').toLowerCase();
+  return t.indexOf('does not exist') !== -1
+    || t.indexOf('schema cache') !== -1
+    || t.indexOf('column') !== -1
+    || t.indexOf('42703') !== -1
+    || t.indexOf('pgrst204') !== -1;
+}
+
+async function buscarPerfilAtivo(env, ref) {
+  const hoje = new Date().toISOString();
+  const selects = [
+    'id,nome,whatsapp,whatsapp_agencia',
+    'id,nome,whatsapp'
+  ];
+  const filtros = [
+    filtroPerfilPorRef(ref),
+    'aprovada=eq.true',
+    'status_pagamento=eq.Pago',
+    'plano_valido_ate=gte.' + hoje,
+    'limit=1'
+  ];
+
+  let ultimoStatus = 0;
+  let ultimoTxt = '';
+  for (let i = 0; i < selects.length; i++) {
+    const resp = await fetch(
+      env.SUPABASE_URL + '/rest/v1/cuidadores?' +
+      filtros.concat(['select=' + selects[i]]).join('&'),
+      { headers: headersSupabase(env) }
+    );
+    if (resp.ok) return { ok: true, resp: resp };
+    ultimoStatus = resp.status;
+    ultimoTxt = await resp.text();
+    if (!colunaAusente(ultimoTxt)) break;
+  }
+
+  return { ok: false, status: ultimoStatus, txt: ultimoTxt };
+}
+
 function urlWhatsFamilia(cuidadora, nomeSolicitante) {
   const n = String(cuidadora.whatsapp || cuidadora.whatsapp_agencia || '').replace(/\D/g, '');
   if (!n) return null;
@@ -96,8 +136,8 @@ export async function onRequestPost(context) {
       return jsonResp({ error: 'Confirme que você não é um robô e tente de novo.' }, 400);
     }
 
-    const cuidadorId = idSeguro(body.cuidadorId);
-    if (!cuidadorId) {
+    const ref = refPerfilSegura(body.cuidadorId);
+    if (!ref) {
       return jsonResp({ error: 'Perfil inválido.' }, 400);
     }
 
@@ -167,21 +207,20 @@ export async function onRequestPost(context) {
       }
     }
 
-    const hoje = new Date().toISOString();
-    const perfilResp = await fetch(
-      env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(cuidadorId) +
-      '&aprovada=eq.true&status_pagamento=eq.Pago&plano_valido_ate=gte.' + hoje +
-      '&select=id,nome,whatsapp,whatsapp_agencia&limit=1',
-      { headers: headersSupabase(env) }
-    );
-    if (!perfilResp.ok) {
-      return jsonResp({ error: 'Falha ao validar o perfil.' }, 502);
+    const perfilBusca = await buscarPerfilAtivo(env, ref);
+    if (!perfilBusca.ok) {
+      console.error('Erro buscar perfil solicitação:', perfilBusca.status, perfilBusca.txt);
+      if (!ehUuid(ref) && colunaAusente(perfilBusca.txt)) {
+        return jsonResp({ error: 'Profissional não encontrada.' }, 404);
+      }
+      return jsonResp({ error: 'Não foi possível enviar agora. Tente de novo em instantes.' }, 502);
     }
-    const perfis = await perfilResp.json();
+    const perfis = await perfilBusca.resp.json();
     const cuidadora = perfis && perfis[0];
-    if (!cuidadora) {
+    if (!cuidadora || !cuidadora.id) {
       return jsonResp({ error: 'Profissional não encontrada.' }, 404);
     }
+    const cuidadorId = cuidadora.id;
 
     const insertResp = await fetch(env.SUPABASE_URL + '/rest/v1/solicitacoes_atendimento', {
       method: 'POST',
