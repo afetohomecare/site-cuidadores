@@ -1136,6 +1136,7 @@ carregarTudo();
   window.fecharSolicitacao = function() {
     document.getElementById('modal-sol').classList.remove('ativo');
     document.body.style.overflow = '';
+    fecharListaBairros();
   };
 
   function iso(d) {
@@ -1167,7 +1168,6 @@ carregarTudo();
       var cd = await c.json();
       if (cd && cd.turnstileSiteKey) turnstileKey = cd.turnstileSiteKey;
     } catch (e) {}
-    montarBairros();
     montarTags();
     montarCal();
     var ta = document.getElementById('sol-comp');
@@ -1191,13 +1191,94 @@ carregarTudo();
     if (window.turnstile) window.turnstile.render(box.firstChild, { sitekey: turnstileKey });
   }
 
-  function montarBairros() {
-    var sel = document.getElementById('sol-bairro');
-    var atual = sel.value;
-    sel.innerHTML = '<option value="">Selecione o bairro</option>' +
-      catalogo.bairros.map(function(b) { return '<option>' + b + '</option>'; }).join('');
-    if (atual) sel.value = atual;
+  function normalizarBairro(s) {
+    return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   }
+  function bairroOficial(texto) {
+    var tNorm = normalizarBairro(texto.trim());
+    if (!tNorm) return '';
+    for (var i = 0; i < catalogo.bairros.length; i++) {
+      if (normalizarBairro(catalogo.bairros[i]) === tNorm) return catalogo.bairros[i];
+    }
+    return '';
+  }
+  function fecharListaBairros() {
+    listaBairros.classList.remove('ativo');
+    wrapBairro.classList.remove('aberto');
+    idxBairro = -1;
+  }
+  function selecionarBairro(b) {
+    hiddenBairro.value = b;
+    inputBairro.value = b;
+    fecharListaBairros();
+  }
+  function atualizarDestaqueBairro() {
+    var opts = listaBairros.querySelectorAll('.opcao-bairro:not(.sem-resultado)');
+    opts.forEach(function(o, i) {
+      o.classList.toggle('destaque', i === idxBairro);
+    });
+    if (idxBairro >= 0 && opts[idxBairro]) opts[idxBairro].scrollIntoView({ block: 'nearest' });
+  }
+  function mostrarListaBairros(filtro) {
+    var termo = normalizarBairro(filtro.trim());
+    var disp = catalogo.bairros.filter(function(b) {
+      return normalizarBairro(b).indexOf(termo) !== -1;
+    }).slice(0, 10);
+    if (disp.length === 0) {
+      listaBairros.innerHTML = '<div class="opcao-bairro sem-resultado">Nenhum bairro encontrado</div>';
+      idxBairro = -1;
+    } else {
+      listaBairros.innerHTML = disp.map(function(b) {
+        return '<div class="opcao-bairro" data-b="' + b + '">' + b + '</div>';
+      }).join('');
+      listaBairros.querySelectorAll('.opcao-bairro').forEach(function(opt) {
+        opt.addEventListener('mousedown', function(ev) { ev.preventDefault(); });
+        opt.addEventListener('click', function() {
+          selecionarBairro(this.getAttribute('data-b'));
+        });
+      });
+      idxBairro = 0;
+    }
+    listaBairros.classList.add('ativo');
+    wrapBairro.classList.add('aberto');
+    atualizarDestaqueBairro();
+  }
+  inputBairro.addEventListener('input', function() {
+    hiddenBairro.value = bairroOficial(this.value);
+    if (this.value.length >= 1) mostrarListaBairros(this.value);
+    else fecharListaBairros();
+  });
+  inputBairro.addEventListener('focus', function() {
+    if (this.value.length >= 1) mostrarListaBairros(this.value);
+  });
+  inputBairro.addEventListener('keydown', function(e) {
+    var opts = listaBairros.querySelectorAll('.opcao-bairro:not(.sem-resultado)');
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (!listaBairros.classList.contains('ativo') && this.value.length >= 1) mostrarListaBairros(this.value);
+      opts = listaBairros.querySelectorAll('.opcao-bairro:not(.sem-resultado)');
+      if (opts.length) {
+        idxBairro = (idxBairro + 1) % opts.length;
+        atualizarDestaqueBairro();
+      }
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (opts.length) {
+        idxBairro = idxBairro <= 0 ? opts.length - 1 : idxBairro - 1;
+        atualizarDestaqueBairro();
+      }
+    } else if (e.key === 'Enter') {
+      if (listaBairros.classList.contains('ativo') && idxBairro >= 0 && opts[idxBairro]) {
+        e.preventDefault();
+        selecionarBairro(opts[idxBairro].getAttribute('data-b'));
+      }
+    } else if (e.key === 'Escape') {
+      fecharListaBairros();
+    }
+  });
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('#wrap-bairro')) fecharListaBairros();
+  });
 
   function montarTags() {
     var el = document.getElementById('sol-tags');
@@ -1296,6 +1377,15 @@ carregarTudo();
       erro.style.display = 'block';
       return;
     }
+    var bairro = hiddenBairro.value || bairroOficial(inputBairro.value);
+    if (catalogo.bairros.indexOf(bairro) === -1) {
+      erro.textContent = 'Digite e selecione um bairro da lista.';
+      erro.style.display = 'block';
+      inputBairro.focus();
+      return;
+    }
+    hiddenBairro.value = bairro;
+    inputBairro.value = bairro;
     var tokenEl = document.querySelector('[name="cf-turnstile-response"]');
     var btn = document.getElementById('sol-enviar');
     btn.disabled = true;
@@ -1308,7 +1398,7 @@ carregarTudo();
           nomeSolicitante: document.getElementById('sol-nome').value.trim(),
           whatsapp: document.getElementById('sol-whats').value.trim(),
           email: document.getElementById('sol-email').value.trim(),
-          bairro: document.getElementById('sol-bairro').value,
+          bairro: bairro,
           necessidades: necSel,
           complemento: document.getElementById('sol-comp').value.trim(),
           pacienteNome: document.getElementById('sol-pac-nome').value.trim(),
