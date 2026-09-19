@@ -478,6 +478,19 @@ header {
 }
 .sol-campo textarea { min-height: 90px; resize: vertical; }
 .sol-campo input:focus, .sol-campo select:focus, .sol-campo textarea:focus { border-color: var(--lilas); }
+.wrap-bairros { position: relative; }
+.wrap-bairros input#sol-bairro-busca { width: 100%; }
+.wrap-bairros.aberto input#sol-bairro-busca { border-radius: 14px 14px 0 0; border-bottom-color: #f5f3ff; }
+.lista-bairros {
+    position: absolute; top: 100%; left: 0; right: 0; background: white;
+    border: 2px solid #e2e8f0; border-top: none; border-radius: 0 0 16px 16px;
+    max-height: 220px; overflow-y: auto; z-index: 20; display: none;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+}
+.lista-bairros.ativo { display: block; }
+.opcao-bairro { padding: 12px 18px; cursor: pointer; font-size: 15px; font-weight: 700; transition: 0.15s; }
+.opcao-bairro:hover, .opcao-bairro.destaque { background: #f5f3ff; color: var(--lilas-escuro); }
+.opcao-bairro.sem-resultado { color: #999; cursor: default; font-style: italic; font-weight: 600; }
 .sol-ajuda { font-size: 12px; color: var(--cinza-azulado); font-weight: 700; margin-top: 6px; line-height: 1.45; }
 .sol-tags { display: flex; flex-wrap: wrap; gap: 8px; }
 .sol-tag {
@@ -1029,7 +1042,15 @@ carregarTudo();
         <div class="sol-campo"><label>Seu nome</label><input type="text" id="sol-nome" required maxlength="80" placeholder="Como devemos te chamar"></div>
         <div class="sol-campo"><label>WhatsApp (com DDD)</label><input type="tel" id="sol-whats" required placeholder="(41) 99999-9999"></div>
         <div class="sol-campo"><label>E-mail (opcional)</label><input type="email" id="sol-email" placeholder="voce@email.com"></div>
-        <div class="sol-campo"><label>Bairro do atendimento</label><select id="sol-bairro" required><option value="">Carregando...</option></select></div>
+        <div class="sol-campo">
+          <label>Bairro do atendimento</label>
+          <div class="wrap-bairros" id="wrap-bairro">
+            <input type="text" id="sol-bairro-busca" placeholder="Digite o bairro, ex: Batel" autocomplete="off" required>
+            <div class="lista-bairros" id="sol-lista-bairros"></div>
+          </div>
+          <input type="hidden" id="sol-bairro">
+          <div class="sol-ajuda">Digite para buscar e selecione um bairro da lista.</div>
+        </div>
         <div class="sol-campo">
           <label>Do que a pessoa precisa? (até 10)</label>
           <div class="sol-tags" id="sol-tags"></div>
@@ -1091,8 +1112,14 @@ carregarTudo();
 
 <script>
 (function() {
-  var catalogo = { bairros: [], habilidades: [], minHorasDia: 6 };
+  var BAIRROS_PADRAO = ["Abranches","Água Verde","Ahú","Alto Boqueirão","Alto da Glória","Alto da Rua XV","Atuba","Augusta","Bacacheri","Bairro Alto","Barreirinha","Batatzinho","Batel","Bigorrilho","Boa Vista","Bom Retiro","Boqueirão","Butiatuvinha","Cabral","Cachoeira","Cajuru","Campina do Siqueira","Campo Comprido","Campo de Santana","Capão Raso","Capão da Imbuia","Cascatinha","Caximba","Centro","Centro Cívico","Cidade Industrial","Cristo Rei","Fanny","Fazendinha","Ganchinho","Guabirotuba","Guaíra","Hauer","Hugo Lange","Jardim Botânico","Jardim Social","Jardim das Américas","Jardim dos Estados","Juvevê","Lamenha Pequena","Lindóia","Mercês","Mossunguê","Novo Mundo","Orleans","Padre Andrade","Parolin","Pilarzinho","Pinheirinho","Portão","Prado Velho","Rebouças","Riviera","Santa Cândida","Santa Felicidade","Santa Quitéria","Santo Inácio","São Braz","São Francisco","São João","São Lourenço","São Marcos","Sítio Cercado","Taboão","Tarumã","Tatuquara","Tingui","Uberaba","Umbará","Vila Isabel","Vista Alegre","Xaxim"];
+  var catalogo = { bairros: BAIRROS_PADRAO.slice(), habilidades: [], minHorasDia: 6 };
   var turnstileKey = null;
+  var wrapBairro = document.getElementById('wrap-bairro');
+  var inputBairro = document.getElementById('sol-bairro-busca');
+  var listaBairros = document.getElementById('sol-lista-bairros');
+  var hiddenBairro = document.getElementById('sol-bairro');
+  var idxBairro = -1;
   var calMes = new Date();
   calMes.setDate(1);
   var periodos = {};
@@ -1130,7 +1157,7 @@ carregarTudo();
       var r = await fetch('/api/solicitacoes');
       var d = await r.json();
       if (d.ok) {
-        catalogo.bairros = d.bairros || [];
+        catalogo.bairros = (d.bairros && d.bairros.length) ? d.bairros : BAIRROS_PADRAO.slice();
         catalogo.habilidades = d.habilidades || [];
         catalogo.minHorasDia = d.minHorasDia || 6;
       }
