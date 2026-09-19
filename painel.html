@@ -578,8 +578,19 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
     esconderLoader();
   }
 
+  function asPeriodos(lista) {
+    if (Array.isArray(lista)) return lista;
+    if (typeof lista === 'string') {
+      try {
+        var p = JSON.parse(lista);
+        return Array.isArray(p) ? p : [];
+      } catch (e) { return []; }
+    }
+    return [];
+  }
   function fmtPeriodos(lista) {
-    if (!lista || !lista.length) return '—';
+    lista = asPeriodos(lista);
+    if (!lista.length) return '—';
     return lista.map(function(p) {
       var d = String(p.data || '').split('-');
       var data = d.length === 3 ? (d[2] + '/' + d[1]) : p.data;

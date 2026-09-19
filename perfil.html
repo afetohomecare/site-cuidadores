@@ -1174,8 +1174,15 @@ carregarTudo();
     var p = isoStr.split('-');
     return p[2] + '/' + p[1];
   }
+  function normHora(v) {
+    var m = String(v || '').match(/^(\d{1,2}):(\d{2})/);
+    if (!m) return '';
+    var h = m[1].length === 1 ? '0' + m[1] : m[1];
+    return h + ':' + m[2];
+  }
   function horas(ini, fim) {
-    var a = ini.split(':'); var b = fim.split(':');
+    var a = normHora(ini).split(':'); var b = normHora(fim).split(':');
+    if (a.length < 2 || b.length < 2) return 0;
     return (parseInt(b[0],10)*60 + parseInt(b[1],10) - parseInt(a[0],10)*60 - parseInt(a[1],10)) / 60;
   }
 
@@ -1396,7 +1403,7 @@ carregarTudo();
     erro.style.display = 'none';
     var lista = [];
     Object.keys(periodos).forEach(function(k) {
-      lista.push({ data: k, inicio: periodos[k].inicio, fim: periodos[k].fim });
+      lista.push({ data: k, inicio: normHora(periodos[k].inicio), fim: normHora(periodos[k].fim) });
     });
     if (lista.length === 0) {
       erro.textContent = 'Escolha pelo menos um dia no calendário.';
@@ -1437,9 +1444,10 @@ carregarTudo();
           website: document.querySelector('#form-solicitacao [name=website]').value
         })
       });
-      var data = await resp.json();
+      var data = {};
+      try { data = await resp.json(); } catch (parseErr) { data = {}; }
       if (!resp.ok || !data.ok) {
-        erro.textContent = data.error || 'Não foi possível enviar.';
+        erro.textContent = data.error || 'Não foi possível enviar agora. Tente de novo em instantes.';
         erro.style.display = 'block';
         return;
       }

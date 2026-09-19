@@ -76,7 +76,7 @@ export async function onRequestGet(context) {
         pacienteIdade: s.paciente_idade,
         pacienteSexo: s.paciente_sexo,
         infoPaciente: s.info_paciente,
-        periodos: s.periodos || [],
+        periodos: Array.isArray(s.periodos) ? s.periodos : [],
         criadoEm: s.criado_em,
         status: s.status
       };

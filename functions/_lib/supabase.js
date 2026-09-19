@@ -5,7 +5,8 @@ export function headersSupabase(env, temBody, querRetorno) {
     'Accept': 'application/json'
   };
   if (temBody) h['Content-Type'] = 'application/json';
-  if (querRetorno) h['Prefer'] = 'return=representation';
+  if (querRetorno === 'minimal') h['Prefer'] = 'return=minimal';
+  else if (querRetorno) h['Prefer'] = 'return=representation';
   return h;
 }
 
@@ -44,4 +45,31 @@ export function nomeColunaAusente(texto) {
   const m3 = s.match(/column ([a-z0-9_]+) does not exist/i);
   if (m3) return m3[1];
   return null;
+}
+
+export function erroPermissao(status, texto) {
+  const t = String(texto || '').toLowerCase();
+  return status === 401
+    || status === 403
+    || t.indexOf('42501') !== -1
+    || t.indexOf('permission denied') !== -1
+    || t.indexOf('jwt') !== -1
+    || t.indexOf('pgrst301') !== -1
+    || t.indexOf('not allowed') !== -1
+    || t.indexOf('row-level security') !== -1
+    || t.indexOf('rls') !== -1;
+}
+
+export function erroTipoDados(texto) {
+  const t = String(texto || '').toLowerCase();
+  return t.indexOf('22p02') !== -1
+    || t.indexOf('42804') !== -1
+    || t.indexOf('23502') !== -1
+    || t.indexOf('23514') !== -1
+    || t.indexOf('23503') !== -1
+    || t.indexOf('invalid input') !== -1
+    || t.indexOf('invalid input syntax') !== -1
+    || t.indexOf('datatype mismatch') !== -1
+    || t.indexOf('violates') !== -1
+    || t.indexOf('malformed') !== -1;
 }

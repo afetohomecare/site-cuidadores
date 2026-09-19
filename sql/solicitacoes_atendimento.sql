@@ -1,5 +1,7 @@
 -- OBRIGATÓRIO para o formulário "Solicitar atendimento" no perfil.
 -- Rode no SQL Editor do Supabase (pode rodar de novo: IF NOT EXISTS).
+-- Se as tabelas JÁ existem e o pedido ainda falha, rode pelo menos o bloco
+-- GRANT + POLICY no final deste arquivo (RLS sem policy bloqueia o INSERT).
 -- Pedidos de atendimento da família → cuidadora + Afeto.
 
 create table if not exists public.solicitacoes_atendimento (
@@ -62,3 +64,27 @@ create index if not exists idx_solicitacoes_visiveis_cuidador
 
 alter table public.solicitacoes_atendimento enable row level security;
 alter table public.solicitacoes_visiveis enable row level security;
+
+-- A API das Cloudflare Functions usa SUPABASE_SERVICE_KEY.
+-- Sem GRANT + policy, o INSERT falha (403/42501) mesmo com a tabela criada.
+grant usage on schema public to anon, authenticated, service_role;
+grant all on table public.solicitacoes_atendimento to anon, authenticated, service_role;
+grant all on table public.solicitacoes_visiveis to anon, authenticated, service_role;
+
+drop policy if exists solicitacoes_atendimento_api on public.solicitacoes_atendimento;
+create policy solicitacoes_atendimento_api
+  on public.solicitacoes_atendimento
+  for all
+  to anon, authenticated, service_role
+  using (true)
+  with check (true);
+
+drop policy if exists solicitacoes_visiveis_api on public.solicitacoes_visiveis;
+create policy solicitacoes_visiveis_api
+  on public.solicitacoes_visiveis
+  for all
+  to anon, authenticated, service_role
+  using (true)
+  with check (true);
+
+notify pgrst, 'reload schema';
