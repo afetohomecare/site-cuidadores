@@ -277,7 +277,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     </a>
 
     <div id="badge-plano" class="badge-plano basico">
-      <i class="fa-solid fa-link"></i> Cadastro Básico
+      <i class="fa-solid fa-link"></i> Essencial
     </div>
 
     <h1>Vamos criar seu <span>perfil Afeto</span></h1>
@@ -577,10 +577,10 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     </button>
 
     <div class="checkout-header">
-      <div class="checkout-icone"><i class="fa-solid fa-lock"></i></div>
-      <h2>Pagamento via Pix</h2>
-      <p id="checkout-plano-nome">Plano Cadastro Básico Afeto</p>
-      <div class="checkout-valor">R$ <span id="checkout-valor">9,90</span><small id="checkout-periodo">/mês</small></div>
+      <div class="checkout-icone" id="checkout-icone"><i class="fa-solid fa-lock"></i></div>
+      <h2 id="checkout-titulo">Pagamento do Essencial</h2>
+      <p id="checkout-plano-nome">Plano Essencial Afeto — 12 meses</p>
+      <div class="checkout-valor">R$ <span id="checkout-valor">79,90</span><small id="checkout-periodo">/ano no Pix</small></div>
     </div>
 
     <div id="bloco-cupom" style="margin-bottom: 18px; padding: 16px; background: #f8f9fc; border-radius: 14px; border: 2px dashed #c4b5fd;">
@@ -596,6 +596,16 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
         </button>
       </div>
       <div id="cupom-msg" style="margin-top: 10px; font-size: 12.5px; font-weight: 800; display: none;"></div>
+    </div>
+
+    <div class="checkout-tabs">
+      <button type="button" class="tab-btn ativo" id="btn-tab-pix" onclick="trocarAbaCheckout('pix')">
+        <i class="fa-solid fa-qrcode"></i> Pix
+        <span class="tab-badge">mais barato</span>
+      </button>
+      <button type="button" class="tab-btn" id="btn-tab-cartao" onclick="trocarAbaCheckout('cartao')">
+        <i class="fa-solid fa-credit-card"></i> Cartão
+      </button>
     </div>
 
     <div id="tab-pix">
@@ -619,6 +629,21 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
           <div class="sub">Não feche esta tela. Assim que o banco confirmar, seu acesso será liberado automaticamente.</div>
         </div>
       </div>
+    </div>
+
+    <div id="tab-cartao" style="display:none;">
+      <p style="font-size:14px;font-weight:700;color:var(--cinza-fonte);line-height:1.55;margin-bottom:14px;">
+        Escolha em quantas vezes parcelar o anual. O cupom já entra no valor. No Asaas você só confirma o cartão — ele nunca é digitado aqui.
+      </p>
+      <label for="checkout-parcelas" style="display:block;font-size:13px;font-weight:800;margin-bottom:8px;">Parcelas</label>
+      <select id="checkout-parcelas" style="width:100%;padding:14px 16px;border-radius:14px;border:2px solid #e2e8f0;font-family:Nunito,sans-serif;font-size:15px;font-weight:800;margin-bottom:12px;background:#f8f9fc;"></select>
+      <p id="checkout-parcela-resumo" style="font-size:15px;font-weight:900;color:var(--lilas-escuro);margin-bottom:16px;"></p>
+      <button type="button" id="btn-ir-asaas" onclick="irParaCartaoAsaas()" style="width:100%;padding:16px;border:none;border-radius:50px;background:linear-gradient(135deg,var(--lilas),var(--lilas-escuro));color:white;font-family:Nunito,sans-serif;font-size:15px;font-weight:900;cursor:pointer;">
+        <i class="fa-solid fa-lock"></i> Ir para o Asaas
+      </button>
+      <p style="font-size:12px;font-weight:700;color:var(--cinza-fonte);margin-top:12px;line-height:1.45;">
+        O link já vai com o valor e o máximo de parcelas que você escolheu. Lá você ainda pode pagar em menos vezes, se quiser.
+      </p>
     </div>
 
     <div id="checkout-loading" class="checkout-loading" style="display: none;">
@@ -667,19 +692,17 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   var headerTop = document.querySelector('.header-top');
   var btnAcessarPainel = document.getElementById('btn-acessar-painel');
 
-  if (plano === 'cadastro') {
+  if (plano === 'profissional' || plano === 'destaque') plano = 'cadastro';
+
+  if (badge) {
     badge.className = 'badge-plano basico';
-    badge.innerHTML = '<i class="fa-solid fa-link"></i> Cadastro Básico';
-    subtitulo.textContent = 'Preencha seus dados com calma. Ao final, você vai direto para o pagamento seguro — e seu perfil já fica pronto pra receber famílias pelo seu link.';
-    btnEnviar.classList.add('pago');
-    btnEnviar.innerHTML = 'Ir para pagamento <i class="fa-solid fa-arrow-right"></i>';
-  } else if (plano === 'profissional' || plano === 'destaque') {
-    badge.className = 'badge-plano';
-    badge.innerHTML = '<i class="fa-solid fa-star"></i> Plano ' + (plano === 'profissional' ? 'Profissional' : 'Destaque');
-    subtitulo.textContent = 'Preencha seus dados com calma. Ao final, você vai direto para o pagamento seguro.';
-    btnEnviar.classList.add('pago');
-    btnEnviar.innerHTML = 'Ir para pagamento <i class="fa-solid fa-arrow-right"></i>';
+    badge.innerHTML = '<i class="fa-solid fa-link"></i> Essencial';
   }
+  if (subtitulo) {
+    subtitulo.textContent = 'Preencha seus dados com calma. Ao final você escolhe Pix (mais barato) ou cartão em até 12x — o cartão é só na página do Asaas.';
+  }
+  btnEnviar.classList.add('pago');
+  btnEnviar.innerHTML = 'Ir para pagamento <i class="fa-solid fa-arrow-right"></i>';
 
   var btnCopiar = document.getElementById('btn-copiar-link');
   if (btnCopiar) {
@@ -1048,26 +1071,94 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     else avisoNoturno.classList.remove('ativo');
   });
 
-  var dadosCheckout = { recordId: null, plano: null, nome: null, cpf: null, cobrancaId: null, pixData: null, pago: false, precoBaseFmt: '9,90', periodo: '/mês' };
+  var dadosCheckout = { recordId: null, plano: 'cadastro', nome: null, cpf: null, cobrancaId: null, pixData: null, pago: false, precoPixFmt: '79,90', precoCartaoFmt: '119,90', precoPix: 79.9, precoCartao: 119.9, valorPixFinal: 79.9, valorCartaoFinal: 119.9 };
   var enviando = false;
-
+  var abaCheckout = 'pix';
   var cupomAplicado = null;
 
-  window.aplicarCupom = async function() {
+  function brl(n) {
+    return Number(n || 0).toFixed(2).replace('.', ',');
+  }
+
+  function preencherParcelas(total) {
+    var sel = document.getElementById('checkout-parcelas');
+    if (!sel) return;
+    var atual = parseInt(sel.value, 10) || 12;
+    sel.innerHTML = '';
+    for (var i = 1; i <= 12; i++) {
+      var opt = document.createElement('option');
+      opt.value = String(i);
+      var parcela = total / i;
+      opt.textContent = i === 1
+        ? 'À vista — R$ ' + brl(total)
+        : i + 'x de R$ ' + brl(parcela) + ' (R$ ' + brl(total) + ')';
+      sel.appendChild(opt);
+    }
+    sel.value = String(Math.min(12, Math.max(1, atual)));
+    atualizarResumoParcela();
+  }
+
+  function atualizarResumoParcela() {
+    var sel = document.getElementById('checkout-parcelas');
+    var resumo = document.getElementById('checkout-parcela-resumo');
+    if (!sel || !resumo) return;
+    var n = parseInt(sel.value, 10) || 1;
+    var total = dadosCheckout.valorCartaoFinal || dadosCheckout.precoCartao;
+    if (n <= 1) resumo.textContent = 'Você paga R$ ' + brl(total) + ' à vista no cartão.';
+    else resumo.textContent = 'Você escolheu ' + n + 'x de R$ ' + brl(total / n) + '.';
+  }
+
+  function mostrarValorCheckout() {
+    var elValor = document.getElementById('checkout-valor');
+    var elPeriodo = document.getElementById('checkout-periodo');
+    var elTitulo = document.getElementById('checkout-titulo');
+    if (abaCheckout === 'cartao') {
+      if (elTitulo) elTitulo.textContent = 'Cartão no Asaas';
+      if (elValor) elValor.textContent = brl(dadosCheckout.valorCartaoFinal);
+      if (elPeriodo) elPeriodo.textContent = '/ano no cartão';
+      preencherParcelas(dadosCheckout.valorCartaoFinal);
+    } else {
+      if (elTitulo) elTitulo.textContent = 'Pagamento via Pix';
+      if (elValor) elValor.textContent = brl(dadosCheckout.valorPixFinal);
+      if (elPeriodo) elPeriodo.textContent = '/ano no Pix';
+    }
+  }
+
+  window.trocarAbaCheckout = function(aba) {
+    abaCheckout = aba === 'cartao' ? 'cartao' : 'pix';
+    var btnPix = document.getElementById('btn-tab-pix');
+    var btnCard = document.getElementById('btn-tab-cartao');
+    var tabPix = document.getElementById('tab-pix');
+    var tabCard = document.getElementById('tab-cartao');
+    if (btnPix) btnPix.classList.toggle('ativo', abaCheckout === 'pix');
+    if (btnCard) btnCard.classList.toggle('ativo', abaCheckout === 'cartao');
+    if (tabPix) tabPix.style.display = abaCheckout === 'pix' ? 'block' : 'none';
+    if (tabCard) tabCard.style.display = abaCheckout === 'cartao' ? 'block' : 'none';
+    mostrarValorCheckout();
+    if (cupomAplicado) aplicarCupom(true);
+  };
+
+  var selParcelas = document.getElementById('checkout-parcelas');
+  if (selParcelas) selParcelas.addEventListener('change', atualizarResumoParcela);
+
+  window.aplicarCupom = async function(silencioso) {
     var input = document.getElementById('cupom-input');
     var msg = document.getElementById('cupom-msg');
     var btn = document.getElementById('cupom-btn');
     var codigo = (input.value || '').trim().toUpperCase();
 
     if (!codigo) {
+      if (silencioso) return;
       msg.style.display = 'block';
       msg.style.color = '#ef4444';
       msg.textContent = 'Digite um código.';
       return;
     }
 
-    btn.disabled = true;
-    btn.textContent = '...';
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = '...';
+    }
 
     try {
       var resp = await fetch('/api/asaas/checkout', {
@@ -1077,10 +1168,12 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
           nome: dadosCheckout.nome,
           cpf: document.getElementById('cpf').value.trim(),
           whatsapp: document.getElementById('whatsapp').value.trim(),
-          plano: dadosCheckout.plano,
+          plano: 'cadastro',
           cuidadorId: dadosCheckout.recordId,
           cupomCodigo: codigo,
-          validarApenas: true
+          validarApenas: true,
+          formaPagamento: abaCheckout === 'cartao' ? 'CREDIT_CARD' : 'PIX',
+          parcelas: (document.getElementById('checkout-parcelas') || {}).value || 12
         })
       });
       var data = await resp.json();
@@ -1089,17 +1182,18 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
         msg.style.display = 'block';
         msg.style.color = '#ef4444';
         msg.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> ' + escapeHTML(data.error || 'Cupom inválido');
-        btn.disabled = false;
-        btn.textContent = 'Aplicar';
+        if (btn) { btn.disabled = false; btn.textContent = 'Aplicar'; }
         return;
       }
 
       cupomAplicado = codigo;
       msg.style.display = 'block';
       msg.style.color = '#10b981';
-      msg.innerHTML = '<i class="fa-solid fa-circle-check"></i> Cupom <strong>' + escapeHTML(codigo) + '</strong> aplicado! Você economiza R$ ' + (data.desconto || 0).toFixed(2).replace('.', ',');
+      msg.innerHTML = '<i class="fa-solid fa-circle-check"></i> Cupom <strong>' + escapeHTML(codigo) + '</strong> aplicado! Você economiza R$ ' + brl(data.desconto || 0);
 
       var valorFinal = data.valorFinal || 0;
+      if (abaCheckout === 'cartao') dadosCheckout.valorCartaoFinal = valorFinal;
+      else dadosCheckout.valorPixFinal = valorFinal;
 
       if (valorFinal === 0) {
         document.getElementById('bloco-cupom').innerHTML =
@@ -1113,6 +1207,10 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
           '</div>';
 
         document.getElementById('tab-pix').style.display = 'none';
+        var tabCard = document.getElementById('tab-cartao');
+        if (tabCard) tabCard.style.display = 'none';
+        var tabs = document.querySelector('.checkout-tabs');
+        if (tabs) tabs.style.display = 'none';
         document.querySelector('.checkout-valor').innerHTML = 'R$ <span id="checkout-valor">0,00</span>';
 
         setTimeout(async function() {
@@ -1124,7 +1222,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
                 nome: dadosCheckout.nome,
                 cpf: document.getElementById('cpf').value.trim(),
                 whatsapp: document.getElementById('whatsapp').value.trim(),
-                plano: dadosCheckout.plano,
+                plano: 'cadastro',
                 cuidadorId: dadosCheckout.recordId,
                 cupomCodigo: codigo
               })
@@ -1141,30 +1239,29 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
         }, 1500);
 
       } else {
-        var valorFmt = valorFinal.toFixed(2).replace('.', ',');
-        document.getElementById('checkout-valor').textContent = valorFmt;
-        dadosCheckout.precoBaseFmt = valorFmt;
-
-        var regenerou = await regenerarPixComCupom();
-        if (!regenerou) {
-          msg.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Erro ao atualizar QR Code. Toque em "Aplicar" de novo.';
-          msg.style.color = '#d97706';
-          btn.disabled = false;
-          btn.textContent = 'Aplicar';
-          return;
+        mostrarValorCheckout();
+        if (abaCheckout === 'pix') {
+          var regenerou = await regenerarPixComCupom();
+          if (!regenerou) {
+            msg.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Erro ao atualizar QR Code. Toque em "Aplicar" de novo.';
+            msg.style.color = '#d97706';
+            if (btn) { btn.disabled = false; btn.textContent = 'Aplicar'; }
+            return;
+          }
         }
       }
 
-      btn.disabled = false;
-      btn.textContent = 'Aplicado';
-      btn.style.background = '#10b981';
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = 'Aplicado';
+        btn.style.background = '#10b981';
+      }
     } catch (err) {
       console.error('Erro aplicar cupom:', err);
       msg.style.display = 'block';
       msg.style.color = '#ef4444';
       msg.textContent = 'Erro de rede. Tente novamente.';
-      btn.disabled = false;
-      btn.textContent = 'Aplicar';
+      if (btn) { btn.disabled = false; btn.textContent = 'Aplicar'; }
     }
   };
 
@@ -1182,7 +1279,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
           nome: dadosCheckout.nome,
           cpf: document.getElementById('cpf').value.trim(),
           whatsapp: document.getElementById('whatsapp').value.trim(),
-          plano: dadosCheckout.plano,
+          plano: 'cadastro',
           cuidadorId: dadosCheckout.recordId,
           cupomCodigo: cupomAplicado,
           formaPagamento: 'PIX'
@@ -1303,48 +1400,44 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       document.body.style.overflow = 'hidden';
       document.getElementById('checkout-loading').style.display = 'none';
       document.getElementById('checkout-erro').style.display = 'none';
-      if (!pollingTimer && !dadosCheckout.pago) iniciarPollingPagamento();
+      if (!pollingTimer && !dadosCheckout.pago && abaCheckout === 'pix') iniciarPollingPagamento();
       return;
     }
 
     dadosCheckout = {
       recordId: recordId,
-      plano: planoParam,
+      plano: 'cadastro',
       nome: nomeParam,
       cpf: document.getElementById('cpf').value.trim(),
       cobrancaId: null,
       pixData: null,
       pago: false,
-      precoBaseFmt: '9,90',
-      periodo: '/mês'
+      precoPix: 79.9,
+      precoCartao: 119.9,
+      valorPixFinal: 79.9,
+      valorCartaoFinal: 119.9
     };
 
     cupomAplicado = null;
-
-    var nomePlano = planoParam === 'cadastro' ? 'Cadastro Básico'
-                  : planoParam === 'destaque' ? 'Destaque'
-                  : 'Profissional';
-    document.getElementById('checkout-plano-nome').textContent = 'Plano ' + nomePlano + ' Afeto';
-
-    document.querySelector('.checkout-valor').innerHTML = 'R$ <span id="checkout-valor">...</span><small id="checkout-periodo">/mês</small>';
-
-    var precoFmt = planoParam === 'cadastro' ? '9,90'
-                 : planoParam === 'destaque' ? '39,90'
-                 : '24,90';
+    abaCheckout = 'pix';
+    document.getElementById('checkout-plano-nome').textContent = 'Plano Essencial Afeto — 12 meses';
 
     try {
       var cr = await fetch('/api/config-publica');
       var cd = await cr.json();
       if (cd && cd.ok && cd.precos) {
-        var chave = planoParam === 'cadastro' ? 'preco_cadastro'
-                  : planoParam === 'destaque' ? 'preco_destaque'
-                  : 'preco_profissional';
-        if (cd.precos[chave]) precoFmt = cd.precos[chave].toFixed(2).replace('.', ',');
+        if (cd.precos.preco_cadastro) {
+          dadosCheckout.precoPix = cd.precos.preco_cadastro;
+          dadosCheckout.valorPixFinal = cd.precos.preco_cadastro;
+        }
+        if (cd.precos.preco_cadastro_cartao) {
+          dadosCheckout.precoCartao = cd.precos.preco_cadastro_cartao;
+          dadosCheckout.valorCartaoFinal = cd.precos.preco_cadastro_cartao;
+        }
       }
     } catch (e) {}
 
-    dadosCheckout.precoBaseFmt = precoFmt;
-    document.getElementById('checkout-valor').textContent = precoFmt;
+    window.trocarAbaCheckout('pix');
 
     document.getElementById('pix-qrcode').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><p>Gerando QR Code...</p>';
     document.getElementById('checkout-loading').style.display = 'block';
@@ -1353,6 +1446,49 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     document.body.style.overflow = 'hidden';
 
     gerarPix().then(function() { iniciarPollingPagamento(); });
+  };
+
+  window.irParaCartaoAsaas = async function() {
+    var btn = document.getElementById('btn-ir-asaas');
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Abrindo Asaas...';
+    }
+    try {
+      var sel = document.getElementById('checkout-parcelas');
+      var resp = await fetch('/api/asaas/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nome: dadosCheckout.nome,
+          cpf: document.getElementById('cpf').value.trim(),
+          whatsapp: document.getElementById('whatsapp').value.trim(),
+          plano: 'cadastro',
+          cuidadorId: dadosCheckout.recordId,
+          cupomCodigo: cupomAplicado || undefined,
+          formaPagamento: 'CREDIT_CARD',
+          parcelas: sel ? sel.value : 12
+        })
+      });
+      var data = await resp.json();
+      if (data.gratis) {
+        dadosCheckout.pago = true;
+        document.getElementById('tela-checkout').classList.remove('ativo');
+        document.body.style.overflow = '';
+        mostrarSucesso(true, data.cupom);
+        return;
+      }
+      if (!resp.ok || !data.ok || !data.link) {
+        throw new Error((data && data.error) || 'Não foi possível abrir o Asaas.');
+      }
+      window.location.href = data.link;
+    } catch (err) {
+      alert(err.message || 'Não foi possível abrir o pagamento no cartão.');
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-lock"></i> Ir para o Asaas';
+      }
+    }
   };
 
   window.fecharCheckout = function() {
@@ -1383,7 +1519,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
           nome: dadosCheckout.nome,
           cpf: document.getElementById('cpf').value.trim(),
           whatsapp: document.getElementById('whatsapp').value.trim(),
-          plano: dadosCheckout.plano,
+          plano: 'cadastro',
           cuidadorId: dadosCheckout.recordId,
           cupomCodigo: cupomAplicado || undefined,
           formaPagamento: 'PIX'
@@ -1499,7 +1635,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       document.querySelectorAll('#subespecialidades input:checked').forEach(function(cb) { subs.push(cb.value); });
       dados.append('subespecialidades', subs.join(' | '));
       dados.set('cursos', coletarCursos().join('\n'));
-      dados.append('plano', plano);
+      dados.append('plano', 'cadastro');
       dados.append('origem', 'cadastro');
 
       var envio = fetch('/api/cadastro', { method: 'POST', body: dados })
@@ -1567,7 +1703,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       }
 
       var nomeCuidadora = document.getElementById('nome').value.trim();
-      abrirCheckout(resultado.data.recordId, plano, nomeCuidadora);
+      abrirCheckout(resultado.data.recordId, 'cadastro', nomeCuidadora);
       return;
     } catch (err) {
       btnEnviar.disabled = false;
@@ -1575,6 +1711,22 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       enviando = false;
     }
   });
+
+  var pagRetorno = params.get('pagamento');
+  if (pagRetorno === 'cartao_ok') {
+    mostrarSucesso(false, null);
+    if (tituloSucesso) tituloSucesso.textContent = 'Pagamento no cartão enviado 💜';
+    if (textoSucesso) textoSucesso.innerHTML = 'Se o Asaas confirmou, seu Essencial anual já está a caminho. Entre no painel — em instantes o status atualiza sozinho.';
+  } else if (pagRetorno === 'cartao_cancelado') {
+    alert('Pagamento no cartão cancelado. Você pode concluir pelo Pix ou abrir o Asaas de novo.');
+  } else if (pagRetorno === 'cartao_expirado') {
+    alert('O link do Asaas expirou. Envie o cadastro de novo ou pague no Pix.');
+  }
+  if (pagRetorno && window.history && window.history.replaceState) {
+    params.delete('pagamento');
+    var novaQs = params.toString();
+    window.history.replaceState({}, '', window.location.pathname + (novaQs ? '?' + novaQs : ''));
+  }
 })();
 </script>
 <style>

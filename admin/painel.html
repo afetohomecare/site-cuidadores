@@ -1040,7 +1040,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
     var msg = t.mensagem
       .replace(/\{\{nome\}\}/g, primeiroNome(c.nome))
       .replace(/\{\{link\}\}/g, hrefPerfilPublico(c))
-      .replace(/\{\{plano\}\}/g, c.plano_destaque ? 'Destaque' : c.plano_profissional ? 'Profissional' : 'Grátis')
+      .replace(/\{\{plano\}\}/g, c.plano_destaque ? 'Destaque' : c.plano_profissional ? 'Profissional' : 'Essencial')
       .replace(/\{\{dias\}\}/g, diasRestantes)
       .replace(/\{\{link_pagamento\}\}/g, 'https://wa.me/5541997674866');
 
@@ -1278,7 +1278,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
         '<div class="modal-detalhes-grid">' +
           '<div class="modal-detalhes-item"><div class="label">Status</div><div class="valor">' + fmtValor(c.status_pagamento) + '</div></div>' +
           '<div class="modal-detalhes-item"><div class="label">Plano</div><div class="valor">' +
-            (c.plano_destaque ? 'Destaque' : c.plano_profissional ? 'Profissional' : c.plano_cadastro ? 'Cadastro Básico' : 'Grátis') +
+            (c.plano_destaque ? 'Destaque' : c.plano_profissional ? 'Profissional' : c.plano_cadastro ? 'Essencial' : 'Grátis') +
           '</div></div>' +
           '<div class="modal-detalhes-item"><div class="label">Válido até</div><div class="valor">' + fmtData(c.plano_valido_ate) + '</div></div>' +
           '<div class="modal-detalhes-item"><div class="label">Próxima cobrança</div><div class="valor">' + fmtData(c.proxima_cobranca) + '</div></div>' +

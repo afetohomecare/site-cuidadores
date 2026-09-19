@@ -7,6 +7,7 @@
 // ============================================================
 
 import { idSeguro } from '../../_lib/auth.js';
+import { dataValidadePlano } from '../../_lib/planos.js';
 
 function getWebhookToken(env) {
   const ambiente = (env.ASAAS_AMBIENTE || 'producao').toLowerCase();
@@ -101,7 +102,7 @@ export async function onRequestPost(context) {
         console.warn('Erro ao ler cuidador:', err);
       }
 
-      let planoDetectado = 'profissional';
+      let planoDetectado = 'cadastro';
       if (cuidador) {
         if (cuidador.plano_cadastro) planoDetectado = 'cadastro';
         else if (cuidador.plano_destaque) planoDetectado = 'destaque';
@@ -109,15 +110,19 @@ export async function onRequestPost(context) {
       }
 
       const agora = new Date();
-      const vence = new Date(agora);
-      vence.setDate(vence.getDate() + 30);
+      const nParcela = parseInt(payment.installmentNumber, 10);
+      const ehParcelaSeguinte = !!(payment.installment && nParcela > 1);
 
       const patchBody = {
-        status_pagamento: 'Pago',
-        plano_inicio: agora.toISOString(),
-        plano_valido_ate: vence.toISOString(),
-        proxima_cobranca: vence.toISOString()
+        status_pagamento: 'Pago'
       };
+
+      if (!ehParcelaSeguinte) {
+        const vence = dataValidadePlano(planoDetectado, agora);
+        patchBody.plano_inicio = agora.toISOString();
+        patchBody.plano_valido_ate = vence.toISOString();
+        patchBody.proxima_cobranca = vence.toISOString();
+      }
 
       if (payment.subscription) {
         patchBody.asaas_subscription_id = String(payment.subscription);

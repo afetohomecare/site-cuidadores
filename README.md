@@ -39,7 +39,7 @@ O Cloudflare publica a pasta inteira. **Não mova os HTML da raiz** sem atualiza
 
 ## Vitrine
 
-Só entram profissionais **aprovadas**, com **pagamento em dia**, plano **Profissional ou Destaque** e data de validade futura. Cadastro básico não aparece na lista.
+Só entram profissionais **aprovadas**, com **pagamento em dia**, extra **Profissional ou Destaque** e data de validade futura. O Essencial cria perfil e painel, mas **não** entra na lista da home.
 
 ## Link do perfil (slug)
 
@@ -52,7 +52,9 @@ O UUID interno da cuidadora **não muda**. O link público prefere um slug legí
 
 ## Pagamentos
 
-- **Cadastro:** só Pix (QR + copia-e-cola). Cartão **não** é digitado no domínio da Afeto.
-- **Painel → Meu plano:** Pix de regularização; cartão opcional em **página hospedada do Asaas** (Checkout `CREDIT_CARD` + `RECURRENT`).
-- Retorno do Asaas: `painel.html?pagamento=cartao_ok` | `cartao_cancelado` | `cartao_expirado`.
-- Quem está irregular (Inadimplente, Estornado, não Pago ou plano vencido) vê os dois botões no painel. Quem está em dia pode só cadastrar o cartão para as próximas cobranças.
+- **Essencial** é anual: cria perfil + painel. Pix (preço `preco_cadastro`, padrão 79,90) ou cartão (`preco_cadastro_cartao`, padrão 119,90) em até 12x.
+- **Cadastro:** Pix no site; cartão só na **página hospedada do Asaas**. Ela escolhe as parcelas **antes** de abrir o link. O cupom já vai no valor.
+- **Painel → Meu plano:** mesma lógica para regularizar/renovar o anual.
+- Retorno do Asaas: `cadastro.html` ou `painel.html` com `?pagamento=cartao_ok` | `cartao_cancelado` | `cartao_expirado`.
+- **Profissional e Destaque** são extras (não criam perfil sozinhos).
+- Para criar a chave do cartão no Supabase: `supabase/add-preco-essencial-cartao.sql` (ou salve o preço no admin).

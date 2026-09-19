@@ -44,8 +44,8 @@ function headersSupabase(env, temBody, querRetorno) {
 }
 
 var CHAVES_PERMITIDAS = [
-  'preco_cadastro', 'preco_profissional', 'preco_destaque',
-  'preco_cadastro_pos', 'preco_prof_pos', 'preco_destaque_pos',
+  'preco_cadastro', 'preco_cadastro_cartao', 'preco_profissional', 'preco_destaque',
+  'preco_cadastro_pos', 'preco_cadastro_cartao_pos', 'preco_prof_pos', 'preco_destaque_pos',
   'vagas_fundadora', 'texto_banner_home', 'whatsapp_afeto'
 ];
 
@@ -88,10 +88,24 @@ export async function onRequestPatch(context) {
         env.SUPABASE_URL + '/rest/v1/config?chave=eq.' + encodeURIComponent(chave),
         {
           method: 'PATCH',
-          headers: headersSupabase(env, true, false),
+          headers: Object.assign({}, headersSupabase(env, true, true), {
+            'Prefer': 'return=representation'
+          }),
           body: JSON.stringify({ valor: valor })
         }
       );
+      var atualizados = [];
+      try { atualizados = await resp.json(); } catch (e) { atualizados = []; }
+      if (!resp.ok || !atualizados || atualizados.length === 0) {
+        resp = await fetch(
+          env.SUPABASE_URL + '/rest/v1/config',
+          {
+            method: 'POST',
+            headers: headersSupabase(env, true, false),
+            body: JSON.stringify({ chave: chave, valor: valor })
+          }
+        );
+      }
       resultados.push({ chave: chave, ok: resp.ok });
     }
 

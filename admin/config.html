@@ -157,21 +157,27 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
       '</div>' +
       '<div class="painel-section">' +
         '<h2><i class="fa-solid fa-dollar-sign"></i> Preços atuais (Fundadora)</h2>' +
-        '<p class="desc">Válidos para as primeiras ' + val('vagas_fundadora') + ' cuidadoras.</p>' +
+        '<p class="desc">Válidos para as primeiras ' + val('vagas_fundadora') + ' cuidadoras. Essencial é anual (perfil + painel). Profissional e Destaque são extras.</p>' +
         '<div class="campo-linha">' +
-          '<div class="campo"><label>Taxa de ativação</label><div class="prefixo"><span>R$</span><input type="number" id="preco_cadastro" step="0.01" min="0" value="' + val('preco_cadastro') + '"></div></div>' +
-          '<div class="campo"><label>Plano Profissional</label><div class="prefixo"><span>R$</span><input type="number" id="preco_profissional" step="0.01" min="0" value="' + val('preco_profissional') + '"></div><div class="ajuda">Cobrado mensalmente</div></div>' +
+          '<div class="campo"><label>Essencial anual no Pix</label><div class="prefixo"><span>R$</span><input type="number" id="preco_cadastro" step="0.01" min="0" value="' + val('preco_cadastro') + '"></div><div class="ajuda">Hoje costuma ser 79,90 — você muda quando quiser</div></div>' +
+          '<div class="campo"><label>Essencial anual no cartão</label><div class="prefixo"><span>R$</span><input type="number" id="preco_cadastro_cartao" step="0.01" min="0" value="' + val('preco_cadastro_cartao') + '"></div><div class="ajuda">Parcelável em até 12x no Asaas</div></div>' +
         '</div>' +
-        '<div class="campo"><label>Plano Destaque</label><div class="prefixo"><span>R$</span><input type="number" id="preco_destaque" step="0.01" min="0" value="' + val('preco_destaque') + '"></div><div class="ajuda">Cobrado mensalmente</div></div>' +
+        '<div class="campo-linha">' +
+          '<div class="campo"><label>Extra Profissional</label><div class="prefixo"><span>R$</span><input type="number" id="preco_profissional" step="0.01" min="0" value="' + val('preco_profissional') + '"></div><div class="ajuda">Não cria perfil sozinho</div></div>' +
+          '<div class="campo"><label>Extra Destaque</label><div class="prefixo"><span>R$</span><input type="number" id="preco_destaque" step="0.01" min="0" value="' + val('preco_destaque') + '"></div><div class="ajuda">Não cria perfil sozinho</div></div>' +
+        '</div>' +
       '</div>' +
       '<div class="painel-section">' +
         '<h2><i class="fa-solid fa-arrow-up"></i> Preços pós-fundadora</h2>' +
-        '<p class="desc">Aplicados após as ' + val('vagas_fundadora') + ' primeiras vagas.</p>' +
+        '<p class="desc">Aplicados após as ' + val('vagas_fundadora') + ' primeiras vagas. O valor “cheio” também aparece riscado na vitrine.</p>' +
         '<div class="campo-linha">' +
-          '<div class="campo"><label>Taxa de ativação</label><div class="prefixo"><span>R$</span><input type="number" id="preco_cadastro_pos" step="0.01" min="0" value="' + val('preco_cadastro_pos') + '"></div></div>' +
-          '<div class="campo"><label>Plano Profissional</label><div class="prefixo"><span>R$</span><input type="number" id="preco_prof_pos" step="0.01" min="0" value="' + val('preco_prof_pos') + '"></div></div>' +
+          '<div class="campo"><label>Essencial Pix (cheio)</label><div class="prefixo"><span>R$</span><input type="number" id="preco_cadastro_pos" step="0.01" min="0" value="' + val('preco_cadastro_pos') + '"></div></div>' +
+          '<div class="campo"><label>Essencial cartão (cheio)</label><div class="prefixo"><span>R$</span><input type="number" id="preco_cadastro_cartao_pos" step="0.01" min="0" value="' + val('preco_cadastro_cartao_pos') + '"></div></div>' +
         '</div>' +
-        '<div class="campo"><label>Plano Destaque</label><div class="prefixo"><span>R$</span><input type="number" id="preco_destaque_pos" step="0.01" min="0" value="' + val('preco_destaque_pos') + '"></div></div>' +
+        '<div class="campo-linha">' +
+          '<div class="campo"><label>Extra Profissional</label><div class="prefixo"><span>R$</span><input type="number" id="preco_prof_pos" step="0.01" min="0" value="' + val('preco_prof_pos') + '"></div></div>' +
+          '<div class="campo"><label>Extra Destaque</label><div class="prefixo"><span>R$</span><input type="number" id="preco_destaque_pos" step="0.01" min="0" value="' + val('preco_destaque_pos') + '"></div></div>' +
+        '</div>' +
       '</div>' +
       '<div class="painel-section">' +
         '<h2><i class="fa-solid fa-bullhorn"></i> Informações do site</h2>' +
@@ -187,7 +193,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
     btn.disabled = true;
     btn.innerHTML = 'Salvando... <i class="fa-solid fa-spinner fa-spin"></i>';
     var valores = {};
-    ['preco_cadastro', 'preco_profissional', 'preco_destaque', 'preco_cadastro_pos', 'preco_prof_pos', 'preco_destaque_pos', 'vagas_fundadora', 'texto_banner_home', 'whatsapp_afeto'].forEach(function(id) {
+    ['preco_cadastro', 'preco_cadastro_cartao', 'preco_profissional', 'preco_destaque', 'preco_cadastro_pos', 'preco_cadastro_cartao_pos', 'preco_prof_pos', 'preco_destaque_pos', 'vagas_fundadora', 'texto_banner_home', 'whatsapp_afeto'].forEach(function(id) {
       var el = document.getElementById(id);
       if (el) valores[id] = el.value.trim();
     });

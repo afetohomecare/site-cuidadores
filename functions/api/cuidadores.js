@@ -1,6 +1,6 @@
 // API pública da vitrine + perfil por link.
 // GET sem id → lista (só Profissional/Destaque)
-// GET ?id= → um perfil (inclui Cadastro Básico, se pago e aprovado)
+// GET ?id= → um perfil (inclui Essencial, se pago e aprovado)
 
 import { jsonResp, metodoNaoPermitido } from '../_lib/http.js';
 import { headersSupabase, supabaseOk } from '../_lib/supabase.js';

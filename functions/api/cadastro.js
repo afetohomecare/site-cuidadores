@@ -84,15 +84,11 @@ export async function onRequest(context) {
       }
     }
 
-    // ---------- STATUS INICIAL PELO PLANO ----------
+    // Essencial anual cria perfil + painel. Profissional e Destaque são extras depois.
     let statusPagamento   = 'AguardandoPagamento';
-    let planoCadastro     = false;
+    let planoCadastro     = true;
     let planoProfissional = false;
     let planoDestaque     = false;
-
-    if (plano === 'profissional') planoProfissional = true;
-    else if (plano === 'destaque') planoDestaque = true;
-    else planoCadastro = true;
 
     // ---------- MONTA O OBJETO ----------
     const bairrosArray = bairrosStr
@@ -519,9 +515,9 @@ async function notificarTelegram(env, dados) {
       hour: '2-digit', minute: '2-digit'
     });
 
-    const planoTexto = dados.plano === 'cadastro' ? 'Cadastro Básico'
-                     : dados.plano === 'profissional' ? 'Profissional'
-                     : dados.plano === 'destaque' ? 'Destaque' : dados.plano;
+    const planoTexto = dados.plano === 'cadastro' || dados.plano === 'essencial' ? 'Essencial'
+                     : dados.plano === 'profissional' ? 'Profissional (extra)'
+                     : dados.plano === 'destaque' ? 'Destaque (extra)' : dados.plano;
 
     let msg = '*' + dados.titulo + '*\n\n';
     if (dados.nome) msg += '👤 *Nome:* ' + dados.nome + '\n';

@@ -17,7 +17,7 @@ export async function validarCupom(env, codigo, plano, valorBase, cpfLimpo) {
   if (cupom.usos_maximos && cupom.usos_atuais >= cupom.usos_maximos) return { ok: false, erro: 'Cupom esgotado' };
 
   if (cupom.plano_aplicavel && cupom.plano_aplicavel !== plano) {
-    const nomes = { cadastro: 'Cadastro Básico', profissional: 'Profissional', destaque: 'Destaque' };
+    const nomes = { cadastro: 'Essencial', profissional: 'Profissional', destaque: 'Destaque' };
     return { ok: false, erro: 'Este cupom só vale pro plano ' + (nomes[cupom.plano_aplicavel] || cupom.plano_aplicavel) };
   }
 
