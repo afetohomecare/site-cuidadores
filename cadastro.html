@@ -1223,6 +1223,9 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     container.innerHTML = '';
     var amount = pix ? dadosCheckout.valorPixFinal : dadosCheckout.valorCartaoFinal;
     if (!amount || amount <= 0) return;
+    var idPagamento = String(dadosCheckout.recordId || 'afeto')
+      .replace(/[^a-zA-Z0-9]/g, '')
+      .slice(0, 24);
 
     var paymentMethods = pix
       ? { bankTransfer: ['pix'] }
@@ -1231,6 +1234,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       initialization: {
         amount: Number(amount),
         payer: {
+          email: 'pagamento.' + idPagamento + '@afeto.app',
           identification: {
             type: 'CPF',
             number: String(document.getElementById('cpf').value || '').replace(/\D/g, '')

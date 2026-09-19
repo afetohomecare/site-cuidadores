@@ -59,10 +59,10 @@ export function gatewayAtivo(env) {
 }
 
 export function emailPagador(cpfLimpo, cuidadorId) {
+  const id = String(cuidadorId || '').replace(/[^a-zA-Z0-9]/g, '').slice(0, 24);
+  if (id) return 'pagamento.' + id + '@afeto.app';
   const cpf = String(cpfLimpo || '').replace(/\D/g, '');
-  if (cpf.length === 11) return cpf + '@afeto.app';
-  const id = String(cuidadorId || 'cliente').replace(/[^a-zA-Z0-9]/g, '').slice(0, 18);
-  return 'cuidadora.' + (id || 'afeto') + '@afeto.app';
+  return 'pagamento.' + (cpf || 'afeto') + '@afeto.app';
 }
 
 export async function patchCuidador(env, cuidadorId, body) {

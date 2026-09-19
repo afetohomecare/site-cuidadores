@@ -135,10 +135,8 @@ export async function onRequestPost(context) {
     const gateway = gatewayAtivo(env);
     if (gateway === 'mercadopago') {
       const emailPagamento = String(body.email || '').trim().toLowerCase();
-      if (emailPagamento.length > 254 ||
-          !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailPagamento)) {
-        return jsonResp({ error: 'Informe um e-mail válido para o pagamento.' }, 400);
-      }
+      const emailValido = emailPagamento.length <= 254 &&
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailPagamento);
       if (acao === 'pix') {
         const produto = extraDestaque ? 'destaque_extra' : '';
         const existente = await buscarPixPendenteMp(env, c.id, plano, produto, valor);
@@ -182,7 +180,7 @@ export async function onRequestPost(context) {
           nomePlano: extraDestaque ? 'Destaque extra' : nomeDoPlanoBonito(plano),
           plano: plano,
           forma: 'PIX',
-          formData: { email: emailPagamento },
+          formData: emailValido ? { email: emailPagamento } : {},
           extra: extraDestaque,
           tipo: planoEhEssencial(plano) ? 'avulso' : 'mensal_manual'
         });
@@ -206,6 +204,9 @@ export async function onRequestPost(context) {
       const recorrente = extraDestaque
         ? acao === 'cartao'
         : (!planoEhEssencial(plano) && acao === 'cartao');
+      if (recorrente && !emailValido) {
+        return jsonResp({ error: 'Informe um e-mail válido para criar a assinatura.' }, 400);
+      }
       const mp = getMpConfig(env);
       const ordemCheckout = await criarOrdemMp(env, {
         cuidadorId: c.id,
@@ -234,7 +235,7 @@ export async function onRequestPost(context) {
         paginaRetorno: 'painel.html',
         cuidadorId: c.id,
         nome: c.nome,
-        email: emailPagamento || undefined,
+        email: emailValido ? emailPagamento : undefined,
         cpfLimpo: cpfLimpo,
         whatsLimpo: whatsLimpo,
         valor: valor,
