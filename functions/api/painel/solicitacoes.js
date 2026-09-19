@@ -1,5 +1,5 @@
 import { jsonResp } from '../../_lib/http.js';
-import { headersSupabase, supabaseOk } from '../../_lib/supabase.js';
+import { headersSupabase, supabaseOk, tabelaAusente, colunaAusente } from '../../_lib/supabase.js';
 import { validarCuidadora } from '../../_lib/auth.js';
 
 function primeiroNome(nome) {
@@ -25,6 +25,12 @@ export async function onRequestGet(context) {
       { headers: headersSupabase(env) }
     );
     if (!visResp.ok) {
+      const visTxt = await visResp.text();
+      console.error('Erro listar solicitacoes_visiveis:', visResp.status, visTxt);
+      if (tabelaAusente(visTxt) || colunaAusente(visTxt)) {
+        console.error('Painel: rode sql/solicitacoes_atendimento.sql no SQL Editor do Supabase.');
+        return jsonResp({ ok: true, solicitacoes: [] }, 200);
+      }
       return jsonResp({ error: 'Falha ao listar solicitações.' }, 502);
     }
     const visiveis = await visResp.json();
@@ -40,6 +46,12 @@ export async function onRequestGet(context) {
       { headers: headersSupabase(env) }
     );
     if (!listaResp.ok) {
+      const listaTxt = await listaResp.text();
+      console.error('Erro listar solicitacoes_atendimento:', listaResp.status, listaTxt);
+      if (tabelaAusente(listaTxt) || colunaAusente(listaTxt)) {
+        console.error('Painel: rode sql/solicitacoes_atendimento.sql no SQL Editor do Supabase.');
+        return jsonResp({ ok: true, solicitacoes: [] }, 200);
+      }
       return jsonResp({ error: 'Falha ao carregar pedidos.' }, 502);
     }
     const linhas = await listaResp.json();

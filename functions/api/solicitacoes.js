@@ -1,5 +1,11 @@
 import { jsonResp } from '../_lib/http.js';
-import { headersSupabase, supabaseOk } from '../_lib/supabase.js';
+import {
+  headersSupabase,
+  supabaseOk,
+  tabelaAusente,
+  colunaAusente,
+  nomeColunaAusente
+} from '../_lib/supabase.js';
 import { ehUuid, filtroPerfilPorRef, refPerfilSegura } from '../_lib/slug.js';
 import { HABILIDADES, BAIRROS, MIN_HORAS_DIA, MAX_PERIODOS, TEXTO_SUGESTAO_CUIDADOS } from '../_lib/catalogo.js';
 import { verificarTurnstile, ipDoPedido, hashIp } from '../_lib/turnstile.js';
@@ -57,23 +63,50 @@ function validarPeriodos(lista) {
   return { ok: true, periodos: limpos };
 }
 
-function colunaAusente(texto) {
+const MSG_NAO_CONFIGURADO = 'O pedido de atendimento ainda não está configurado. Tente de novo em instantes.';
+const MSG_FALHA_ENVIO = 'Não foi possível enviar agora. Tente de novo em instantes.';
+const SQL_SOLICITACOES = 'sql/solicitacoes_atendimento.sql';
+
+const SELECTS_PERFIL = [
+  'id,nome,whatsapp,whatsapp_agencia',
+  'id,nome,whatsapp'
+];
+
+const COLUNAS_INSERT_OPCIONAIS = [
+  'ip_hash',
+  'info_paciente',
+  'paciente_sexo',
+  'paciente_idade',
+  'encaminhar_outras',
+  'periodos',
+  'email',
+  'complemento'
+];
+
+function logErroSupabase(contexto, status, txt) {
+  console.error(contexto, status, txt);
+  if (tabelaAusente(txt)) {
+    console.error(
+      'Causa: tabela ausente no Supabase. Rode ' + SQL_SOLICITACOES + ' no SQL Editor.'
+    );
+  } else if (colunaAusente(txt)) {
+    const col = nomeColunaAusente(txt);
+    console.error(
+      'Causa: coluna ausente' + (col ? ' (' + col + ')' : '') +
+      '. Rode ' + SQL_SOLICITACOES + ' (ou o ALTER correspondente) no SQL Editor.'
+    );
+  }
+}
+
+function slugColunaAusenteNoFiltro(ref, texto) {
+  if (ehUuid(ref)) return false;
   const t = String(texto || '').toLowerCase();
-  return t.indexOf('does not exist') !== -1
-    || t.indexOf('schema cache') !== -1
-    || t.indexOf('column') !== -1
-    || t.indexOf('42703') !== -1
-    || t.indexOf('pgrst204') !== -1;
+  return colunaAusente(t) && t.indexOf('slug') !== -1;
 }
 
 async function buscarPerfilAtivo(env, ref) {
   const hoje = new Date().toISOString();
-  const selects = [
-    'id,nome,whatsapp,whatsapp_agencia',
-    'id,nome,whatsapp'
-  ];
-  const filtros = [
-    filtroPerfilPorRef(ref),
+  const filtrosBase = [
     'aprovada=eq.true',
     'status_pagamento=eq.Pago',
     'plano_valido_ate=gte.' + hoje,
@@ -82,16 +115,77 @@ async function buscarPerfilAtivo(env, ref) {
 
   let ultimoStatus = 0;
   let ultimoTxt = '';
-  for (let i = 0; i < selects.length; i++) {
+
+  for (let i = 0; i < SELECTS_PERFIL.length; i++) {
     const resp = await fetch(
       env.SUPABASE_URL + '/rest/v1/cuidadores?' +
-      filtros.concat(['select=' + selects[i]]).join('&'),
+      [filtroPerfilPorRef(ref)].concat(filtrosBase).concat(['select=' + SELECTS_PERFIL[i]]).join('&'),
       { headers: headersSupabase(env) }
     );
     if (resp.ok) return { ok: true, resp: resp };
+
     ultimoStatus = resp.status;
     ultimoTxt = await resp.text();
+
+    if (slugColunaAusenteNoFiltro(ref, ultimoTxt)) {
+      return {
+        ok: false,
+        perfilInexistente: true,
+        slugColunaAusente: true,
+        status: ultimoStatus,
+        txt: ultimoTxt
+      };
+    }
     if (!colunaAusente(ultimoTxt)) break;
+  }
+
+  return { ok: false, status: ultimoStatus, txt: ultimoTxt };
+}
+
+async function inserirSolicitacao(env, payload) {
+  const body = Object.assign({}, payload);
+  let ultimoStatus = 0;
+  let ultimoTxt = '';
+
+  for (let tentativa = 0; tentativa < COLUNAS_INSERT_OPCIONAIS.length + 2; tentativa++) {
+    const resp = await fetch(env.SUPABASE_URL + '/rest/v1/solicitacoes_atendimento', {
+      method: 'POST',
+      headers: headersSupabase(env, true, true),
+      body: JSON.stringify(body)
+    });
+    if (resp.ok) return { ok: true, resp: resp };
+
+    ultimoStatus = resp.status;
+    ultimoTxt = await resp.text();
+    logErroSupabase('Erro insert solicitação:', ultimoStatus, ultimoTxt);
+
+    if (tabelaAusente(ultimoTxt)) {
+      return { ok: false, tabelaAusente: true, status: ultimoStatus, txt: ultimoTxt };
+    }
+    if (!colunaAusente(ultimoTxt)) {
+      return { ok: false, status: ultimoStatus, txt: ultimoTxt };
+    }
+
+    const col = nomeColunaAusente(ultimoTxt);
+    if (col && Object.prototype.hasOwnProperty.call(body, col)) {
+      console.warn('Insert: tentando de novo sem a coluna', col);
+      delete body[col];
+      continue;
+    }
+
+    let removida = false;
+    for (let i = 0; i < COLUNAS_INSERT_OPCIONAIS.length; i++) {
+      const k = COLUNAS_INSERT_OPCIONAIS[i];
+      if (Object.prototype.hasOwnProperty.call(body, k)) {
+        console.warn('Insert: tentando de novo sem a coluna (fallback)', k);
+        delete body[k];
+        removida = true;
+        break;
+      }
+    }
+    if (!removida) {
+      return { ok: false, colunaAusente: true, status: ultimoStatus, txt: ultimoTxt };
+    }
   }
 
   return { ok: false, status: ultimoStatus, txt: ultimoTxt };
@@ -205,15 +299,20 @@ export async function onRequestPost(context) {
       if (recentes && recentes.length >= 3) {
         return jsonResp({ error: 'Aguarde um instante antes de enviar outro pedido.' }, 429);
       }
+    } else {
+      const rateTxt = await rateResp.text();
+      if (tabelaAusente(rateTxt) || colunaAusente(rateTxt)) {
+        logErroSupabase('Rate limit solicitações ignorado (schema):', rateResp.status, rateTxt);
+      }
     }
 
     const perfilBusca = await buscarPerfilAtivo(env, ref);
     if (!perfilBusca.ok) {
-      console.error('Erro buscar perfil solicitação:', perfilBusca.status, perfilBusca.txt);
-      if (!ehUuid(ref) && colunaAusente(perfilBusca.txt)) {
+      logErroSupabase('Erro buscar perfil solicitação:', perfilBusca.status, perfilBusca.txt);
+      if (perfilBusca.perfilInexistente || perfilBusca.slugColunaAusente || (!ehUuid(ref) && colunaAusente(perfilBusca.txt))) {
         return jsonResp({ error: 'Profissional não encontrada.' }, 404);
       }
-      return jsonResp({ error: 'Não foi possível enviar agora. Tente de novo em instantes.' }, 502);
+      return jsonResp({ error: MSG_FALHA_ENVIO }, 502);
     }
     const perfis = await perfilBusca.resp.json();
     const cuidadora = perfis && perfis[0];
@@ -222,38 +321,35 @@ export async function onRequestPost(context) {
     }
     const cuidadorId = cuidadora.id;
 
-    const insertResp = await fetch(env.SUPABASE_URL + '/rest/v1/solicitacoes_atendimento', {
-      method: 'POST',
-      headers: headersSupabase(env, true, true),
-      body: JSON.stringify({
-        cuidador_id: cuidadorId,
-        nome_solicitante: nomeSolicitante,
-        whatsapp: whatsLimpo,
-        email: email || null,
-        bairro: bairro,
-        necessidades: necLimpas,
-        complemento: complemento || null,
-        paciente_primeiro_nome: pacienteNome,
-        paciente_idade: idadeNum,
-        paciente_sexo: pacienteSexo,
-        info_paciente: infoPaciente || null,
-        periodos: agenda.periodos,
-        encaminhar_outras: encaminharOutras,
-        ip_hash: ipHash,
-        status: 'nova'
-      })
+    const insert = await inserirSolicitacao(env, {
+      cuidador_id: cuidadorId,
+      nome_solicitante: nomeSolicitante,
+      whatsapp: whatsLimpo,
+      email: email || null,
+      bairro: bairro,
+      necessidades: necLimpas,
+      complemento: complemento || null,
+      paciente_primeiro_nome: pacienteNome,
+      paciente_idade: idadeNum,
+      paciente_sexo: pacienteSexo,
+      info_paciente: infoPaciente || null,
+      periodos: agenda.periodos,
+      encaminhar_outras: encaminharOutras,
+      ip_hash: ipHash,
+      status: 'nova'
     });
 
-    if (!insertResp.ok) {
-      const txt = await insertResp.text();
-      console.error('Erro insert solicitação:', insertResp.status, txt);
-      return jsonResp({ error: 'Não foi possível enviar agora. Tente de novo em instantes.' }, 502);
+    if (!insert.ok) {
+      if (insert.tabelaAusente || insert.colunaAusente) {
+        return jsonResp({ error: MSG_NAO_CONFIGURADO }, 503);
+      }
+      return jsonResp({ error: MSG_FALHA_ENVIO }, 502);
     }
 
-    const criadas = await insertResp.json();
-    const solicitacao = criadas && criadas[0];
+    const criadas = await insert.resp.json();
+    const solicitacao = Array.isArray(criadas) ? criadas[0] : criadas;
     if (solicitacao && solicitacao.id) {
-      await fetch(env.SUPABASE_URL + '/rest/v1/solicitacoes_visiveis', {
+      const visResp = await fetch(env.SUPABASE_URL + '/rest/v1/solicitacoes_visiveis', {
         method: 'POST',
         headers: headersSupabase(env, true, false),
         body: JSON.stringify({
@@ -262,6 +358,10 @@ export async function onRequestPost(context) {
           via: 'perfil'
         })
       });
+      if (!visResp.ok) {
+        const visTxt = await visResp.text();
+        logErroSupabase('Erro insert solicitacoes_visiveis:', visResp.status, visTxt);
+      }
     }
 
     await notificarTelegram(env, {

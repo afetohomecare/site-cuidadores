@@ -1,5 +1,5 @@
 import { jsonResp } from '../../_lib/http.js';
-import { headersSupabase, supabaseOk } from '../../_lib/supabase.js';
+import { headersSupabase, supabaseOk, tabelaAusente, colunaAusente } from '../../_lib/supabase.js';
 import { validarAdmin, idSeguro } from '../../_lib/auth.js';
 
 function primeiroNome(nome) {
@@ -17,7 +17,15 @@ export async function onRequestGet(context) {
       env.SUPABASE_URL + '/rest/v1/solicitacoes_atendimento?select=id,cuidador_id,nome_solicitante,whatsapp,email,bairro,necessidades,complemento,paciente_primeiro_nome,paciente_idade,paciente_sexo,info_paciente,periodos,encaminhar_outras,status,criado_em&order=criado_em.desc&limit=80',
       { headers: headersSupabase(env) }
     );
-    if (!resp.ok) return jsonResp({ error: 'Falha ao listar.' }, 502);
+    if (!resp.ok) {
+      const txt = await resp.text();
+      console.error('Erro admin listar solicitações:', resp.status, txt);
+      if (tabelaAusente(txt) || colunaAusente(txt)) {
+        console.error('Admin: rode sql/solicitacoes_atendimento.sql no SQL Editor do Supabase.');
+        return jsonResp({ ok: true, pedidos: [] }, 200);
+      }
+      return jsonResp({ error: 'Falha ao listar.' }, 502);
+    }
     const linhas = await resp.json();
     const ids = {};
     (linhas || []).forEach(function (s) { if (s.cuidador_id) ids[s.cuidador_id] = true; });
