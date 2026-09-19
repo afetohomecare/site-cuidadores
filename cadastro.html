@@ -17,13 +17,13 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 
 .wrap { max-width: 640px; margin: 0 auto; width: 100%; flex: 1; }
 
-.header-top { text-align: center; margin-bottom: 35px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.header-top { text-align: center; margin-bottom: 35px; display: flex; flex-direction: column; align-items: center; gap: 16px; width: 100%; padding: 0 4px; }
 .header-top .logo { display: inline-flex; align-items: center; gap: 0.16em; font-weight: 900; font-size: 32px; color: var(--lilas); text-decoration: none; line-height: 1; }
 .header-top .logo svg { width: 1.11em; height: 0.69em; overflow: visible; }
 .header-top .logo svg path { fill: none; stroke: currentColor; stroke-width: 13; stroke-linecap: round; }
-.header-top h1 { font-size: 26px; font-weight: 900; letter-spacing: -0.5px; margin-top: 8px; max-width: 500px; line-height: 1.25; }
+.header-top h1 { font-size: 26px; font-weight: 900; letter-spacing: -0.5px; margin-top: 8px; max-width: 100%; width: 100%; min-width: 0; line-height: 1.3; padding: 0 8px; }
 .header-top h1 span { color: var(--lilas-escuro); }
-.header-top .subtitulo { font-size: 15px; color: var(--cinza-fonte); font-weight: 700; max-width: 480px; line-height: 1.55; }
+.header-top .subtitulo { font-size: 14.5px; color: var(--cinza-fonte); font-weight: 700; max-width: 100%; width: 100%; min-width: 0; line-height: 1.55; padding: 0 10px; }
 
 .badge-plano { display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; padding: 9px 22px; border-radius: 50px; font-size: 13px; font-weight: 900; letter-spacing: 0.5px; box-shadow: 0 10px 25px rgba(139,92,246,0.25); animation: fadeInBadge 0.5s ease; }
 @keyframes fadeInBadge { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
@@ -250,7 +250,8 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 
 @media (max-width: 600px) {
   .form-card { padding: 28px 22px; border-radius: 24px; }
-  .header-top h1 { font-size: 22px; }
+  .header-top h1 { font-size: 22px; padding: 0 6px; }
+  .header-top .subtitulo { font-size: 13.5px; padding: 0 8px; }
   .header-top .logo { font-size: 28px; }
   .checkbox-grid { grid-template-columns: repeat(2, 1fr); }
   .tela-sucesso { padding: 40px 24px; border-radius: 24px; }
@@ -721,9 +722,9 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     }
   }
   if (subtitulo) {
-    subtitulo.textContent = plano === 'cadastro'
-      ? 'Preencha seus dados. No Pix o Essencial sai por R$ 79,90 no ano (fica R$ 6,66 por mês). No cartão: R$ 119,90 por ano em até 12x.'
-      : 'Preencha seus dados. Plano mensal, sem fidelidade: de R$ 79,90 por apenas R$ 49,90 / mês.';
+    subtitulo.innerHTML = plano === 'cadastro'
+      ? 'No Pix: R$ 79,90 no ano — fica R$ 6,66 / mês.<br>No cartão: R$ 119,90 em até 12x.'
+      : 'Mensal, sem fidelidade.<br>De R$ 79,90 por apenas R$ 49,90 / mês.';
   }
   btnEnviar.classList.add('pago');
   btnEnviar.innerHTML = 'Ir para pagamento <i class="fa-solid fa-arrow-right"></i>';
