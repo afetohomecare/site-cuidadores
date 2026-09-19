@@ -118,6 +118,9 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
 .btn-pago:hover:not(:disabled) { background: #10b981; color: white; }
 .btn-whats { background: #25D366; color: white; }
 .btn-whats:hover:not(:disabled) { background: #1da851; }
+.btn-excluir { background: white; color: var(--vermelho); border: 2px solid var(--vermelho); }
+.btn-excluir:hover:not(:disabled) { background: var(--vermelho); color: white; }
+.aviso-exclusao { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 12px 14px; border-radius: 12px; font-size: 13px; font-weight: 700; margin-bottom: 16px; line-height: 1.5; }
 .reset-card { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; background: white; border-radius: 20px; padding: 20px 22px; border: 1px solid #e2e8f0; margin-bottom: 12px; }
 .reset-card:hover { border-color: #c4b5fd; }
 .reset-card .reset-info { flex: 1; min-width: 200px; }
@@ -197,6 +200,8 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
 .modal-detalhes-acoes .btn-perfil:hover { background: var(--lilas-escuro); }
 .modal-detalhes-acoes .btn-fechar { background: transparent; color: var(--cinza); border: 2px solid #e2e8f0; }
 .modal-detalhes-acoes .btn-fechar:hover { background: #f1f5f9; }
+.modal-detalhes-acoes .btn-excluir { background: white; color: var(--vermelho); border: 2px solid var(--vermelho); }
+.modal-detalhes-acoes .btn-excluir:hover:not(:disabled) { background: var(--vermelho); color: white; }
 
 @media (max-width: 900px) {
   .sidebar { width: 70px; }
@@ -422,6 +427,22 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
 <div class="modal-detalhes" id="modal-detalhes">
   <div class="modal-detalhes-box" id="modal-detalhes-conteudo">
     <div class="loader"><i class="fa-solid fa-spinner fa-spin"></i> Carregando...</div>
+  </div>
+</div>
+
+<div class="modal" id="modal-excluir">
+  <div class="modal-box">
+    <h2>Excluir de vez?</h2>
+    <p class="sub" id="excluir-nome">—</p>
+    <div class="aviso-exclusao">Essa exclusão é definitiva: some da vitrine, do painel e do banco. Não dá para recuperar.</div>
+    <div class="campo">
+      <label>Senha de exclusão</label>
+      <input type="password" id="excluir-senha" autocomplete="off" placeholder="Digite a senha de exclusão">
+    </div>
+    <div class="modal-acoes">
+      <button class="btn-cancelar" onclick="fecharModalExcluir()">Cancelar</button>
+      <button class="btn-excluir" id="btn-confirmar-excluir" onclick="confirmarExclusao()">Excluir de vez</button>
+    </div>
   </div>
 </div>
 
@@ -852,8 +873,9 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
 
     var html = '';
     cuidadoras.forEach(function(c) {
-      var foto = c.foto_url
-        ? '<img src="' + esc(c.foto_url) + '" alt="" loading="lazy">'
+      var fotoSrcLista = c.foto_url || (c.foto_pendente ? c.foto_url_pendente : '');
+      var foto = fotoSrcLista
+        ? '<img src="' + esc(fotoSrcLista) + '" alt="" loading="lazy">'
         : '<i class="fa-solid fa-user"></i>';
 
       var badgeAprov = c.aprovada
@@ -875,6 +897,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
       if (venc) badgeVenc = '<span class="badge ' + venc.classe + '"><i class="fa-solid ' + venc.icone + '"></i> ' + venc.texto + '</span>';
 
       var badgeVerif = c.verificada ? '<span class="badge badge-verificada"><i class="fa-solid fa-shield"></i> Verificada</span>' : '';
+      var badgeFoto = c.foto_pendente ? '<span class="badge badge-pendente"><i class="fa-solid fa-camera"></i> Foto em análise</span>' : '';
 
       var btnAprov = c.aprovada
         ? '<button class="btn-acao btn-reprovar" onclick="event.stopPropagation();mudarAprovacao(\'' + c.id + '\', false)"><i class="fa-solid fa-xmark"></i> Reprovar</button>'
@@ -898,12 +921,13 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
               '<span><i class="fa-solid fa-briefcase"></i> ' + esc(c.especialidade || '—') + '</span>' +
               '<span><i class="fa-solid fa-location-dot"></i> ' + esc(c.bairro || '—') + '</span>' +
             '</div>' +
-            '<div class="card-badges">' + badgeAprov + badgePag + badgePlano + badgeVenc + badgeVerif + '</div>' +
+            '<div class="card-badges">' + badgeAprov + badgePag + badgePlano + badgeVenc + badgeVerif + badgeFoto + '</div>' +
           '</div>' +
           '<div class="card-acoes">' +
             '<button class="btn-acao btn-whats" onclick="event.stopPropagation();abrirWpp(\'' + c.id + '\')"><i class="fa-brands fa-whatsapp"></i></button>' +
             btnPago + btnAprov +
             '<a class="btn-acao btn-ver" href="' + hrefPerfilPublico(c) + '" target="_blank" onclick="event.stopPropagation();"><i class="fa-solid fa-eye"></i></a>' +
+            (c.excluido ? '' : '<button class="btn-acao btn-excluir" onclick="event.stopPropagation();abrirModalExcluir(\'' + c.id + '\')"><i class="fa-solid fa-trash"></i> Excluir</button>') +
           '</div>' +
         '</div>';
     });
@@ -1238,8 +1262,9 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
   }
 
   function renderDetalhes(c) {
-    var foto = c.foto_url
-      ? '<img src="' + esc(c.foto_url) + '" alt="">'
+    var fotoSrc = c.foto_url || (c.foto_pendente ? c.foto_url_pendente : '');
+    var foto = fotoSrc
+      ? '<img src="' + esc(fotoSrc) + '" alt="">'
       : '<i class="fa-solid fa-user"></i>';
 
     var whatsLink = 'https://wa.me/' + (c.whatsapp || '').replace(/\D/g, '');
@@ -1357,6 +1382,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
       '<div class="modal-detalhes-acoes">' +
         '<a href="' + whatsLink + '" target="_blank" class="btn-wpp"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>' +
         '<a href="' + perfilLink + '" target="_blank" class="btn-perfil"><i class="fa-solid fa-eye"></i> Ver perfil público</a>' +
+        (c.excluido ? '' : '<button class="btn-excluir" onclick="abrirModalExcluir(\'' + c.id + '\')"><i class="fa-solid fa-trash"></i> Excluir</button>') +
         '<button class="btn-fechar" onclick="fecharDetalhes()">Fechar</button>' +
       '</div>';
   }
@@ -1365,6 +1391,67 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
     var modal = document.getElementById('modal-detalhes');
     if (modal) modal.classList.remove('ativo');
   };
+
+  var excluirId = null;
+
+  window.abrirModalExcluir = function(id) {
+    var c = cuidadoras.find(function(x) { return x.id === id; });
+    if (!c || c.excluido) return;
+    excluirId = id;
+    document.getElementById('excluir-nome').textContent = 'Profissional: ' + (c.nome || '—');
+    document.getElementById('excluir-senha').value = '';
+    fecharDetalhes();
+    document.getElementById('modal-excluir').classList.add('ativo');
+    setTimeout(function() {
+      var campo = document.getElementById('excluir-senha');
+      if (campo) campo.focus();
+    }, 50);
+  };
+
+  window.fecharModalExcluir = function() {
+    document.getElementById('modal-excluir').classList.remove('ativo');
+    excluirId = null;
+    document.getElementById('excluir-senha').value = '';
+  };
+
+  window.confirmarExclusao = async function() {
+    if (!excluirId) return;
+    var senha = document.getElementById('excluir-senha').value;
+    var btn = document.getElementById('btn-confirmar-excluir');
+    btn.disabled = true;
+    btn.textContent = 'Excluindo...';
+    try {
+      var resp = await api('/api/admin/cuidadoras?id=' + encodeURIComponent(excluirId), {
+        method: 'DELETE',
+        body: JSON.stringify({ senha: senha })
+      });
+      var data = {};
+      try { data = await resp.json(); } catch (e) {}
+      if (!resp.ok || !data.ok) {
+        mostrarToast(data.error || 'Não foi possível excluir', true);
+        return;
+      }
+      mostrarToast('Cadastro apagado de vez.');
+      fecharModalExcluir();
+      carregarCuidadoras();
+    } catch (e) {
+      mostrarToast('Erro de conexão', true);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Excluir de vez';
+    }
+  };
+
+  document.getElementById('excluir-senha').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      confirmarExclusao();
+    }
+  });
+
+  document.getElementById('modal-excluir').addEventListener('click', function(e) {
+    if (e.target === this) fecharModalExcluir();
+  });
 
   window.copiar = function(txt) {
     if (navigator.clipboard) {
@@ -1387,6 +1474,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
       fecharModalWpp();
       fecharModalTemplate();
       fecharDetalhes();
+      fecharModalExcluir();
     }
   });
 

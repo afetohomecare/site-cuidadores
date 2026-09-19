@@ -696,22 +696,31 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
     var placeholderEl = document.getElementById('perfil-foto-placeholder');
     var avisoFoto = document.getElementById('aviso-foto');
 
-    if (cuidadora.foto_url) {
-      fotoEl.src = cuidadora.foto_url;
+    var fotoMostrar = null;
+    if (cuidadora.foto_pendente && cuidadora.foto_url_pendente) {
+      fotoMostrar = cuidadora.foto_url_pendente;
+    } else if (cuidadora.foto_url) {
+      fotoMostrar = cuidadora.foto_url;
+    }
+
+    if (fotoMostrar) {
+      fotoEl.src = fotoMostrar;
       fotoEl.style.display = 'block';
       placeholderEl.style.display = 'none';
-      avisoFoto.className = 'aviso-moderacao';
-      avisoFoto.innerHTML = '<i class="fa-solid fa-circle-check"></i> Foto aprovada';
     } else {
       fotoEl.style.display = 'none';
       placeholderEl.style.display = 'flex';
-      avisoFoto.className = 'aviso-moderacao';
-      avisoFoto.innerHTML = '<i class="fa-solid fa-shield-halved"></i> Toda foto passa por revisão antes de ir ao ar';
     }
 
     if (cuidadora.foto_pendente) {
       avisoFoto.className = 'aviso-moderacao pendente';
-      avisoFoto.innerHTML = '<i class="fa-solid fa-hourglass-half"></i> Nova foto em análise';
+      avisoFoto.innerHTML = '<i class="fa-solid fa-hourglass-half"></i> Foto em análise — ainda não aparece na vitrine';
+    } else if (cuidadora.foto_url) {
+      avisoFoto.className = 'aviso-moderacao';
+      avisoFoto.innerHTML = '<i class="fa-solid fa-circle-check"></i> Foto aprovada';
+    } else {
+      avisoFoto.className = 'aviso-moderacao';
+      avisoFoto.innerHTML = '<i class="fa-solid fa-shield-halved"></i> Toda foto passa por revisão antes de ir ao ar';
     }
 
     document.getElementById('perfil-nome').textContent = cuidadora.nome || '—';
@@ -777,10 +786,9 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
         var data = await resp.json();
         if (!resp.ok || !data.ok) throw new Error(data.error || 'Falha');
 
-        var aviso = document.getElementById('aviso-foto');
-        aviso.className = 'aviso-moderacao pendente';
-        aviso.innerHTML = '<i class="fa-solid fa-hourglass-half"></i> Nova foto enviada! Aguardando revisão';
         cuidadora.foto_pendente = true;
+        if (data.foto_url_pendente) cuidadora.foto_url_pendente = data.foto_url_pendente;
+        renderizarPerfil();
       } catch (err) {
         alert('Não foi possível enviar sua foto. Tente novamente.');
       } finally {

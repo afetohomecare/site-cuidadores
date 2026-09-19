@@ -1,5 +1,6 @@
 import { ehAdmin } from '../../_lib/auth.js';
 import { dataValidadePlano, planoDaCuidadora } from '../../_lib/planos.js';
+import { excluirCuidadoraDefinitivo, validarSenhaExclusao } from '../../_lib/exclusao.js';
 
 // ============================================================
 // AFETO — API Admin: gerenciar cuidadoras
@@ -330,12 +331,45 @@ export async function onRequestPost(context) {
   }
 }
 
+export async function onRequestDelete(context) {
+  const { request, env } = context;
+  const auth = await validarToken(env, request);
+  if (!auth.ok) return jsonResp({ error: auth.motivo }, 401);
+
+  try {
+    const url = new URL(request.url);
+    const id = url.searchParams.get('id');
+    if (!id) return jsonResp({ error: 'Parâmetro ?id= obrigatório' }, 400);
+
+    let body = {};
+    try {
+      body = await request.json();
+    } catch (e) {
+      body = {};
+    }
+
+    const senha = validarSenhaExclusao(env, body.senha);
+    if (!senha.ok) return jsonResp({ error: senha.error }, senha.status);
+
+    const resultado = await excluirCuidadoraDefinitivo(env, id);
+    if (!resultado.ok) return jsonResp({ error: resultado.error }, resultado.status);
+
+    return jsonResp({
+      ok: true,
+      mensagem: 'Cadastro apagado de vez.'
+    }, 200);
+  } catch (err) {
+    console.error('Erro DELETE admin:', err);
+    return jsonResp({ error: 'Falha no processamento' }, 500);
+  }
+}
+
 export async function onRequestOptions() {
   return new Response(null, {
     status: 204,
     headers: {
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PATCH, OPTIONS',
+      'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization'
     }
   });

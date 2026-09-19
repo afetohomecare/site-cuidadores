@@ -11,6 +11,8 @@ const CAMPOS_PUBLICOS = [
   'slug',
   'nome',
   'foto_url',
+  'foto_url_pendente',
+  'foto_pendente',
   'apresentacao',
   'motivacao',
   'especialidade',
@@ -46,6 +48,14 @@ const CAMPOS_PUBLICOS = [
 function perfilPublico(row) {
   const item = Object.assign({}, row);
 
+  if (item.foto_pendente) {
+    if (!item.foto_url || item.foto_url === item.foto_url_pendente) {
+      item.foto_url = null;
+    }
+  }
+  delete item.foto_pendente;
+  delete item.foto_url_pendente;
+
   if (item.mostrar_bio === false) item.apresentacao = null;
   if (item.mostrar_habilidades === false) item.subespecialidades = [];
   if (item.mostrar_cursos === false) item.cursos = [];
@@ -71,13 +81,20 @@ function perfilPublico(row) {
 }
 
 async function buscarSupabase(env, filtros) {
-  const tentativas = [
+  const bases = [
     CAMPOS_PUBLICOS,
     CAMPOS_PUBLICOS.filter(function (c) { return c !== 'como_aparecer'; }),
     CAMPOS_PUBLICOS.filter(function (c) { return c.indexOf('mostrar_') !== 0; }),
     CAMPOS_PUBLICOS.filter(function (c) { return c !== 'como_aparecer' && c.indexOf('mostrar_') !== 0; }),
     CAMPOS_PUBLICOS.filter(function (c) { return c !== 'slug' && c !== 'como_aparecer' && c.indexOf('mostrar_') !== 0; })
   ];
+  const tentativas = [];
+  bases.forEach(function (b) {
+    tentativas.push(b);
+    tentativas.push(b.filter(function (c) {
+      return c !== 'foto_pendente' && c !== 'foto_url_pendente';
+    }));
+  });
 
   let resp;
   for (let i = 0; i < tentativas.length; i++) {

@@ -1,4 +1,5 @@
 import { ehAdmin } from '../../_lib/auth.js';
+import { buscarCuidadoraParaExclusao, limparArquivosEAuth } from '../../_lib/exclusao.js';
 
 // ============================================================
 // AFETO — API Admin: gerenciar solicitações de exclusão
@@ -137,19 +138,8 @@ export async function onRequestPatch(context) {
     const agora = new Date().toISOString();
 
     if (acao === 'aprovar') {
-      const cResp = await fetch(
-        env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + cuidadorId + '&select=foto_url,auth_user_id&limit=1',
-        { headers: headersSupabase(env) }
-      );
-      let fotoAntiga = null;
-      let authUserId = null;
-      if (cResp.ok) {
-        const cData = await cResp.json();
-        if (cData[0]) {
-          fotoAntiga = cData[0].foto_url;
-          authUserId = cData[0].auth_user_id;
-        }
-      }
+      const cuidadora = await buscarCuidadoraParaExclusao(env, cuidadorId);
+      await limparArquivosEAuth(env, cuidadora);
 
       const anonBody = {
         nome: 'Conta removida',
@@ -192,36 +182,6 @@ export async function onRequestPatch(context) {
       if (!patchResp.ok) {
         console.error('Erro anonimizar:', await patchResp.text());
         return jsonResp({ error: 'Falha ao anonimizar dados' }, 502);
-      }
-
-      if (fotoAntiga) {
-        try {
-          const caminho = fotoAntiga.split('/storage/v1/object/public/')[1];
-          if (caminho) {
-            await fetch(env.SUPABASE_URL + '/storage/v1/object/' + caminho, {
-              method: 'DELETE',
-              headers: {
-                'Authorization': 'Bearer ' + env.SUPABASE_SERVICE_KEY
-              }
-            });
-          }
-        } catch (e) {
-          console.warn('Erro ao deletar foto:', e);
-        }
-      }
-
-      if (authUserId) {
-        try {
-          await fetch(env.SUPABASE_URL + '/auth/v1/admin/users/' + authUserId, {
-            method: 'DELETE',
-            headers: {
-              'apikey': env.SUPABASE_SERVICE_KEY,
-              'Authorization': 'Bearer ' + env.SUPABASE_SERVICE_KEY
-            }
-          });
-        } catch (e) {
-          console.warn('Erro ao deletar auth user:', e);
-        }
       }
     }
 

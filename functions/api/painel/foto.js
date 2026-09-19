@@ -121,7 +121,8 @@ export async function onRequestPost(context) {
 
     return jsonResp({
       ok: true,
-      mensagem: 'Foto enviada! Aguardando aprovação da equipe Afeto.'
+      mensagem: 'Foto enviada! Aguardando aprovação da equipe Afeto.',
+      foto_url_pendente: fotoUrl
     }, 200);
 
   } catch (err) {

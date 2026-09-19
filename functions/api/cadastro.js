@@ -367,14 +367,15 @@ export async function onRequest(context) {
       }
     }
 
-    // ---------- UPLOAD DA FOTO ----------
+    // ---------- UPLOAD DA FOTO (fica pendente até o admin aprovar) ----------
     let fotoEnviada = false;
     let fotoErro = null;
     let fotoUrl = null;
 
     if (foto && foto.size > 0) {
       try {
-        const nomeArquivo = cuidadorId + '.jpg';
+        const uploadId = Date.now().toString(36) + '-' + Math.random().toString(36).substring(2, 10);
+        const nomeArquivo = cuidadorId + '-' + uploadId + '.jpg';
         const caminho = BUCKET_FOTOS + '/' + nomeArquivo;
         const buffer = await foto.arrayBuffer();
 
@@ -400,13 +401,19 @@ export async function onRequest(context) {
         const patchResp = await fetch(patchUrl, {
           method: 'PATCH',
           headers: headersSupabase(env, true),
-          body: JSON.stringify({ foto_url: fotoUrl })
+          body: JSON.stringify({
+            foto_url_pendente: fotoUrl,
+            foto_pendente: true,
+            foto_upload_id: uploadId,
+            foto_pendente_path: caminho
+          })
         });
 
         if (!patchResp.ok) {
-          console.error('Erro ao gravar foto_url:', await patchResp.text());
+          console.error('Erro ao gravar foto pendente:', await patchResp.text());
         } else {
           fotoEnviada = true;
+          await notificarFotoPendenteTelegram(env, cuidadorId, fotoUrl, nome, uploadId);
         }
       } catch (err) {
         fotoErro = String(err && err.message ? err.message : err);
@@ -514,6 +521,45 @@ function headersSupabase(env, temBody, querRetorno) {
   return h;
 }
 
+async function notificarFotoPendenteTelegram(env, cuidadorId, fotoUrl, cuidadorNome, uploadId) {
+  try {
+    const token = env.TELEGRAM_BOT_TOKEN;
+    const chatId = env.TELEGRAM_CHAT_ID;
+    if (!token || !chatId) return;
+
+    const agora = new Date().toLocaleString('pt-BR', {
+      timeZone: 'America/Sao_Paulo',
+      day: '2-digit', month: '2-digit', year: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
+
+    const msg = '📸 *Nova foto aguardando aprovação*\n\n' +
+      '👤 ' + (cuidadorNome || 'Cuidadora') + '\n' +
+      'ID: `' + cuidadorId + '`\n\n' +
+      'Toque em ✅ pra aprovar ou ❌ pra rejeitar.\n\n' +
+      '🕒 ' + agora;
+
+    await fetch('https://api.telegram.org/bot' + token + '/sendPhoto', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: chatId,
+        photo: fotoUrl,
+        caption: msg,
+        parse_mode: 'Markdown',
+        reply_markup: {
+          inline_keyboard: [[
+            { text: '✅ Aprovar', callback_data: 'foto_aprovar:' + cuidadorId + ':' + uploadId },
+            { text: '❌ Rejeitar', callback_data: 'foto_rejeitar:' + cuidadorId + ':' + uploadId }
+          ]]
+        }
+      })
+    });
+  } catch (e) {
+    console.error('Erro Telegram foto cadastro:', e);
+  }
+}
+
 async function notificarTelegram(env, dados) {
   try {
     const token = env.TELEGRAM_BOT_TOKEN;
@@ -551,7 +597,9 @@ async function notificarTelegram(env, dados) {
       msg += '\n⚠️ *Erro ao criar conta:* ' + String(dados.authErro).substring(0, 150) + '\n';
     }
 
-    if (dados.fotoEnviada === false && dados.fotoErro) {
+    if (dados.fotoEnviada) {
+      msg += '\n📸 *Foto:* enviada e aguardando aprovação\n';
+    } else if (dados.fotoEnviada === false && dados.fotoErro) {
       msg += '\n📸 *Foto:* ❌ falhou\n';
     }
 
