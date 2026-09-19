@@ -10,13 +10,14 @@ import {
   formaEhCartao,
   parcelasDoCartao,
   valorParcela,
+  planoEhEssencial,
   normalizarPlano
 } from '../../_lib/planos.js';
 import {
   getAsaasConfig,
   origemPublica,
   criarOuBuscarCliente,
-  criarCheckoutCartaoAnual
+  criarCheckoutCartao
 } from '../../_lib/asaas.js';
 
 export async function onRequestPost(context) {
@@ -181,7 +182,7 @@ export async function onRequestPost(context) {
     }
 
     if (forma === 'CREDIT_CARD') {
-      const checkout = await criarCheckoutCartaoAnual({
+      const checkout = await criarCheckoutCartao({
         asaas: asaas,
         origem: origemPublica(request),
         paginaRetorno: 'cadastro.html',
@@ -190,9 +191,10 @@ export async function onRequestPost(context) {
         cpfLimpo: cpfLimpo,
         whatsLimpo: telefoneAsaas,
         valor: valorFinal,
-        parcelas: parcelas,
+        parcelas: planoEhEssencial(plano) ? parcelas : 1,
         cupomObj: cupomObj,
-        nomePlano: nomeDoPlanoBonito(plano)
+        nomePlano: nomeDoPlanoBonito(plano),
+        recorrente: !planoEhEssencial(plano)
       });
       if (!checkout) {
         return jsonResp({ error: 'Não foi possível abrir o pagamento no cartão. Tente o Pix ou tente de novo.' }, 502);
@@ -263,7 +265,7 @@ export async function onRequestPost(context) {
       billingType: 'PIX',
       value: valorFinal,
       dueDate: dataVencimento,
-      description: 'Afeto — Plano ' + nomeDoPlanoBonito(plano) + ' anual',
+      description: 'Afeto — Plano ' + nomeDoPlanoBonito(plano) + (planoEhEssencial(plano) ? ' anual' : ' mensal'),
       externalReference: cuidadorId
     };
 

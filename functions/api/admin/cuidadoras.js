@@ -1,5 +1,5 @@
 import { ehAdmin } from '../../_lib/auth.js';
-import { dataValidadePlano } from '../../_lib/planos.js';
+import { dataValidadePlano, planoDaCuidadora } from '../../_lib/planos.js';
 
 // ============================================================
 // AFETO — API Admin: gerenciar cuidadoras
@@ -75,8 +75,8 @@ function headersSupabase(env, temBody, querRetorno) {
   return h;
 }
 
-function planoParaValidade() {
-  return 'cadastro';
+function planoParaValidade(campos) {
+  return planoDaCuidadora(campos);
 }
 
 // 🛡️ Gera token se o admin está marcando como Pago manualmente
@@ -208,22 +208,26 @@ export async function onRequestPatch(context) {
     }
 
     if (campos.status_pagamento === 'Pago' && !campos.plano_valido_ate) {
-      let isCadastro = campos.plano_cadastro;
-      if (isCadastro === undefined) {
+      let flags = {
+        plano_cadastro: campos.plano_cadastro,
+        plano_profissional: campos.plano_profissional,
+        plano_destaque: campos.plano_destaque
+      };
+      if (flags.plano_cadastro === undefined && flags.plano_profissional === undefined && flags.plano_destaque === undefined) {
         try {
           const r = await fetch(
-            env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + id + '&select=plano_cadastro&limit=1',
+            env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + id + '&select=plano_cadastro,plano_profissional,plano_destaque&limit=1',
             { headers: headersSupabase(env) }
           );
           if (r.ok) {
             const l = await r.json();
-            isCadastro = l && l[0] && l[0].plano_cadastro;
+            if (l && l[0]) flags = l[0];
           }
         } catch (e) {}
       }
 
       const hoje = new Date();
-      const vence = dataValidadePlano(planoParaValidade({ plano_cadastro: isCadastro }), hoje);
+      const vence = dataValidadePlano(planoParaValidade(flags), hoje);
       campos.plano_inicio = hoje.toISOString();
       campos.plano_valido_ate = vence.toISOString();
     }

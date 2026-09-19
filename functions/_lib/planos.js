@@ -2,6 +2,10 @@ import { headersSupabase } from './supabase.js';
 
 export const PRECO_ESSENCIAL_PIX = 79.9;
 export const PRECO_ESSENCIAL_CARTAO = 119.9;
+export const PRECO_PROF_PIX = 59.9;
+export const PRECO_PROF_CHEIO = 79.9;
+export const PRECO_DEST_PIX = 69.9;
+export const PRECO_DEST_CHEIO = 89.9;
 export const PARCELAS_CARTAO_MAX = 12;
 
 function arred2(n) {
@@ -44,13 +48,21 @@ export function planoEhEssencial(plano) {
   return normalizarPlano(plano) === 'cadastro';
 }
 
-export function diasDoPlano() {
-  return 365;
+export function planoEhMensal(plano) {
+  return !planoEhEssencial(plano);
+}
+
+export function diasDoPlano(plano) {
+  return planoEhEssencial(plano) ? 365 : 30;
 }
 
 export function dataValidadePlano(plano, aPartir) {
   const d = aPartir ? new Date(aPartir) : new Date();
-  d.setFullYear(d.getFullYear() + 1);
+  if (planoEhEssencial(plano)) {
+    d.setFullYear(d.getFullYear() + 1);
+  } else {
+    d.setDate(d.getDate() + 30);
+  }
   return d;
 }
 
@@ -88,35 +100,19 @@ async function lerValorConfig(env, chave) {
   }
 }
 
-export async function montarPrecoAnual(env, plano, forma) {
+export async function lerPrecoPlano(env, plano, forma) {
   const p = normalizarPlano(plano);
   const cartao = formaEhCartao(forma);
-  const chaveEssencial = cartao ? 'preco_cadastro_cartao' : 'preco_cadastro';
-  let essencial = await lerValorConfig(env, chaveEssencial);
-  if (essencial == null || essencial <= 0) {
-    essencial = cartao ? PRECO_ESSENCIAL_CARTAO : PRECO_ESSENCIAL_PIX;
+
+  if (p === 'cadastro') {
+    const chave = cartao ? 'preco_cadastro_cartao' : 'preco_cadastro';
+    const lido = await lerValorConfig(env, chave);
+    if (lido && lido > 0) return arred2(lido);
+    return cartao ? PRECO_ESSENCIAL_CARTAO : PRECO_ESSENCIAL_PIX;
   }
 
-  let extraMensal = 0;
-  if (p === 'profissional' || p === 'destaque') {
-    const chaveExtra = p === 'destaque' ? 'preco_destaque' : 'preco_profissional';
-    const lido = await lerValorConfig(env, chaveExtra);
-    extraMensal = lido == null ? 0 : lido;
-  }
-
-  const extraAnual = arred2(extraMensal * 12);
-  const total = arred2(essencial + extraAnual);
-  return {
-    plano: p,
-    essencial: arred2(essencial),
-    extraMensal: arred2(extraMensal),
-    extraAnual: extraAnual,
-    total: total
-  };
-}
-
-export async function lerPrecoPlano(env, plano, forma) {
-  const montado = await montarPrecoAnual(env, plano, forma);
-  if (!montado || !montado.total || montado.total <= 0) return null;
-  return montado.total;
+  const chave = p === 'destaque' ? 'preco_destaque' : 'preco_profissional';
+  const lido = await lerValorConfig(env, chave);
+  if (lido && lido > 0) return arred2(lido);
+  return p === 'destaque' ? PRECO_DEST_PIX : PRECO_PROF_PIX;
 }

@@ -11,14 +11,15 @@ import {
   dataValidadePlano,
   parcelasDoCartao,
   valorParcela,
-  planoDaCuidadora
+  planoDaCuidadora,
+  planoEhEssencial
 } from '../../_lib/planos.js';
 import {
   getAsaasConfig,
   origemPublica,
   ymd,
   criarOuBuscarCliente,
-  criarCheckoutCartaoAnual
+  criarCheckoutCartao
 } from '../../_lib/asaas.js';
 
 const CAMPOS = [
@@ -160,7 +161,7 @@ async function criarPixRegularizacao(env, asaas, c, customerId, plano, valor, cu
       billingType: 'PIX',
       value: valor,
       dueDate: ymd(vencimento),
-      description: 'Afeto — Regularização Plano ' + nomeDoPlanoBonito(plano) + ' anual' + (cupomObj ? ' (cupom ' + cupomObj.codigo + ')' : ''),
+      description: 'Afeto — Regularização Plano ' + nomeDoPlanoBonito(plano) + (planoEhEssencial(plano) ? ' anual' : ' mensal') + (cupomObj ? ' (cupom ' + cupomObj.codigo + ')' : ''),
       externalReference: c.id
     })
   });
@@ -191,7 +192,12 @@ async function criarPixRegularizacao(env, asaas, c, customerId, plano, valor, cu
 }
 
 async function criarCheckoutCartaoPainel(request, env, asaas, c, customerId, valor, cpfLimpo, whatsLimpo, cupomObj, parcelas, plano) {
-  const checkout = await criarCheckoutCartaoAnual({
+  let nextDue = ymd(new Date());
+  if (!planoEhEssencial(plano) && c.plano_valido_ate) {
+    const vence = new Date(c.plano_valido_ate);
+    if (vence.getTime() > Date.now()) nextDue = ymd(vence);
+  }
+  const checkout = await criarCheckoutCartao({
     asaas: asaas,
     origem: origemPublica(request),
     paginaRetorno: 'painel.html',
@@ -200,9 +206,11 @@ async function criarCheckoutCartaoPainel(request, env, asaas, c, customerId, val
     cpfLimpo: cpfLimpo,
     whatsLimpo: whatsLimpo,
     valor: valor,
-    parcelas: parcelas,
+    parcelas: planoEhEssencial(plano) ? parcelas : 1,
     cupomObj: cupomObj,
-    nomePlano: nomeDoPlanoBonito(plano)
+    nomePlano: nomeDoPlanoBonito(plano),
+    recorrente: !planoEhEssencial(plano),
+    nextDueDate: nextDue
   });
   if (!checkout) {
     return jsonResp({ error: 'Não foi possível abrir o cadastro de cartão no Asaas.' }, 502);

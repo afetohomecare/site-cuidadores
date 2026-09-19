@@ -56,20 +56,21 @@ export async function criarOuBuscarCliente(apiKey, baseUrl, dados) {
   return criarData.id;
 }
 
-export async function criarCheckoutCartaoAnual(opts) {
+export async function criarCheckoutCartao(opts) {
   const asaas = opts.asaas;
   const origem = opts.origem;
   const pagina = opts.paginaRetorno || 'cadastro.html';
   const n = parcelasDoCartao(opts.parcelas);
   const cupomObj = opts.cupomObj;
   const nomePlano = opts.nomePlano || 'Essencial';
+  const recorrente = !!opts.recorrente;
   const descricao = cupomObj
-    ? 'Plano ' + nomePlano + ' anual (cupom ' + cupomObj.codigo + ')'
-    : 'Plano ' + nomePlano + ' anual Afeto';
+    ? 'Plano ' + nomePlano + (recorrente ? ' mensal' : ' anual') + ' (cupom ' + cupomObj.codigo + ')'
+    : 'Plano ' + nomePlano + (recorrente ? ' mensal' : ' anual') + ' Afeto';
 
   const checkoutBody = {
     billingTypes: ['CREDIT_CARD'],
-    chargeTypes: n <= 1 ? ['DETACHED'] : ['INSTALLMENT'],
+    chargeTypes: recorrente ? ['RECURRENT'] : (n <= 1 ? ['DETACHED'] : ['INSTALLMENT']),
     minutesToExpire: 60,
     externalReference: opts.cuidadorId,
     callback: {
@@ -78,8 +79,10 @@ export async function criarCheckoutCartaoAnual(opts) {
       expiredUrl: origem + '/' + pagina + '?pagamento=cartao_expirado'
     },
     items: [{
-      name: 'Plano ' + nomePlano + ' Afeto — 12 meses',
-      description: descricao + (n > 1 ? ' · até ' + n + 'x' : ' · à vista'),
+      name: recorrente
+        ? 'Plano ' + nomePlano + ' Afeto — mensal'
+        : 'Plano ' + nomePlano + ' Afeto — 12 meses',
+      description: descricao + (recorrente ? ' · recorrente' : (n > 1 ? ' · até ' + n + 'x' : ' · à vista')),
       quantity: 1,
       value: opts.valor
     }],
@@ -90,7 +93,12 @@ export async function criarCheckoutCartaoAnual(opts) {
     }
   };
 
-  if (n > 1) {
+  if (recorrente) {
+    checkoutBody.subscription = {
+      cycle: 'MONTHLY',
+      nextDueDate: opts.nextDueDate || ymd(new Date())
+    };
+  } else if (n > 1) {
     checkoutBody.installment = { maxInstallmentCount: n };
   }
 
@@ -105,12 +113,17 @@ export async function criarCheckoutCartaoAnual(opts) {
   });
   const data = await resp.json();
   if (!resp.ok || !data.link) {
-    console.error('Falha checkout Asaas anual:', data);
+    console.error('Falha checkout Asaas:', data);
     return null;
   }
   return {
     link: data.link,
     checkoutId: data.id || null,
-    parcelas: n
+    parcelas: recorrente ? 1 : n,
+    recorrente: recorrente
   };
+}
+
+export async function criarCheckoutCartaoAnual(opts) {
+  return criarCheckoutCartao(opts);
 }

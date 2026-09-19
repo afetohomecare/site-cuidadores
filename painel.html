@@ -486,8 +486,8 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
       avatarEl.textContent = nomeCurto.charAt(0).toUpperCase();
     }
 
-    var planoLabel = planoAtual === 'destaque' ? 'Destaque (extra)'
-                   : planoAtual === 'profissional' ? 'Profissional (extra)'
+    var planoLabel = planoAtual === 'destaque' ? 'Destaque'
+                   : planoAtual === 'profissional' ? 'Profissional'
                    : 'Essencial';
     document.getElementById('user-plano').textContent = planoLabel;
 
@@ -846,8 +846,8 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
   // ==========================================
   function renderizarPlano() {
     var container = document.getElementById('plano-conteudo');
-    var planoLabel = planoAtual === 'destaque' ? 'Destaque (extra)'
-                   : planoAtual === 'profissional' ? 'Profissional (extra)'
+    var planoLabel = planoAtual === 'destaque' ? 'Destaque'
+                   : planoAtual === 'profissional' ? 'Profissional'
                    : 'Essencial';
     var dias = diasRestantes(cuidadora.plano_valido_ate);
     var vencendo = dias > 0 && dias <= 7;
@@ -877,33 +877,46 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
        infoPagamento = '<strong>Válido até:</strong> ' + (cuidadora.plano_valido_ate ? formatarData(cuidadora.plano_valido_ate) : '--/--/----');
     }
 
+    var ehEssencial = planoAtual === 'basico' || planoAtual === 'cadastro' || (!cuidadora.plano_profissional && !cuidadora.plano_destaque);
     var botoesHtml = '';
     if (planoIrregular(cuidadora)) {
-      botoesHtml =
-        '<div style="margin-top:12px;">' +
-          '<label style="display:block;font-size:13px;font-weight:800;margin-bottom:6px;">Parcelas no cartão</label>' +
-          '<select id="parcelas-painel" style="width:100%;max-width:280px;padding:12px 14px;border-radius:12px;border:2px solid #e2e8f0;font-family:Nunito,sans-serif;font-size:14px;font-weight:800;margin-bottom:10px;">' +
-            opcoesParcelasPainel() +
-          '</select>' +
-        '</div>' +
-        '<button type="button" id="btn-pagar-pix" style="' + estiloBtnPlano(true) + '"><i class="fa-solid fa-qrcode"></i> Pagar o anual no Pix</button>' +
-        '<button type="button" id="btn-cartao-asaas" style="' + estiloBtnPlano(false) + '"><i class="fa-solid fa-credit-card"></i> Pagar o anual no cartão</button>';
-    } else {
-      botoesHtml = '';
-      if (vencendo) {
-        botoesHtml +=
+      if (ehEssencial) {
+        botoesHtml =
           '<div style="margin-top:12px;">' +
-            '<label style="display:block;font-size:13px;font-weight:800;margin-bottom:6px;">Parcelas no cartão</label>' +
+            '<label style="display:block;font-size:13px;font-weight:800;margin-bottom:6px;">Parcelas no cartão (cobrança única de 119,90)</label>' +
             '<select id="parcelas-painel" style="width:100%;max-width:280px;padding:12px 14px;border-radius:12px;border:2px solid #e2e8f0;font-family:Nunito,sans-serif;font-size:14px;font-weight:800;margin-bottom:10px;">' +
               opcoesParcelasPainel() +
             '</select>' +
           '</div>' +
-          '<button type="button" id="btn-pagar-pix" style="' + estiloBtnPlano(true) + '"><i class="fa-solid fa-qrcode"></i> Renovar o anual no Pix</button>' +
-          '<button type="button" id="btn-cartao-asaas" style="' + estiloBtnPlano(false) + '"><i class="fa-solid fa-credit-card"></i> Renovar o anual no cartão</button>';
+          '<button type="button" id="btn-pagar-pix" style="' + estiloBtnPlano(true) + '"><i class="fa-solid fa-qrcode"></i> Pagar o anual no Pix</button>' +
+          '<button type="button" id="btn-cartao-asaas" style="' + estiloBtnPlano(false) + '"><i class="fa-solid fa-credit-card"></i> Pagar o anual no cartão</button>';
+      } else {
+        botoesHtml =
+          '<button type="button" id="btn-pagar-pix" style="' + estiloBtnPlano(true) + '"><i class="fa-solid fa-qrcode"></i> Pagar o mês no Pix</button>' +
+          '<button type="button" id="btn-cartao-asaas" style="' + estiloBtnPlano(false) + '"><i class="fa-solid fa-credit-card"></i> Assinar no cartão (recorrente)</button>';
+      }
+    } else {
+      botoesHtml = '';
+      if (vencendo) {
+        if (ehEssencial) {
+          botoesHtml +=
+            '<div style="margin-top:12px;">' +
+              '<label style="display:block;font-size:13px;font-weight:800;margin-bottom:6px;">Parcelas no cartão</label>' +
+              '<select id="parcelas-painel" style="width:100%;max-width:280px;padding:12px 14px;border-radius:12px;border:2px solid #e2e8f0;font-family:Nunito,sans-serif;font-size:14px;font-weight:800;margin-bottom:10px;">' +
+                opcoesParcelasPainel() +
+              '</select>' +
+            '</div>' +
+            '<button type="button" id="btn-pagar-pix" style="' + estiloBtnPlano(true) + '"><i class="fa-solid fa-qrcode"></i> Renovar o anual no Pix</button>' +
+            '<button type="button" id="btn-cartao-asaas" style="' + estiloBtnPlano(false) + '"><i class="fa-solid fa-credit-card"></i> Renovar o anual no cartão</button>';
+        } else {
+          botoesHtml +=
+            '<button type="button" id="btn-pagar-pix" style="' + estiloBtnPlano(true) + '"><i class="fa-solid fa-qrcode"></i> Renovar o mês no Pix</button>' +
+            '<button type="button" id="btn-cartao-asaas" style="' + estiloBtnPlano(false) + '"><i class="fa-solid fa-credit-card"></i> Assinar no cartão (recorrente)</button>';
+        }
       }
       if (isAssinatura && taPago) {
         botoesHtml +=
-          '<button type="button" id="btn-cancelar-assinatura" style="background:transparent;color:var(--vermelho);border:2px solid var(--vermelho);padding:10px 20px;border-radius:50px;font-family:Nunito,sans-serif;font-size:13px;font-weight:900;cursor:pointer;margin:8px 8px 0 0;">Cancelar Assinatura antiga</button>';
+          '<button type="button" id="btn-cancelar-assinatura" style="background:transparent;color:var(--vermelho);border:2px solid var(--vermelho);padding:10px 20px;border-radius:50px;font-family:Nunito,sans-serif;font-size:13px;font-weight:900;cursor:pointer;margin:8px 8px 0 0;">Cancelar assinatura mensal</button>';
       }
     }
 
@@ -916,7 +929,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
           '<p>' + infoPagamento + '</p>' +
           '<div style="margin-top:14px;padding:14px;background:#f8f9fc;border-radius:14px;border:2px dashed #c4b5fd;">' +
             '<label style="display:block;font-size:13px;font-weight:800;color:var(--lilas-escuro);margin-bottom:8px;"><i class="fa-solid fa-ticket"></i> Tem cupom? Aplique antes de pagar</label>' +
-            '<p style="font-size:12px;font-weight:700;color:var(--cinza-fonte);margin-bottom:8px;line-height:1.45;">O desconto entra no Pix e também no valor anual que vai para a página do Asaas.</p>' +
+            '<p style="font-size:12px;font-weight:700;color:var(--cinza-fonte);margin-bottom:8px;line-height:1.45;">O desconto entra no Pix e também no valor que vai para a página do Asaas.</p>' +
             '<input type="text" id="cupom-painel" maxlength="20" placeholder="Digite seu código" style="width:100%;padding:12px 14px;border-radius:12px;border:2px solid #e2e8f0;font-family:Nunito,sans-serif;font-size:14px;font-weight:800;text-transform:uppercase;">' +
           '</div>' +
           botoesHtml +
@@ -925,7 +938,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
       (planoAtual !== 'destaque'
         ? '<div style="margin-top: 20px;">' +
             '<h3 style="font-size: 16px; font-weight: 900; margin-bottom: 10px;">Quer mais visibilidade?</h3>' +
-            '<p style="font-size: 14px; color: var(--cinza-fonte); font-weight: 700; line-height: 1.6; margin-bottom: 16px;">Profissional e Destaque incluem o Essencial e a vitrine, pagos no ano.</p>' +
+            '<p style="font-size: 14px; color: var(--cinza-fonte); font-weight: 700; line-height: 1.6; margin-bottom: 16px;">Profissional e Destaque são mensais, sem fidelidade, e fazem você aparecer na vitrine.</p>' +
             '<a href="planos.html" class="btn-editar-bloco" style="padding: 12px 24px; font-size: 14px; text-decoration: none;"><i class="fa-solid fa-arrow-up"></i> Ver planos</a>' +
           '</div>'
         : '');
@@ -1007,9 +1020,16 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
     } finally {
       if (btn) {
         btn.disabled = false;
-        btn.innerHTML = planoIrregular(cuidadora)
-          ? '<i class="fa-solid fa-qrcode"></i> Pagar o anual no Pix'
-          : '<i class="fa-solid fa-qrcode"></i> Renovar o anual no Pix';
+        var mensal = planoAtual === 'profissional' || planoAtual === 'destaque';
+        if (mensal) {
+          btn.innerHTML = planoIrregular(cuidadora)
+            ? '<i class="fa-solid fa-qrcode"></i> Pagar o mês no Pix'
+            : '<i class="fa-solid fa-qrcode"></i> Renovar o mês no Pix';
+        } else {
+          btn.innerHTML = planoIrregular(cuidadora)
+            ? '<i class="fa-solid fa-qrcode"></i> Pagar o anual no Pix'
+            : '<i class="fa-solid fa-qrcode"></i> Renovar o anual no Pix';
+        }
       }
     }
   }
@@ -1033,9 +1053,14 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
       alert(err.message || 'Não foi possível abrir o cadastro de cartão.');
       if (btn) {
         btn.disabled = false;
-        btn.innerHTML = planoIrregular(cuidadora)
-          ? '<i class="fa-solid fa-credit-card"></i> Pagar o anual no cartão'
-          : '<i class="fa-solid fa-credit-card"></i> Renovar o anual no cartão';
+        var mensal = planoAtual === 'profissional' || planoAtual === 'destaque';
+        if (mensal) {
+          btn.innerHTML = '<i class="fa-solid fa-credit-card"></i> Assinar no cartão (recorrente)';
+        } else {
+          btn.innerHTML = planoIrregular(cuidadora)
+            ? '<i class="fa-solid fa-credit-card"></i> Pagar o anual no cartão'
+            : '<i class="fa-solid fa-credit-card"></i> Renovar o anual no cartão';
+        }
       }
     }
   }

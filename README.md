@@ -52,10 +52,8 @@ O UUID interno da cuidadora **não muda**. O link público prefere um slug legí
 
 ## Pagamentos
 
-- **Essencial** anual: perfil + painel. Pix (`preco_cadastro`, padrão 79,90) ou cartão (`preco_cadastro_cartao`, padrão 119,90) em até 12x.
-- **Profissional / Destaque** também anuais: Essencial + (valor mensal da vitrine × 12). Ex.: Pix 79,90 + 19,90×12. No cartão, o total do ano pode ir em até 12x.
-- **Cadastro:** Pix no site; cartão só na **página hospedada do Asaas**. Ela escolhe as parcelas **antes** de abrir o link. O cupom já vai no valor.
-- **Painel → Meu plano:** regulariza/renova o anual do plano atual (Essencial, Profissional ou Destaque).
-- Retorno do Asaas: `cadastro.html` ou `painel.html` com `?pagamento=cartao_ok` | `cartao_cancelado` | `cartao_expirado`.
-- Só Profissional e Destaque entram na vitrine da home. Essencial cria o perfil, mas não aparece nas buscas.
-- Para criar a chave do cartão no Supabase: `supabase/add-preco-essencial-cartao.sql` (ou salve o preço no admin).
+- **Essencial** anual, cobrança **única**: Pix oferta `preco_cadastro` (79,90) com riscado `preco_cadastro_pos` (119,90). Cartão `preco_cadastro_cartao` (119,90) em até 12x no Asaas — **não** é recorrente.
+- **Profissional / Destaque** mensais, sem fidelidade: Pix no site/painel (`preco_profissional` 59,90 e `preco_destaque` 69,90; riscados 79,90 e 89,90). Cartão vai ao Asaas como **assinatura recorrente**. Renovação no Pix também pelo painel.
+- Cupom entra no valor **antes** de abrir o Asaas. Cartão nunca é digitado no domínio da Afeto.
+- Retorno: `cadastro.html` ou `painel.html` com `?pagamento=cartao_ok` | `cartao_cancelado` | `cartao_expirado`.
+- Só Profissional e Destaque entram na vitrine da home.

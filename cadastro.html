@@ -632,16 +632,18 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     </div>
 
     <div id="tab-cartao" style="display:none;">
-      <p style="font-size:14px;font-weight:700;color:var(--cinza-fonte);line-height:1.55;margin-bottom:14px;">
+      <p id="checkout-cartao-intro" style="font-size:14px;font-weight:700;color:var(--cinza-fonte);line-height:1.55;margin-bottom:14px;">
         Escolha em quantas vezes parcelar o anual. O cupom já entra no valor. No Asaas você só confirma o cartão — ele nunca é digitado aqui.
       </p>
-      <label for="checkout-parcelas" style="display:block;font-size:13px;font-weight:800;margin-bottom:8px;">Parcelas</label>
-      <select id="checkout-parcelas" style="width:100%;padding:14px 16px;border-radius:14px;border:2px solid #e2e8f0;font-family:Nunito,sans-serif;font-size:15px;font-weight:800;margin-bottom:12px;background:#f8f9fc;"></select>
-      <p id="checkout-parcela-resumo" style="font-size:15px;font-weight:900;color:var(--lilas-escuro);margin-bottom:16px;"></p>
+      <div id="bloco-parcelas-checkout">
+        <label for="checkout-parcelas" style="display:block;font-size:13px;font-weight:800;margin-bottom:8px;">Parcelas</label>
+        <select id="checkout-parcelas" style="width:100%;padding:14px 16px;border-radius:14px;border:2px solid #e2e8f0;font-family:Nunito,sans-serif;font-size:15px;font-weight:800;margin-bottom:12px;background:#f8f9fc;"></select>
+        <p id="checkout-parcela-resumo" style="font-size:15px;font-weight:900;color:var(--lilas-escuro);margin-bottom:16px;"></p>
+      </div>
       <button type="button" id="btn-ir-asaas" onclick="irParaCartaoAsaas()" style="width:100%;padding:16px;border:none;border-radius:50px;background:linear-gradient(135deg,var(--lilas),var(--lilas-escuro));color:white;font-family:Nunito,sans-serif;font-size:15px;font-weight:900;cursor:pointer;">
         <i class="fa-solid fa-lock"></i> Ir para o Asaas
       </button>
-      <p style="font-size:12px;font-weight:700;color:var(--cinza-fonte);margin-top:12px;line-height:1.45;">
+      <p id="checkout-cartao-rodape" style="font-size:12px;font-weight:700;color:var(--cinza-fonte);margin-top:12px;line-height:1.45;">
         O link já vai com o valor e o máximo de parcelas que você escolheu. Lá você ainda pode pagar em menos vezes, se quiser.
       </p>
     </div>
@@ -712,7 +714,9 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     }
   }
   if (subtitulo) {
-    subtitulo.textContent = 'Preencha seus dados com calma. Ao final você paga o ano no Pix (mais barato) ou no cartão em até 12x — o cartão é só na página do Asaas.';
+    subtitulo.textContent = plano === 'cadastro'
+      ? 'Preencha seus dados. No Pix o Essencial anual sai por oferta; no cartão são 119,90 em até 12x, cobrança única.'
+      : 'Preencha seus dados. Este plano é mensal, sem fidelidade: Pix no site ou cartão recorrente no Asaas.';
   }
   btnEnviar.classList.add('pago');
   btnEnviar.innerHTML = 'Ir para pagamento <i class="fa-solid fa-arrow-right"></i>';
@@ -1121,19 +1125,49 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     else resumo.textContent = 'Você escolheu ' + n + 'x de R$ ' + brl(total / n) + '.';
   }
 
+  function planoMensalAtual() {
+    return dadosCheckout.plano === 'profissional' || dadosCheckout.plano === 'destaque';
+  }
+
+  function atualizarTextosCartao() {
+    var intro = document.getElementById('checkout-cartao-intro');
+    var bloco = document.getElementById('bloco-parcelas-checkout');
+    var rodape = document.getElementById('checkout-cartao-rodape');
+    var btn = document.getElementById('btn-ir-asaas');
+    var mensal = planoMensalAtual();
+    if (bloco) bloco.style.display = mensal ? 'none' : 'block';
+    if (intro) {
+      intro.textContent = mensal
+        ? 'No Asaas o cartão vira assinatura mensal. Você cancela quando quiser. O cartão nunca é digitado aqui.'
+        : 'Escolha em quantas vezes parcelar os R$ 119,90 do ano. É cobrança única, não recorrente. O cartão nunca é digitado aqui.';
+    }
+    if (rodape) {
+      rodape.textContent = mensal
+        ? 'O Asaas cobra todo mês o valor do plano. Sem fidelidade: cancele no painel quando quiser.'
+        : 'O link já vai com o valor e o máximo de parcelas. É só o Essencial anual — o Asaas não cria assinatura mensal.';
+    }
+    if (btn && !btn.disabled) {
+      btn.innerHTML = mensal
+        ? '<i class="fa-solid fa-lock"></i> Assinar no Asaas'
+        : '<i class="fa-solid fa-lock"></i> Ir para o Asaas';
+    }
+  }
+
   function mostrarValorCheckout() {
     var elValor = document.getElementById('checkout-valor');
     var elPeriodo = document.getElementById('checkout-periodo');
     var elTitulo = document.getElementById('checkout-titulo');
+    var mensal = planoMensalAtual();
     if (abaCheckout === 'cartao') {
-      if (elTitulo) elTitulo.textContent = 'Cartão no Asaas';
+      if (elTitulo) elTitulo.textContent = mensal ? 'Cartão recorrente no Asaas' : 'Cartão no Asaas';
       if (elValor) elValor.textContent = brl(dadosCheckout.valorCartaoFinal);
-      if (elPeriodo) elPeriodo.textContent = '/ano no cartão';
-      preencherParcelas(dadosCheckout.valorCartaoFinal);
+      if (elPeriodo) elPeriodo.textContent = mensal ? '/mês no cartão' : '/ano no cartão';
+      if (!mensal) preencherParcelas(dadosCheckout.valorCartaoFinal);
+      atualizarTextosCartao();
     } else {
       if (elTitulo) elTitulo.textContent = 'Pagamento via Pix';
       if (elValor) elValor.textContent = brl(dadosCheckout.valorPixFinal);
-      if (elPeriodo) elPeriodo.textContent = '/ano no Pix';
+      if (elPeriodo) elPeriodo.textContent = mensal ? '/mês no Pix' : '/ano no Pix';
     }
   }
 
@@ -1434,19 +1468,37 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 
     cupomAplicado = null;
     abaCheckout = 'pix';
-    document.getElementById('checkout-plano-nome').textContent = 'Plano ' + nomePlanoCheckout(planoEscolhido) + ' Afeto — 12 meses';
+    var mensal = planoEscolhido !== 'cadastro';
+    document.getElementById('checkout-plano-nome').textContent = mensal
+      ? 'Plano ' + nomePlanoCheckout(planoEscolhido) + ' Afeto — mensal'
+      : 'Plano Essencial Afeto — 12 meses';
+
+    dadosCheckout.precoPix = 79.9;
+    dadosCheckout.precoCartao = 119.9;
+    if (planoEscolhido === 'profissional') {
+      dadosCheckout.precoPix = 59.9;
+      dadosCheckout.precoCartao = 59.9;
+    } else if (planoEscolhido === 'destaque') {
+      dadosCheckout.precoPix = 69.9;
+      dadosCheckout.precoCartao = 69.9;
+    }
+    dadosCheckout.valorPixFinal = dadosCheckout.precoPix;
+    dadosCheckout.valorCartaoFinal = dadosCheckout.precoCartao;
 
     try {
       var cr = await fetch('/api/config-publica');
       var cd = await cr.json();
       if (cd && cd.ok && cd.precos) {
-        var essPix = cd.precos.preco_cadastro || 79.9;
-        var essCard = cd.precos.preco_cadastro_cartao || 119.9;
-        var extra = 0;
-        if (planoEscolhido === 'profissional' && cd.precos.preco_profissional) extra = cd.precos.preco_profissional;
-        if (planoEscolhido === 'destaque' && cd.precos.preco_destaque) extra = cd.precos.preco_destaque;
-        dadosCheckout.precoPix = Math.round((essPix + extra * 12) * 100) / 100;
-        dadosCheckout.precoCartao = Math.round((essCard + extra * 12) * 100) / 100;
+        if (planoEscolhido === 'cadastro') {
+          if (cd.precos.preco_cadastro) dadosCheckout.precoPix = cd.precos.preco_cadastro;
+          if (cd.precos.preco_cadastro_cartao) dadosCheckout.precoCartao = cd.precos.preco_cadastro_cartao;
+        } else if (planoEscolhido === 'profissional' && cd.precos.preco_profissional) {
+          dadosCheckout.precoPix = cd.precos.preco_profissional;
+          dadosCheckout.precoCartao = cd.precos.preco_profissional;
+        } else if (planoEscolhido === 'destaque' && cd.precos.preco_destaque) {
+          dadosCheckout.precoPix = cd.precos.preco_destaque;
+          dadosCheckout.precoCartao = cd.precos.preco_destaque;
+        }
         dadosCheckout.valorPixFinal = dadosCheckout.precoPix;
         dadosCheckout.valorCartaoFinal = dadosCheckout.precoCartao;
       }

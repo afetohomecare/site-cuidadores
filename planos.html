@@ -832,21 +832,21 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
 
         <div class="card profissional">
             <div class="card-nome"><i class="fa-solid fa-user-check"></i> Profissional</div>
-            <div class="card-tagline">Essencial + aparecer na vitrine · pago no ano</div>
+            <div class="card-tagline">Apareça nas buscas · mensal, sem fidelidade</div>
 
             <div class="card-preco">
                 <div class="preco-de-linha">
-                    <span class="preco-de" id="de-prof">De R$ 34,90 por</span>
+                    <span class="preco-de" id="de-prof">De R$ 79,90 por</span>
                     <span class="desconto-badge" id="desc-prof" style="display:none;"></span>
                 </div>
                 <div class="linha-preco">
                     <span class="cifra">R$</span>
-                    <span class="valor" id="preco-prof-valor">24</span>
+                    <span class="valor" id="preco-prof-valor">59</span>
                     <span class="centavos" id="preco-prof-cent">,90</span>
-                    <span class="periodo" id="periodo-prof">/mês na vitrine</span>
+                    <span class="periodo" id="periodo-prof">/mês no Pix</span>
                 </div>
-                <div class="por-dia" id="por-dia-prof">R$ 0,83 por dia</div>
-                <div class="nota" id="nota-prof">Paga o ano: Essencial + 12× o mensal da vitrine</div>
+                <div class="por-dia" id="por-dia-prof">R$ 2,00 por dia</div>
+                <div class="nota" id="nota-prof">Cancele quando quiser · cartão recorrente no Asaas</div>
             </div>
 
             <div class="card-divisor"></div>
@@ -863,33 +863,33 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
             <a href="cadastro.html?plano=profissional" class="card-btn profissional-btn">Quero ser Profissional</a>
             <div class="card-seguranca">
                 <i class="fa-solid fa-shield-halved"></i>
-                <span>Anual · Pix mais barato · cartão em até 12x</span>
+                <span>Mensal · sem fidelidade · cancele quando quiser</span>
             </div>
         </div>
 
         <div class="card destaque">
             <div class="card-nome"><i class="fa-solid fa-gem"></i> Destaque</div>
-            <div class="card-tagline">Essencial + topo da vitrine · pago no ano</div>
+            <div class="card-tagline">Topo da vitrine · mensal, sem fidelidade</div>
 
             <div class="card-preco">
                 <div class="preco-de-linha">
-                    <span class="preco-de" id="de-dest">De R$ 54,90 por</span>
+                    <span class="preco-de" id="de-dest">De R$ 89,90 por</span>
                     <span class="desconto-badge" id="desc-dest" style="display:none;"></span>
                 </div>
                 <div class="linha-preco">
                     <span class="cifra">R$</span>
-                    <span class="valor" id="preco-dest-valor">39</span>
+                    <span class="valor" id="preco-dest-valor">69</span>
                     <span class="centavos" id="preco-dest-cent">,90</span>
-                    <span class="periodo" id="periodo-dest">/mês na vitrine</span>
+                    <span class="periodo" id="periodo-dest">/mês no Pix</span>
                 </div>
-                <div class="por-dia" id="por-dia-dest">R$ 1,33 por dia</div>
-                <div class="nota" id="nota-dest">Paga o ano: Essencial + 12× o mensal da vitrine</div>
+                <div class="por-dia" id="por-dia-dest">R$ 2,33 por dia</div>
+                <div class="nota" id="nota-dest">Cancele quando quiser · cartão recorrente no Asaas</div>
             </div>
 
             <div class="card-divisor"></div>
 
             <ul class="card-lista">
-                <li class="item-extra"><i class="fa-solid fa-plus"></i> <strong>Tudo do extra Profissional</strong></li>
+                <li><i class="fa-solid fa-check"></i> <strong>Tudo do Essencial</strong> (perfil + painel)</li>
                 <li class="item-extra"><i class="fa-solid fa-plus"></i> Aparece no <strong>topo das buscas</strong></li>
                 <li class="item-extra"><i class="fa-solid fa-plus"></i> Selo dourado de destaque</li>
                 <li class="item-extra"><i class="fa-solid fa-plus"></i> <strong>Prioridade em indicações</strong></li>
@@ -900,7 +900,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
             <a href="cadastro.html?plano=destaque" class="card-btn destaque-btn">Quero Destaque</a>
             <div class="card-seguranca">
                 <i class="fa-solid fa-shield-halved"></i>
-                <span>Anual · Pix mais barato · cartão em até 12x</span>
+                <span>Mensal · sem fidelidade · cancele quando quiser</span>
             </div>
         </div>
 
@@ -1101,34 +1101,19 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
     }
   }
 
-  function preencherNotaCombo(id, extraMensal, essPix, essCard) {
-    var el = document.getElementById(id);
-    if (!el || !extraMensal) return;
-    var pix = (essPix || 79.9) + extraMensal * 12;
-    var card = (essCard || 119.9) + extraMensal * 12;
-    var fp = formatarPreco(pix, 365);
-    var fc = formatarPreco(card, 365);
-    var p12 = formatarPreco(pix / 12, 30);
-    var c12 = formatarPreco(card / 12, 30);
-    if (!fp || !fc || !p12 || !c12) return;
-    el.textContent = 'Ano no Pix: ' + fp.texto + ' (12x de ' + p12.texto + ') · cartão: ' + fc.texto + ' (12x de ' + c12.texto + ')';
-  }
-
   fetch('/api/config-publica')
     .then(function(r) { return r.json(); })
     .then(function(data) {
       if (!data || !data.ok || !data.precos) return;
       var p = data.precos;
-      if (p.preco_cadastro) aplicarPreco('cad', p.preco_cadastro, p.preco_cadastro_pos, 365);
-      if (p.preco_profissional) aplicarPreco('prof', p.preco_profissional, p.preco_prof_pos, 30);
-      if (p.preco_destaque) aplicarPreco('dest', p.preco_destaque, p.preco_destaque_pos, 30);
+      if (p.preco_cadastro) aplicarPreco('cad', p.preco_cadastro, p.preco_cadastro_pos || p.preco_cadastro_cartao || 119.9, 365);
+      if (p.preco_profissional) aplicarPreco('prof', p.preco_profissional, p.preco_prof_pos || 79.9, 30);
+      if (p.preco_destaque) aplicarPreco('dest', p.preco_destaque, p.preco_destaque_pos || 89.9, 30);
       if (p.preco_cadastro_cartao) {
         var fc = formatarPreco(p.preco_cadastro_cartao, 365);
         var notaCartao = document.getElementById('nota-cartao-cad');
-        if (fc && notaCartao) notaCartao.textContent = 'No cartão: ' + fc.texto + ' em até 12x';
+        if (fc && notaCartao) notaCartao.textContent = 'No cartão: ' + fc.texto + ' em até 12x (cobrança única)';
       }
-      preencherNotaCombo('nota-prof', p.preco_profissional, p.preco_cadastro, p.preco_cadastro_cartao);
-      preencherNotaCombo('nota-dest', p.preco_destaque, p.preco_cadastro, p.preco_cadastro_cartao);
     })
     .catch(function(err) {
       console.warn('Preços dinâmicos indisponíveis, usando fallback:', err);
