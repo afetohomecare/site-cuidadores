@@ -1,5 +1,5 @@
-// Painel: Pix pela API/Status Brick e cartão recorrente no Mercado Pago.
-// Dados sensíveis do cartão não são armazenados pela Afeto.
+// Painel: Pix pela API do Asaas (QR no site, sem e-mail) e cartão no checkout hospedado.
+// Dados do cartão nunca passam pelo site.
 
 import { jsonResp, metodoNaoPermitido } from '../../_lib/http.js';
 import { headersSupabase, supabaseOk } from '../../_lib/supabase.js';

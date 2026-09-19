@@ -673,7 +673,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 
     <div class="checkout-seguranca">
       <i class="fa-solid fa-shield-halved"></i>
-      <span>Ambiente 100% seguro · pagamento no Mercado Pago ou equivalente</span>
+      <span>Ambiente 100% seguro · Pix gerado pelo Asaas · cartão no checkout Asaas</span>
     </div>
   </div>
 </div>
@@ -1223,9 +1223,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     container.innerHTML = '';
     var amount = pix ? dadosCheckout.valorPixFinal : dadosCheckout.valorCartaoFinal;
     if (!amount || amount <= 0) return;
-    var idPagamento = String(dadosCheckout.recordId || 'afeto')
-      .replace(/[^a-zA-Z0-9]/g, '')
-      .slice(0, 24);
 
     var paymentMethods = pix
       ? { bankTransfer: ['pix'] }
@@ -1234,7 +1231,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       initialization: {
         amount: Number(amount),
         payer: {
-          email: 'pagamento.' + idPagamento + '@afeto.app',
           identification: {
             type: 'CPF',
             number: String(document.getElementById('cpf').value || '').replace(/\D/g, '')
@@ -1323,7 +1319,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     var blocoEmail = document.getElementById('bloco-email-assinatura');
     var mensal = planoMensalAtual();
     var nome = nomeGateway();
-    if (blocoEmail) blocoEmail.style.display = mensal ? 'block' : 'none';
+    if (blocoEmail) blocoEmail.style.display = mensal && ehMercadoPago() ? 'block' : 'none';
     if (bloco) bloco.style.display = mensal ? 'none' : 'block';
     if (intro) {
       intro.textContent = mensal
@@ -1706,7 +1702,10 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       if (cd && cd.ok) {
         if (cd.pagamento && cd.pagamento.gateway) gatewayCheckout = cd.pagamento.gateway;
         if (cd.pagamento && cd.pagamento.mpPublicKey) mpPublicKey = cd.pagamento.mpPublicKey;
-        configPagamentoOk = !!(cd.pagamento && cd.pagamento.mpAtivo && mpPublicKey);
+        configPagamentoOk = !!(cd.pagamento && (
+          (gatewayCheckout === 'asaas' && cd.pagamento.asaasAtivo) ||
+          (gatewayCheckout === 'mercadopago' && cd.pagamento.mpAtivo && mpPublicKey)
+        ));
         if (cd.precos) {
           if (planoEscolhido === 'cadastro') {
             if (cd.precos.preco_cadastro) dadosCheckout.precoPix = cd.precos.preco_cadastro;
@@ -1731,7 +1730,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     if (!configPagamentoOk) {
       document.getElementById('checkout-erro').style.display = 'block';
       document.getElementById('checkout-erro-text').textContent =
-        'Pagamento temporariamente indisponível. A configuração segura do Mercado Pago está incompleta.';
+        'Pagamento temporariamente indisponível. A configuração segura do gateway está incompleta.';
       return;
     }
 
@@ -1748,7 +1747,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   window.irParaCheckoutExterno = async function(forma) {
     var ehPix = String(forma || '').toUpperCase() === 'PIX';
     var emailAssinatura = '';
-    if (!ehPix && planoMensalAtual()) {
+    if (!ehPix && planoMensalAtual() && ehMercadoPago()) {
       var campoEmail = document.getElementById('checkout-email-assinatura');
       emailAssinatura = String(campoEmail && campoEmail.value || '').trim().toLowerCase();
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailAssinatura)) {

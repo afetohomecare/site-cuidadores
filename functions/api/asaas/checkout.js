@@ -1,6 +1,5 @@
-// Cadastro: pagamentos avulsos no Checkout Bricks e assinatura no Mercado Pago.
-// Asaas permanece no código, desativado por flag, como fallback.
-// O SDK do Mercado Pago tokeniza o cartão; a Afeto não armazena seus dados.
+// Cadastro: Pix pela API do Asaas (QR no site, sem e-mail) e cartão no checkout hospedado.
+// Mercado Pago permanece no código só se o Asaas estiver indisponível.
 
 import { idSeguro } from '../../_lib/auth.js';
 import { validarCupom, registrarUsoCupom } from '../../_lib/cupom.js';

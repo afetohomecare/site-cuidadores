@@ -366,6 +366,8 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
   var token = null;
   var cuidadora = null;
   var planoAtual = 'basico';
+  var gatewayPagamento = 'asaas';
+  var configPagamentoCarregada = false;
   var mpPublicKey = null;
   var mpInstance = null;
   var mpStatusController = null;
@@ -407,10 +409,12 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
   }
 
   async function carregarConfigPagamento() {
-    if (mpPublicKey) return;
+    if (configPagamentoCarregada) return;
     var resp = await fetch('/api/config-publica');
     var data = await resp.json().catch(function() { return {}; });
+    gatewayPagamento = data && data.pagamento && data.pagamento.gateway || 'asaas';
     mpPublicKey = data && data.pagamento && data.pagamento.mpPublicKey;
+    configPagamentoCarregada = true;
   }
 
   async function desmontarStatusMp() {
@@ -1086,7 +1090,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
 
   async function pagarExtraDestaque(acao, btn) {
     var emailAssinatura = '';
-    if (acao === 'cartao') {
+    if (acao === 'cartao' && gatewayPagamento === 'mercadopago') {
       emailAssinatura = String(window.prompt(
         'Digite o e-mail que será usado na assinatura do Destaque:'
       ) || '').trim().toLowerCase();
@@ -1197,7 +1201,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
     var btn = document.getElementById('btn-cartao-asaas');
     var mensal = planoAtual === 'profissional';
     var emailAssinatura = '';
-    if (mensal) {
+    if (mensal && gatewayPagamento === 'mercadopago') {
       emailAssinatura = String(window.prompt(
         'Digite o e-mail que será usado na assinatura:'
       ) || '').trim().toLowerCase();

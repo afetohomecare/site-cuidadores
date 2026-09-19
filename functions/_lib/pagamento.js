@@ -45,16 +45,14 @@ export function fallbackAsaasAtivo(env) {
 }
 
 export function gatewayAtivo(env) {
-  const g = String(env.PAGAMENTO_GATEWAY || '').toLowerCase().trim();
-  const mpOk = !!getMpAccessToken(env);
   const asaasOk = asaasDisponivelParaNovos(env);
+  const mpOk = !!getMpAccessToken(env);
+  const g = String(env.PAGAMENTO_GATEWAY || 'asaas').toLowerCase().trim();
+  const forcarMp = g === 'mercadopago' || g === 'mercado_pago' || g === 'mp';
 
-  if (g === 'asaas') return asaasOk ? 'asaas' : (mpOk ? 'mercadopago' : 'asaas');
-  if (g === 'mercadopago' || g === 'mercado_pago' || g === 'mp') {
-    return mpOk ? 'mercadopago' : (asaasOk ? 'asaas' : 'mercadopago');
-  }
-  if (g === 'auto' && mpOk) return 'mercadopago';
-  if (asaasDesativado(env) && mpOk) return 'mercadopago';
+  if (asaasOk) return 'asaas';
+  if (forcarMp && mpOk) return 'mercadopago';
+  if (mpOk) return 'mercadopago';
   return 'asaas';
 }
 

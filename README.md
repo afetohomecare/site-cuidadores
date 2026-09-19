@@ -28,24 +28,23 @@ O Cloudflare publica a pasta inteira. **Não mova os HTML da raiz** sem atualiza
 - Opcional: `TELEGRAM_WEBHOOK_SECRET` (se configurar no BotFather, o webhook exige esse header)
 - Opcional: `TURNSTILE_SITE_KEY` e `TURNSTILE_SECRET_KEY` (cadastro da profissional e solicitar atendimento)
 
-### Mercado Pago (checkout principal)
+### Asaas (checkout principal)
 
-- `PAGAMENTO_GATEWAY` = `mercadopago`
-- `MP_AMBIENTE` = `producao` no Production e `sandbox` no Preview
-- `MP_PUBLIC_KEY_PRODUCAO` e `MP_PUBLIC_KEY_SANDBOX` — identificadores públicos usados pelo Bricks
-- `MP_ACCESS_TOKEN_PRODUCAO` (`APP_USR-...`) e `MP_ACCESS_TOKEN_SANDBOX` (`TEST-...`) — **segredos criptografados no Cloudflare**
-- `MP_WEBHOOK_SECRET_PRODUCAO` e `MP_WEBHOOK_SECRET_SANDBOX` — **segredos obrigatórios**
+- `PAGAMENTO_GATEWAY` = `asaas`
+- `ASAAS_DESATIVADO` = `false`
+- `ASAAS_AMBIENTE` = `producao` no Production e `sandbox` durante os testes
+- `ASAAS_API_KEY_PRODUCAO` e `ASAAS_API_KEY_SANDBOX` — **segredos criptografados no Cloudflare**
+- `ASAAS_WEBHOOK_TOKEN_PRODUCAO` e `ASAAS_WEBHOOK_TOKEN_SANDBOX` — **segredos obrigatórios**
 - `PAGAMENTO_FALLBACK_ASAAS` = `false`
-- `ASAAS_DESATIVADO` = `true`
-- Webhook no painel do MP: `https://SEU-DOMINIO/api/mercadopago/webhook` (eventos de **Pagamentos** e **Assinaturas**)
-- Nunca coloque Access Token ou segredo do webhook em HTML, JavaScript público, Git ou `config-publica`.
-- A Public Key não é secreta e pode ser entregue ao navegador.
+- Webhook no painel do Asaas: `https://SEU-DOMINIO/api/asaas/webhook`
+- O Pix é criado pela API no backend e o QR/copia-e-cola é exibido no site, sem exigir e-mail.
+- O cartão e a assinatura abrem o checkout hospedado do Asaas; os dados do cartão não passam pelo site.
 
-### Asaas (código mantido, desativado para vendas novas)
+### Mercado Pago (legado)
 
-- `ASAAS_DESATIVADO` = `true` — não cria cobrança nova no Asaas
-- `PAGAMENTO_FALLBACK_ASAAS` = `true` (padrão) — se o Mercado Pago falhar, tenta o Asaas; use `false` para não cair no Asaas
-- `ASAAS_AMBIENTE`, `ASAAS_API_KEY_PRODUCAO`, `ASAAS_WEBHOOK_TOKEN_PRODUCAO` — **mantenha** enquanto houver assinatura antiga no Asaas; o webhook `/api/asaas/webhook` continua ativo
+- Mantenha temporariamente as variáveis `MP_*` e o webhook `/api/mercadopago/webhook` enquanto houver pagamentos pendentes ou assinaturas antigas no Mercado Pago.
+- Nenhuma venda nova usa Mercado Pago quando `PAGAMENTO_GATEWAY=asaas`.
+- Nunca coloque Access Token ou segredo de webhook em HTML, JavaScript público, Git ou `config-publica`.
 
 ## Solicitações de atendimento
 
@@ -68,14 +67,13 @@ O UUID interno da cuidadora **não muda**. O link público prefere um slug legí
 
 ## Pagamentos
 
-O **Checkout Bricks** processa pagamentos avulsos dentro do site. O SDK do Mercado Pago tokeniza o cartão; número, validade e CVV não passam pelas Cloudflare Functions nem são armazenados pela Afeto. O Access Token é usado somente no backend.
+O Asaas é o gateway principal. O Pix é gerado pela API no backend e exibido no site; o cartão é digitado somente no checkout hospedado do Asaas.
 
-- **Essencial** anual, cobrança **única**: Pix e cartão pelo Payment Brick.
-- **Profissional / Destaque** mensais, sem fidelidade: Pix mensal manual gerado pela API e exibido pelo Status Screen Brick. Cartão usa assinatura recorrente no ambiente do Mercado Pago.
-- Cupom entra no valor **antes** de abrir o Mercado Pago.
-- O webhook exige assinatura válida, consulta o pagamento na API e só libera o plano após conferir a ordem e o valor calculado no servidor.
-- No Supabase, rode `supabase/add-mercadopago.sql` antes de ativar o checkout. Ele cria as colunas `mp_*` e as tabelas privadas de idempotência.
-- O Asaas fica no código, desligado por `ASAAS_DESATIVADO`. Assinaturas antigas do Asaas continuam recebendo webhook.
+- **Essencial** anual, cobrança **única**: Pix transparente no site ou cartão no checkout Asaas.
+- **Profissional / Destaque** mensais, sem fidelidade: Pix mensal manual no painel ou assinatura no checkout Asaas.
+- Cupom entra no valor **antes** de criar a cobrança.
+- O webhook Asaas exige token secreto e confirma o pagamento no backend.
+- O Mercado Pago permanece apenas para conciliar pagamentos ou assinaturas antigas.
 - Só Profissional e Destaque entram na vitrine da home.
 
-O HTTPS/SSL de `*.pages.dev` é emitido e renovado pelo Cloudflare Pages. Não existe certificado do Banco Central para instalar no site.
+O HTTPS/SSL de `*.pages.dev` é emitido e renovado pelo Cloudflare Pages. Não existe certificado do Banco Central para instalar no site. O QR/copia-e-cola do Pix é emitido pelo Asaas (PSP); o app do banco paga a chave Pix do Asaas, não o domínio da Afeto.
