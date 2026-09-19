@@ -14,6 +14,24 @@ export function getMpAccessToken(env) {
   return env.MP_ACCESS_TOKEN_PRODUCAO || env.MP_ACCESS_TOKEN || env.MERCADOPAGO_ACCESS_TOKEN || '';
 }
 
+export function getMpPublicKey(env) {
+  const ambiente = String(env.MP_AMBIENTE || env.MERCADOPAGO_AMBIENTE || 'producao').toLowerCase();
+  const sandbox = ambiente === 'sandbox' || ambiente === 'test' || ambiente === 'teste';
+  if (sandbox) {
+    return env.MP_PUBLIC_KEY_SANDBOX || env.MP_PUBLIC_KEY || '';
+  }
+  return env.MP_PUBLIC_KEY_PRODUCAO || env.MP_PUBLIC_KEY || '';
+}
+
+export function getMpWebhookSecret(env) {
+  const ambiente = String(env.MP_AMBIENTE || env.MERCADOPAGO_AMBIENTE || 'producao').toLowerCase();
+  const sandbox = ambiente === 'sandbox' || ambiente === 'test' || ambiente === 'teste';
+  if (sandbox) {
+    return env.MP_WEBHOOK_SECRET_SANDBOX || env.MP_WEBHOOK_SECRET || env.MERCADOPAGO_WEBHOOK_SECRET || '';
+  }
+  return env.MP_WEBHOOK_SECRET_PRODUCAO || env.MP_WEBHOOK_SECRET || env.MERCADOPAGO_WEBHOOK_SECRET || '';
+}
+
 export function asaasDisponivelParaNovos(env) {
   if (asaasDesativado(env)) return false;
   const asaas = getAsaasConfig(env);

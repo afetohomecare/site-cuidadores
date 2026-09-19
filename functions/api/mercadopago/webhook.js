@@ -1,24 +1,28 @@
-import { idSeguro } from '../../_lib/auth.js';
-import { dataValidadePlano, planoDaCuidadora, pagamentoEhDestaqueExtra } from '../../_lib/planos.js';
+import { dataValidadePlano } from '../../_lib/planos.js';
 import { jsonResp } from '../../_lib/http.js';
 import { headersSupabase, supabaseOk } from '../../_lib/supabase.js';
 import { patchCuidador } from '../../_lib/pagamento.js';
+import { registrarUsoCupom } from '../../_lib/cupom.js';
 import {
+  atualizarOrdemMp,
+  buscarOrdemMp,
+  concluirEventoPagamentoMp,
+  desfazerReservaEventoMp,
+  emCentavos,
+  reservarEventoPagamentoMp
+} from '../../_lib/ordens-pagamento.js';
+import {
+  atualizarValorPreapprovalMp,
+  buscarPagamentoAutorizadoMp,
   buscarPagamentoMp,
   buscarPreapprovalMp,
   buscarMerchantOrderMp,
+  getMpConfig,
   validarAssinaturaMp
 } from '../../_lib/mercadopago.js';
 
-export async function onRequestGet(context) {
-  const { request, env } = context;
-  const url = new URL(request.url);
-  const tipo = url.searchParams.get('type') || url.searchParams.get('topic') || '';
-  const id = url.searchParams.get('data.id') || url.searchParams.get('id') || '';
-  if (tipo && id) {
-    await processarNotificacao(env, request, tipo, id);
-  }
-  return jsonResp({ ok: true, message: 'Webhook Mercado Pago ativo.' }, 200);
+export async function onRequestGet() {
+  return jsonResp({ ok: true, message: 'Webhook Mercado Pago ativo. Notificações somente por POST.' }, 200);
 }
 
 export async function onRequestPost(context) {
@@ -35,9 +39,7 @@ export async function onRequestPost(context) {
     }
     id = String(id || '');
 
-    if (!tipo || !id) {
-      return jsonResp({ received: true }, 200);
-    }
+    if (!tipo || !id) return jsonResp({ error: 'Notificação incompleta' }, 400);
 
     const ok = await processarNotificacao(env, request, tipo, id);
     if (ok === false) {
@@ -58,23 +60,27 @@ async function processarNotificacao(env, request, tipo, id) {
     return false;
   }
 
-  if (tipoNorm === 'payment' || tipoNorm.indexOf('payment') !== -1) {
+  if (tipoNorm === 'subscription_authorized_payment') {
+    const fatura = await buscarPagamentoAutorizadoMp(env, id);
+    if (!fatura) throw new Error('Não foi possível consultar a fatura da assinatura.');
+    const paymentId = fatura && fatura.payment && fatura.payment.id;
+    if (paymentId) await processarPagamento(env, paymentId);
+    return true;
+  }
+
+  if (tipoNorm === 'payment' || tipoNorm === 'topic_payment_wh') {
     await processarPagamento(env, id);
     return true;
   }
 
   if (tipoNorm === 'merchant_order' || tipoNorm === 'topic_merchant_order_wh') {
     const order = await buscarMerchantOrderMp(env, id);
-    const pagamentos = (order && order.payments) || [];
+    if (!order) throw new Error('Não foi possível consultar a ordem do Mercado Pago.');
+    const pagamentos = order.payments || [];
     for (let i = 0; i < pagamentos.length; i++) {
       const pid = pagamentos[i] && (pagamentos[i].id || pagamentos[i].payment_id);
       if (pid) await processarPagamento(env, pid);
     }
-    return true;
-  }
-
-  if (tipoNorm === 'subscription_authorized_payment') {
-    await processarPagamento(env, id);
     return true;
   }
 
@@ -88,26 +94,72 @@ async function processarNotificacao(env, request, tipo, id) {
 
 async function processarPagamento(env, paymentId) {
   const payment = await buscarPagamentoMp(env, paymentId);
-  if (!payment) return;
+  if (!payment) throw new Error('Não foi possível consultar o pagamento no Mercado Pago.');
 
-  const cuidadorId = idSeguro(
-    payment.external_reference ||
-    (payment.metadata && (payment.metadata.cuidador_id || payment.metadata.cuidadorId))
-  );
-  if (!cuidadorId || !supabaseOk(env)) return;
+  const ordem = await buscarOrdemMp(env, String(payment.external_reference || ''));
+  if (!ordem || !supabaseOk(env)) {
+    if (payment.metadata && payment.metadata.ordem_id) {
+      throw new Error('Não foi possível consultar a ordem interna do pagamento.');
+    }
+    console.warn('Pagamento MP sem ordem interna válida:', String(payment.id || ''));
+    return;
+  }
 
-  const extraDestaque = mpEhDestaqueExtra(payment);
+  const mp = getMpConfig(env);
+  const ambienteCorreto = mp.isSandbox ? payment.live_mode !== true : payment.live_mode === true;
+  const valorCentavos = emCentavos(payment.transaction_amount);
+  const valorPermitido = ordem.tipo === 'assinatura'
+    ? (valorCentavos === ordem.valor_final_centavos || valorCentavos === ordem.valor_base_centavos)
+    : valorCentavos === ordem.valor_final_centavos;
+  const metadataCuidador = payment.metadata &&
+    (payment.metadata.cuidador_id || payment.metadata.cuidadorId);
+  const pagamentoCompativel = ambienteCorreto &&
+    String(payment.currency_id || 'BRL') === 'BRL' &&
+    valorPermitido &&
+    (!metadataCuidador || String(metadataCuidador) === String(ordem.cuidador_id)) &&
+    (ordem.tipo === 'assinatura' ||
+      !ordem.mp_payment_id ||
+      String(ordem.mp_payment_id) === String(payment.id));
+  if (!pagamentoCompativel) {
+    console.warn('Pagamento MP rejeitado por divergência da ordem:', String(payment.id || ''));
+    return;
+  }
+
+  const cuidadorId = String(ordem.cuidador_id);
+  const extraDestaque = ordem.produto === 'destaque_extra' || ordem.plano === 'destaque';
   const status = String(payment.status || '').toLowerCase();
+  const ordemAtualizada = await atualizarOrdemMp(env, ordem.id, {
+    mp_payment_id: String(payment.id),
+    status: status || 'unknown'
+  });
+  if (!ordemAtualizada) {
+    throw new Error('Falha ao atualizar a ordem interna do pagamento.');
+  }
+
   if (status === 'refunded' || status === 'charged_back') {
+    const atual = await lerCuidador(env, cuidadorId);
+    const pagamentoAtualProduto = extraDestaque
+      ? atual && atual.mp_destaque_payment_id
+      : atual && atual.mp_plano_payment_id;
+    if (!atual || String(pagamentoAtualProduto || '') !== String(payment.id)) {
+      return;
+    }
     if (extraDestaque) {
-      await patchCuidador(env, cuidadorId, { plano_destaque: false, mp_payment_id: String(payment.id) });
+      const estornou = await patchCuidador(env, cuidadorId, {
+        plano_destaque: false,
+        mp_payment_id: String(payment.id),
+        mp_destaque_payment_id: null
+      });
+      if (!estornou) throw new Error('Falha ao refletir o estorno do Destaque.');
       await notificarTelegram(env, '🔄 *Estorno Mercado Pago*\n\nDestaque extra da cuidadora `' + cuidadorId + '`');
     } else {
-      await patchCuidador(env, cuidadorId, {
+      const estornou = await patchCuidador(env, cuidadorId, {
         status_pagamento: 'Estornado',
         plano_valido_ate: new Date().toISOString(),
-        mp_payment_id: String(payment.id)
+        mp_payment_id: String(payment.id),
+        mp_plano_payment_id: null
       });
+      if (!estornou) throw new Error('Falha ao refletir o estorno do plano.');
       await notificarTelegram(env, '🔄 *Estorno Mercado Pago*\n\nCuidadora ID `' + cuidadorId + '`');
     }
     return;
@@ -115,14 +167,74 @@ async function processarPagamento(env, paymentId) {
 
   if (status !== 'approved') return;
 
+  const cuidador = await lerCuidador(env, cuidadorId);
+  if (!cuidador) {
+    throw new Error('Cuidadora não encontrada para liberar o pagamento.');
+  }
+
+  if (ordem.tipo === 'assinatura' && !ordem.recorrencia_ajustada_em &&
+      ordem.desconto_centavos > 0) {
+    if (!cuidador.mp_preapproval_id) {
+      throw new Error('Assinatura ainda não vinculada para retirar o desconto recorrente.');
+    }
+    const valorCheio = Number(ordem.valor_base_centavos) / 100;
+    const ajustou = await atualizarValorPreapprovalMp(env, cuidador.mp_preapproval_id, valorCheio);
+    if (!ajustou) {
+      throw new Error('Falha ao retirar desconto da recorrência MP.');
+    }
+    const salvouAjuste = await atualizarOrdemMp(env, ordem.id, {
+      recorrencia_ajustada_em: new Date().toISOString()
+    });
+    if (!salvouAjuste) {
+      throw new Error('Falha ao registrar o ajuste da recorrência MP.');
+    }
+  }
+
+  const pagamentoJaAplicado = extraDestaque
+    ? cuidador.mp_destaque_payment_id
+    : cuidador.mp_plano_payment_id;
+  if (String(pagamentoJaAplicado || '') === String(payment.id)) {
+    await concluirEventoPagamentoMp(env, payment.id);
+    return;
+  }
+
+  const primeiroProcessamento = await reservarEventoPagamentoMp(
+    env,
+    ordem.id,
+    payment.id,
+    status
+  );
+  if (!primeiroProcessamento) return;
+
   if (extraDestaque) {
-    await patchCuidador(env, cuidadorId, { plano_destaque: true, mp_payment_id: String(payment.id) });
+    if (!ordem.processado_em && ordem.cupom_codigo) {
+      const cupomOk = await registrarCupomDaOrdem(env, ordem, payment.id);
+      if (!cupomOk) {
+        await desfazerReservaEventoMp(env, payment.id);
+        throw new Error('Falha ao registrar o cupom do pagamento.');
+      }
+    }
+    const patchOk = await patchCuidador(env, cuidadorId, {
+      plano_destaque: true,
+      mp_payment_id: String(payment.id),
+      mp_destaque_payment_id: String(payment.id)
+    });
+    if (!patchOk) {
+      await desfazerReservaEventoMp(env, payment.id);
+      throw new Error('Falha ao liberar o Destaque após o pagamento.');
+    }
+    const ordemConcluida = await atualizarOrdemMp(env, ordem.id, {
+      processado_em: ordem.processado_em || new Date().toISOString()
+    });
+    const eventoConcluido = await concluirEventoPagamentoMp(env, payment.id);
+    if (!ordemConcluida || !eventoConcluido) {
+      throw new Error('Falha ao concluir o processamento do Destaque.');
+    }
     await notificarTelegram(env, '[Mercado Pago] 💎 *Destaque extra* aprovado\n\nID: `' + cuidadorId + '`');
     return;
   }
 
-  const cuidador = await lerCuidador(env, cuidadorId);
-  const plano = planoDaCuidadora(cuidador);
+  const plano = String(ordem.plano || 'cadastro');
   const agora = new Date();
   const jaAtivo = cuidador && cuidador.status_pagamento === 'Pago' && cuidador.plano_valido_ate &&
     new Date(cuidador.plano_valido_ate).getTime() > Date.now();
@@ -134,12 +246,28 @@ async function processarPagamento(env, paymentId) {
     plano_inicio: agora.toISOString(),
     plano_valido_ate: vence.toISOString(),
     proxima_cobranca: vence.toISOString(),
-    mp_payment_id: String(payment.id)
+    mp_payment_id: String(payment.id),
+    mp_plano_payment_id: String(payment.id)
   };
-  if (cuidador && cuidador.cupom_usado) {
-    await registrarCupomSePreciso(env, cuidador, cuidadorId, plano, payment);
+  if (!ordem.processado_em && ordem.cupom_codigo) {
+    const cupomOk = await registrarCupomDaOrdem(env, ordem, payment.id);
+    if (!cupomOk) {
+      await desfazerReservaEventoMp(env, payment.id);
+      throw new Error('Falha ao registrar o cupom do pagamento.');
+    }
   }
-  await patchCuidador(env, cuidadorId, patchBody);
+  const patchOk = await patchCuidador(env, cuidadorId, patchBody);
+  if (!patchOk) {
+    await desfazerReservaEventoMp(env, payment.id);
+    throw new Error('Falha ao liberar o plano após o pagamento.');
+  }
+  const ordemConcluida = await atualizarOrdemMp(env, ordem.id, {
+    processado_em: ordem.processado_em || agora.toISOString()
+  });
+  const eventoConcluido = await concluirEventoPagamentoMp(env, payment.id);
+  if (!ordemConcluida || !eventoConcluido) {
+    throw new Error('Falha ao concluir o processamento do plano.');
+  }
 
   const forma = String(payment.payment_method_id || '').toLowerCase() === 'pix' ? '💠 Pix' : '💳 Cartão';
   const valor = payment.transaction_amount
@@ -155,45 +283,40 @@ async function processarPagamento(env, paymentId) {
 
 async function processarPreapproval(env, preapprovalId) {
   const sub = await buscarPreapprovalMp(env, preapprovalId);
-  if (!sub) return;
-  const cuidadorId = idSeguro(sub.external_reference || (sub.metadata && sub.metadata.cuidador_id));
-  if (!cuidadorId || !supabaseOk(env)) return;
+  if (!sub) throw new Error('Não foi possível consultar a assinatura no Mercado Pago.');
+  const ordem = await buscarOrdemMp(env, String(sub.external_reference || ''));
+  if (!ordem || ordem.tipo !== 'assinatura' || !supabaseOk(env)) {
+    throw new Error('Não foi possível consultar a ordem interna da assinatura.');
+  }
 
-  const extraDestaque = mpEhDestaqueExtra(sub);
+  const cuidadorId = String(ordem.cuidador_id);
   const status = String(sub.status || '').toLowerCase();
+  const ordemAtualizada = await atualizarOrdemMp(env, ordem.id, {
+    mp_preapproval_id: String(sub.id),
+    status: status || 'unknown'
+  });
+  if (!ordemAtualizada) throw new Error('Falha ao atualizar a ordem da assinatura.');
+
   if (status === 'cancelled' || status === 'paused') {
-    if (extraDestaque) {
-      await patchCuidador(env, cuidadorId, { plano_destaque: false });
-    } else {
-      await patchCuidador(env, cuidadorId, { mp_preapproval_id: null });
-    }
+    const cancelou = await patchCuidador(env, cuidadorId, { mp_preapproval_id: null });
+    if (!cancelou) throw new Error('Falha ao refletir o cancelamento da assinatura.');
     return;
   }
   if (status !== 'authorized' && status !== 'active') return;
 
-  if (extraDestaque) {
-    await patchCuidador(env, cuidadorId, { plano_destaque: true });
-    return;
-  }
-
-  const cuidador = await lerCuidador(env, cuidadorId);
-  const plano = planoDaCuidadora(cuidador);
-  const agora = new Date();
-  const vence = dataValidadePlano(plano, agora);
-  await patchCuidador(env, cuidadorId, {
-    status_pagamento: 'Pago',
-    plano_inicio: agora.toISOString(),
-    plano_valido_ate: vence.toISOString(),
-    proxima_cobranca: vence.toISOString(),
+  // Autorizar a assinatura não confirma pagamento. O plano só é liberado
+  // quando chegar um pagamento "approved".
+  const vinculou = await patchCuidador(env, cuidadorId, {
     mp_preapproval_id: String(sub.id)
   });
+  if (!vinculou) throw new Error('Falha ao vincular a assinatura à cuidadora.');
 }
 
 async function lerCuidador(env, cuidadorId) {
   try {
     const resp = await fetch(
       env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(cuidadorId) +
-      '&select=cupom_usado,plano_cadastro,plano_profissional,plano_destaque,plano_valido_ate,status_pagamento&limit=1',
+      '&select=cupom_usado,plano_cadastro,plano_profissional,plano_destaque,plano_valido_ate,status_pagamento,mp_preapproval_id,mp_payment_id,mp_plano_payment_id,mp_destaque_payment_id&limit=1',
       { headers: headersSupabase(env) }
     );
     if (!resp.ok) return null;
@@ -204,59 +327,30 @@ async function lerCuidador(env, cuidadorId) {
   }
 }
 
-async function registrarCupomSePreciso(env, cuidador, cuidadorId, plano, payment) {
+async function registrarCupomDaOrdem(env, ordem, paymentId) {
   try {
     const cupomResp = await fetch(
-      env.SUPABASE_URL + '/rest/v1/cupons?codigo=eq.' + encodeURIComponent(cuidador.cupom_usado) + '&limit=1',
+      env.SUPABASE_URL + '/rest/v1/cupons?codigo=eq.' + encodeURIComponent(ordem.cupom_codigo) + '&limit=1',
       { headers: headersSupabase(env) }
     );
     const cupons = await cupomResp.json();
     const cupom = cupons && cupons[0];
-    if (!cupom) return;
+    if (!cupom) return false;
 
-    const jaUsado = await fetch(
-      env.SUPABASE_URL + '/rest/v1/cupons_usos?cupom_id=eq.' + encodeURIComponent(cupom.id) +
-      '&cuidador_id=eq.' + encodeURIComponent(cuidadorId) + '&limit=1',
-      { headers: headersSupabase(env) }
+    return await registrarUsoCupom(
+      env,
+      cupom,
+      ordem.cuidador_id,
+      ordem.plano,
+      Number(ordem.valor_base_centavos) / 100,
+      Number(ordem.desconto_centavos) / 100,
+      Number(ordem.valor_final_centavos) / 100,
+      String(paymentId)
     );
-    const usos = await jaUsado.json();
-    const pid = String(payment.id);
-    if (usos && usos.length && usos.find(function (u) {
-      return String(u.asaas_pagamento_id || '') === pid;
-    })) return;
-
-    await fetch(env.SUPABASE_URL + '/rest/v1/cupons_usos', {
-      method: 'POST',
-      headers: headersSupabase(env, true, false),
-      body: JSON.stringify({
-        cupom_id: cupom.id,
-        cupom_codigo: cupom.codigo,
-        cuidador_id: cuidadorId,
-        plano: plano,
-        valor_original: payment.transaction_amount,
-        valor_desconto: 0,
-        valor_final: payment.transaction_amount,
-        asaas_pagamento_id: pid
-      })
-    });
-    await fetch(env.SUPABASE_URL + '/rest/v1/cupons?id=eq.' + encodeURIComponent(cupom.id), {
-      method: 'PATCH',
-      headers: headersSupabase(env, true, false),
-      body: JSON.stringify({ usos_atuais: (cupom.usos_atuais || 0) + 1 })
-    });
   } catch (err) {
     console.warn('Erro cupom webhook MP:', err);
+    return false;
   }
-}
-
-function mpEhDestaqueExtra(obj) {
-  const meta = (obj && obj.metadata) || {};
-  const produto = String(meta.produto || meta.extra || '').toLowerCase();
-  if (produto === 'destaque' || produto === 'destaque_extra') return true;
-  return pagamentoEhDestaqueExtra({
-    description: (obj && (obj.description || obj.reason || obj.title)) || '',
-    items: obj && obj.additional_info && obj.additional_info.items
-  });
 }
 
 async function notificarTelegram(env, texto) {

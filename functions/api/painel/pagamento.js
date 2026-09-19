@@ -1,5 +1,5 @@
-// Painel: Pix/cartão no Mercado Pago (Checkout Pro). Asaas só como fallback.
-// Cartão NUNCA é digitado no domínio da Afeto.
+// Painel: Pix pela API/Status Brick e cartão recorrente no Mercado Pago.
+// Dados sensíveis do cartão não são armazenados pela Afeto.
 
 import { jsonResp, metodoNaoPermitido } from '../../_lib/http.js';
 import { headersSupabase, supabaseOk } from '../../_lib/supabase.js';
@@ -26,7 +26,13 @@ import {
   fallbackAsaasAtivo,
   gatewayAtivo
 } from '../../_lib/pagamento.js';
-import { criarCheckoutMp } from '../../_lib/mercadopago.js';
+import {
+  buscarPagamentoMp,
+  criarCheckoutMp,
+  criarPagamentoBrick,
+  getMpConfig
+} from '../../_lib/mercadopago.js';
+import { buscarPixPendenteMp, criarOrdemMp } from '../../_lib/ordens-pagamento.js';
 
 const CAMPOS = [
   'id', 'nome', 'cpf', 'whatsapp',
@@ -128,6 +134,94 @@ export async function onRequestPost(context) {
 
     const gateway = gatewayAtivo(env);
     if (gateway === 'mercadopago') {
+      if (acao === 'pix') {
+        const produto = extraDestaque ? 'destaque_extra' : '';
+        const existente = await buscarPixPendenteMp(env, c.id, plano, produto, valor);
+        if (existente && existente.mp_payment_id) {
+          const pagamentoExistente = await buscarPagamentoMp(env, existente.mp_payment_id);
+          const statusExistente = String(pagamentoExistente && pagamentoExistente.status || '');
+          const transactionData = pagamentoExistente && pagamentoExistente.point_of_interaction &&
+            pagamentoExistente.point_of_interaction.transaction_data;
+          if ((statusExistente === 'pending' || statusExistente === 'in_process') && transactionData) {
+            return jsonResp({
+              ok: true,
+              acao: 'pix',
+              gateway: 'mercadopago',
+              brick: true,
+              reutilizada: true,
+              paymentId: String(pagamentoExistente.id),
+              status: statusExistente,
+              valorFinal: valor,
+              pix: {
+                qrCodeImage: transactionData.qr_code_base64 || '',
+                copiaECola: transactionData.qr_code || '',
+                ticketUrl: transactionData.ticket_url || ''
+              }
+            }, 200);
+          }
+        }
+
+        const pagamento = await criarPagamentoBrick({
+          env: env,
+          request: request,
+          origem: origemPublica(request),
+          cuidadorId: c.id,
+          nome: c.nome,
+          cpfLimpo: cpfLimpo,
+          whatsLimpo: whatsLimpo,
+          valorBase: valorBase,
+          desconto: desconto,
+          valor: valor,
+          parcelas: 1,
+          cupomObj: cupomObj,
+          nomePlano: extraDestaque ? 'Destaque extra' : nomeDoPlanoBonito(plano),
+          plano: plano,
+          forma: 'PIX',
+          formData: {},
+          extra: extraDestaque,
+          tipo: planoEhEssencial(plano) ? 'avulso' : 'mensal_manual'
+        });
+        if (!pagamento.ok) {
+          return jsonResp({ error: pagamento.error }, pagamento.status || 502);
+        }
+        return jsonResp({
+          ok: true,
+          acao: 'pix',
+          gateway: 'mercadopago',
+          brick: true,
+          paymentId: pagamento.paymentId,
+          status: pagamento.paymentStatus,
+          statusDetail: pagamento.statusDetail,
+          valorFinal: valor,
+          cupom: cupomObj ? cupomObj.codigo : null,
+          pix: pagamento.pix
+        }, 200);
+      }
+
+      const recorrente = extraDestaque
+        ? acao === 'cartao'
+        : (!planoEhEssencial(plano) && acao === 'cartao');
+      const mp = getMpConfig(env);
+      const ordemCheckout = await criarOrdemMp(env, {
+        cuidadorId: c.id,
+        plano: plano,
+        produto: extraDestaque ? 'destaque_extra' : '',
+        forma: forma,
+        tipo: recorrente ? 'assinatura' : 'avulso',
+        valorBase: valorBase,
+        desconto: desconto,
+        valorFinal: valor,
+        cupomCodigo: cupomObj ? cupomObj.codigo : null,
+        isSandbox: mp.isSandbox,
+        expiraEm: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+        clientRequestId: body.clientRequestId
+      });
+      if (!ordemCheckout) {
+        return jsonResp({
+          error: 'Execute a atualização do banco de dados do Mercado Pago antes de receber pagamentos.'
+        }, 503);
+      }
+
       const checkoutMp = await criarCheckoutMp({
         env: env,
         request: request,
@@ -144,7 +238,11 @@ export async function onRequestPost(context) {
         plano: plano,
         forma: forma,
         extra: extraDestaque,
-        recorrente: extraDestaque ? acao === 'cartao' : (!planoEhEssencial(plano) && acao === 'cartao')
+        recorrente: recorrente,
+        externalReference: ordemCheckout.id,
+        ordemId: ordemCheckout.id,
+        existingPreapprovalId: ordemCheckout.mp_preapproval_id,
+        existingCheckoutUrl: ordemCheckout.checkout_url
       });
       if (checkoutMp && checkoutMp.link) {
         return jsonResp({

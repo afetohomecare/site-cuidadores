@@ -61,7 +61,7 @@ export async function validarCupom(env, codigo, plano, valorBase, cpfLimpo) {
 
 export async function registrarUsoCupom(env, cupom, cuidadorId, plano, valorBase, desconto, valorFinal, asaasPagamentoId) {
   try {
-    await fetch(env.SUPABASE_URL + '/rest/v1/cupons_usos', {
+    const usoResp = await fetch(env.SUPABASE_URL + '/rest/v1/cupons_usos', {
       method: 'POST',
       headers: headersSupabase(env, true, false),
       body: JSON.stringify({
@@ -75,12 +75,17 @@ export async function registrarUsoCupom(env, cupom, cuidadorId, plano, valorBase
         asaas_pagamento_id: asaasPagamentoId || null
       })
     });
-    await fetch(env.SUPABASE_URL + '/rest/v1/cupons?id=eq.' + encodeURIComponent(cupom.id), {
+    if (!usoResp.ok && usoResp.status !== 409) return false;
+    if (usoResp.status === 409) return true;
+    const cupomResp = await fetch(env.SUPABASE_URL + '/rest/v1/cupons?id=eq.' + encodeURIComponent(cupom.id), {
       method: 'PATCH',
       headers: headersSupabase(env, true, false),
       body: JSON.stringify({ usos_atuais: (cupom.usos_atuais || 0) + 1 })
     });
+    if (!cupomResp.ok) return false;
+    return true;
   } catch (err) {
     console.warn('Erro uso cupom:', err);
+    return false;
   }
 }

@@ -9,7 +9,7 @@ const CAMPOS_RETORNO = [
   'cursos', 'subespecialidades', 'coren', 'categoria', 'nota', 'horas',
   'verificada', 'disponivel', 'disponivel_atualizado_em',
   'plano_cadastro', 'plano_profissional', 'plano_destaque',
-  'plano_inicio', 'plano_valido_ate', 'status_pagamento', 'aprovada',
+  'plano_inicio', 'plano_valido_ate', 'proxima_cobranca', 'status_pagamento', 'aprovada',
   'asaas_subscription_id', 'mp_preapproval_id',
   'excluido', 'criado_em', 'atualizado_em',
   'mostrar_bio', 'mostrar_habilidades', 'mostrar_cursos', 'mostrar_bairros',

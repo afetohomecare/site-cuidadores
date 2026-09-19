@@ -13,7 +13,12 @@
 //   • *_pos = preço cheio (riscado, "De R$ X por")
 // ============================================================
 
-import { gatewayAtivo, asaasDisponivelParaNovos, getMpAccessToken } from '../_lib/pagamento.js';
+import {
+  gatewayAtivo,
+  asaasDisponivelParaNovos,
+  getMpAccessToken,
+  getMpPublicKey
+} from '../_lib/pagamento.js';
 
 const CHAVES_PUBLICAS = [
   'preco_cadastro',
@@ -59,6 +64,8 @@ export async function onRequestGet(context) {
     });
 
     const gateway = gatewayAtivo(env);
+    const mpPublicKey = getMpPublicKey(env);
+    const mpAtivo = gateway === 'mercadopago' && !!getMpAccessToken(env) && !!mpPublicKey;
 
     return new Response(JSON.stringify({
       ok: true,
@@ -66,7 +73,8 @@ export async function onRequestGet(context) {
       turnstileSiteKey: env.TURNSTILE_SITE_KEY || null,
       pagamento: {
         gateway: gateway,
-        mpAtivo: gateway === 'mercadopago' && !!getMpAccessToken(env),
+        mpAtivo: mpAtivo,
+        mpPublicKey: mpAtivo ? mpPublicKey : null,
         asaasAtivo: asaasDisponivelParaNovos(env)
       }
     }), {

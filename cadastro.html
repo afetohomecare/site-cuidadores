@@ -631,33 +631,28 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
         </div>
       </div>
       <div id="pix-box-mp" style="display:none;">
-        <p style="font-size:14px;font-weight:700;color:var(--cinza-fonte);line-height:1.55;margin-bottom:16px;">
-          Você paga no site seguro do <strong>Mercado Pago</strong>. O Pix não passa pelo nosso domínio — isso evita bloqueio do banco.
-        </p>
-        <button type="button" id="btn-ir-pix-mp" onclick="irParaCheckoutExterno('PIX')" style="width:100%;padding:16px;border:none;border-radius:50px;background:linear-gradient(135deg,#00b1ea,#009ee3);color:white;font-family:Nunito,sans-serif;font-size:15px;font-weight:900;cursor:pointer;">
-          <i class="fa-solid fa-qrcode"></i> Pagar com Pix no Mercado Pago
-        </button>
-        <p style="font-size:12px;font-weight:700;color:var(--cinza-fonte);margin-top:12px;line-height:1.45;">
-          Depois de pagar, o Mercado Pago te devolve para cá e o plano libera sozinho.
-        </p>
+        <div id="mp-payment-brick-pix"></div>
       </div>
     </div>
 
     <div id="tab-cartao" style="display:none;">
-      <p id="checkout-cartao-intro" style="font-size:14px;font-weight:700;color:var(--cinza-fonte);line-height:1.55;margin-bottom:14px;">
-        Escolha em quantas vezes parcelar o anual. O cupom já entra no valor. O cartão é digitado só no ambiente seguro — nunca neste site.
-      </p>
-      <div id="bloco-parcelas-checkout">
-        <label for="checkout-parcelas" style="display:block;font-size:13px;font-weight:800;margin-bottom:8px;">Parcelas</label>
-        <select id="checkout-parcelas" style="width:100%;padding:14px 16px;border-radius:14px;border:2px solid #e2e8f0;font-family:Nunito,sans-serif;font-size:15px;font-weight:800;margin-bottom:12px;background:#f8f9fc;"></select>
-        <p id="checkout-parcela-resumo" style="font-size:15px;font-weight:900;color:var(--lilas-escuro);margin-bottom:16px;"></p>
+      <div id="mp-payment-brick-card" style="display:none;"></div>
+      <div id="cartao-checkout-externo">
+        <p id="checkout-cartao-intro" style="font-size:14px;font-weight:700;color:var(--cinza-fonte);line-height:1.55;margin-bottom:14px;">
+          Escolha em quantas vezes parcelar o anual. O cupom já entra no valor. O cartão é digitado só no ambiente seguro — nunca neste site.
+        </p>
+        <div id="bloco-parcelas-checkout">
+          <label for="checkout-parcelas" style="display:block;font-size:13px;font-weight:800;margin-bottom:8px;">Parcelas</label>
+          <select id="checkout-parcelas" style="width:100%;padding:14px 16px;border-radius:14px;border:2px solid #e2e8f0;font-family:Nunito,sans-serif;font-size:15px;font-weight:800;margin-bottom:12px;background:#f8f9fc;"></select>
+          <p id="checkout-parcela-resumo" style="font-size:15px;font-weight:900;color:var(--lilas-escuro);margin-bottom:16px;"></p>
+        </div>
+        <button type="button" id="btn-ir-asaas" onclick="irParaCheckoutExterno('CREDIT_CARD')" style="width:100%;padding:16px;border:none;border-radius:50px;background:linear-gradient(135deg,var(--lilas),var(--lilas-escuro));color:white;font-family:Nunito,sans-serif;font-size:15px;font-weight:900;cursor:pointer;">
+          <i class="fa-solid fa-lock"></i> Ir para o pagamento seguro
+        </button>
+        <p id="checkout-cartao-rodape" style="font-size:12px;font-weight:700;color:var(--cinza-fonte);margin-top:12px;line-height:1.45;">
+          O link já vai com o valor e o máximo de parcelas que você escolheu. Lá você ainda pode pagar em menos vezes, se quiser.
+        </p>
       </div>
-      <button type="button" id="btn-ir-asaas" onclick="irParaCheckoutExterno('CREDIT_CARD')" style="width:100%;padding:16px;border:none;border-radius:50px;background:linear-gradient(135deg,var(--lilas),var(--lilas-escuro));color:white;font-family:Nunito,sans-serif;font-size:15px;font-weight:900;cursor:pointer;">
-        <i class="fa-solid fa-lock"></i> Ir para o pagamento seguro
-      </button>
-      <p id="checkout-cartao-rodape" style="font-size:12px;font-weight:700;color:var(--cinza-fonte);margin-top:12px;line-height:1.45;">
-        O link já vai com o valor e o máximo de parcelas que você escolheu. Lá você ainda pode pagar em menos vezes, se quiser.
-      </p>
     </div>
 
     <div id="checkout-loading" class="checkout-loading" style="display: none;">
@@ -678,6 +673,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   </div>
 </div>
 
+<script src="https://sdk.mercadopago.com/js/v2"></script>
 <script>
 (function() {
   "use strict";
@@ -1101,6 +1097,11 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   var abaCheckout = 'pix';
   var cupomAplicado = null;
   var gatewayCheckout = 'asaas';
+  var mpPublicKey = null;
+  var mpInstance = null;
+  var mpBrickController = null;
+  var mpTentativas = { PIX: null, CREDIT_CARD: null };
+  var ultimoPagamentoMp = null;
 
   function ehMercadoPago() {
     return gatewayCheckout === 'mercadopago';
@@ -1110,12 +1111,163 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     return ehMercadoPago() ? 'Mercado Pago' : 'Asaas';
   }
 
+  async function desmontarBrickMp() {
+    if (mpBrickController && typeof mpBrickController.unmount === 'function') {
+      try { await mpBrickController.unmount(); } catch (e) {}
+    }
+    mpBrickController = null;
+  }
+
+  async function renderizarStatusMp(containerId, data) {
+    await desmontarBrickMp();
+    var container = document.getElementById(containerId);
+    if (!container) return;
+    container.innerHTML = '';
+    try {
+      mpBrickController = await mpInstance.bricks().create('statusScreen', containerId, {
+        initialization: { paymentId: data.paymentId },
+        customization: {
+          backUrls: {
+            error: window.location.origin + '/cadastro.html',
+            return: window.location.origin + '/painel-login.html'
+          }
+        },
+        callbacks: {
+          onReady: function() {},
+          onError: function(error) { console.error('Status Brick:', error); }
+        }
+      });
+    } catch (err) {
+      console.error('Erro Status Brick:', err);
+      if (data.pix && data.pix.qrCodeImage) {
+        container.innerHTML =
+          '<div class="pix-qrcode"><img src="data:image/png;base64,' +
+          data.pix.qrCodeImage + '" alt="QR Code Pix"></div>' +
+          '<p class="pix-instrucao">Use o app do seu banco para pagar.</p>';
+      } else {
+        container.innerHTML = '<p>Pagamento enviado ao Mercado Pago. A confirmação será automática.</p>';
+      }
+    }
+  }
+
+  async function enviarPagamentoBrick(forma, formData, containerId) {
+    var valor = forma === 'PIX' ? dadosCheckout.valorPixFinal : dadosCheckout.valorCartaoFinal;
+    var tentativa = mpTentativas[forma];
+    if (!tentativa || tentativa.valor !== valor) {
+      tentativa = {
+        id: window.crypto && window.crypto.randomUUID
+          ? window.crypto.randomUUID()
+          : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+              var r = Math.random() * 16 | 0;
+              return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+            }),
+        valor: valor
+      };
+      mpTentativas[forma] = tentativa;
+    }
+    var resp = await fetch('/api/asaas/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nome: dadosCheckout.nome,
+        cpf: document.getElementById('cpf').value.trim(),
+        whatsapp: document.getElementById('whatsapp').value.trim(),
+        plano: dadosCheckout.plano,
+        cuidadorId: dadosCheckout.recordId,
+        cupomCodigo: cupomAplicado || undefined,
+        formaPagamento: forma,
+        parcelas: formData && formData.installments,
+        usarBrick: true,
+        clientRequestId: tentativa.id,
+        formData: formData || {}
+      })
+    });
+    var data = await resp.json().catch(function() { return {}; });
+    if (!resp.ok || !data.ok || !data.paymentId) {
+      mpTentativas[forma] = null;
+      throw new Error(data.error || 'Não foi possível processar o pagamento.');
+    }
+    ultimoPagamentoMp = { containerId: containerId, data: data };
+    dadosCheckout.paymentId = data.paymentId;
+    document.getElementById('btn-tab-pix').disabled = true;
+    document.getElementById('btn-tab-cartao').disabled = true;
+    var cupomInput = document.getElementById('cupom-input');
+    var cupomBtn = document.getElementById('cupom-btn');
+    if (cupomInput) cupomInput.disabled = true;
+    if (cupomBtn) cupomBtn.disabled = true;
+    return data;
+  }
+
+  async function renderizarBrickMp() {
+    if (!ehMercadoPago()) return;
+    if (!mpPublicKey || !window.MercadoPago) {
+      throw new Error('Checkout Bricks não configurado.');
+    }
+    var mensal = planoMensalAtual();
+    if (abaCheckout === 'cartao' && mensal) {
+      await desmontarBrickMp();
+      return;
+    }
+
+    await desmontarBrickMp();
+    if (!mpInstance) mpInstance = new MercadoPago(mpPublicKey, { locale: 'pt-BR' });
+    var pix = abaCheckout === 'pix';
+    var containerId = pix ? 'mp-payment-brick-pix' : 'mp-payment-brick-card';
+    var container = document.getElementById(containerId);
+    if (!container) return;
+    container.innerHTML = '';
+    var amount = pix ? dadosCheckout.valorPixFinal : dadosCheckout.valorCartaoFinal;
+    if (!amount || amount <= 0) return;
+
+    var paymentMethods = pix
+      ? { bankTransfer: ['pix'] }
+      : { creditCard: 'all' };
+    mpBrickController = await mpInstance.bricks().create('payment', containerId, {
+      initialization: {
+        amount: Number(amount),
+        payer: {
+          email: String(document.getElementById('cpf').value || '').replace(/\D/g, '') + '@afeto.app',
+          identification: {
+            type: 'CPF',
+            number: String(document.getElementById('cpf').value || '').replace(/\D/g, '')
+          }
+        }
+      },
+      customization: {
+        paymentMethods: paymentMethods
+      },
+      callbacks: {
+        onReady: function() {},
+        onSubmit: function(payload) {
+          return enviarPagamentoBrick(
+            pix ? 'PIX' : 'CREDIT_CARD',
+            (payload && payload.formData) || {},
+            containerId
+          ).then(function(data) {
+            setTimeout(function() {
+              renderizarStatusMp(containerId, data).catch(function(err) {
+                console.error('Erro ao exibir status:', err);
+              });
+            }, 0);
+          });
+        },
+        onError: function(error) {
+          console.error('Payment Brick:', error);
+        }
+      }
+    });
+  }
+
   function aplicarUiGateway() {
     var mp = ehMercadoPago();
     var boxAsaas = document.getElementById('pix-box-asaas');
     var boxMp = document.getElementById('pix-box-mp');
+    var brickCard = document.getElementById('mp-payment-brick-card');
+    var externoCard = document.getElementById('cartao-checkout-externo');
     if (boxAsaas) boxAsaas.style.display = mp ? 'none' : 'block';
     if (boxMp) boxMp.style.display = mp ? 'block' : 'none';
+    if (brickCard) brickCard.style.display = mp && !planoMensalAtual() ? 'block' : 'none';
+    if (externoCard) externoCard.style.display = !mp || planoMensalAtual() ? 'block' : 'none';
     atualizarTextosCartao();
   }
 
@@ -1199,6 +1351,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   }
 
   window.trocarAbaCheckout = function(aba) {
+    if (dadosCheckout.paymentId) return;
     abaCheckout = aba === 'cartao' ? 'cartao' : 'pix';
     var btnPix = document.getElementById('btn-tab-pix');
     var btnCard = document.getElementById('btn-tab-cartao');
@@ -1210,12 +1363,21 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     if (tabCard) tabCard.style.display = abaCheckout === 'cartao' ? 'block' : 'none';
     mostrarValorCheckout();
     if (cupomAplicado) aplicarCupom(true);
+    if (ehMercadoPago()) {
+      renderizarBrickMp().catch(function(err) {
+        console.error('Erro ao renderizar Mercado Pago:', err);
+        document.getElementById('checkout-erro').style.display = 'block';
+        document.getElementById('checkout-erro-text').textContent =
+          'O pagamento seguro não pôde ser carregado. Tente novamente.';
+      });
+    }
   };
 
   var selParcelas = document.getElementById('checkout-parcelas');
   if (selParcelas) selParcelas.addEventListener('change', atualizarResumoParcela);
 
   window.aplicarCupom = async function(silencioso) {
+    if (dadosCheckout.paymentId) return;
     var input = document.getElementById('cupom-input');
     var msg = document.getElementById('cupom-msg');
     var btn = document.getElementById('cupom-btn');
@@ -1270,6 +1432,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       else dadosCheckout.valorPixFinal = valorFinal;
 
       if (valorFinal === 0) {
+        await desmontarBrickMp();
         document.getElementById('bloco-cupom').innerHTML =
           '<div style="text-align: center; padding: 30px 20px;">' +
             '<div style="font-size: 60px; margin-bottom: 14px;">🎉</div>' +
@@ -1314,6 +1477,9 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 
       } else {
         mostrarValorCheckout();
+        if (ehMercadoPago()) {
+          await renderizarBrickMp();
+        }
         if (abaCheckout === 'pix' && !ehMercadoPago()) {
           var regenerou = await regenerarPixComCupom();
           if (!regenerou) {
@@ -1368,6 +1534,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
         return false;
       }
 
+      if (data.link) return false;
       if (data.pix && data.pix.qrCodeImage) {
         document.getElementById('pix-qrcode').innerHTML = '<img src="data:image/png;base64,' + data.pix.qrCodeImage + '" alt="QR Code Pix">';
         document.getElementById('pix-codigo').value = data.pix.copiaECola || '';
@@ -1475,6 +1642,16 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       document.getElementById('checkout-loading').style.display = 'none';
       document.getElementById('checkout-erro').style.display = 'none';
       if (!ehMercadoPago() && !pollingTimer && !dadosCheckout.pago && abaCheckout === 'pix') iniciarPollingPagamento();
+      if (ehMercadoPago()) {
+        if (ultimoPagamentoMp && ultimoPagamentoMp.data) {
+          renderizarStatusMp(
+            ultimoPagamentoMp.containerId,
+            ultimoPagamentoMp.data
+          ).catch(function(err) { console.error(err); });
+        } else {
+          renderizarBrickMp().catch(function(err) { console.error(err); });
+        }
+      }
       return;
     }
 
@@ -1487,6 +1664,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       cobrancaId: null,
       pixData: null,
       pago: false,
+      paymentId: null,
       precoPix: 79.9,
       precoCartao: 119.9,
       valorPixFinal: 79.9,
@@ -1494,6 +1672,8 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     };
 
     cupomAplicado = null;
+    mpTentativas = { PIX: null, CREDIT_CARD: null };
+    ultimoPagamentoMp = null;
     abaCheckout = 'pix';
     var mensal = planoEscolhido !== 'cadastro';
     document.getElementById('checkout-plano-nome').textContent = mensal
@@ -1509,11 +1689,14 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     dadosCheckout.valorPixFinal = dadosCheckout.precoPix;
     dadosCheckout.valorCartaoFinal = dadosCheckout.precoCartao;
 
+    var configPagamentoOk = false;
     try {
       var cr = await fetch('/api/config-publica');
       var cd = await cr.json();
       if (cd && cd.ok) {
         if (cd.pagamento && cd.pagamento.gateway) gatewayCheckout = cd.pagamento.gateway;
+        if (cd.pagamento && cd.pagamento.mpPublicKey) mpPublicKey = cd.pagamento.mpPublicKey;
+        configPagamentoOk = !!(cd.pagamento && cd.pagamento.mpAtivo && mpPublicKey);
         if (cd.precos) {
           if (planoEscolhido === 'cadastro') {
             if (cd.precos.preco_cadastro) dadosCheckout.precoPix = cd.precos.preco_cadastro;
@@ -1534,6 +1717,13 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     document.getElementById('checkout-erro').style.display = 'none';
     document.getElementById('tela-checkout').classList.add('ativo');
     document.body.style.overflow = 'hidden';
+
+    if (!configPagamentoOk) {
+      document.getElementById('checkout-erro').style.display = 'block';
+      document.getElementById('checkout-erro-text').textContent =
+        'Pagamento temporariamente indisponível. A configuração segura do Mercado Pago está incompleta.';
+      return;
+    }
 
     if (ehMercadoPago()) {
       document.getElementById('checkout-loading').style.display = 'none';
@@ -1605,6 +1795,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   };
 
   window.fecharCheckout = function() {
+    desmontarBrickMp();
     document.getElementById('tela-checkout').classList.remove('ativo');
     document.body.style.overflow = '';
     var btn = document.getElementById('btn-enviar');
@@ -1654,6 +1845,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
         return;
       }
 
+      if (data.link) throw new Error('Checkout Bricks indisponível.');
       if (data.pix && data.pix.qrCodeImage) {
         document.getElementById('pix-qrcode').innerHTML = '<img src="data:image/png;base64,' + data.pix.qrCodeImage + '" alt="QR Code Pix">';
         document.getElementById('pix-codigo').value = data.pix.copiaECola || '';

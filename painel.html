@@ -340,6 +340,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
   <div class="modal-box">
     <h2>Pagamento via Pix</h2>
     <p class="subtitulo">Escaneie o QR Code ou copie o código. A confirmação é automática.</p>
+    <div id="statusScreenBrick_container"></div>
     <div id="painel-pix-qr" style="text-align:center;margin:12px 0;"></div>
     <input type="text" id="painel-pix-codigo" readonly style="width:100%;padding:12px;border-radius:12px;border:2px solid #e2e8f0;font-size:12px;font-weight:700;">
     <div class="modal-acoes">
@@ -355,6 +356,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
   <p>Carregando seu painel...</p>
 </div>
 
+<script src="https://sdk.mercadopago.com/js/v2"></script>
 <script>
 (function() {
   "use strict";
@@ -364,6 +366,9 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
   var token = null;
   var cuidadora = null;
   var planoAtual = 'basico';
+  var mpPublicKey = null;
+  var mpInstance = null;
+  var mpStatusController = null;
 
   function getToken() {
     try { return localStorage.getItem(TOKEN_KEY); } catch (e) { return null; }
@@ -399,6 +404,60 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
       throw new Error(data.error || 'Erro na requisição');
     }
     return data;
+  }
+
+  async function carregarConfigPagamento() {
+    if (mpPublicKey) return;
+    var resp = await fetch('/api/config-publica');
+    var data = await resp.json().catch(function() { return {}; });
+    mpPublicKey = data && data.pagamento && data.pagamento.mpPublicKey;
+  }
+
+  async function desmontarStatusMp() {
+    if (mpStatusController && typeof mpStatusController.unmount === 'function') {
+      try { await mpStatusController.unmount(); } catch (e) {}
+    }
+    mpStatusController = null;
+  }
+
+  async function mostrarPixMp(data) {
+    var qr = document.getElementById('painel-pix-qr');
+    var input = document.getElementById('painel-pix-codigo');
+    var statusContainer = document.getElementById('statusScreenBrick_container');
+    qr.innerHTML = '';
+    input.value = data.pix && data.pix.copiaECola ? data.pix.copiaECola : '';
+    document.getElementById('modal-pix-painel').classList.add('ativo');
+
+    await carregarConfigPagamento();
+    if (data.paymentId && mpPublicKey && window.MercadoPago) {
+      await desmontarStatusMp();
+      statusContainer.innerHTML = '';
+      if (!mpInstance) mpInstance = new MercadoPago(mpPublicKey, { locale: 'pt-BR' });
+      try {
+        mpStatusController = await mpInstance.bricks().create(
+          'statusScreen',
+          'statusScreenBrick_container',
+          {
+            initialization: { paymentId: data.paymentId },
+            callbacks: {
+              onReady: function() {},
+              onError: function(error) { console.error('Status Brick:', error); }
+            }
+          }
+        );
+        return;
+      } catch (err) {
+        console.error('Erro ao abrir Status Brick:', err);
+      }
+    }
+
+    statusContainer.innerHTML = '';
+    if (data.pix && data.pix.qrCodeImage) {
+      qr.innerHTML = '<img src="data:image/png;base64,' + data.pix.qrCodeImage +
+        '" alt="QR Code Pix" style="max-width:240px;width:100%;border-radius:12px;">';
+      return;
+    }
+    throw new Error('QR Code não retornado');
   }
 
   function escapeHTML(txt) {
@@ -479,6 +538,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
   });
 
   async function carregarPerfil() {
+    await carregarConfigPagamento().catch(function() {});
     var data = await api('/api/auth/me');
     cuidadora = data.cuidadora;
 
@@ -490,7 +550,11 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
 
     var avatarEl = document.getElementById('user-avatar');
     if (cuidadora.foto_url) {
-      avatarEl.innerHTML = '<img src="' + cuidadora.foto_url + '" alt="Avatar">';
+      avatarEl.innerHTML = '';
+      var avatarImg = document.createElement('img');
+      avatarImg.src = String(cuidadora.foto_url);
+      avatarImg.alt = 'Avatar';
+      avatarEl.appendChild(avatarImg);
     } else {
       avatarEl.textContent = nomeCurto.charAt(0).toUpperCase();
     }
@@ -717,7 +781,9 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
 
     container.innerHTML += blocoSimples({
       id: 'bio', titulo: 'Sobre mim', icone: 'fa-user-doctor',
-      conteudo: cuidadora.apresentacao || '<em style="color:#94a3b8;">Você ainda não escreveu sua apresentação.</em>',
+      conteudo: cuidadora.apresentacao
+        ? escapeHTML(cuidadora.apresentacao)
+        : '<em style="color:#94a3b8;">Você ainda não escreveu sua apresentação.</em>',
       visivel: cuidadora.mostrar_bio, valor: cuidadora.apresentacao
     });
 
@@ -1031,18 +1097,11 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
         return;
       }
       if (acao === 'pix') {
-        var qr = document.getElementById('painel-pix-qr');
-        var input = document.getElementById('painel-pix-codigo');
-        if (data.pix && data.pix.qrCodeImage) {
-          qr.innerHTML = '<img src="data:image/png;base64,' + data.pix.qrCodeImage + '" alt="QR Code Pix" style="max-width:240px;width:100%;border-radius:12px;">';
-          input.value = data.pix.copiaECola || '';
-        } else if (data.link) {
+        if (data.link && !data.paymentId) {
           window.location.href = data.link;
           return;
-        } else {
-          throw new Error('QR Code não retornado');
         }
-        document.getElementById('modal-pix-painel').classList.add('ativo');
+        await mostrarPixMp(data);
       } else {
         if (!data.link) throw new Error('Link de pagamento não retornado');
         window.location.href = data.link;
@@ -1099,15 +1158,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
         window.location.href = data.link;
         return;
       }
-      var qr = document.getElementById('painel-pix-qr');
-      var input = document.getElementById('painel-pix-codigo');
-      if (data.pix && data.pix.qrCodeImage) {
-        qr.innerHTML = '<img src="data:image/png;base64,' + data.pix.qrCodeImage + '" alt="QR Code Pix" style="max-width:240px;width:100%;border-radius:12px;">';
-        input.value = data.pix.copiaECola || '';
-      } else {
-        throw new Error('QR Code não retornado');
-      }
-      document.getElementById('modal-pix-painel').classList.add('ativo');
+      await mostrarPixMp(data);
     } catch (err) {
       alert(err.message || 'Não foi possível gerar o Pix agora.');
     } finally {
@@ -1244,6 +1295,8 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
   var btnFecharPix = document.getElementById('btn-fechar-pix-painel');
   if (btnFecharPix) {
     btnFecharPix.addEventListener('click', function() {
+      desmontarStatusMp();
+      document.getElementById('statusScreenBrick_container').innerHTML = '';
       document.getElementById('modal-pix-painel').classList.remove('ativo');
     });
   }

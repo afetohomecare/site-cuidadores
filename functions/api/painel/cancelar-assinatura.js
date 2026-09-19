@@ -87,21 +87,27 @@ export async function onRequestPost(context) {
     }
 
     const { patchCuidador } = await import('../../_lib/pagamento.js');
-    await patchCuidador(env, cuidadora.id, {
-      asaas_subscription_id: null,
-      mp_preapproval_id: null,
-      proxima_cobranca: null
-    });
-
     const cancelou = (!subId || asaasSucesso) && (!mpSubId || mpSucesso);
+    const patch = {};
+    if (subId && asaasSucesso) patch.asaas_subscription_id = null;
+    if (mpSubId && mpSucesso) patch.mp_preapproval_id = null;
+    if (cancelou) patch.proxima_cobranca = null;
+    if (Object.keys(patch).length) {
+      await patchCuidador(env, cuidadora.id, patch);
+    }
+    if (!cancelou) {
+      return jsonResp({
+        ok: false,
+        error: 'Não foi possível confirmar o cancelamento no processador. Tente novamente.'
+      }, 502);
+    }
+
     return jsonResp({
       ok: true,
       ambiente: asaas.isSandbox ? 'sandbox' : 'producao',
       asaasCancelou: asaasSucesso,
       mpCancelou: mpSucesso,
-      mensagem: cancelou
-        ? 'Assinatura cancelada com sucesso.'
-        : 'Assinatura removida do painel. Se houver cobrança futura, entre em contato.'
+      mensagem: 'Assinatura cancelada com sucesso.'
     }, 200);
 
   } catch (err) {

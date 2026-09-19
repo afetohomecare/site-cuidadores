@@ -1,6 +1,12 @@
 import { origemPublica } from './asaas.js';
-import { emailPagador, getMpAccessToken, patchCuidador } from './pagamento.js';
+import {
+  emailPagador,
+  getMpAccessToken,
+  getMpWebhookSecret,
+  patchCuidador
+} from './pagamento.js';
 import { parcelasDoCartao, planoEhEssencial } from './planos.js';
+import { atualizarOrdemMp, criarOrdemMp } from './ordens-pagamento.js';
 
 const MP_API = 'https://api.mercadopago.com';
 
@@ -12,7 +18,7 @@ export function getMpConfig(env) {
   return {
     accessToken: accessToken,
     isSandbox: isSandbox || tokenSandbox,
-    webhookSecret: env.MP_WEBHOOK_SECRET || env.MERCADOPAGO_WEBHOOK_SECRET || ''
+    webhookSecret: getMpWebhookSecret(env)
   };
 }
 
@@ -59,11 +65,191 @@ export async function criarCheckoutMp(opts) {
   if (!mp.accessToken) return null;
 
   if (opts.recorrente) {
+    if (opts.existingPreapprovalId) {
+      const existente = await buscarPreapprovalMp(opts.env, opts.existingPreapprovalId);
+      const linkExistente = linkCheckout(mp, existente);
+      if (existente && linkExistente &&
+          ['pending', 'authorized', 'active'].indexOf(String(existente.status || '').toLowerCase()) !== -1) {
+        return {
+          link: linkExistente,
+          preapprovalId: existente.id,
+          parcelas: 1,
+          recorrente: true,
+          gateway: 'mercadopago',
+          reutilizada: true
+        };
+      }
+    }
     const sub = await criarPreapproval(opts, mp);
-    if (sub) return sub;
-    console.warn('Preapproval MP falhou; tentando cobrança avulsa no Checkout Pro.');
+    return sub;
+  }
+  if (opts.existingCheckoutUrl) {
+    return {
+      link: String(opts.existingCheckoutUrl),
+      preferenceId: null,
+      parcelas: planoEhEssencial(opts.plano) ? parcelasDoCartao(opts.parcelas) : 1,
+      recorrente: false,
+      gateway: 'mercadopago',
+      reutilizada: true
+    };
   }
   return criarPreferencia(opts, mp);
+}
+
+export async function criarPagamentoBrick(opts) {
+  const mp = getMpConfig(opts.env);
+  if (!mp.accessToken) {
+    return { ok: false, status: 500, error: 'Mercado Pago não configurado.' };
+  }
+
+  const forma = String(opts.forma || '').toUpperCase();
+  if (forma !== 'PIX' && forma !== 'CREDIT_CARD') {
+    return { ok: false, status: 400, error: 'Forma de pagamento inválida.' };
+  }
+
+  const expiraEm = new Date(Date.now() + 30 * 60 * 1000).toISOString();
+  const ordem = await criarOrdemMp(opts.env, {
+    cuidadorId: opts.cuidadorId,
+    plano: opts.plano,
+    produto: opts.extra ? 'destaque_extra' : '',
+    forma: forma,
+    tipo: opts.tipo || 'avulso',
+    valorBase: opts.valorBase,
+    desconto: opts.desconto,
+    valorFinal: opts.valor,
+    cupomCodigo: opts.cupomObj ? opts.cupomObj.codigo : null,
+    isSandbox: mp.isSandbox,
+    expiraEm: expiraEm,
+    clientRequestId: opts.clientRequestId
+  });
+  if (!ordem) {
+    return {
+      ok: false,
+      status: 503,
+      error: 'Execute a atualização do banco de dados do Mercado Pago antes de receber pagamentos.'
+    };
+  }
+
+  if (ordem.mp_payment_id) {
+    const existente = await buscarPagamentoMp(opts.env, ordem.mp_payment_id);
+    if (existente) {
+      const statusExistente = String(existente.status || '').toLowerCase();
+      if (['rejected', 'cancelled', 'refunded', 'charged_back'].indexOf(statusExistente) !== -1) {
+        return {
+          ok: false,
+          status: 422,
+          error: 'Pagamento não aprovado. Revise os dados e tente novamente.'
+        };
+      }
+      const existenteTransaction = existente.point_of_interaction &&
+        existente.point_of_interaction.transaction_data;
+      return {
+        ok: true,
+        status: 200,
+        paymentId: String(existente.id),
+        paymentStatus: String(existente.status || ''),
+        statusDetail: String(existente.status_detail || ''),
+        ordemId: String(ordem.id),
+        reutilizada: true,
+        pix: existenteTransaction ? {
+          qrCodeImage: existenteTransaction.qr_code_base64 || '',
+          copiaECola: existenteTransaction.qr_code || '',
+          ticketUrl: existenteTransaction.ticket_url || ''
+        } : null
+      };
+    }
+  }
+
+  const dadosBrick = opts.formData && typeof opts.formData === 'object' ? opts.formData : {};
+  const pessoa = splitNome(opts.nome);
+  const payer = {
+    email: emailPagador(opts.cpfLimpo, opts.cuidadorId),
+    first_name: pessoa.name,
+    last_name: pessoa.surname,
+    identification: {
+      type: 'CPF',
+      number: String(opts.cpfLimpo || '')
+    }
+  };
+  const body = {
+    transaction_amount: Math.round(Number(opts.valor) * 100) / 100,
+    description: opts.extra
+      ? 'Destaque extra mensal Afeto'
+      : 'Plano ' + (opts.nomePlano || 'Afeto') + (planoEhEssencial(opts.plano) ? ' — 12 meses' : ' — mensal'),
+    payment_method_id: forma === 'PIX' ? 'pix' : String(dadosBrick.payment_method_id || ''),
+    payer: payer,
+    external_reference: String(ordem.id),
+    notification_url: (opts.origem || origemPublica(opts.request)) + '/api/mercadopago/webhook',
+    statement_descriptor: 'AFETO',
+    metadata: {
+      ordem_id: String(ordem.id),
+      cuidador_id: String(opts.cuidadorId),
+      plano: opts.extra ? 'destaque' : String(opts.plano || 'cadastro'),
+      produto: opts.extra ? 'destaque_extra' : '',
+      forma: forma
+    }
+  };
+
+  if (forma === 'PIX') {
+    body.date_of_expiration = expiraEm;
+  } else {
+    const token = String(dadosBrick.token || '');
+    if (!token || !body.payment_method_id) {
+      await atualizarOrdemMp(opts.env, ordem.id, { status: 'invalid' });
+      return { ok: false, status: 400, error: 'Dados do cartão incompletos.' };
+    }
+    body.token = token;
+    body.installments = parcelasDoCartao(dadosBrick.installments || opts.parcelas || 1);
+    if (dadosBrick.issuer_id) body.issuer_id = String(dadosBrick.issuer_id);
+  }
+
+  const resp = await mpFetch(mp.accessToken, '/v1/payments', {
+    method: 'POST',
+    body: body,
+    idempotencyKey: String(ordem.idempotency_key)
+  });
+  const payment = resp.data || {};
+  await atualizarOrdemMp(opts.env, ordem.id, {
+    mp_payment_id: payment.id ? String(payment.id) : null,
+    status: String(payment.status || (resp.ok ? 'pending' : 'failed'))
+  });
+
+  if (!resp.ok || !payment.id) {
+    console.error('Falha pagamento Mercado Pago:', resp.status);
+    return {
+      ok: false,
+      status: resp.status >= 400 && resp.status < 500 ? 400 : 502,
+      error: 'O Mercado Pago não conseguiu processar o pagamento.'
+    };
+  }
+  if (['rejected', 'cancelled'].indexOf(String(payment.status || '').toLowerCase()) !== -1) {
+    return {
+      ok: false,
+      status: 422,
+      error: 'Pagamento não aprovado. Revise os dados e tente novamente.'
+    };
+  }
+
+  await patchCuidador(opts.env, opts.cuidadorId, {
+    mp_payment_id: String(payment.id),
+    cupom_usado: opts.cupomObj ? opts.cupomObj.codigo : undefined
+  });
+
+  const transactionData = payment.point_of_interaction &&
+    payment.point_of_interaction.transaction_data;
+  return {
+    ok: true,
+    status: 200,
+    paymentId: String(payment.id),
+    paymentStatus: String(payment.status || ''),
+    statusDetail: String(payment.status_detail || ''),
+    ordemId: String(ordem.id),
+    pix: transactionData ? {
+      qrCodeImage: transactionData.qr_code_base64 || '',
+      copiaECola: transactionData.qr_code || '',
+      ticketUrl: transactionData.ticket_url || ''
+    } : null
+  };
 }
 
 async function criarPreferencia(opts, mp) {
@@ -121,8 +307,9 @@ async function criarPreferencia(opts, mp) {
     },
     payment_methods: paymentMethods,
     statement_descriptor: 'AFETO',
-    external_reference: String(opts.cuidadorId),
+    external_reference: String(opts.externalReference || opts.cuidadorId),
     metadata: {
+      ordem_id: String(opts.ordemId || ''),
       cuidador_id: String(opts.cuidadorId),
       plano: extra ? 'destaque' : String(opts.plano || 'cadastro'),
       produto: extra ? 'destaque_extra' : '',
@@ -143,7 +330,9 @@ async function criarPreferencia(opts, mp) {
   const resp = await mpFetch(mp.accessToken, '/checkout/preferences', {
     method: 'POST',
     body: body,
-    idempotencyKey: 'pref-' + String(opts.cuidadorId).slice(0, 20) + '-' + Date.now()
+    idempotencyKey: opts.ordemId
+      ? 'pref-' + String(opts.ordemId)
+      : 'pref-' + String(opts.cuidadorId).slice(0, 20) + '-' + Date.now()
   });
   const link = linkCheckout(mp, resp.data);
   if (!resp.ok || !link) {
@@ -155,6 +344,12 @@ async function criarPreferencia(opts, mp) {
     mp_preference_id: resp.data.id || null,
     cupom_usado: opts.cupomObj ? opts.cupomObj.codigo : undefined
   });
+  if (opts.ordemId) {
+    await atualizarOrdemMp(opts.env, opts.ordemId, {
+      status: String(resp.data.status || 'pending'),
+      checkout_url: link
+    });
+  }
 
   return {
     link: link,
@@ -173,7 +368,7 @@ async function criarPreapproval(opts, mp) {
   const email = emailPagador(opts.cpfLimpo, opts.cuidadorId);
   const body = {
     reason: extra ? 'Destaque extra Afeto — mensal' : 'Plano ' + nomePlano + ' Afeto — mensal',
-    external_reference: String(opts.cuidadorId),
+    external_reference: String(opts.externalReference || opts.cuidadorId),
     payer_email: email,
     auto_recurring: {
       frequency: 1,
@@ -184,6 +379,7 @@ async function criarPreapproval(opts, mp) {
     back_url: origem + '/' + pagina + '?pagamento=cartao_ok',
     status: 'pending',
     metadata: {
+      ordem_id: String(opts.ordemId || ''),
       cuidador_id: String(opts.cuidadorId),
       plano: extra ? 'destaque' : String(opts.plano || 'profissional'),
       produto: extra ? 'destaque_extra' : ''
@@ -193,7 +389,9 @@ async function criarPreapproval(opts, mp) {
   const resp = await mpFetch(mp.accessToken, '/preapproval', {
     method: 'POST',
     body: body,
-    idempotencyKey: 'sub-' + String(opts.cuidadorId).slice(0, 20) + '-' + Date.now()
+    idempotencyKey: opts.ordemId
+      ? 'sub-' + String(opts.ordemId)
+      : 'sub-' + String(opts.cuidadorId).slice(0, 20) + '-' + Date.now()
   });
   const link = linkCheckout(mp, resp.data);
   if (!resp.ok || !link) {
@@ -205,6 +403,12 @@ async function criarPreapproval(opts, mp) {
     mp_preapproval_id: resp.data.id || null,
     cupom_usado: opts.cupomObj ? opts.cupomObj.codigo : undefined
   });
+  if (opts.ordemId) {
+    await atualizarOrdemMp(opts.env, opts.ordemId, {
+      mp_preapproval_id: resp.data.id || null,
+      status: String(resp.data.status || 'pending')
+    });
+  }
 
   return {
     link: link,
@@ -229,6 +433,32 @@ export async function buscarPreapprovalMp(env, preapprovalId) {
   const resp = await mpFetch(mp.accessToken, '/preapproval/' + encodeURIComponent(preapprovalId));
   if (!resp.ok) return null;
   return resp.data;
+}
+
+export async function buscarPagamentoAutorizadoMp(env, authorizedPaymentId) {
+  const mp = getMpConfig(env);
+  if (!mp.accessToken || !authorizedPaymentId) return null;
+  const resp = await mpFetch(
+    mp.accessToken,
+    '/authorized_payments/' + encodeURIComponent(authorizedPaymentId)
+  );
+  if (!resp.ok) return null;
+  return resp.data;
+}
+
+export async function atualizarValorPreapprovalMp(env, preapprovalId, valor) {
+  const mp = getMpConfig(env);
+  if (!mp.accessToken || !preapprovalId || !valor) return false;
+  const resp = await mpFetch(mp.accessToken, '/preapproval/' + encodeURIComponent(preapprovalId), {
+    method: 'PUT',
+    body: {
+      auto_recurring: {
+        transaction_amount: Math.round(Number(valor) * 100) / 100,
+        currency_id: 'BRL'
+      }
+    }
+  });
+  return resp.ok;
 }
 
 export async function buscarMerchantOrderMp(env, orderId) {
@@ -265,9 +495,8 @@ export async function hmacSha256Hex(secret, message) {
 
 export async function validarAssinaturaMp(request, env, dataId) {
   const mp = getMpConfig(env);
-  if (!mp.webhookSecret) return true;
+  if (!mp.webhookSecret) return false;
   const sig = request.headers.get('x-signature') || '';
-  if (!sig) return true;
   const requestId = request.headers.get('x-request-id') || '';
   if (!sig || !requestId || !dataId) return false;
 
@@ -283,7 +512,8 @@ export async function validarAssinaturaMp(request, env, dataId) {
   });
   if (!ts || !v1) return false;
 
-  const manifesto = 'id:' + dataId + ';request-id:' + requestId + ';ts:' + ts + ';';
+  const idManifesto = String(dataId).toLowerCase();
+  const manifesto = 'id:' + idManifesto + ';request-id:' + requestId + ';ts:' + ts + ';';
   const calc = await hmacSha256Hex(mp.webhookSecret, manifesto);
   return calc.toLowerCase() === v1.toLowerCase();
 }

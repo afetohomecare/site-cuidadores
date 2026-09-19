@@ -31,11 +31,15 @@ O Cloudflare publica a pasta inteira. **Não mova os HTML da raiz** sem atualiza
 ### Mercado Pago (checkout principal)
 
 - `PAGAMENTO_GATEWAY` = `mercadopago`
-- `MP_AMBIENTE` (`producao` ou `sandbox`)
-- `MP_ACCESS_TOKEN_PRODUCAO` (token `APP_USR-...` em [Suas integrações](https://www.mercadopago.com.br/developers/panel/app))
-- Opcional: `MP_ACCESS_TOKEN_SANDBOX` (token `TEST-...`)
-- Opcional: `MP_WEBHOOK_SECRET` (assinatura das notificações)
+- `MP_AMBIENTE` = `producao` no Production e `sandbox` no Preview
+- `MP_PUBLIC_KEY_PRODUCAO` e `MP_PUBLIC_KEY_SANDBOX` — identificadores públicos usados pelo Bricks
+- `MP_ACCESS_TOKEN_PRODUCAO` (`APP_USR-...`) e `MP_ACCESS_TOKEN_SANDBOX` (`TEST-...`) — **segredos criptografados no Cloudflare**
+- `MP_WEBHOOK_SECRET_PRODUCAO` e `MP_WEBHOOK_SECRET_SANDBOX` — **segredos obrigatórios**
+- `PAGAMENTO_FALLBACK_ASAAS` = `false`
+- `ASAAS_DESATIVADO` = `true`
 - Webhook no painel do MP: `https://SEU-DOMINIO/api/mercadopago/webhook` (eventos de **Pagamentos** e **Assinaturas**)
+- Nunca coloque Access Token ou segredo do webhook em HTML, JavaScript público, Git ou `config-publica`.
+- A Public Key não é secreta e pode ser entregue ao navegador.
 
 ### Asaas (código mantido, desativado para vendas novas)
 
@@ -64,12 +68,14 @@ O UUID interno da cuidadora **não muda**. O link público prefere um slug legí
 
 ## Pagamentos
 
-O cliente **finaliza no domínio do Mercado Pago** (Checkout Pro). Pix e cartão não são digitados em `afetocuidadores.pages.dev`.
+O **Checkout Bricks** processa pagamentos avulsos dentro do site. O SDK do Mercado Pago tokeniza o cartão; número, validade e CVV não passam pelas Cloudflare Functions nem são armazenados pela Afeto. O Access Token é usado somente no backend.
 
-- **Essencial** anual, cobrança **única**: Pix oferta `preco_cadastro` (79,90) com riscado `preco_cadastro_pos` (119,90). Cartão `preco_cadastro_cartao` (119,90) em até 12x — **não** é recorrente.
-- **Profissional / Destaque** mensais, sem fidelidade: Pix avulso no Checkout Pro. Cartão tenta **assinatura recorrente** no Mercado Pago; se a assinatura falhar, cobra o primeiro mês avulso. Renovação no Pix também pelo painel.
+- **Essencial** anual, cobrança **única**: Pix e cartão pelo Payment Brick.
+- **Profissional / Destaque** mensais, sem fidelidade: Pix mensal manual gerado pela API e exibido pelo Status Screen Brick. Cartão usa assinatura recorrente no ambiente do Mercado Pago.
 - Cupom entra no valor **antes** de abrir o Mercado Pago.
-- Retorno: `cadastro.html` ou `painel.html` com `?pagamento=cartao_ok` | `cartao_cancelado` | `pix_pendente` | `cartao_expirado`.
-- No Supabase, rode `supabase/add-mercadopago.sql` uma vez (colunas `mp_*`). Sem isso o checkout ainda funciona pelo `external_reference`.
+- O webhook exige assinatura válida, consulta o pagamento na API e só libera o plano após conferir a ordem e o valor calculado no servidor.
+- No Supabase, rode `supabase/add-mercadopago.sql` antes de ativar o checkout. Ele cria as colunas `mp_*` e as tabelas privadas de idempotência.
 - O Asaas fica no código, desligado por `ASAAS_DESATIVADO`. Assinaturas antigas do Asaas continuam recebendo webhook.
 - Só Profissional e Destaque entram na vitrine da home.
+
+O HTTPS/SSL de `*.pages.dev` é emitido e renovado pelo Cloudflare Pages. Não existe certificado do Banco Central para instalar no site.

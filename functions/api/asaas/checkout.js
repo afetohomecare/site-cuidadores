@@ -1,6 +1,6 @@
-// Cadastro: Pix e cartão no Checkout Pro do Mercado Pago (domínio deles).
+// Cadastro: pagamentos avulsos no Checkout Bricks e assinatura no Mercado Pago.
 // Asaas permanece no código, desativado por flag, como fallback.
-// Cartão NUNCA é digitado no domínio da Afeto.
+// O SDK do Mercado Pago tokeniza o cartão; a Afeto não armazena seus dados.
 
 import { idSeguro } from '../../_lib/auth.js';
 import { validarCupom, registrarUsoCupom } from '../../_lib/cupom.js';
@@ -25,7 +25,12 @@ import {
   fallbackAsaasAtivo,
   gatewayAtivo
 } from '../../_lib/pagamento.js';
-import { criarCheckoutMp } from '../../_lib/mercadopago.js';
+import {
+  criarCheckoutMp,
+  criarPagamentoBrick,
+  getMpConfig
+} from '../../_lib/mercadopago.js';
+import { criarOrdemMp } from '../../_lib/ordens-pagamento.js';
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -175,6 +180,77 @@ export async function onRequestPost(context) {
 
     const gateway = gatewayAtivo(env);
     if (gateway === 'mercadopago') {
+      const usarBrick = body.usarBrick === true;
+      const brickPermitido = forma === 'PIX' || (forma === 'CREDIT_CARD' && planoEhEssencial(plano));
+      if (usarBrick && brickPermitido) {
+        const pagamento = await criarPagamentoBrick({
+          env: env,
+          request: request,
+          origem: origemPublica(request),
+          cuidadorId: cuidadorId,
+          nome: nomeAsaas,
+          cpfLimpo: cpfLimpo,
+          whatsLimpo: telefoneAsaas,
+          valorBase: valorBase,
+          desconto: desconto,
+          valor: valorFinal,
+          parcelas: planoEhEssencial(plano) ? parcelas : 1,
+          cupomObj: cupomObj,
+          nomePlano: nomeDoPlanoBonito(plano),
+          plano: plano,
+          forma: forma,
+          formData: body.formData || {},
+          tipo: planoEhEssencial(plano) ? 'avulso' : 'mensal_manual',
+          clientRequestId: body.clientRequestId
+        });
+        if (!pagamento.ok) {
+          return jsonResp({ error: pagamento.error }, pagamento.status || 502);
+        }
+        return jsonResp({
+          ok: true,
+          gratis: false,
+          acao: forma === 'CREDIT_CARD' ? 'cartao' : 'pix',
+          gateway: 'mercadopago',
+          brick: true,
+          paymentId: pagamento.paymentId,
+          status: pagamento.paymentStatus,
+          statusDetail: pagamento.statusDetail,
+          pix: pagamento.pix,
+          valorBase: valorBase,
+          valorFinal: valorFinal,
+          desconto: desconto,
+          parcelas: forma === 'CREDIT_CARD'
+            ? parcelasDoCartao((body.formData || {}).installments || parcelas)
+            : 1,
+          cupom: cupomObj ? cupomObj.codigo : null
+        }, 200);
+      }
+
+      const recorrente = !planoEhEssencial(plano) && forma === 'CREDIT_CARD';
+      if (!recorrente) {
+        return jsonResp({ error: 'Este pagamento deve ser concluído pelo Checkout Bricks.' }, 400);
+      }
+      const mp = getMpConfig(env);
+      const ordemCheckout = await criarOrdemMp(env, {
+        cuidadorId: cuidadorId,
+        plano: plano,
+        produto: '',
+        forma: forma,
+        tipo: recorrente ? 'assinatura' : 'avulso',
+        valorBase: valorBase,
+        desconto: desconto,
+        valorFinal: valorFinal,
+        cupomCodigo: cupomObj ? cupomObj.codigo : null,
+        isSandbox: mp.isSandbox,
+        expiraEm: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+        clientRequestId: body.clientRequestId
+      });
+      if (!ordemCheckout) {
+        return jsonResp({
+          error: 'Execute a atualização do banco de dados do Mercado Pago antes de receber pagamentos.'
+        }, 503);
+      }
+
       const checkoutMp = await criarCheckoutMp({
         env: env,
         request: request,
@@ -190,7 +266,11 @@ export async function onRequestPost(context) {
         nomePlano: nomeDoPlanoBonito(plano),
         plano: plano,
         forma: forma,
-        recorrente: !planoEhEssencial(plano) && forma === 'CREDIT_CARD'
+        recorrente: recorrente,
+        externalReference: ordemCheckout.id,
+        ordemId: ordemCheckout.id,
+        existingPreapprovalId: ordemCheckout.mp_preapproval_id,
+        existingCheckoutUrl: ordemCheckout.checkout_url
       });
       if (checkoutMp && checkoutMp.link) {
         return jsonResp({

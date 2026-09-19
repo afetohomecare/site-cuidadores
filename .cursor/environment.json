@@ -1,7 +1,7 @@
 {
   "name": "Site Cuidadores — Afeto (Cloudflare Pages)",
   "install": "npx -y wrangler@4.135.0 --version",
-  "start": "bash -lc 'rm -f .dev.vars; for v in SUPABASE_URL SUPABASE_SERVICE_KEY ASAAS_AMBIENTE ASAAS_API_KEY_PRODUCAO ASAAS_API_KEY_SANDBOX ASAAS_WEBHOOK_TOKEN_PRODUCAO ASAAS_WEBHOOK_TOKEN TELEGRAM_BOT_TOKEN TELEGRAM_CHAT_ID TELEGRAM_WEBHOOK_SECRET; do if [ -n \"${!v:-}\" ]; then printf \"%s=%s\\n\" \"$v\" \"${!v}\" >> .dev.vars; fi; done; true'",
+  "start": "bash -lc 'rm -f .dev.vars; for v in SUPABASE_URL SUPABASE_SERVICE_KEY MP_AMBIENTE MP_PUBLIC_KEY_PRODUCAO MP_PUBLIC_KEY_SANDBOX MP_ACCESS_TOKEN_PRODUCAO MP_ACCESS_TOKEN_SANDBOX MP_WEBHOOK_SECRET_PRODUCAO MP_WEBHOOK_SECRET_SANDBOX PAGAMENTO_GATEWAY PAGAMENTO_FALLBACK_ASAAS ASAAS_DESATIVADO ASAAS_AMBIENTE ASAAS_API_KEY_PRODUCAO ASAAS_API_KEY_SANDBOX ASAAS_WEBHOOK_TOKEN_PRODUCAO ASAAS_WEBHOOK_TOKEN TELEGRAM_BOT_TOKEN TELEGRAM_CHAT_ID TELEGRAM_WEBHOOK_SECRET; do if [ -n \"${!v:-}\" ]; then printf \"%s=%s\\n\" \"$v\" \"${!v}\" >> .dev.vars; fi; done; true'",
   "terminals": [
     {
       "name": "wrangler pages dev",
