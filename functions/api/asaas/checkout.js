@@ -10,6 +10,7 @@ import {
   formaEhCartao,
   parcelasDoCartao,
   valorParcela,
+  cicloAssinatura,
   planoEhEssencial,
   planoPermitidoNoCadastro
 } from '../../_lib/planos.js';
@@ -17,7 +18,8 @@ import {
   getAsaasConfig,
   origemPublica,
   criarOuBuscarCliente,
-  criarCheckoutCartao
+  criarCheckoutCartao,
+  criarAssinaturaPix
 } from '../../_lib/asaas.js';
 import {
   asaasDesativado,
@@ -93,7 +95,7 @@ export async function onRequestPost(context) {
 
     const contaResp = await fetch(
       env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(cuidadorId) +
-      '&select=id,cpf,auth_user_id,whatsapp,nome&limit=1',
+      '&select=id,cpf,auth_user_id,whatsapp,nome,asaas_subscription_id&limit=1',
       { headers: headersSupabase(env) }
     );
     if (!contaResp.ok) {
@@ -313,7 +315,7 @@ export async function onRequestPost(context) {
     });
 
     if (!customerId) {
-      return jsonResp({ error: 'Falha ao criar cliente no Asaas' }, 502);
+      return jsonResp({ error: 'Não foi possível iniciar o pagamento. Tente de novo.' }, 502);
     }
 
     if (forma === 'CREDIT_CARD') {
@@ -326,10 +328,12 @@ export async function onRequestPost(context) {
         cpfLimpo: cpfLimpo,
         whatsLimpo: telefoneAsaas,
         valor: valorFinal,
-        parcelas: planoEhEssencial(plano) ? parcelas : 1,
+        parcelas: 1,
         cupomObj: cupomObj,
         nomePlano: nomeDoPlanoBonito(plano),
-        recorrente: !planoEhEssencial(plano)
+        plano: plano,
+        recorrente: true,
+        ciclo: cicloAssinatura(plano, false)
       });
       if (!checkout) {
         return jsonResp({ error: 'Não foi possível abrir o pagamento no cartão. Tente o Pix ou tente de novo.' }, 502);
@@ -361,65 +365,24 @@ export async function onRequestPost(context) {
       }, 200);
     }
 
-    if (cuidadorId) {
-      const cobrancaExistente = await verificarCobrancaAtiva(env, asaas.url, asaas.apiKey, cuidadorId, valorFinal);
-      if (cobrancaExistente) {
-        let pixData = null;
-        const pixResp = await fetch(asaas.url + '/payments/' + cobrancaExistente.id + '/pixQrCode', {
-          headers: { 'User-Agent': 'Afeto/1.0', 'access_token': asaas.apiKey }
-        });
-        if (pixResp.ok) pixData = await pixResp.json();
-
-        return jsonResp({
-          ok: true,
-          gratis: false,
-          gateway: 'asaas',
-          ambiente: asaas.isSandbox ? 'sandbox' : 'producao',
-          reutilizada: true,
-          cobrancaId: cobrancaExistente.id,
-          status: cobrancaExistente.status,
-          valorBase: valorBase,
-          valorFinal: valorFinal,
-          desconto: desconto,
-          pagoNaHora: false,
-          isSubscription: false,
-          pix: pixData ? {
-            qrCodeImage: pixData.encodedImage,
-            copiaECola: pixData.payload
-          } : null
-        }, 200);
-      }
-
-      await limparCobrancasAntigas(env, asaas.url, asaas.apiKey, cuidadorId);
-    }
-
-    const vencimento = new Date();
-    vencimento.setDate(vencimento.getDate() + 1);
-    const dataVencimento = vencimento.toISOString().split('T')[0];
-
-    const cobrancaBody = {
-      customer: customerId,
-      billingType: 'PIX',
-      value: valorFinal,
-      dueDate: dataVencimento,
-      description: 'Afeto — Plano ' + nomeDoPlanoBonito(plano) + (planoEhEssencial(plano) ? ' anual' : ' mensal'),
-      externalReference: cuidadorId
-    };
-
-    const cobrancaResp = await fetch(asaas.url + '/payments', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'User-Agent': 'Afeto/1.0',
-        'access_token': asaas.apiKey
-      },
-      body: JSON.stringify(cobrancaBody)
+    const assinaturaPix = await criarAssinaturaPix({
+      asaas: asaas,
+      customerId: customerId,
+      cuidadorId: cuidadorId,
+      valor: valorFinal,
+      plano: plano,
+      nomePlano: nomeDoPlanoBonito(plano),
+      cupomObj: cupomObj,
+      existingSubscriptionId: cuidadora.asaas_subscription_id,
+      ciclo: cicloAssinatura(plano, false)
     });
-    const cobrancaData = await cobrancaResp.json();
-
-    if (!cobrancaResp.ok) {
-      console.error('Falha cobrança Asaas:', cobrancaData);
-      return jsonResp({ error: 'Não foi possível criar a cobrança. Tente novamente.' }, 502);
+    if (assinaturaPix && assinaturaPix.jaAtiva && !assinaturaPix.pix) {
+      return jsonResp({
+        error: 'Sua renovação Pix já está programada. Um novo código aparece quando chegar a data.'
+      }, 409);
+    }
+    if (!assinaturaPix || !assinaturaPix.pix) {
+      return jsonResp({ error: 'Não foi possível gerar o Pix recorrente. Tente de novo.' }, 502);
     }
 
     await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(cuidadorId), {
@@ -427,34 +390,27 @@ export async function onRequestPost(context) {
       headers: headersSupabase(env, true, false),
       body: JSON.stringify({
         asaas_customer_id: customerId,
-        asaas_cobranca_id: cobrancaData.id,
+        asaas_cobranca_id: assinaturaPix.cobrancaId,
+        asaas_subscription_id: assinaturaPix.subscriptionId,
         cupom_usado: cupomObj ? cupomObj.codigo : null
       })
     });
-
-    let pixData = null;
-    const pixResp = await fetch(asaas.url + '/payments/' + cobrancaData.id + '/pixQrCode', {
-      headers: { 'User-Agent': 'Afeto/1.0', 'access_token': asaas.apiKey }
-    });
-    if (pixResp.ok) pixData = await pixResp.json();
 
     return jsonResp({
       ok: true,
       gratis: false,
       gateway: 'asaas',
       ambiente: asaas.isSandbox ? 'sandbox' : 'producao',
-      cobrancaId: cobrancaData.id,
-      invoiceUrl: cobrancaData.invoiceUrl || '',
-      status: cobrancaData.status,
+      reutilizada: !!assinaturaPix.reutilizada,
+      cobrancaId: assinaturaPix.cobrancaId,
+      checkoutId: assinaturaPix.subscriptionId,
+      isSubscription: true,
+      ciclo: assinaturaPix.ciclo,
       valorBase: valorBase,
       valorFinal: valorFinal,
       desconto: desconto,
       pagoNaHora: false,
-      isSubscription: false,
-      pix: pixData ? {
-        qrCodeImage: pixData.encodedImage,
-        copiaECola: pixData.payload
-      } : null
+      pix: assinaturaPix.pix
     }, 200);
 
   } catch (err) {

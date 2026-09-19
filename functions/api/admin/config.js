@@ -52,7 +52,7 @@ var CHAVES_PERMITIDAS = [
 var DESCRICOES = {
   preco_cadastro: 'Essencial anual — oferta no Pix (o que ela paga)',
   preco_cadastro_pos: 'Essencial anual — preço riscado na vitrine',
-  preco_cadastro_cartao: 'Essencial anual — cartão até 12x no Asaas (cobrança única)',
+  preco_cadastro_cartao: 'Essencial anual — cartão recorrente anual',
   preco_cadastro_cartao_pos: 'Essencial anual — valor cheio do cartão (interno)',
   preco_profissional: 'Profissional mensal — oferta Pix/cartão recorrente',
   preco_prof_pos: 'Profissional mensal — preço riscado na vitrine',

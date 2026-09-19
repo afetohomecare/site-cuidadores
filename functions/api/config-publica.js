@@ -6,7 +6,7 @@
 //
 // Devolve preços da vitrine:
 //   • preco_cadastro = Essencial anual no Pix
-//   • preco_cadastro_cartao = Essencial anual no cartão (até 12x)
+//   • preco_cadastro_cartao = Essencial anual no cartão (recorrente)
 //   • preco_profissional = oferta mensal no Pix/cartão
 //   • preco_destaque = extra mensal no painel (não entra no cadastro)
 //   • preco_prof_pos / preco_destaque_pos = preço cheio riscado

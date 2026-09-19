@@ -176,17 +176,17 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
     }
     return (
       '<div class="info-box"><i class="fa-solid fa-circle-info"></i>' +
-        '<div>Os números abaixo são os que o site está usando agora. Ao salvar, a vitrine, o Pix e o checkout do Mercado Pago passam a usar esses valores. Se ela aplicar cupom, o desconto entra em cima do preço salvo, antes de abrir o pagamento.</div>' +
+        '<div>Os números abaixo são os que o site está usando agora. Ao salvar, a vitrine, o Pix e o checkout passam a usar esses valores. Se ela aplicar cupom, o desconto entra em cima do preço salvo, antes de abrir o pagamento.</div>' +
       '</div>' +
       '<button type="button" class="btn-sugerido" onclick="preencherSugeridos()"><i class="fa-solid fa-wand-magic-sparkles"></i> Preencher os preços sugeridos</button>' +
 
       '<div class="painel-section">' +
-        '<h2><i class="fa-solid fa-link"></i> Essencial — anual, cobrança única</h2>' +
-        '<p class="desc">Cria perfil e painel. Pix é cobrança única no ano. No card, destaque o valor mensal equivalente — no cartão, R$ 119,90 no ano em até 12x.</p>' +
+        '<h2><i class="fa-solid fa-link"></i> Essencial — anual recorrente</h2>' +
+        '<p class="desc">Cria perfil e painel. Pix e cartão renovam todo ano. No card, destaque o valor mensal equivalente — no cartão, R$ 119,90 por ano, renovação automática.</p>' +
         '<div class="campo-linha-3">' +
-          '<div class="campo"><label>Oferta no Pix (o que ela paga)</label><div class="prefixo"><span>R$</span><input type="number" id="preco_cadastro" step="0.01" min="0" value="' + val('preco_cadastro') + '"></div><div class="ajuda">Vai para o QR Code Pix</div></div>' +
+          '<div class="campo"><label>Oferta no Pix (o que ela paga)</label><div class="prefixo"><span>R$</span><input type="number" id="preco_cadastro" step="0.01" min="0" value="' + val('preco_cadastro') + '"></div><div class="ajuda">Vai para o QR Code Pix anual</div></div>' +
           '<div class="campo"><label>Preço riscado</label><div class="prefixo"><span>R$</span><input type="number" id="preco_cadastro_pos" step="0.01" min="0" value="' + val('preco_cadastro_pos') + '"></div><div class="ajuda">Só aparece “De R$ …” na vitrine</div></div>' +
-          '<div class="campo"><label>Cartão até 12x</label><div class="prefixo"><span>R$</span><input type="number" id="preco_cadastro_cartao" step="0.01" min="0" value="' + val('preco_cadastro_cartao') + '"></div><div class="ajuda">Vai para o Mercado Pago</div></div>' +
+          '<div class="campo"><label>Cartão anual</label><div class="prefixo"><span>R$</span><input type="number" id="preco_cadastro_cartao" step="0.01" min="0" value="' + val('preco_cadastro_cartao') + '"></div><div class="ajuda">Assinatura anual no cartão</div></div>' +
         '</div>' +
         '<input type="hidden" id="preco_cadastro_cartao_pos" value="' + val('preco_cadastro_cartao_pos') + '">' +
         '<div class="plano-preview" id="preview-essencial"></div>' +
@@ -196,7 +196,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
         '<h2><i class="fa-solid fa-user-check"></i> Profissional — mensal, sem fidelidade</h2>' +
         '<p class="desc">Aparece na vitrine. Mensal, sem fidelidade. Oferta: de R$ 79,90 por R$ 49,90.</p>' +
         '<div class="campo-linha">' +
-          '<div class="campo"><label>Oferta no Pix / cartão (o que ela paga)</label><div class="prefixo"><span>R$</span><input type="number" id="preco_profissional" step="0.01" min="0" value="' + val('preco_profissional') + '"></div><div class="ajuda">Vai para o Pix e para a assinatura no Mercado Pago</div></div>' +
+          '<div class="campo"><label>Oferta no Pix / cartão (o que ela paga)</label><div class="prefixo"><span>R$</span><input type="number" id="preco_profissional" step="0.01" min="0" value="' + val('preco_profissional') + '"></div><div class="ajuda">Vai para o Pix e para a assinatura no cartão</div></div>' +
           '<div class="campo"><label>Preço riscado</label><div class="prefixo"><span>R$</span><input type="number" id="preco_prof_pos" step="0.01" min="0" value="' + val('preco_prof_pos') + '"></div><div class="ajuda">Só aparece “De R$ …” na vitrine</div></div>' +
         '</div>' +
         '<div class="plano-preview" id="preview-prof"></div>' +
@@ -206,7 +206,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
         '<h2><i class="fa-solid fa-gem"></i> Destaque extra — só no painel, R$ 9,90/mês</h2>' +
         '<p class="desc">Não entra nas opções de plano do cadastro. A cuidadora ativa no painel para aparecer destacada na plataforma.</p>' +
         '<div class="campo-linha">' +
-          '<div class="campo"><label>Oferta no Pix / cartão (o que ela paga)</label><div class="prefixo"><span>R$</span><input type="number" id="preco_destaque" step="0.01" min="0" value="' + val('preco_destaque') + '"></div><div class="ajuda">Vai para o Pix e para a assinatura no Mercado Pago</div></div>' +
+          '<div class="campo"><label>Oferta no Pix / cartão (o que ela paga)</label><div class="prefixo"><span>R$</span><input type="number" id="preco_destaque" step="0.01" min="0" value="' + val('preco_destaque') + '"></div><div class="ajuda">Vai para o Pix e para a assinatura no cartão</div></div>' +
           '<div class="campo"><label>Preço riscado</label><div class="prefixo"><span>R$</span><input type="number" id="preco_destaque_pos" step="0.01" min="0" value="' + val('preco_destaque_pos') + '"></div><div class="ajuda">Só aparece “De R$ …” na vitrine</div></div>' +
         '</div>' +
         '<div class="plano-preview" id="preview-dest"></div>' +
@@ -214,7 +214,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
 
       '<div class="painel-section">' +
         '<h2><i class="fa-solid fa-bullhorn"></i> Informações do site</h2>' +
-        '<div class="campo"><label>Vagas fundadora</label><input type="number" id="vagas_fundadora" min="1" value="' + val('vagas_fundadora') + '"><div class="ajuda">Controle interno. Os preços acima já são os oficiais do site e do Mercado Pago — não mudam sozinhos por essa vaga.</div></div>' +
+        '<div class="campo"><label>Vagas fundadora</label><input type="number" id="vagas_fundadora" min="1" value="' + val('vagas_fundadora') + '"><div class="ajuda">Controle interno. Os preços acima já são os oficiais do site e do checkout — não mudam sozinhos por essa vaga.</div></div>' +
         '<div class="campo"><label>Texto do banner da home</label><input type="text" id="texto_banner_home" maxlength="100" value="' + val('texto_banner_home') + '"></div>' +
         '<div class="campo"><label>WhatsApp da Afeto</label><input type="text" id="whatsapp_afeto" placeholder="5541997674866" value="' + val('whatsapp_afeto') + '"><div class="ajuda">Só números, com código do país.</div></div>' +
       '</div>' +
@@ -235,7 +235,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo); color: var(-
     var essDe = num('preco_cadastro_pos');
     var essCard = num('preco_cadastro_cartao');
     var elE = document.getElementById('preview-essencial');
-    if (elE) elE.innerHTML = 'Vitrine: <strong>' + brl(essPix) + ' no ano no Pix</strong> (destaque de <strong>' + brl(essPix / 12) + ' por mês</strong>). Cartão: <strong>' + brl(essCard) + ' por ano</strong> em até 12x de <strong>' + brl(essCard / 12) + '</strong>.';
+    if (elE) elE.innerHTML = 'Vitrine: <strong>' + brl(essPix) + ' no ano no Pix</strong> (destaque de <strong>' + brl(essPix / 12) + ' por mês</strong>). Cartão: <strong>' + brl(essCard) + ' por ano</strong>, renovação automática.';
     var pPix = num('preco_profissional');
     var pDe = num('preco_prof_pos');
     var elP = document.getElementById('preview-prof');

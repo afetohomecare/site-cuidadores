@@ -339,7 +339,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
 <div id="modal-pix-painel" class="modal">
   <div class="modal-box">
     <h2>Pagamento via Pix</h2>
-    <p class="subtitulo">Escaneie o QR Code ou copie o código. A confirmação é automática.</p>
+    <p class="subtitulo">Escaneie o QR Code ou copie o código. A confirmação é automática. Pagamento seguro e criptografado de ponta a ponta.</p>
     <div id="statusScreenBrick_container"></div>
     <div id="painel-pix-qr" style="text-align:center;margin:12px 0;"></div>
     <input type="text" id="painel-pix-codigo" readonly style="width:100%;padding:12px;border-radius:12px;border:2px solid #e2e8f0;font-size:12px;font-weight:700;">
@@ -963,17 +963,11 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
     if (planoIrregular(cuidadora)) {
       if (ehEssencial) {
         botoesHtml =
-          '<div style="margin-top:12px;">' +
-            '<label style="display:block;font-size:13px;font-weight:800;margin-bottom:6px;">Parcelas no cartão (cobrança única de 119,90)</label>' +
-            '<select id="parcelas-painel" style="width:100%;max-width:280px;padding:12px 14px;border-radius:12px;border:2px solid #e2e8f0;font-family:Nunito,sans-serif;font-size:14px;font-weight:800;margin-bottom:10px;">' +
-              opcoesParcelasPainel() +
-            '</select>' +
-          '</div>' +
-          '<button type="button" id="btn-pagar-pix" style="' + estiloBtnPlano(true) + '"><i class="fa-solid fa-qrcode"></i> Pagar o anual no Pix</button>' +
-          '<button type="button" id="btn-cartao-asaas" style="' + estiloBtnPlano(false) + '"><i class="fa-solid fa-credit-card"></i> Pagar o anual no cartão</button>';
+          '<button type="button" id="btn-pagar-pix" style="' + estiloBtnPlano(true) + '"><i class="fa-solid fa-qrcode"></i> Assinar o anual no Pix</button>' +
+          '<button type="button" id="btn-cartao-asaas" style="' + estiloBtnPlano(false) + '"><i class="fa-solid fa-credit-card"></i> Assinar o anual no cartão</button>';
       } else {
         botoesHtml =
-          '<button type="button" id="btn-pagar-pix" style="' + estiloBtnPlano(true) + '"><i class="fa-solid fa-qrcode"></i> Pagar o mês no Pix</button>' +
+          '<button type="button" id="btn-pagar-pix" style="' + estiloBtnPlano(true) + '"><i class="fa-solid fa-qrcode"></i> Assinar o mês no Pix</button>' +
           '<button type="button" id="btn-cartao-asaas" style="' + estiloBtnPlano(false) + '"><i class="fa-solid fa-credit-card"></i> Assinar no cartão (recorrente)</button>';
       }
     } else {
@@ -981,12 +975,6 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
       if (vencendo) {
         if (ehEssencial) {
           botoesHtml +=
-            '<div style="margin-top:12px;">' +
-              '<label style="display:block;font-size:13px;font-weight:800;margin-bottom:6px;">Parcelas no cartão</label>' +
-              '<select id="parcelas-painel" style="width:100%;max-width:280px;padding:12px 14px;border-radius:12px;border:2px solid #e2e8f0;font-family:Nunito,sans-serif;font-size:14px;font-weight:800;margin-bottom:10px;">' +
-                opcoesParcelasPainel() +
-              '</select>' +
-            '</div>' +
             '<button type="button" id="btn-pagar-pix" style="' + estiloBtnPlano(true) + '"><i class="fa-solid fa-qrcode"></i> Renovar o anual no Pix</button>' +
             '<button type="button" id="btn-cartao-asaas" style="' + estiloBtnPlano(false) + '"><i class="fa-solid fa-credit-card"></i> Renovar o anual no cartão</button>';
         } else {
@@ -997,7 +985,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
       }
       if (isAssinatura && taPago) {
         botoesHtml +=
-          '<button type="button" id="btn-cancelar-assinatura" style="background:transparent;color:var(--vermelho);border:2px solid var(--vermelho);padding:10px 20px;border-radius:50px;font-family:Nunito,sans-serif;font-size:13px;font-weight:900;cursor:pointer;margin:8px 8px 0 0;">Cancelar assinatura mensal</button>';
+          '<button type="button" id="btn-cancelar-assinatura" style="background:transparent;color:var(--vermelho);border:2px solid var(--vermelho);padding:10px 20px;border-radius:50px;font-family:Nunito,sans-serif;font-size:13px;font-weight:900;cursor:pointer;margin:8px 8px 0 0;">Cancelar assinatura</button>';
       }
     }
 
@@ -1010,7 +998,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
           '<p>' + infoPagamento + '</p>' +
           '<div style="margin-top:14px;padding:14px;background:#f8f9fc;border-radius:14px;border:2px dashed #c4b5fd;">' +
             '<label style="display:block;font-size:13px;font-weight:800;color:var(--lilas-escuro);margin-bottom:8px;"><i class="fa-solid fa-ticket"></i> Tem cupom? Aplique antes de pagar</label>' +
-            '<p style="font-size:12px;font-weight:700;color:var(--cinza-fonte);margin-bottom:8px;line-height:1.45;">O desconto entra no valor antes de abrir o pagamento seguro (Mercado Pago).</p>' +
+            '<p style="font-size:12px;font-weight:700;color:var(--cinza-fonte);margin-bottom:8px;line-height:1.45;">O desconto entra no valor antes de abrir o pagamento seguro.</p>' +
             '<input type="text" id="cupom-painel" maxlength="20" placeholder="Digite seu código" style="width:100%;padding:12px 14px;border-radius:12px;border:2px solid #e2e8f0;font-family:Nunito,sans-serif;font-size:14px;font-weight:800;text-transform:uppercase;">' +
           '</div>' +
           botoesHtml +
@@ -1021,12 +1009,12 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
     var btnCancelar = document.getElementById('btn-cancelar-assinatura');
     if (btnCancelar) {
        btnCancelar.addEventListener('click', async function() {
-          if(confirm('Tem certeza que deseja cancelar sua assinatura mensal? Seu perfil continuará no ar até o final dos dias que você já pagou.')) {
+          if(confirm('Tem certeza que deseja cancelar sua assinatura? Seu perfil continua no ar até o fim do período já pago.')) {
              btnCancelar.disabled = true;
              btnCancelar.textContent = 'Cancelando...';
              try {
                 await api('/api/painel/cancelar-assinatura', { method: 'POST' });
-                alert('✅ Assinatura cancelada com sucesso! Não haverá novas cobranças no seu cartão.');
+                alert('✅ Assinatura cancelada. Não haverá novas cobranças.');
                 cuidadora.asaas_subscription_id = null;
                 cuidadora.mp_preapproval_id = null;
                 renderizarPlano();
@@ -1186,11 +1174,11 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
         var mensal = planoAtual === 'profissional';
         if (mensal) {
           btn.innerHTML = planoIrregular(cuidadora)
-            ? '<i class="fa-solid fa-qrcode"></i> Pagar o mês no Pix'
+            ? '<i class="fa-solid fa-qrcode"></i> Assinar o mês no Pix'
             : '<i class="fa-solid fa-qrcode"></i> Renovar o mês no Pix';
         } else {
           btn.innerHTML = planoIrregular(cuidadora)
-            ? '<i class="fa-solid fa-qrcode"></i> Pagar o anual no Pix'
+            ? '<i class="fa-solid fa-qrcode"></i> Assinar o anual no Pix'
             : '<i class="fa-solid fa-qrcode"></i> Renovar o anual no Pix';
         }
       }
@@ -1236,7 +1224,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
           btn.innerHTML = '<i class="fa-solid fa-credit-card"></i> Assinar no cartão (recorrente)';
         } else {
           btn.innerHTML = planoIrregular(cuidadora)
-            ? '<i class="fa-solid fa-credit-card"></i> Pagar o anual no cartão'
+            ? '<i class="fa-solid fa-credit-card"></i> Assinar o anual no cartão'
             : '<i class="fa-solid fa-credit-card"></i> Renovar o anual no cartão';
         }
       }
@@ -1350,10 +1338,10 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
     var qs = new URLSearchParams(window.location.search);
     var pag = qs.get('pagamento');
     if (pag === 'cartao_ok') {
-      alert('Pagamento enviado. Se o Mercado Pago confirmou, o plano entra em instantes.');
+      alert('Pagamento enviado. Se foi confirmado, o plano entra em instantes.');
       irParaSecao('plano');
     } else if (pag === 'pix_pendente') {
-      alert('Pix pendente no Mercado Pago. Quando o banco confirmar, o plano libera sozinho.');
+      alert('Pix pendente. Quando o banco confirmar, o plano libera sozinho.');
       irParaSecao('plano');
     } else if (pag === 'cartao_cancelado') {
       alert('Pagamento cancelado. Você pode tentar de novo em Meu plano.');

@@ -102,7 +102,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 .tag-bairro { display: inline-flex; align-items: center; gap: 6px; background: #ede9fe; color: #6d28d9; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 800; }
 .tag-bairro.principal { background: linear-gradient(135deg, var(--lilas), var(--lilas-escuro)); color: white; box-shadow: 0 3px 10px rgba(139,92,246,0.35); }
 .tag-bairro button { background: none; border: none; color: inherit; cursor: pointer; font-size: 16px; padding: 0; line-height: 1; opacity: 0.7; font-weight: 900; }
-.lista-bairros { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 2px solid #e2e8f0; border-top: none; border-radius: 0 0 16px 16px; max-height: 220px; overflow-y: auto; z-index: 10; display: none; box-shadow: 0 15px 30px rgba(0,0,0,0.08); }
+.lista-bairros { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 2px solid #e2e8f0; border-top: none; border-radius: 0 0 16px 16px; max-height: 280px; overflow-y: auto; z-index: 10; display: none; box-shadow: 0 15px 30px rgba(0,0,0,0.08); }
 .lista-bairros.ativo { display: block; }
 .opcao-bairro { padding: 12px 18px; cursor: pointer; font-size: 15px; font-weight: 700; transition: 0.15s; }
 .opcao-bairro:hover { background: #f5f3ff; color: var(--lilas-escuro); }
@@ -622,7 +622,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
             <i class="fa-solid fa-copy"></i> Copiar
           </button>
         </div>
-        <p class="pix-aviso"><i class="fa-solid fa-info-circle"></i> Após o pagamento, a confirmação é automática.</p>
+        <p class="pix-aviso" id="pix-aviso-checkout"><i class="fa-solid fa-info-circle"></i> Após o pagamento, a confirmação é automática. A renovação Pix chega sozinha no próximo ciclo.</p>
 
         <div class="pix-aguardando" id="pix-aguardando">
           <div class="icone"><i class="fa-solid fa-spinner fa-spin"></i></div>
@@ -644,18 +644,18 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
                  style="width:100%;padding:14px 16px;border-radius:14px;border:2px solid #e2e8f0;font-family:Nunito,sans-serif;font-size:15px;font-weight:700;">
         </div>
         <p id="checkout-cartao-intro" style="font-size:14px;font-weight:700;color:var(--cinza-fonte);line-height:1.55;margin-bottom:14px;">
-          Escolha em quantas vezes parcelar o anual. O cupom já entra no valor. O cartão é digitado só no ambiente seguro — nunca neste site.
+          O cartão vira assinatura. Você cancela quando quiser. Os dados do cartão nunca são digitados nesta tela.
         </p>
-        <div id="bloco-parcelas-checkout">
+        <div id="bloco-parcelas-checkout" style="display:none;">
           <label for="checkout-parcelas" style="display:block;font-size:13px;font-weight:800;margin-bottom:8px;">Parcelas</label>
           <select id="checkout-parcelas" style="width:100%;padding:14px 16px;border-radius:14px;border:2px solid #e2e8f0;font-family:Nunito,sans-serif;font-size:15px;font-weight:800;margin-bottom:12px;background:#f8f9fc;"></select>
           <p id="checkout-parcela-resumo" style="font-size:15px;font-weight:900;color:var(--lilas-escuro);margin-bottom:16px;"></p>
         </div>
         <button type="button" id="btn-ir-asaas" onclick="irParaCheckoutExterno('CREDIT_CARD')" style="width:100%;padding:16px;border:none;border-radius:50px;background:linear-gradient(135deg,var(--lilas),var(--lilas-escuro));color:white;font-family:Nunito,sans-serif;font-size:15px;font-weight:900;cursor:pointer;">
-          <i class="fa-solid fa-lock"></i> Ir para o pagamento seguro
+          <i class="fa-solid fa-lock"></i> Continuar para o pagamento seguro
         </button>
         <p id="checkout-cartao-rodape" style="font-size:12px;font-weight:700;color:var(--cinza-fonte);margin-top:12px;line-height:1.45;">
-          O link já vai com o valor e o máximo de parcelas que você escolheu. Lá você ainda pode pagar em menos vezes, se quiser.
+          Pagamento seguro e criptografado de ponta a ponta. Sem fidelidade: cancele no painel quando quiser.
         </p>
       </div>
     </div>
@@ -673,7 +673,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 
     <div class="checkout-seguranca">
       <i class="fa-solid fa-shield-halved"></i>
-      <span>Ambiente 100% seguro · Pix gerado pelo Asaas · cartão no checkout Asaas</span>
+      <span>Pagamento seguro e criptografado de ponta a ponta</span>
     </div>
   </div>
 </div>
@@ -724,7 +724,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   }
   if (subtitulo) {
     subtitulo.innerHTML = plano === 'cadastro'
-      ? 'No Pix: R$ 79,90 no ano — fica R$ 6,66 / mês.<br>No cartão: R$ 119,90 em até 12x.'
+      ? 'No Pix: R$ 79,90 no ano — fica R$ 6,66 / mês.<br>No cartão: R$ 119,90 por ano, renovação automática.'
       : 'Mensal, sem fidelidade.<br>De R$ 79,90 por apenas R$ 49,90 / mês.';
   }
   btnEnviar.classList.add('pago');
@@ -1041,12 +1041,13 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     }
     var termo = filtro.trim().toLowerCase();
     var disp = BAIRROS.filter(function(b) {
-      return bairrosSelecionados.indexOf(b) === -1 && b.toLowerCase().indexOf(termo) !== -1;
-    }).slice(0, 10);
+      return bairrosSelecionados.indexOf(b) === -1 && (!termo || b.toLowerCase().indexOf(termo) !== -1);
+    });
     if (disp.length === 0) listaBairros.innerHTML = '<div class="opcao-bairro sem-resultado">Nenhum bairro encontrado</div>';
     else {
       listaBairros.innerHTML = disp.map(function(b) { return '<div class="opcao-bairro" data-b="' + b + '">' + b + '</div>'; }).join('');
       listaBairros.querySelectorAll('.opcao-bairro').forEach(function(opt) {
+        opt.addEventListener('mousedown', function(ev) { ev.preventDefault(); });
         opt.addEventListener('click', function() {
           if (bairrosSelecionados.length >= LIMITE_BAIRROS) return;
           var b = this.getAttribute('data-b');
@@ -1054,7 +1055,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
             bairrosSelecionados.push(b);
             inputBairros.value = '';
             desenharTags();
-            listaBairros.classList.remove('ativo');
+            mostrarLista('');
             inputBairros.focus();
           }
         });
@@ -1063,14 +1064,24 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     listaBairros.classList.add('ativo');
   }
   inputBairros.addEventListener('input', function() {
-    if (this.value.length >= 1) mostrarLista(this.value);
-    else listaBairros.classList.remove('ativo');
+    mostrarLista(this.value);
+  });
+  inputBairros.addEventListener('focus', function() {
+    mostrarLista(this.value);
+  });
+  inputBairros.addEventListener('click', function() {
+    mostrarLista(this.value);
+  });
+  caixaBairros.addEventListener('click', function() {
+    inputBairros.focus();
   });
   inputBairros.addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {
       e.preventDefault();
       var p = listaBairros.querySelector('.opcao-bairro:not(.sem-resultado)');
       if (p) p.click();
+    } else if (e.key === 'Escape') {
+      listaBairros.classList.remove('ativo');
     }
   });
   document.addEventListener('click', function(e) {
@@ -1113,7 +1124,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   }
 
   function nomeGateway() {
-    return ehMercadoPago() ? 'Mercado Pago' : 'Asaas';
+    return 'pagamento seguro';
   }
 
   async function desmontarBrickMp() {
@@ -1150,7 +1161,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
           data.pix.qrCodeImage + '" alt="QR Code Pix"></div>' +
           '<p class="pix-instrucao">Use o app do seu banco para pagar.</p>';
       } else {
-        container.innerHTML = '<p>Pagamento enviado ao Mercado Pago. A confirmação será automática.</p>';
+        container.innerHTML = '<p>Pagamento enviado. A confirmação é automática.</p>';
       }
     }
   }
@@ -1317,24 +1328,27 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     var rodape = document.getElementById('checkout-cartao-rodape');
     var btn = document.getElementById('btn-ir-asaas');
     var blocoEmail = document.getElementById('bloco-email-assinatura');
+    var avisoPix = document.getElementById('pix-aviso-checkout');
     var mensal = planoMensalAtual();
-    var nome = nomeGateway();
     if (blocoEmail) blocoEmail.style.display = mensal && ehMercadoPago() ? 'block' : 'none';
-    if (bloco) bloco.style.display = mensal ? 'none' : 'block';
+    if (bloco) bloco.style.display = 'none';
     if (intro) {
       intro.textContent = mensal
-        ? 'No ' + nome + ' o cartão vira assinatura mensal. Você cancela quando quiser. O cartão nunca é digitado aqui.'
-        : 'Escolha em quantas vezes parcelar os R$ 119,90 do ano. É cobrança única, não recorrente. O cartão nunca é digitado aqui.';
+        ? 'O cartão vira assinatura mensal. Você cancela quando quiser. Os dados do cartão nunca são digitados nesta tela.'
+        : 'O cartão vira assinatura anual. A renovação é automática e você cancela quando quiser. Os dados do cartão nunca são digitados nesta tela.';
     }
     if (rodape) {
       rodape.textContent = mensal
-        ? 'O ' + nome + ' cobra todo mês o valor do plano. Sem fidelidade: cancele no painel quando quiser.'
-        : 'O link já vai com o valor e o máximo de parcelas. É só o Essencial anual — sem assinatura mensal.';
+        ? 'Pagamento seguro e criptografado de ponta a ponta. Todo mês o valor do plano é cobrado. Sem fidelidade: cancele no painel quando quiser.'
+        : 'Pagamento seguro e criptografado de ponta a ponta. Todo ano o valor do plano é cobrado. Sem fidelidade: cancele no painel quando quiser.';
     }
     if (btn && !btn.disabled) {
-      btn.innerHTML = mensal
-        ? '<i class="fa-solid fa-lock"></i> Assinar no ' + nome
-        : '<i class="fa-solid fa-lock"></i> Ir para o ' + nome;
+      btn.innerHTML = '<i class="fa-solid fa-lock"></i> Continuar para o pagamento seguro';
+    }
+    if (avisoPix) {
+      avisoPix.innerHTML = mensal
+        ? '<i class="fa-solid fa-info-circle"></i> Após o pagamento, a confirmação é automática. Todo mês um novo Pix é gerado para renovar. Sem fidelidade: cancele no painel quando quiser.'
+        : '<i class="fa-solid fa-info-circle"></i> Após o pagamento, a confirmação é automática. Todo ano um novo Pix é gerado para renovar. Sem fidelidade: cancele no painel quando quiser.';
     }
   }
 
@@ -1344,7 +1358,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     var elTitulo = document.getElementById('checkout-titulo');
     var mensal = planoMensalAtual();
     if (abaCheckout === 'cartao') {
-      if (elTitulo) elTitulo.textContent = mensal ? 'Cartão recorrente no ' + nomeGateway() : 'Cartão no ' + nomeGateway();
+      if (elTitulo) elTitulo.textContent = mensal ? 'Cartão recorrente mensal' : 'Cartão recorrente anual';
       if (elValor) elValor.textContent = brl(dadosCheckout.valorCartaoFinal);
       if (elPeriodo) elPeriodo.textContent = mensal ? ' / mês no cartão' : ' / ano no cartão';
       if (!mensal) preencherParcelas(dadosCheckout.valorCartaoFinal);
@@ -1353,6 +1367,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       if (elTitulo) elTitulo.textContent = 'Pagamento via Pix';
       if (elValor) elValor.textContent = brl(dadosCheckout.valorPixFinal);
       if (elPeriodo) elPeriodo.textContent = mensal ? ' / mês no Pix' : ' / ano no Pix';
+      atualizarTextosCartao();
     }
   }
 
@@ -1730,7 +1745,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     if (!configPagamentoOk) {
       document.getElementById('checkout-erro').style.display = 'block';
       document.getElementById('checkout-erro-text').textContent =
-        'Pagamento temporariamente indisponível. A configuração segura do gateway está incompleta.';
+        'Pagamento temporariamente indisponível. Tente de novo em instantes.';
       return;
     }
 
@@ -1760,7 +1775,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     var htmlBtn = btn ? btn.innerHTML : '';
     if (btn) {
       btn.disabled = true;
-      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Abrindo ' + nomeGateway() + '...';
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Abrindo o pagamento seguro...';
     }
     try {
       var sel = document.getElementById('checkout-parcelas');
@@ -1798,7 +1813,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
         return;
       }
       if (!resp.ok || !data.ok || !data.link) {
-        throw new Error((data && data.error) || 'Não foi possível abrir o ' + nomeGateway() + '.');
+        throw new Error((data && data.error) || 'Não foi possível abrir o pagamento seguro.');
       }
       window.location.href = data.link;
     } catch (err) {
@@ -2045,9 +2060,9 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
   if (pagRetorno === 'cartao_ok') {
     mostrarSucesso(false, null);
     if (tituloSucesso) tituloSucesso.textContent = 'Pagamento enviado 💜';
-    if (textoSucesso) textoSucesso.innerHTML = 'Se o Mercado Pago confirmou, seu plano já está a caminho. Entre no painel — em instantes o status atualiza sozinho.';
+    if (textoSucesso) textoSucesso.innerHTML = 'Se o pagamento foi confirmado, seu plano já está a caminho. Entre no painel — em instantes o status atualiza sozinho.';
   } else if (pagRetorno === 'pix_pendente') {
-    alert('Seu Pix ficou pendente no Mercado Pago. Assim que o banco confirmar, o plano libera sozinho. Você já pode entrar no painel.');
+    alert('Seu Pix ficou pendente. Assim que o banco confirmar, o plano libera sozinho. Você já pode entrar no painel.');
   } else if (pagRetorno === 'cartao_cancelado') {
     alert('Pagamento cancelado. Você pode tentar de novo pelo Pix ou pelo cartão.');
   } else if (pagRetorno === 'cartao_expirado') {

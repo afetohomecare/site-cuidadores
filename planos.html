@@ -823,7 +823,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
                     <span class="periodo">/ ano no Pix</span>
                 </div>
                 <div class="por-mes" id="por-mes-cad">Fica R$ 6,66 por mês</div>
-                <div class="nota" id="nota-cartao-cad">No cartão: R$ 119,90 por ano em até 12x de R$ 9,99</div>
+                <div class="nota" id="nota-cartao-cad">No cartão: R$ 119,90 por ano, renovação automática</div>
             </div>
 
             <div class="card-divisor"></div>
@@ -842,7 +842,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
             </a>
             <div class="card-seguranca">
                 <i class="fa-solid fa-shield-halved"></i>
-                <span>Pix mais barato · cartão em até 12x</span>
+                <span>Pix mais barato · renovação anual</span>
             </div>
         </div>
 
@@ -961,7 +961,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
             <i class="fa-solid fa-lock"></i>
             <div class="texto-seg">
                 <span class="titulo-seg">Pagamento seguro</span>
-                <span class="sub-seg">Ambiente protegido</span>
+                <span class="sub-seg">Criptografado de ponta a ponta</span>
             </div>
         </div>
         <div class="item-seg">
@@ -1095,7 +1095,7 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); min-hei
       if (elMes) elMes.textContent = 'Fica ' + brl(pix / 12) + ' por mês';
       var notaCartao = document.getElementById('nota-cartao-cad');
       if (notaCartao) {
-        notaCartao.textContent = 'No cartão: ' + brl(cartao) + ' por ano em até 12x de ' + brl(cartao / 12);
+        notaCartao.textContent = 'No cartão: ' + brl(cartao) + ' por ano, renovação automática';
       }
       if (p.preco_profissional) aplicarPreco('prof', p.preco_profissional, p.preco_prof_pos || 79.9);
     })

@@ -75,6 +75,11 @@ export function planoEhMensal(plano) {
   return !planoEhEssencial(plano);
 }
 
+export function cicloAssinatura(plano, extra) {
+  if (extra) return 'MONTHLY';
+  return planoEhEssencial(plano) ? 'YEARLY' : 'MONTHLY';
+}
+
 export function diasDoPlano(plano) {
   return planoEhEssencial(plano) ? 365 : 30;
 }

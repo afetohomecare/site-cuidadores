@@ -12,14 +12,16 @@ import {
   parcelasDoCartao,
   valorParcela,
   planoDaCuidadora,
-  planoEhEssencial
+  planoEhEssencial,
+  cicloAssinatura
 } from '../../_lib/planos.js';
 import {
   getAsaasConfig,
   origemPublica,
   ymd,
   criarOuBuscarCliente,
-  criarCheckoutCartao
+  criarCheckoutCartao,
+  criarAssinaturaPix
 } from '../../_lib/asaas.js';
 import {
   asaasDesativado,
@@ -281,7 +283,7 @@ export async function onRequestPost(context) {
     });
 
     if (!customerId) {
-      return jsonResp({ error: 'Falha ao localizar o cliente no Asaas.' }, 502);
+      return jsonResp({ error: 'Não foi possível localizar o pagamento. Tente de novo.' }, 502);
     }
 
     if (customerId !== c.asaas_customer_id) {
@@ -303,49 +305,89 @@ export async function onRequestPost(context) {
 }
 
 async function criarPixRegularizacao(env, asaas, c, customerId, plano, valor, cupomObj, extraDestaque) {
-  const existente = await verificarCobrancaAtiva(env, asaas.url, asaas.apiKey, c.id, valor);
-  if (existente) {
-    const pix = await buscarPix(asaas.url, asaas.apiKey, existente.id);
+  if (extraDestaque) {
+    const existente = await verificarCobrancaAtiva(env, asaas.url, asaas.apiKey, c.id, valor);
+    if (existente) {
+      const pix = await buscarPix(asaas.url, asaas.apiKey, existente.id);
+      if (!pix) return jsonResp({ error: 'Não foi possível gerar o QR Code Pix.' }, 502);
+      return jsonResp({
+        ok: true,
+        acao: 'pix',
+        produto: 'destaque',
+        gateway: 'asaas',
+        reutilizada: true,
+        cobrancaId: existente.id,
+        pix: pix
+      }, 200);
+    }
+
+    const vencimento = new Date();
+    vencimento.setDate(vencimento.getDate() + 1);
+    const cobrancaResp = await fetch(asaas.url + '/payments', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'User-Agent': 'Afeto/1.0',
+        'access_token': asaas.apiKey
+      },
+      body: JSON.stringify({
+        customer: customerId,
+        billingType: 'PIX',
+        value: valor,
+        dueDate: ymd(vencimento),
+        description: 'Afeto — Destaque extra mensal' + (cupomObj ? ' (cupom ' + cupomObj.codigo + ')' : ''),
+        externalReference: c.id
+      })
+    });
+    const cobrancaData = await cobrancaResp.json();
+    if (!cobrancaResp.ok) {
+      console.error('Falha PIX painel:', cobrancaData);
+      return jsonResp({ error: 'Não foi possível criar a cobrança Pix.' }, 502);
+    }
+    const patchPix = { asaas_cobranca_id: cobrancaData.id };
+    if (cupomObj) patchPix.cupom_usado = cupomObj.codigo;
+    await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(c.id), {
+      method: 'PATCH',
+      headers: headersSupabase(env, true),
+      body: JSON.stringify(patchPix)
+    });
+    const pix = await buscarPix(asaas.url, asaas.apiKey, cobrancaData.id);
     if (!pix) return jsonResp({ error: 'Não foi possível gerar o QR Code Pix.' }, 502);
     return jsonResp({
       ok: true,
       acao: 'pix',
-      produto: extraDestaque ? 'destaque' : plano,
+      produto: 'destaque',
       gateway: 'asaas',
-      reutilizada: true,
-      cobrancaId: existente.id,
+      cobrancaId: cobrancaData.id,
+      valorFinal: valor,
       pix: pix
     }, 200);
   }
 
-  const vencimento = new Date();
-  vencimento.setDate(vencimento.getDate() + 1);
-
-  const cobrancaResp = await fetch(asaas.url + '/payments', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'User-Agent': 'Afeto/1.0',
-      'access_token': asaas.apiKey
-    },
-    body: JSON.stringify({
-      customer: customerId,
-      billingType: 'PIX',
-      value: valor,
-      dueDate: ymd(vencimento),
-      description: extraDestaque
-        ? 'Afeto — Destaque extra mensal' + (cupomObj ? ' (cupom ' + cupomObj.codigo + ')' : '')
-        : 'Afeto — Regularização Plano ' + nomeDoPlanoBonito(plano) + (planoEhEssencial(plano) ? ' anual' : ' mensal') + (cupomObj ? ' (cupom ' + cupomObj.codigo + ')' : ''),
-      externalReference: c.id
-    })
+  const assinaturaPix = await criarAssinaturaPix({
+    asaas: asaas,
+    customerId: customerId,
+    cuidadorId: c.id,
+    valor: valor,
+    plano: plano,
+    nomePlano: nomeDoPlanoBonito(plano),
+    cupomObj: cupomObj,
+    existingSubscriptionId: c.asaas_subscription_id,
+    ciclo: cicloAssinatura(plano, false)
   });
-  const cobrancaData = await cobrancaResp.json();
-  if (!cobrancaResp.ok) {
-    console.error('Falha PIX painel:', cobrancaData);
-    return jsonResp({ error: 'Não foi possível criar a cobrança Pix.' }, 502);
+  if (assinaturaPix && assinaturaPix.jaAtiva && !assinaturaPix.pix) {
+    return jsonResp({
+      error: 'Sua renovação Pix já está programada. Um novo código aparece quando chegar a data.'
+    }, 409);
+  }
+  if (!assinaturaPix || !assinaturaPix.pix) {
+    return jsonResp({ error: 'Não foi possível gerar o Pix recorrente. Tente de novo.' }, 502);
   }
 
-  const patchPix = { asaas_cobranca_id: cobrancaData.id };
+  const patchPix = {
+    asaas_cobranca_id: assinaturaPix.cobrancaId,
+    asaas_subscription_id: assinaturaPix.subscriptionId
+  };
   if (cupomObj) patchPix.cupom_usado = cupomObj.codigo;
   await fetch(env.SUPABASE_URL + '/rest/v1/cuidadores?id=eq.' + encodeURIComponent(c.id), {
     method: 'PATCH',
@@ -353,23 +395,24 @@ async function criarPixRegularizacao(env, asaas, c, customerId, plano, valor, cu
     body: JSON.stringify(patchPix)
   });
 
-  const pix = await buscarPix(asaas.url, asaas.apiKey, cobrancaData.id);
-  if (!pix) return jsonResp({ error: 'Não foi possível gerar o QR Code Pix.' }, 502);
-
   return jsonResp({
     ok: true,
     acao: 'pix',
-    produto: extraDestaque ? 'destaque' : plano,
+    produto: plano,
     gateway: 'asaas',
-    cobrancaId: cobrancaData.id,
+    reutilizada: !!assinaturaPix.reutilizada,
+    cobrancaId: assinaturaPix.cobrancaId,
+    checkoutId: assinaturaPix.subscriptionId,
+    isSubscription: true,
+    ciclo: assinaturaPix.ciclo,
     valorFinal: valor,
-    pix: pix
+    pix: assinaturaPix.pix
   }, 200);
 }
 
 async function criarCheckoutCartaoPainel(request, env, asaas, c, customerId, valor, cpfLimpo, whatsLimpo, cupomObj, parcelas, plano, extraDestaque) {
   let nextDue = ymd(new Date());
-  if (!extraDestaque && !planoEhEssencial(plano) && c.plano_valido_ate) {
+  if (!extraDestaque && c.plano_valido_ate) {
     const vence = new Date(c.plano_valido_ate);
     if (vence.getTime() > Date.now()) nextDue = ymd(vence);
   }
@@ -382,15 +425,17 @@ async function criarCheckoutCartaoPainel(request, env, asaas, c, customerId, val
     cpfLimpo: cpfLimpo,
     whatsLimpo: whatsLimpo,
     valor: valor,
-    parcelas: extraDestaque ? 1 : (planoEhEssencial(plano) ? parcelas : 1),
+    parcelas: 1,
     cupomObj: cupomObj,
     nomePlano: extraDestaque ? 'Destaque extra' : nomeDoPlanoBonito(plano),
-    recorrente: extraDestaque ? true : !planoEhEssencial(plano),
+    plano: plano,
+    recorrente: true,
+    ciclo: cicloAssinatura(plano, extraDestaque),
     extra: extraDestaque,
     nextDueDate: nextDue
   });
   if (!checkout) {
-    return jsonResp({ error: 'Não foi possível abrir o cadastro de cartão no Asaas.' }, 502);
+    return jsonResp({ error: 'Não foi possível abrir o pagamento no cartão.' }, 502);
   }
 
   if (cupomObj) {
