@@ -638,6 +638,11 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     <div id="tab-cartao" style="display:none;">
       <div id="mp-payment-brick-card" style="display:none;"></div>
       <div id="cartao-checkout-externo">
+        <div id="bloco-email-assinatura" style="display:none;margin-bottom:14px;">
+          <label for="checkout-email-assinatura" style="display:block;font-size:13px;font-weight:800;margin-bottom:8px;">E-mail da assinatura</label>
+          <input type="email" id="checkout-email-assinatura" autocomplete="email" placeholder="seuemail@exemplo.com"
+                 style="width:100%;padding:14px 16px;border-radius:14px;border:2px solid #e2e8f0;font-family:Nunito,sans-serif;font-size:15px;font-weight:700;">
+        </div>
         <p id="checkout-cartao-intro" style="font-size:14px;font-weight:700;color:var(--cinza-fonte);line-height:1.55;margin-bottom:14px;">
           Escolha em quantas vezes parcelar o anual. O cupom já entra no valor. O cartão é digitado só no ambiente seguro — nunca neste site.
         </p>
@@ -1226,7 +1231,6 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
       initialization: {
         amount: Number(amount),
         payer: {
-          email: String(document.getElementById('cpf').value || '').replace(/\D/g, '') + '@afeto.app',
           identification: {
             type: 'CPF',
             number: String(document.getElementById('cpf').value || '').replace(/\D/g, '')
@@ -1312,8 +1316,10 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
     var bloco = document.getElementById('bloco-parcelas-checkout');
     var rodape = document.getElementById('checkout-cartao-rodape');
     var btn = document.getElementById('btn-ir-asaas');
+    var blocoEmail = document.getElementById('bloco-email-assinatura');
     var mensal = planoMensalAtual();
     var nome = nomeGateway();
+    if (blocoEmail) blocoEmail.style.display = mensal ? 'block' : 'none';
     if (bloco) bloco.style.display = mensal ? 'none' : 'block';
     if (intro) {
       intro.textContent = mensal
@@ -1737,6 +1743,16 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
 
   window.irParaCheckoutExterno = async function(forma) {
     var ehPix = String(forma || '').toUpperCase() === 'PIX';
+    var emailAssinatura = '';
+    if (!ehPix && planoMensalAtual()) {
+      var campoEmail = document.getElementById('checkout-email-assinatura');
+      emailAssinatura = String(campoEmail && campoEmail.value || '').trim().toLowerCase();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailAssinatura)) {
+        alert('Digite um e-mail válido para criar a assinatura.');
+        if (campoEmail) campoEmail.focus();
+        return;
+      }
+    }
     var btn = document.getElementById(ehPix ? 'btn-ir-pix-mp' : 'btn-ir-asaas');
     var htmlBtn = btn ? btn.innerHTML : '';
     if (btn) {
@@ -1752,6 +1768,7 @@ body { font-family: 'Nunito', sans-serif; background: linear-gradient(135deg, #f
           nome: dadosCheckout.nome,
           cpf: document.getElementById('cpf').value.trim(),
           whatsapp: document.getElementById('whatsapp').value.trim(),
+          email: emailAssinatura || undefined,
           plano: dadosCheckout.plano,
           cuidadorId: dadosCheckout.recordId,
           cupomCodigo: cupomAplicado || undefined,

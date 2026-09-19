@@ -1085,9 +1085,23 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
   }
 
   async function pagarExtraDestaque(acao, btn) {
+    var emailAssinatura = String(window.prompt(
+      acao === 'cartao'
+        ? 'Digite o e-mail que será usado na assinatura do Destaque:'
+        : 'Digite o e-mail que será usado no pagamento Pix:'
+    ) || '').trim().toLowerCase();
+    if (!emailAssinatura) return;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailAssinatura)) {
+      alert('Digite um e-mail válido.');
+      return;
+    }
     if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Abrindo...'; }
     try {
-      var body = { acao: acao, produto: 'destaque' };
+      var body = {
+        acao: acao,
+        produto: 'destaque',
+        email: emailAssinatura || undefined
+      };
       var cupom = cupomDoPainel();
       if (cupom) body.cupomCodigo = cupom;
       var data = await api('/api/painel/pagamento', { method: 'POST', body: body });
@@ -1143,9 +1157,15 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
 
   async function pagarPixPainel() {
     var btn = document.getElementById('btn-pagar-pix');
+    var emailPagamento = String(window.prompt('Digite o e-mail que será usado no pagamento Pix:') || '').trim().toLowerCase();
+    if (!emailPagamento) return;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailPagamento)) {
+      alert('Digite um e-mail válido.');
+      return;
+    }
     if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Gerando Pix...'; }
     try {
-      var body = { acao: 'pix' };
+      var body = { acao: 'pix', email: emailPagamento };
       var cupom = cupomDoPainel();
       if (cupom) body.cupomCodigo = cupom;
       var data = await api('/api/painel/pagamento', { method: 'POST', body: body });
@@ -1180,9 +1200,24 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
 
   async function cadastrarCartaoAsaas() {
     var btn = document.getElementById('btn-cartao-asaas');
+    var mensal = planoAtual === 'profissional';
+    var emailAssinatura = String(window.prompt(
+      mensal
+        ? 'Digite o e-mail que será usado na assinatura:'
+        : 'Digite o e-mail que será usado no pagamento:'
+    ) || '').trim().toLowerCase();
+    if (!emailAssinatura) return;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailAssinatura)) {
+      alert('Digite um e-mail válido.');
+      return;
+    }
     if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Abrindo pagamento...'; }
     try {
-      var body = { acao: 'cartao', parcelas: parcelasDoPainel() };
+      var body = {
+        acao: 'cartao',
+        parcelas: parcelasDoPainel(),
+        email: emailAssinatura || undefined
+      };
       var cupom = cupomDoPainel();
       if (cupom) body.cupomCodigo = cupom;
       var data = await api('/api/painel/pagamento', { method: 'POST', body: body });
@@ -1197,7 +1232,6 @@ body { font-family: 'Nunito', sans-serif; background: var(--fundo-site); color: 
       alert(err.message || 'Não foi possível abrir o cadastro de cartão.');
       if (btn) {
         btn.disabled = false;
-        var mensal = planoAtual === 'profissional';
         if (mensal) {
           btn.innerHTML = '<i class="fa-solid fa-credit-card"></i> Assinar no cartão (recorrente)';
         } else {

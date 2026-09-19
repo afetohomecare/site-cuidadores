@@ -36,6 +36,15 @@ function telefoneMp(whats) {
   return { area_code: d.slice(0, 2), number: d.slice(2) };
 }
 
+function emailMp(dados, cpf, cuidadorId) {
+  const payer = dados && dados.payer && typeof dados.payer === 'object' ? dados.payer : {};
+  const candidato = String(payer.email || dados.email || '').trim().toLowerCase();
+  if (candidato.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(candidato)) {
+    return candidato;
+  }
+  return emailPagador(cpf, cuidadorId);
+}
+
 async function mpFetch(accessToken, path, opts) {
   const headers = {
     'Authorization': 'Bearer ' + accessToken,
@@ -162,8 +171,12 @@ export async function criarPagamentoBrick(opts) {
 
   const dadosBrick = opts.formData && typeof opts.formData === 'object' ? opts.formData : {};
   const pessoa = splitNome(opts.nome);
+  const phone = telefoneMp(opts.whatsLimpo);
+  const nomeProduto = opts.extra
+    ? 'Destaque extra mensal Afeto'
+    : 'Plano ' + (opts.nomePlano || 'Afeto') + (planoEhEssencial(opts.plano) ? ' — 12 meses' : ' — mensal');
   const payer = {
-    email: emailPagador(opts.cpfLimpo, opts.cuidadorId),
+    email: emailMp(dadosBrick, opts.cpfLimpo, opts.cuidadorId),
     first_name: pessoa.name,
     last_name: pessoa.surname,
     identification: {
@@ -171,11 +184,10 @@ export async function criarPagamentoBrick(opts) {
       number: String(opts.cpfLimpo || '')
     }
   };
+  if (phone) payer.phone = phone;
   const body = {
     transaction_amount: Math.round(Number(opts.valor) * 100) / 100,
-    description: opts.extra
-      ? 'Destaque extra mensal Afeto'
-      : 'Plano ' + (opts.nomePlano || 'Afeto') + (planoEhEssencial(opts.plano) ? ' — 12 meses' : ' — mensal'),
+    description: nomeProduto,
     payment_method_id: forma === 'PIX' ? 'pix' : String(dadosBrick.payment_method_id || ''),
     payer: payer,
     external_reference: String(ordem.id),
@@ -187,6 +199,21 @@ export async function criarPagamentoBrick(opts) {
       plano: opts.extra ? 'destaque' : String(opts.plano || 'cadastro'),
       produto: opts.extra ? 'destaque_extra' : '',
       forma: forma
+    },
+    additional_info: {
+      items: [{
+        id: String(opts.plano || 'cadastro'),
+        title: nomeProduto,
+        description: nomeProduto,
+        category_id: 'services',
+        quantity: 1,
+        unit_price: Math.round(Number(opts.valor) * 100) / 100
+      }],
+      payer: {
+        first_name: pessoa.name,
+        last_name: pessoa.surname,
+        phone: phone
+      }
     }
   };
 
@@ -294,6 +321,7 @@ async function criarPreferencia(opts, mp) {
         ? 'Destaque extra Afeto — mensal'
         : 'Plano ' + nomePlano + ' Afeto' + (opts.recorrente ? ' — mensal' : (planoEhEssencial(opts.plano) ? ' — 12 meses' : '')),
       description: descricao,
+      category_id: 'services',
       quantity: 1,
       currency_id: 'BRL',
       unit_price: Math.round(Number(opts.valor) * 100) / 100
@@ -301,7 +329,7 @@ async function criarPreferencia(opts, mp) {
     payer: {
       name: pessoa.name,
       surname: pessoa.surname,
-      email: emailPagador(opts.cpfLimpo, opts.cuidadorId),
+      email: emailMp({ email: opts.email }, opts.cpfLimpo, opts.cuidadorId),
       identification: { type: 'CPF', number: String(opts.cpfLimpo || '') },
       phone: phone
     },
@@ -365,7 +393,10 @@ async function criarPreapproval(opts, mp) {
   const pagina = opts.paginaRetorno || 'cadastro.html';
   const extra = !!opts.extra;
   const nomePlano = extra ? 'Destaque extra' : (opts.nomePlano || 'Profissional');
-  const email = emailPagador(opts.cpfLimpo, opts.cuidadorId);
+  const emailInformado = String(opts.email || '').trim().toLowerCase();
+  const email = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInformado)
+    ? emailInformado
+    : emailPagador(opts.cpfLimpo, opts.cuidadorId);
   const body = {
     reason: extra ? 'Destaque extra Afeto — mensal' : 'Plano ' + nomePlano + ' Afeto — mensal',
     external_reference: String(opts.externalReference || opts.cuidadorId),
@@ -377,13 +408,7 @@ async function criarPreapproval(opts, mp) {
       currency_id: 'BRL'
     },
     back_url: origem + '/' + pagina + '?pagamento=cartao_ok',
-    status: 'pending',
-    metadata: {
-      ordem_id: String(opts.ordemId || ''),
-      cuidador_id: String(opts.cuidadorId),
-      plano: extra ? 'destaque' : String(opts.plano || 'profissional'),
-      produto: extra ? 'destaque_extra' : ''
-    }
+    status: 'pending'
   };
 
   const resp = await mpFetch(mp.accessToken, '/preapproval', {

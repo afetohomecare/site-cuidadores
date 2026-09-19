@@ -230,6 +230,10 @@ export async function onRequestPost(context) {
       if (!recorrente) {
         return jsonResp({ error: 'Este pagamento deve ser concluído pelo Checkout Bricks.' }, 400);
       }
+      const emailPagamento = String(email || '').trim().toLowerCase();
+      if (emailPagamento.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailPagamento)) {
+        return jsonResp({ error: 'Informe um e-mail válido para criar a assinatura.' }, 400);
+      }
       const mp = getMpConfig(env);
       const ordemCheckout = await criarOrdemMp(env, {
         cuidadorId: cuidadorId,
@@ -258,6 +262,7 @@ export async function onRequestPost(context) {
         paginaRetorno: 'cadastro.html',
         cuidadorId: cuidadorId,
         nome: nomeAsaas,
+        email: emailPagamento,
         cpfLimpo: cpfLimpo,
         whatsLimpo: telefoneAsaas,
         valor: valorFinal,
